@@ -1,0 +1,20 @@
+sudo cargo install diesel_cli --no-default-features --features postgres
+sudo cargo tests run
+sudo cargo run
+sudo cargo init
+sudo cargo add diesel --features r2d2 postgres network-address
+sudo cargo add ipnetwork
+sudo cargo add thiserror
+sudo cargo add aes
+sudo cargo add hex-literal
+sudo cargo add rand
+sudo cargo add byteorder
+sudo cargo add bcrypt
+sudo cargo add tokio --features full
+sudo cargo add tracing
+sudp cargo add tracing-subscriber --features env-filter
+sudo cargo add regex
+sudo cargo add config
+sudo cargo add num-traits
+sudo cargo add num-derive
+sudo cargo add dotenvy

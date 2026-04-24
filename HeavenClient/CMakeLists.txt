@@ -469,32 +469,47 @@ TARGET_INCLUDE_DIRECTORIES(HeavenClient PUBLIC ${PROJECT_SOURCE_DIR}/libs/asio/a
 
 TARGET_INCLUDE_DIRECTORIES(HeavenClient PUBLIC ${PROJECT_SOURCE_DIR}/libs/openal-soft/include)
 IF(APPLE)
-    TARGET_LINK_LIBRARIES(HeavenClient /usr/local/Cellar/openal-soft/1.20.1/lib/libopenal.dylib)
+#     TARGET_LINK_LIBRARIES(HeavenClient /usr/local/Cellar/openal-soft/1.20.1/lib/libopenal.dylib)
+# ELSE(APPLE)
+    TARGET_LINK_LIBRARIES(HeavenClient ${PROJECT_SOURCE_DIR}/libs/openal-soft/build/libopenal.dylib)
 ELSE()
     TARGET_LINK_LIBRARIES(HeavenClient ${PROJECT_SOURCE_DIR}/libs/openal-soft/build/libopenal.so)
 ENDIF()
 
 TARGET_INCLUDE_DIRECTORIES(HeavenClient PUBLIC ${PROJECT_SOURCE_DIR}/libs/glfw/include)
 IF(APPLE)
-    TARGET_LINK_LIBRARIES(HeavenClient /usr/local/Cellar/glfw/3.3.2/lib/libglfw.dylib)
-ELSE(APPLE)
     TARGET_LINK_LIBRARIES(HeavenClient ${PROJECT_SOURCE_DIR}/libs/glfw/build/src/libglfw3.a)
 ENDIF()
 
 TARGET_INCLUDE_DIRECTORIES(HeavenClient PUBLIC ${PROJECT_SOURCE_DIR}/libs/alure/include)
 IF(APPLE)
-    TARGET_LINK_LIBRARIES(HeavenClient /usr/local/Cellar/alure/1.2_1/lib/libalure.dylib)
+    TARGET_LINK_LIBRARIES(HeavenClient ${PROJECT_SOURCE_DIR}/libs/alure/build/libalure2.dylib)
 ELSE()
     TARGET_LINK_LIBRARIES(HeavenClient ${PROJECT_SOURCE_DIR}/libs/alure/build/libalure2.so)
 ENDIF()
 
-TARGET_LINK_LIBRARIES(HeavenClient GL)
-TARGET_LINK_LIBRARIES(HeavenClient X11)
+IF(APPLE)
+    TARGET_LINK_LIBRARIES(HeavenClient "-framework OpenGL")
+ELSE()
+    TARGET_LINK_LIBRARIES(HeavenClient GL)
+ENDIF()
+# TARGET_LINK_LIBRARIES(HeavenClient GL)
 IF(NOT APPLE)
+    TARGET_LINK_LIBRARIES(HeavenClient X11)
     TARGET_LINK_LIBRARIES(HeavenClient dl)
     TARGET_LINK_LIBRARIES(HeavenClient pthread)
 ENDIF()
-
+IF(APPLE)
+    TARGET_LINK_LIBRARIES(HeavenClient
+        "-framework Cocoa"
+        "-framework IOKit"
+        "-framework CoreFoundation"
+        "-framework CoreVideo"
+        "-framework CoreGraphics"
+        "-framework OpenGL"
+        "-framework QuartzCore"
+    )
+ENDIF()
 TARGET_COMPILE_DEFINITIONS(HeavenClient PRIVATE HEAVENCLIENT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 
 ADD_CUSTOM_COMMAND(TARGET HeavenClient POST_BUILD
@@ -502,3 +517,7 @@ ADD_CUSTOM_COMMAND(TARGET HeavenClient POST_BUILD
         ${PROJECT_SOURCE_DIR}/fonts
         $<TARGET_FILE_DIR:HeavenClient>/fonts
 )
+add_executable(GenerateNX Util/GenerateNX.cpp)
+target_link_libraries(GenerateNX PRIVATE HeavenClientLib NoLifeNx) 
+# Replace with the actual libraries your client uses
+target_include_directories(GenerateNX PRIVATE Util libs/NoLifeNx/nlnx)

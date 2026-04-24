@@ -8,41 +8,46 @@ mkdir -p libs
 
 # fetch & build alure
 if [[
-    ! -d "libs/alure/include"
-    # ! -d "libs/alure/include" ||
-    # ! -f "libs/alure/build/libalure2.so" 
+    # ! -d "libs/alure/include"
+    ! -d "libs/alure/include" ||
+    ! -f "libs/alure/build/libalure2.so" 
 ]]; then
     rm -rf "libs/alure"
     echo "fetching and building alure..."
     cd libs && \
-    git clone https://github.com/kcat/alure
-    # git clone https://github.com/kcat/alure && \
-    # cd alure && \
-    # cd build && \
-    # cmake .. && \
-    # make -j$CORES
-    # echo "successfully compiled alure"
+    # git clone https://github.com/kcat/alure
+    git clone https://github.com/kcat/alure && \
+    cd alure && \
+    sed -i '' 's/throw std::future_error(std::future_errc::no_state);/throw std::runtime_error("Alure future has no state");/' src/source.cpp && \
+    cd build && \
+    cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5 && \
+    make -j$CORES
+    echo "successfully compiled alure"
     cd $SOURCE_DIR
 fi
 
 
 # fetch & build openal-soft
 if [[
-    ! -d "libs/openal-soft/include"
-    # ! -d "libs/openal-soft/include" ||
-    # ! -f "libs/openal-soft/build/libopenal.so"
+    # ! -d "libs/openal-soft/include"
+    ! -d "libs/openal-soft/include" ||
+    ! -f "libs/openal-soft/build/libopenal.so"
 ]]; then
     rm -rf "libs/openal-soft"
     echo "fetching and building openal-soft..."
     cd libs && \
-    git clone https://github.com/kcat/openal-soft
-    # git clone https://github.com/kcat/openal-soft && \
-    # cd openal-soft && \
-    # git checkout f5e0eef && \
-    # cd build && \
-    # cmake .. && \
-    # make -j$CORES
-    # echo "successfully compiled openal-soft"
+    # git clone https://github.com/kcat/openal-soft
+    git clone https://github.com/kcat/openal-soft && \
+    cd openal-soft && \
+    git checkout f5e0eef && \
+    # disable -Werror for OpenAL Soft
+    # sed -i '' 's/add_compile_options(-Werror)/#&/' CMakeLists.txt
+    sed -i '' 's/cmake_minimum_required(VERSION 3.0.2)/cmake_minimum_required(VERSION 3.5)/' native-tools/CMakeLists.txt
+    sed -i '' 's/CMAKE_MINIMUM_REQUIRED(VERSION 3.0.2)/cmake_minimum_required(VERSION 3.5)/' CMakeLists.txt
+    cd build && \
+    cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5 && \
+    make -j$CORES
+    echo "successfully compiled openal-soft"
     cd $SOURCE_DIR
 fi
 
@@ -57,10 +62,20 @@ if [[
     cd libs && \
     git clone https://github.com/Dav1dde/glad.git && \
     cd glad && \
+    git checkout master && \
     mkdir build && \
     cd build && \
-    cmake .. && \
+    # curl -L -o glad.zip "https://glad.dav1d.de/generated/tmpf_9o6ic5glad/glad.zip"
+    # unzip glad.zip                 # NEW
+    # rm glad.zip                    # NEW
+    cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5 && \
+    # Modified from cmake .. && \ to cmake ../cmake && \
+    # g++ -Iinclude -c src/glad.c -o glad.o
+    # ar rcs libglad.a glad.o
     make -j$CORES
+    # mkdir -p build/include         # NEW
+    # cp -r include/* build/include/ # NEW
+    # mv libglad.a build/            # New
     echo "successfully compiled glad"
     cd $SOURCE_DIR
 fi
@@ -92,7 +107,7 @@ if [[
     cd nlnx && \
     mkdir build && \
     cd build && \
-    cmake .. && \
+    cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5 && \
     make -j$CORES && \
     echo "successfully compiled NoLifeNx"
     cd $SOURCE_DIR
@@ -101,22 +116,22 @@ fi
 
 # # fetch & build glfw
 if [[
-    ! -d "libs/glfw/include"
-    # ! -d "libs/glfw/include" ||
-    # ! -f "libs/glfw/build/src/libglfw3.a"
+    # ! -d "libs/glfw/include"
+    ! -d "libs/glfw/include" ||
+    ! -f "libs/glfw/build/src/libglfw3.a"
 ]]; then
     rm -rf "libs/glfw"
     echo "fetching and building glfw..."
     cd libs && \
     git clone https://github.com/glfw/glfw && \
     cd glfw && \
-    git checkout 0a49ef0
-    # git checkout 0a49ef0 && \
-    # mkdir build && \
-    # cd build && \
-    # cmake .. && \
-    # make -j$CORES && \
-    # echo "successfully compiled glfw"
+    # git checkout 0a49ef0
+    git checkout 0a49ef0 && \
+    mkdir build && \
+    cd build && \
+    cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5 && \
+    make -j$CORES && \
+    echo "successfully compiled glfw"
     cd $SOURCE_DIR
 fi
 
