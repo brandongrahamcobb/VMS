@@ -7,6 +7,7 @@ HeavenClient/cmake-build/
 HeavenClient/libs/
 HeavenClient/HeavenClient
 HeavenClient/Settings
+HeavenClient/v83/
 HeavenClient/*.nx
 HeavenClient/*.aps
 HeavenClient/*.log
