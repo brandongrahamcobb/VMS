@@ -55,11 +55,11 @@ impl TOSHandler {
             .account_id
             .ok_or(SessionError::NoAccount)
             .map_err(NetworkError::from)?;
-        let mut acc = db::models::account::service::get_account_by_id(account_id as i32, ctx)
+        let mut acc = db::models::account::service::get_account_by_id(ctx, account_id)
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
         acc.accepted_tos = true;
-        db::models::account::service::update(&acc, ctx)
+        db::models::account::service::update(ctx, &acc)
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();

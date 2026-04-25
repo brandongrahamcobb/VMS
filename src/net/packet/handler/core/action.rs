@@ -1,6 +1,6 @@
 use crate::db::models::account::core::Account;
+use crate::db::models::character::core::Character;
 //use crate::runtime::session::SessionState;
-use crate::net::packet::core::Packet;
 
 pub enum RejectLoginReason {
     Banned,
@@ -18,18 +18,27 @@ pub enum CoreAction {
         acc: Account,
         hwid: String,
     },
-    Simple {
-        packet: Packet,
-    }, // CreateSession {
-       //     acc: Account,
-       //     hwid: String,
-       // },
-       // SessionSelectWorld {
-       //     session_state: SessionState,
-       //     world_id: u8,
-       // },
-       // SessionSelectChannel {
-       //     session_state: SessionState,
-       //     channel_id: u8,
-       // },
+    ServerStatus {
+        status: i8,
+    },
+    ListChars {
+        chars: Vec<Character>,
+        char_max: i32,
+        channel_id: i8,
+        pic_status: i8,
+        world_id: i8,
+    },
+    ListWorlds,
+    // CreateSession {
+    //     acc: Account,
+    //     hwid: String,
+    // },
+    // SessionSelectWorld {
+    //     session_state: SessionState,
+    //     world_id: u8,
+    // },
+    // SessionSelectChannel {
+    //     session_state: SessionState,
+    //     channel_id: u8,
+    // },
 }

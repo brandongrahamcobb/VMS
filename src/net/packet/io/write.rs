@@ -10,6 +10,7 @@ use byteorder::{LittleEndian, WriteBytesExt};
 use std::io::Write;
 use tokio::io::{AsyncWriteExt, BufWriter};
 use tokio::net::tcp::OwnedWriteHalf;
+use tracing::info;
 
 pub struct PacketWriter {
     writer: BufWriter<OwnedWriteHalf>,
@@ -51,6 +52,8 @@ impl PacketWriter {
     }
 
     pub async fn send_encrypted_packet(&mut self, packet: &mut Packet) -> Result<(), NetworkError> {
+        let opcode = packet.opcode();
+        info!("Sent packet: {}", opcode);
         let header = self.aes.gen_packet_header(packet.len() + 2);
         custom::encrypt(&mut packet.bytes);
         self.aes.crypt(&mut packet.bytes);

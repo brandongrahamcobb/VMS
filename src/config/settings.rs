@@ -96,6 +96,14 @@ pub fn get_pin_required(settings: &Config) -> Result<bool, ConfigError> {
     Ok(pin_req)
 }
 
+pub fn get_pic_required(settings: &Config) -> Result<bool, ConfigError> {
+    let key = String::from("pic_required");
+    let pic_req = settings
+        .get_bool(&key)
+        .map_err(|_| ConfigError::InvalidBool(key))?;
+    Ok(pic_req)
+}
+
 pub fn get_gender_required(settings: &Config) -> Result<bool, ConfigError> {
     let key = String::from("gender_required");
     let gender_req = settings

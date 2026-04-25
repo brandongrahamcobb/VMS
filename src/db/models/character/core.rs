@@ -1,24 +1,24 @@
 use crate::db::schema::characters;
-use diesel::Insertable;
+use diesel::prelude::*;
 use std::time::SystemTime;
 
-#[derive(Insertable)]
+#[derive(Identifiable, Queryable, AsChangeset)]
 #[diesel(table_name = characters)]
 pub struct Character {
-    pub id: i64,
+    pub id: i32,
     pub account: i64,
     pub world: i16,
     pub ign: String,
     pub level: i16,
-    pub exp: i64,
-    pub strength: i32,
-    pub dexterity: i32,
-    pub luck: i32,
-    pub intelligence: i32,
-    pub hp: i32,
-    pub mp: i32,
-    pub max_hp: i32,
-    pub max_mp: i32,
+    pub exp: i32,
+    pub strength: i16,
+    pub dexterity: i16,
+    pub luck: i16,
+    pub intelligence: i16,
+    pub hp: i16,
+    pub mp: i16,
+    pub max_hp: i16,
+    pub max_mp: i16,
     pub ap: i16,
     pub fame: i16,
     pub meso: i32,

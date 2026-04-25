@@ -39,7 +39,7 @@ impl CredentialsHandler {
             Ok(false) => Err(NetworkError::from(PacketError::from(HandlerError::from(
                 LoginError::InvalidCredentials,
             )))),
-            Err(e) => Err(NetworkError::from(PacketError::from(HandlerError::from(
+            Err(_) => Err(NetworkError::from(PacketError::from(HandlerError::from(
                 LoginError::UnexpectedError,
             )))),
         }
@@ -130,7 +130,7 @@ impl CredentialsHandler {
     ) -> Result<HandlerResult<CoreAction>, NetworkError> {
         let mut result = HandlerResult::new();
         let (user, pw, hwid) = self.read_credentials(packet)?;
-        match db::models::account::service::get_account_by_username(&user, ctx) {
+        match db::models::account::service::get_account_by_username(ctx, &user) {
             Err(e) if e == diesel::result::Error::NotFound => {
                 let login_action = CoreAction::RejectLogin {
                     acc: None,

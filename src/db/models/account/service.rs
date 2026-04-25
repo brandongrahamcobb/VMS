@@ -4,7 +4,7 @@ use crate::runtime::relay::RuntimeContext;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl, SaveChangesDsl};
 
-pub fn get_account_by_username(user: &str, ctx: &RuntimeContext) -> QueryResult<Account> {
+pub fn get_account_by_username(ctx: &RuntimeContext, user: &str) -> QueryResult<Account> {
     let mut conn = ctx.shared_state.db.get().map_err(|e| {
         diesel::result::Error::DatabaseError(
             diesel::result::DatabaseErrorKind::UnableToSendCommand,
@@ -16,7 +16,7 @@ pub fn get_account_by_username(user: &str, ctx: &RuntimeContext) -> QueryResult<
         .first::<Account>(&mut conn)
 }
 
-pub fn get_account_by_id(id: i32, ctx: &RuntimeContext) -> QueryResult<Account> {
+pub fn get_account_by_id(ctx: &RuntimeContext, id: i64) -> QueryResult<Account> {
     let mut conn = ctx.shared_state.db.get().map_err(|e| {
         diesel::result::Error::DatabaseError(
             diesel::result::DatabaseErrorKind::UnableToSendCommand,
@@ -28,7 +28,7 @@ pub fn get_account_by_id(id: i32, ctx: &RuntimeContext) -> QueryResult<Account> 
         .first::<Account>(&mut conn)
 }
 
-pub fn update(acc: &Account, ctx: &RuntimeContext) -> QueryResult<Account> {
+pub fn update(ctx: &RuntimeContext, acc: &Account) -> QueryResult<Account> {
     let mut conn = ctx.shared_state.db.get().map_err(|e| {
         diesel::result::Error::DatabaseError(
             diesel::result::DatabaseErrorKind::UnableToSendCommand,

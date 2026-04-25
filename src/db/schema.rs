@@ -20,20 +20,20 @@ diesel::table! {
 
 diesel::table! {
     characters (id) {
-        id -> Int8,
+        id -> Int4,
         account -> Int8,
         world -> Int2,
         ign -> Text,
         level -> Int2,
-        exp -> Int8,
-        strength -> Int4,
-        dexterity -> Int4,
-        luck -> Int4,
-        intelligence -> Int4,
-        hp -> Int4,
-        mp -> Int4,
-        max_hp -> Int4,
-        max_mp -> Int4,
+        exp -> Int4,
+        strength -> Int2,
+        dexterity -> Int2,
+        luck -> Int2,
+        intelligence -> Int2,
+        hp -> Int2,
+        mp -> Int2,
+        max_hp -> Int2,
+        max_mp -> Int2,
         ap -> Int2,
         fame -> Int2,
         meso -> Int4,
@@ -49,4 +49,18 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(accounts, characters,);
+diesel::table! {
+    worlds (id) {
+        id -> Int2,
+    }
+}
+
+diesel::table! {
+    character_limits (account_id, world_id) {
+        account_id -> Int8,
+        world_id -> Int2,
+        char_max -> Int4,
+        updated_at -> Timestamp,
+    }
+}
+diesel::allow_tables_to_appear_in_same_query!(accounts, character_limits, characters, worlds);

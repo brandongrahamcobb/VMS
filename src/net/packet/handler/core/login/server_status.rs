@@ -21,20 +21,19 @@ impl ServerStatusHandler {
         ctx: &RuntimeContext,
         _packet: &Packet,
     ) -> Result<HandlerResult<CoreAction>, NetworkError> {
+        let mut result = HandlerResult::new();
         let worlds = world::core::load_worlds(&ctx.shared_state.settings)?;
-        let status: i16 = if worlds.iter().any(|world| !world.channels.is_empty()) {
+        let status: i8 = if worlds.iter().any(|world| !world.channels.is_empty()) {
             0
         } else {
             2
         };
-        let packet = build_server_status_packet(status)?;
-        let action = CoreAction::Simple { packet };
-        let mut result = HandlerResult::new();
+        let action = CoreAction::ServerStatus { status };
         result.add_action(action)?;
         Ok(result)
     }
 }
-pub fn build_server_status_packet(status: i16) -> Result<Packet, NetworkError> {
+pub fn build_server_status_packet(status: i8) -> Result<Packet, NetworkError> {
     let mut packet = Packet::new_empty();
     let op = SendOpcode::ServerStatus as i16;
     packet
@@ -43,7 +42,7 @@ pub fn build_server_status_packet(status: i16) -> Result<Packet, NetworkError> {
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     packet
-        .write_short(status) // Highly populated status!
+        .write_short(status as i16) // Highly populated status!
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
