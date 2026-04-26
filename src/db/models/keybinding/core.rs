@@ -1,9 +1,5 @@
-use crate::db::models::character::core::Character;
 use crate::db::schema::keybindings;
-use diesel::QueryResult;
 use diesel::prelude::*;
-use diesel::query_builder::QueryId;
-use std::collections::HashMap;
 
 #[derive(Identifiable, Queryable, Insertable, AsChangeset)]
 #[diesel(table_name = keybindings)]

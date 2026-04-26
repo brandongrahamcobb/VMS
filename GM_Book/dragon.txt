@@ -1,0 +1,18 @@
+Credits : Przybyl Of Ragezone
+
+1942000 - Silver Mask
+1942001 - Gold Mask
+1942002 - Reverse Mask
+
+1952000 - Silver Pendant
+1952001 - Gold Pendant
+1952002 - Reverse Pendant
+
+1962000 - Silver Wings
+1962001 - Gold Wings
+1962002 - Reverse Wings
+
+1972000 - Silver Tail
+1972001 - Gold Tail
+1972002 - Reverse Tail
+

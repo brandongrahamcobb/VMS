@@ -1,0 +1,60 @@
+Credits : Przybyl Of Ragezone
+
+3400000 - Red Bubble Tea
+3400001 - Yellow Bubble Tea
+3400002 - Green Bubble Tea
+3400003 - Yeti Doll Grab Machine
+3400004 - Yeti Doll
+3400005 - Jr. Pepe Doll Grab Machine
+3400006 - Jr. Pepe Doll
+3400007 - Transformation Doll Grab Machine
+3400008 - Transformation Doll Grab Machine
+
+4300000 - Blue Perfume
+4300001 - Blue Perfume
+4300002 - Yellow Perfume
+4300003 - Yellow Perfume
+4300004 - Pink Perfume
+4300005 - Pink Perfume
+4300006 - Child Dummy
+4300007 - Female Dummy
+4300008 - Male Dummy
+4300009 - Latest Music CD
+4300010 - Old Pop Song CD
+4300011 - Cheap AMP
+4300012 - Useful AMP
+4300013 - Rock Spirit
+
+7120100 - Nex
+7120101 - Nex
+7120102 - Nex
+7120103 - Red Slime
+7120104 - Silver Slime
+7120105 - Gold Slime
+7120106 - Overload A
+7120107 - Overload B
+7120108 - Robby
+7120109 - Iruwater
+
+7220003 - Bergamot
+7220004 - Bergamot
+7220005 - Bergamot
+
+8120100 - Nex
+8120101 - Nex
+8120102 - Afterroad
+8120103 - Prototype Road
+8120104 - Maverick Type A
+8120105 - Maverick Type S
+8120106 - Maverick Type D
+
+8140510 - Nex
+8140511 - Imperial Guard
+8140512 - Royal Guard
+
+8220010 - Dunas
+8220011 - Aufheben
+8220012 - Oberon
+8220013 - Riberungen Battleship
+8220014 - Riberungen Battleship
+8220015 - Riberungen Battleship

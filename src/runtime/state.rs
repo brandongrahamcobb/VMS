@@ -8,7 +8,6 @@ use crate::runtime::session::SessionStore;
 use config::Config;
 use diesel::PgConnection;
 use diesel::r2d2::{ConnectionManager, Pool};
-use dotenvy;
 use std::sync::Arc;
 
 pub struct State {

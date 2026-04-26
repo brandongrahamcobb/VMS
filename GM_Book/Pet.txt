@@ -1,0 +1,169 @@
+ID: 5000000 NAME: Brown Kitty
+
+ID: 5000001 NAME: Brown Puppy
+
+ID: 5000002 NAME: Pink Bunny
+
+ID: 5000003 NAME: Mini Kargo
+
+ID: 5000004 NAME: Black Kitty
+
+ID: 5000079 NAME: Black Kitty
+
+ID: 5000005 NAME: White Bunny
+
+ID: 5000006 NAME: Husky
+
+ID: 5000007 NAME: Black Pig
+
+ID: 5000008 NAME: Panda
+
+ID: 5000009 NAME: Dino Boy
+
+ID: 5000010 NAME: Dino Girl
+
+ID: 5000011 NAME: Monkey
+
+ID: 5000078 NAME: Monkey
+
+ID: 5000012 NAME: White Tiger
+
+ID: 5000013 NAME: Elephant
+
+ID: 5000014 NAME: Rudolph
+
+ID: 5000015 NAME: Dasher
+
+ID: 5000017 NAME: Robot
+
+ID: 5000018 NAME: Husky
+
+ID: 5000020 NAME: Mini Yeti
+
+ID: 5000021 NAME: Monkey
+
+ID: 5000022 NAME: Turkey
+
+ID: 5000023 NAME: Penguin
+
+ID: 5000080 NAME: Penguin
+
+ID: 5000024 NAME: Jr. Balrog
+
+ID: 5000025 NAME: Golden Pig
+
+ID: 5000028 NAME: Dragon
+
+ID: 5000029 NAME: Baby Dragon
+
+ID: 5000030 NAME: Green Dragon
+
+ID: 5000031 NAME: Red Dragon
+
+ID: 5000032 NAME: Blue Dragon
+
+ID: 5000033 NAME: Black Dragon
+
+ID: 5000034 NAME: Black Bunny
+
+ID: 5000036 NAME: Jr. Reaper
+
+ID: 5000037 NAME: Husky
+
+ID: 5000039 NAME: Porcupine
+
+ID: 5000041 NAME: Snowman
+
+ID: 5000044 NAME: Orange Tiger
+
+ID: 5000045 NAME: Skunk
+
+ID: 5000026 NAME: Sun Wu Kong
+
+ID: 5000040 NAME: 주니어 리퍼
+
+ID: 5000042 NAME: Kino
+
+ID: 5000043 NAME: 고슴도치
+
+ID: 5000046 NAME: 키노
+
+ID: 5000047 NAME: Robo
+
+ID: 5000048 NAME: Baby Robo
+
+ID: 5000049 NAME: Blue Robo
+
+ID: 5000050 NAME: Red Robo
+
+ID: 5000051 NAME: Green Robo
+
+ID: 5000052 NAME: Gold Robo
+
+ID: 5000053 NAME: Gorilla Robo
+
+ID: 5000055 NAME: Crys.Rudolph
+
+ID: 5000058 NAME: White Duck
+
+ID: 5000054 NAME: Snail
+
+ID: 5000060 NAME: Pink Bean
+
+ID: 5000100 NAME: Kino
+
+ID: 5000101 NAME: White Tiger
+
+ID: 5000102 NAME: Mini Yeti
+
+ID: 5000066 NAME: Baby Tiger
+
+ID: 5000067 NAME: Weird Alien
+
+ID: 5000070 NAME: Mir
+
+ID: 5000038 NAME: White Monkey
+
+ID: 5000071 NAME: Ruby
+
+ID: 5000056 NAME: Toucan
+
+ID: 5000074 NAME: Bing Monkey
+
+ID: 5000105 NAME: Baby Tiger
+
+ID: 5000106 NAME: Ruby
+
+ID: 5000107 NAME: Black Pig
+
+ID: 5000082 NAME: Baby Tiger
+
+ID: 5000085 NAME: Cake
+
+ID: 5000086 NAME: Pie
+
+ID: 5000108 NAME: Cake
+
+ID: 5000109 NAME: Pie
+
+ID: 5000083 NAME: Persian Cat
+
+ID: 5000084 NAME: Esel
+
+ID: 5000087 NAME: Black Bunny
+
+ID: 5000088 NAME: Black Bunny
+
+ID: 5000089 NAME: Tiel
+
+ID: 5000076 NAME: Corgi Pup
+
+ID: 5000111 NAME: Persian Cat
+
+ID: 5000110 NAME: Corgi Pup
+
+ID: 5000116 NAME: Jr. Reaper
+
+ID: 5000117 NAME: White Bunny
+
+ID: 5000118 NAME: Mir

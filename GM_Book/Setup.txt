@@ -1,0 +1,743 @@
+ID: 3010000 NAME: The Relaxer
+
+ID: 3010001 NAME: Sky-blue Wooden Chair
+
+ID: 3010002 NAME: Green Chair
+
+ID: 3010003 NAME: Red Chair
+
+ID: 3010004 NAME: The Yellow Relaxer
+
+ID: 3010005 NAME: The Red Relaxer
+
+ID: 3010006 NAME: Yellow Chair
+
+ID: 3010007 NAME: Pink Seal Cushion
+
+ID: 3010008 NAME: Blue Seal Cushion
+
+ID: 3010009 NAME: Red Round Chair
+
+ID: 3010010 NAME: White Seal Cushion
+
+ID: 3010011 NAME: Amorian Relaxer
+
+ID: 3010012 NAME: Warrior Throne
+
+ID: 3010013 NAME: Beach Chair
+
+ID: 3010014 NAME: Moon Star Chair
+
+ID: 3010015 NAME: The Red Relaxer
+
+ID: 3010016 NAME: Grey Seal Cushion
+
+ID: 3010017 NAME: Gold Seal Cushion
+
+ID: 3010018 NAME: Palm Tree Beach Chair
+
+ID: 3010019 NAME: Kadomatsu
+
+ID: 3010025 NAME: Under the Maple Tree...
+
+ID: 3011000 NAME: Fishing Chair
+
+ID: 3990000 NAME: Red No. 1
+
+ID: 3990001 NAME: Red No. 2
+
+ID: 3990002 NAME: Red No. 3
+
+ID: 3990003 NAME: Red No. 4
+
+ID: 3990004 NAME: Red No. 5
+
+ID: 3990005 NAME: Red No. 6
+
+ID: 3990006 NAME: Red No. 7
+
+ID: 3990007 NAME: Red No. 8
+
+ID: 3990008 NAME: Red No. 9
+
+ID: 3990009 NAME: Red No. 0
+
+ID: 3990010 NAME: Green No. 1
+
+ID: 3990011 NAME: Green No. 2
+
+ID: 3990012 NAME: Green No. 3
+
+ID: 3990013 NAME: Green No. 4
+
+ID: 3990014 NAME: Green No. 5
+
+ID: 3990015 NAME: Green No. 6
+
+ID: 3990016 NAME: Green No. 7
+
+ID: 3990017 NAME: Green No. 8
+
+ID: 3990018 NAME: Green No. 9
+
+ID: 3990019 NAME: Green No. 0
+
+ID: 3990020 NAME: Red " + "
+
+ID: 3990021 NAME: Red " - "
+
+ID: 3990022 NAME: Green " + "
+
+ID: 3990023 NAME: Green " - "
+
+ID: 3991000 NAME: Red "A"
+
+ID: 3991001 NAME: Red "B"
+
+ID: 3991002 NAME: Red "C"
+
+ID: 3991003 NAME: Red "D"
+
+ID: 3991004 NAME: Red "E"
+
+ID: 3991005 NAME: Red "F"
+
+ID: 3991006 NAME: Red "G"
+
+ID: 3991007 NAME: Red "H"
+
+ID: 3991008 NAME: Red "I"
+
+ID: 3991009 NAME: Red "J"
+
+ID: 3991010 NAME: Red "K"
+
+ID: 3991011 NAME: Red "L"
+
+ID: 3991012 NAME: Red "M"
+
+ID: 3991013 NAME: Red "N"
+
+ID: 3991014 NAME: Red "O"
+
+ID: 3991015 NAME: Red "P"
+
+ID: 3991016 NAME: Red "Q"
+
+ID: 3991017 NAME: Red "R"
+
+ID: 3991018 NAME: Red "S"
+
+ID: 3991019 NAME: Red "T"
+
+ID: 3991020 NAME: Red "U"
+
+ID: 3991021 NAME: Red "V"
+
+ID: 3991022 NAME: Red "W"
+
+ID: 3991023 NAME: Red "X"
+
+ID: 3991024 NAME: Red "Y"
+
+ID: 3991025 NAME: Red "Z"
+
+ID: 3991026 NAME: Green "A"
+
+ID: 3991027 NAME: Green "B"
+
+ID: 3991028 NAME: Green "C"
+
+ID: 3991029 NAME: Green "D"
+
+ID: 3991030 NAME: Green "E"
+
+ID: 3991031 NAME: Green "F"
+
+ID: 3991032 NAME: Green "G"
+
+ID: 3991033 NAME: Green "H"
+
+ID: 3991034 NAME: Green "I"
+
+ID: 3991035 NAME: Green "J"
+
+ID: 3991036 NAME: Green "K"
+
+ID: 3991037 NAME: Green "L"
+
+ID: 3991038 NAME: Green "M"
+
+ID: 3991039 NAME: Green "N"
+
+ID: 3991040 NAME: Green "O"
+
+ID: 3991041 NAME: Green "P"
+
+ID: 3991042 NAME: Green "Q"
+
+ID: 3991043 NAME: Green "R"
+
+ID: 3991044 NAME: Green "S"
+
+ID: 3991045 NAME: Green "T"
+
+ID: 3991046 NAME: Green "U"
+
+ID: 3991047 NAME: Green "V"
+
+ID: 3991048 NAME: Green "W"
+
+ID: 3991049 NAME: Green "X"
+
+ID: 3991050 NAME: Green "Y"
+
+ID: 3991051 NAME: Green "Z"
+
+ID: 3992000 NAME: Santa Ornament
+
+ID: 3992001 NAME: Rudolph Ornament
+
+ID: 3992002 NAME: Mushroom Ornament
+
+ID: 3992003 NAME: Pig Ornament
+
+ID: 3992004 NAME: Slime Ornament
+
+ID: 3992005 NAME: Red Gift-Box Ornament
+
+ID: 3992006 NAME: Blue Gift-Box Ornament
+
+ID: 3992007 NAME: Yellow Gift-Box Ornament
+
+ID: 3992008 NAME: Red Star Miniature Bulb
+
+ID: 3992009 NAME: Blue Star Miniature Bulb
+
+ID: 3992010 NAME: Green Star Miniature Bulb
+
+ID: 3992011 NAME: Pink Star Miniature Bulb
+
+ID: 3992012 NAME: Orange Star Miniature Bulb
+
+ID: 3992013 NAME: Red Miniature Bulb
+
+ID: 3992014 NAME: Blue Miniature Bulb
+
+ID: 3992015 NAME: Yellow Miniature Bulb
+
+ID: 3992016 NAME: Green Miniature Bulb
+
+ID: 3992017 NAME: Red Ball Ornament
+
+ID: 3992018 NAME: Blue Ball Ornament
+
+ID: 3992019 NAME: Yellow Ball Ornament
+
+ID: 3992020 NAME: Red Sock
+
+ID: 3992021 NAME: The gingerbread man
+
+ID: 3992022 NAME: The gingerbread woman
+
+ID: 3992023 NAME: Candy Cane
+
+ID: 3992024 NAME: Circular Tree Ornament
+
+ID: 3992025 NAME: King-sized Star
+
+ID: 3992026 NAME: Christmas wreath
+
+ID: 3992027 NAME: Red Candle
+
+ID: 3992028 NAME: Blue Candle
+
+ID: 3992029 NAME: Yellow Candle
+
+ID: 3992030 NAME: Red Candy Canes
+
+ID: 3992031 NAME: Blue Candy Canes
+
+ID: 3992032 NAME: Yellow Candy Canes
+
+ID: 3992033 NAME: Red Fruit Leaves
+
+ID: 3992034 NAME: Yellow Fruit Leaves
+
+ID: 3992035 NAME: Red-Ribboned Giftbox
+
+ID: 3992036 NAME: Blue-Ribboned Giftbox
+
+ID: 3992037 NAME: Yellow-Ribboned Giftbox
+
+ID: 3992038 NAME: Ruldolph Santa Boots
+
+ID: 3992039 NAME: Marker of Heroism
+
+ID: 3992040 NAME: Map of Phantom Forest
+
+ID: 3992041 NAME: Crimsonwood Keystone
+
+ID: 3993000 NAME: Lucky Dish
+
+ID: 3993001 NAME: Luck Sack
+
+ID: 3993002 NAME: Bamboo Luck Sack
+
+ID: 3993003 NAME: Red Luck Sack
+
+ID: 3994000 NAME: Alphabet Soup Pasta "A"
+
+ID: 3994001 NAME: Alphabet Soup Pasta "E"
+
+ID: 3994002 NAME: Alphabet Soup Pasta "I"
+
+ID: 3994003 NAME: Alphabet Soup Pasta "L"
+
+ID: 3994004 NAME: Alphabet Soup Pasta "N"
+
+ID: 3994005 NAME: Alphabet Soup Pasta "O"
+
+ID: 3994006 NAME: Alphabet Soup Pasta "P"
+
+ID: 3994007 NAME: Alphabet Soup Pasta "R"
+
+ID: 3994008 NAME: Alphabet Soup Pasta "T"
+
+ID: 3994009 NAME: Alphabet Soup Pasta "X"
+
+ID: 3994010 NAME: Alphabet Soup Pasta "Y"
+
+ID: 3994011 NAME: Alphabet Soup Pasta "Z"
+
+ID: 3994012 NAME: Special "M"
+
+ID: 3994013 NAME: Special "S"
+
+ID: 3994014 NAME: Special "W"
+
+ID: 3994015 NAME: Wooden Alphabet C
+
+ID: 3994016 NAME: Wooden Alphabet H
+
+ID: 3994017 NAME: Alphabet A
+
+ID: 3994018 NAME: Alphabet E
+
+ID: 3994019 NAME: Alphabet H
+
+ID: 3994020 NAME: Alphabet N
+
+ID: 3994021 NAME: Alphabet P
+
+ID: 3994022 NAME: Alphabet R
+
+ID: 3994023 NAME: Alphabet W
+
+ID: 3994024 NAME: Alphabet Y
+
+ID: 3994085 NAME: Admin's Candle
+
+ID: 3994086 NAME: Birthday Cake Candle
+
+ID: 3995000 NAME: .
+
+ID: 3010040 NAME: The Stirge Seat
+
+ID: 3010041 NAME: Skull Throne
+
+ID: 3010045 NAME: Ice Chair
+
+ID: 3994090 NAME: Spices
+
+ID: 3994091 NAME: Memorabilia from Thailand
+
+ID: 3994092 NAME: Unagi
+
+ID: 3994093 NAME: Taxidermy Shark
+
+ID: 3994094 NAME: Crow-feather Hat
+
+ID: 3012005 NAME: Amorian Loveseat
+
+ID: 3994089 NAME: Agent W's Memory Chip
+
+ID: 3994096 NAME: 숫자1
+
+ID: 3994097 NAME: 숫자2
+
+ID: 3994098 NAME: 숫자3
+
+ID: 3994099 NAME: 숫자4
+
+ID: 3994100 NAME: 숫자5
+
+ID: 3010046 NAME: Dragon Chair(Inferno)
+
+ID: 3010047 NAME: Dragon Chair(Abyss)
+
+ID: 3010072 NAME: Miwok Chief's Chair
+
+ID: 3994141 NAME: Cassandra's Candle
+
+ID: 3010058 NAME: WorldEnd
+
+ID: 3010057 NAME: BloodyRose
+
+ID: 3010060 NAME: Noblesse Chair
+
+ID: 3010061 NAME: Underneath the Maple Tree…
+
+ID: 3010062 NAME: Bamboo Chair 
+
+ID: 3010063 NAME: Moon and Star Cushion
+
+ID: 3010064 NAME: Male Desert Rabbit Cushion  
+
+ID: 3010065 NAME: Pink Beach Parasol
+
+ID: 3010066 NAME: Navy Velvet Sofa  
+
+ID: 3010067 NAME: Red Designer Chair  
+
+ID: 3994101 NAME: Cassandra's Giant Star  
+
+ID: 3994102 NAME: Letter N for Compass
+
+ID: 3994103 NAME: Letter E for Compass  
+
+ID: 3994104 NAME: Letter W for Compass 
+
+ID: 3994105 NAME: Letter S for Compass 
+
+ID: 3994106 NAME: 6th Anniversary Maple Leaf of Journey 
+
+ID: 3994115 NAME: Easy Mode 
+
+ID: 3994116 NAME: Normal Mode 
+
+ID: 3994117 NAME: Hard Mode
+
+ID: 3994118 NAME: Hell Mode  
+
+ID: 3994120 NAME: Unknown
+
+ID: 3994121 NAME: Agent M
+
+ID: 3994122 NAME: Agent C
+
+ID: 3994123 NAME: Agent E
+
+ID: 3994124 NAME: Agent S
+
+ID: 3994125 NAME: Agent O
+
+ID: 3010043 NAME: Halloween Broomstick Chair
+
+ID: 3010071 NAME: Mini Shinsoo Chair
+
+ID: 3010085 NAME: Olivia's Chair
+
+ID: 3010098 NAME: TV Recliner
+
+ID: 3010116 NAME: The Spirit of Rock Chair
+
+ID: 3994126 NAME: Aran Memory Fragments
+
+ID: 3994127 NAME: Aran Memory Fragments
+
+ID: 3994128 NAME: Aran Memory Fragments
+
+ID: 3994129 NAME: Aran Memory Fragments
+
+ID: 3994130 NAME: Aran Memory Fragments
+
+ID: 3994131 NAME: Aran Memory Fragments
+
+ID: 3994132 NAME: Aran Memory Fragments
+
+ID: 3994133 NAME: Aran Memory Fragments
+
+ID: 3994134 NAME: Aran Memory Fragments
+
+ID: 3994135 NAME: Aran Memory Fragments
+
+ID: 3994136 NAME: Aran Memory Fragments
+
+ID: 3994137 NAME: Aran Memory Fragments
+
+ID: 3994138 NAME: Ice Crystal
+
+ID: 3994139 NAME: Maha Charm
+
+ID: 3010101 NAME: Christmas Gift Box
+
+ID: 3010073 NAME: Giant Pink Bean Cushion
+
+ID: 3010099 NAME: Cuddly Polar Bear
+
+ID: 3010044 NAME: Winter Red Chair 
+
+ID: 3010106 NAME: Ryko Chair
+
+ID: 3010111 NAME: Tiger Skin Chair
+
+ID: 3010080 NAME: Swing on the Persimmon Tree
+
+ID: 3010081 NAME: 홍상모 월묘 방석
+
+ID: 3010082 NAME: 청상모 월묘 방석
+
+ID: 3010083 NAME: 부채춤 월묘 방석
+
+ID: 3010084 NAME: 태평소 월묘 방석
+
+ID: 3010092 NAME: Witch's Broomstick
+
+ID: 3012010 NAME: Half-Heart Chocolate Cake Chair
+
+ID: 3012011 NAME: Chocolate Fondue Chair
+
+ID: 3010069 NAME: Yellow Robot Chair
+
+ID: 3010020 NAME: Rubber Ducky Tub Chair
+
+ID: 3010022 NAME: White Coke Teddy Chair
+
+ID: 3010023 NAME: Brown Coke Teddy Chair
+
+ID: 3010027 NAME: Cheetos Corner
+
+ID: 3010029 NAME: Blue Ring
+
+ID: 3010030 NAME: Black Ring
+
+ID: 3010031 NAME: Red Ring
+
+ID: 3010032 NAME: Yellow Ring
+
+ID: 3010033 NAME: Green Ring
+
+ID: 3010034 NAME: Peachy Beach Chair
+
+ID: 3010035 NAME: Blue Beach Chair
+
+ID: 3010036 NAME:  Swing under the Tree
+
+ID: 3010037 NAME: White Caved Pig
+
+ID: 3010038 NAME: Transparent Chair
+
+ID: 3010043 NAME: Halloween Broomstick Chair
+
+ID: 3010044 NAME: Winter Red Chair 
+
+ID: 3010048 NAME: Under the Christmas Tree
+
+ID: 3010049 NAME: Little Snow House
+
+ID: 3010050 NAME: Privacy Corner
+
+ID: 3010051 NAME: Male Desert Bunny
+
+ID: 3010052 NAME: Female Desert Bunny
+
+ID: 3010054 NAME: Baby Bear's Dream
+
+ID: 3010055 NAME: Mochi Ice Cream Chair
+
+ID: 3010059 NAME: Candy Massacre
+
+ID: 3010060 NAME: Noblesse Chair
+
+ID: 3010062 NAME: Bamboo Chair 
+
+ID: 3010063 NAME: Moon and Star Cushion
+
+ID: 3010068 NAME: Teru Teru Chair
+
+ID: 3010071 NAME: Mini Shinsoo Chair
+
+ID: 3010073 NAME: Giant Pink Bean Cushion
+
+ID: 3010074 NAME:  Camping Tent
+
+ID: 3010075 NAME: Music Box
+
+ID: 3010077 NAME: Caged Chair
+
+ID: 3010078 NAME: Giant Panda Cushion
+
+ID: 3010079 NAME: Cuddling Cat
+
+ID: 3010081 NAME: 홍상모 월묘 방석
+
+ID: 3010082 NAME: 청상모 월묘 방석
+
+ID: 3010083 NAME: 부채춤 월묘 방석
+
+ID: 3010084 NAME: 태평소 월묘 방석
+
+ID: 3010085 NAME: Olivia's Chair
+
+ID: 3010086 NAME: Blue Sofa with Girl
+
+ID: 3010087 NAME: IDK Keyboard
+
+ID: 3010088 NAME: Red Accoustic Guitar
+
+ID: 3010089 NAME: Electric Guitar
+
+ID: 3010090 NAME: Drumset Chair
+
+ID: 3010091 NAME: Blue Accoustic Guitar
+
+ID: 3010093 NAME: Roasted Relaxer
+
+ID: 3010094 NAME: Piggy Chair
+
+ID: 3010095 NAME: Golem Hand Chair
+
+ID: 3010096 NAME: Dinosaur Fossil Chair
+
+ID: 3010097 NAME: Strong Wooden Chair
+
+ID: 3010099 NAME: Cuddly Polar Bear
+
+ID: 3010100 NAME: God of Fortune
+
+ID: 3010101 NAME: Christmas Gift Box
+
+ID: 3010102 NAME:  Green Christmas Mush
+
+ID: 3010104 NAME:  Black Christmas Mush
+
+ID: 3010107 NAME: Hatchling Chair
+
+ID: 3010108 NAME: Baby Swing
+
+ID: 3010109 NAME: Hot Stove Chair
+
+ID: 3010110 NAME: Cuddling Polar Bear
+
+ID: 3010112 NAME: Love Locker Chair
+
+ID: 3010117 NAME: Magic Quill Pen Chair
+
+ID: 3010118 NAME: Musical Note Chair
+
+ID: 3010119 NAME: Sheep Chair
+
+ID: 3010120 NAME: Adorable Basket Chair
+
+ID: 3010121 NAME: Alchemist Door
+
+ID: 3010122 NAME: Fat Ugly Dragon
+
+ID: 3010123 NAME: Flower Corsage Chair
+
+ID: 3010124 NAME: Dunas Jet Chair
+
+ID: 3010125 NAME: Nibelung Battleship Chair
+
+ID: 3010126 NAME: Balrog Chair
+
+ID: 3010127 NAME: The Great Zakum
+
+ID: 3010128 NAME: The Great Horned Tail
+
+ID: 3010136 NAME: 6th  Anniversary Chair
+
+ID: 3010137 NAME: Dragon Lord Chair
+
+ID: 3010138 NAME: Settee 
+
+ID: 3010139 NAME: Toilet Bowl
+
+ID: 3010140 NAME: Medical Bed Chair
+
+ID: 3010141 NAME: Cake
+
+ID: 3010142 NAME: Fish Tank
+
+ID: 3010144 NAME: Star Over a Tree Chair
+
+ID: 3010145 NAME: 6th Anniversary Chair
+
+ID: 3010148 NAME: Beast
+
+ID: 3010149 NAME: Meow
+
+ID: 3010150 NAME: 5th Anniversary Chair
+
+ID: 3010151 NAME: The Lonely Island
+
+ID: 3010152 NAME: Yellow Tent
+
+ID: 3010154 NAME: Mechanical Chair
+
+ID: 3010155 NAME: Owl
+
+ID: 3010156 NAME: Visitor Representative Machine
+
+ID: 3010157 NAME: Guild Chair
+
+ID: 3010161 NAME: Squeep
+
+ID: 3010162 NAME: Owl On The Stand
+
+ID: 3010164 NAME: Night Sky
+
+ID: 3010166 NAME: Transparent Chair(Owl Chair)
+
+ID: 3010168 NAME: HI KIDS
+
+ID: 3010169 NAME: Kittens in a box
+
+ID: 3010170 NAME: Snowy Night
+
+ID: 3010171 NAME: Free Hugs
+
+ID: 3010172 NAME: Starry Night
+
+ID: 3010173 NAME: Tarrot
+
+ID: 3010174 NAME: Halloween Witch Chair
+
+ID: 3010175 NAME: Artists' Chair
+
+ID: 3010177 NAME: Game Controller
+
+ID: 3010179 NAME: Tea Time
+
+ID: 3010180 NAME: Giant HP Potion
+
+ID: 3010181 NAME:  Giant MP Potion
+
+ID: 3010183 NAME: Carrot Chair
+
+ID: 3010184 NAME: You and a Giant Rod
+
+ID: 3010185 NAME: Mini Pink Bean Stool Chair
+
+ID: 3010186 NAME: Rabbit pheromones
+
+ID: 3010188 NAME: Von Leon Chair
+
+ID: 3010189 NAME: Xerxes Chair
+
+ID: 3010191 NAME: Love-Heart Seat
+
+ID: 3010195 NAME: Booty
+
+ID: 3010196 NAME: Soap Bubble Bath
+
+ID: 3010197 NAME: Aran Chair
+
+ID: 3010200 NAME: Evan Chair
+
+ID: 3010201 NAME: Dual Blader Chair
+
+ID: 3010204 NAME: Metallic Kitty Obsession Chair
+
+ID: 3010282 NAME: Falcon pack 

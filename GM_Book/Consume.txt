@@ -1,0 +1,4587 @@
+ID: 2000000 NAME: Red Potion
+
+ID: 2000001 NAME: Orange Potion
+
+ID: 2000002 NAME: White Potion
+
+ID: 2000003 NAME: Blue Potion
+
+ID: 2000004 NAME: Elixir
+
+ID: 2000005 NAME: Power Elixir
+
+ID: 2000006 NAME: Mana Elixir
+
+ID: 2000007 NAME: Red Pill
+
+ID: 2000008 NAME: Orange Pill
+
+ID: 2000009 NAME: White Pill
+
+ID: 2000010 NAME: Blue Pill
+
+ID: 2000011 NAME: Mana Elixir Pill
+
+ID: 2000012 NAME: Elixir
+
+ID: 2000013 NAME: Red Potion for Beginners
+
+ID: 2000014 NAME: Blue Potion for Beginners
+
+ID: 2000015 NAME: Orange Potion for Beginners
+
+ID: 2000016 NAME: White Potion
+
+ID: 2000017 NAME: Blue Potion
+
+ID: 2000018 NAME: Mana Elixir
+
+ID: 2000019 NAME: Power Elixir
+
+ID: 2001000 NAME: Watermelon
+
+ID: 2001001 NAME: Ice Cream Pop
+
+ID: 2001002 NAME: Red Bean Sundae
+
+ID: 2002000 NAME: Dexterity Potion
+
+ID: 2002001 NAME: Speed Potion
+
+ID: 2002002 NAME: Magic Potion
+
+ID: 2002003 NAME: Wizard Potion
+
+ID: 2002004 NAME: Warrior Potion
+
+ID: 2002005 NAME: Sniper Potion
+
+ID: 2002006 NAME: Warrior Pill
+
+ID: 2002007 NAME: Magic Pill
+
+ID: 2002008 NAME: Sniper Pill
+
+ID: 2002009 NAME: Dexterity Pill
+
+ID: 2002010 NAME: Speed Pill
+
+ID: 2002011 NAME: Pain Reliever
+
+ID: 2002012 NAME: Elixir
+
+ID: 2002013 NAME: Power Elixir
+
+ID: 2002014 NAME: Iron Body Medicine
+
+ID: 2002015 NAME: Elpam Elixir
+
+ID: 2002016 NAME: Thief Elixir
+
+ID: 2002017 NAME: Warrior Elixir
+
+ID: 2002018 NAME: Wizard Elixir
+
+ID: 2002019 NAME: Archer Elixir
+
+ID: 2002020 NAME: Mana Bull
+
+ID: 2002021 NAME: Honster
+
+ID: 2002022 NAME: Ginseng Root
+
+ID: 2002023 NAME: Ginger Ale
+
+ID: 2002024 NAME: Sorcerer Elixir
+
+ID: 2002025 NAME: Barbarian Elixir
+
+ID: 2002026 NAME: Ginger Ale
+
+ID: 2002027 NAME: Stirge Signal
+
+ID: 2002028 NAME: T-1337 Supercharger
+
+ID: 2002029 NAME: Ridley's Scroll of Defense
+
+ID: 2010000 NAME: Apple
+
+ID: 2010001 NAME: Meat
+
+ID: 2010002 NAME: Egg
+
+ID: 2010003 NAME: Orange
+
+ID: 2010004 NAME: Lemon
+
+ID: 2010005 NAME: Honey
+
+ID: 2010006 NAME: Pot of Honey
+
+ID: 2010007 NAME: Roger's Apple
+
+ID: 2010009 NAME: Green Apple
+
+ID: 2011000 NAME: Poisonous Mushroom
+
+ID: 2012000 NAME: Drake's Blood
+
+ID: 2012001 NAME: Fairy's Honey
+
+ID: 2012002 NAME: Sap of Ancient Tree
+
+ID: 2012003 NAME: Drake's Meat
+
+ID: 2012004 NAME: Purified Honey
+
+ID: 2020000 NAME: Salad
+
+ID: 2020001 NAME: Fried Chicken
+
+ID: 2020002 NAME: Cake
+
+ID: 2020003 NAME: Pizza
+
+ID: 2020004 NAME: Hamburger
+
+ID: 2020005 NAME: Hot Dog
+
+ID: 2020006 NAME: Hot Dog Supreme
+
+ID: 2020007 NAME: Dried Squid
+
+ID: 2020008 NAME: Fat Sausage
+
+ID: 2020009 NAME: Orange Juice
+
+ID: 2020010 NAME: Grape Juice
+
+ID: 2020011 NAME: W Ramen
+
+ID: 2020012 NAME: Melting Cheese
+
+ID: 2020013 NAME: Reindeer Milk
+
+ID: 2020014 NAME: Sunrise Dew
+
+ID: 2020015 NAME: Sunset Dew
+
+ID: 2020016 NAME: Cheesecake
+
+ID: 2020017 NAME: Strawberry Cream Cake
+
+ID: 2020018 NAME: Chocolate Cream Cake
+
+ID: 2020019 NAME: Chocolate Cake
+
+ID: 2020020 NAME: Wedding Cake
+
+ID: 2020021 NAME: Nemi's Lunch Box
+
+ID: 2020022 NAME: White Chocolate
+
+ID: 2020023 NAME: Dark Chocolate
+
+ID: 2020024 NAME: Chocolate Basket
+
+ID: 2020025 NAME: Pineapple Candy
+
+ID: 2020026 NAME: Strawberry Candy
+
+ID: 2020027 NAME: Candy Basket
+
+ID: 2020028 NAME: Chocolate
+
+ID: 2020029 NAME: Corn
+
+ID: 2020030 NAME: Roasted Turkey
+
+ID: 2020031 NAME: Coca_Cola
+
+ID: 2020032 NAME: Birthday Cake
+
+ID: 2022000 NAME: Pure Water
+
+ID: 2022001 NAME: Red Bean Porridge
+
+ID: 2022002 NAME: Cider
+
+ID: 2022003 NAME: Unagi
+
+ID: 2022004 NAME: Song Pyun
+
+ID: 2022005 NAME: Han Gwa
+
+ID: 2022006 NAME: Rice-Cake Soup
+
+ID: 2022007 NAME: Triangular Sushi(plum)
+
+ID: 2022008 NAME: Triangular Sushi(salmon)
+
+ID: 2022009 NAME: Triangular Sushi(bonito)
+
+ID: 2022010 NAME: Triangular Sushi(pollack)
+
+ID: 2022011 NAME: Triangular Sushi(mushroom)
+
+ID: 2022012 NAME: Sushi(tuna)
+
+ID: 2022013 NAME: Sushi(salmon)
+
+ID: 2022014 NAME: Dango
+
+ID: 2022015 NAME: Mushroom Miso Ramen
+
+ID: 2022016 NAME: Maple Special Bento
+
+ID: 2022017 NAME: Ramen
+
+ID: 2022018 NAME: Kinoko Ramen(roasted pork)
+
+ID: 2022019 NAME: Kinoko Ramen(pig head)
+
+ID: 2022020 NAME: Kinoko Ramen(salt)
+
+ID: 2022021 NAME: Fish Cake(skewer)
+
+ID: 2022022 NAME: Fish Cake(dish)
+
+ID: 2022023 NAME: Tri-colored Dango
+
+ID: 2022024 NAME: Takoyaki (Octopus Ball)
+
+ID: 2022025 NAME: Takoyaki (jumbo)
+
+ID: 2022026 NAME: Yakisoba
+
+ID: 2022027 NAME: Yakisoba (x2)
+
+ID: 2022028 NAME: Valentine Chocolate (Dark)
+
+ID: 2022029 NAME: Valentine Chocolate (Strawberry)
+
+ID: 2022030 NAME: Valentine Chocolate (White)
+
+ID: 2022031 NAME: Cookie
+
+ID: 2022032 NAME: Marshmallow
+
+ID: 2022033 NAME: Candy
+
+ID: 2022034 NAME: Zong Zi
+
+ID: 2022035 NAME: Maple Cola
+
+ID: 2022036 NAME: Candy Basket
+
+ID: 2022037 NAME: Pink Rice Cake
+
+ID: 2022038 NAME: Rice Cookie
+
+ID: 2022039 NAME: Nependeath's Honey
+
+ID: 2022040 NAME: Air Bubble
+
+ID: 2022041 NAME: Fried shrimp
+
+ID: 2022042 NAME: Cookie
+
+ID: 2022043 NAME: Fruity Candy
+
+ID: 2022044 NAME: New Year Rice Cake
+
+ID: 2022045 NAME: New Year Lunchbox
+
+ID: 2022046 NAME: Seaweed
+
+ID: 2022047 NAME: Cooked Sea Bream
+
+ID: 2022048 NAME: New Year Rice Soup
+
+ID: 2022049 NAME: Steamed Crab
+
+ID: 2022050 NAME: Roasted pork
+
+ID: 2022051 NAME: Buckwheat paste
+
+ID: 2022052 NAME: Rice Wine
+
+ID: 2022053 NAME: Jujube
+
+ID: 2022054 NAME: Pear
+
+ID: 2022055 NAME: Persimmon
+
+ID: 2022056 NAME: Chestnut
+
+ID: 2022057 NAME: Tofu
+
+ID: 2022058 NAME: Dumpling
+
+ID: 2022060 NAME: Lotus Perfume
+
+ID: 2022061 NAME: Oriental Perfume
+
+ID: 2022062 NAME: Chrysanthemum Perfume
+
+ID: 2022063 NAME: Corn Stick
+
+ID: 2022064 NAME: Fruit Stick
+
+ID: 2022065 NAME: Yellow Easter Egg
+
+ID: 2022066 NAME: Green Easter Egg
+
+ID: 2022068 NAME: Yellow Cider
+
+ID: 2022069 NAME: Red Cider
+
+ID: 2022070 NAME: Congrats from GM
+
+ID: 2022071 NAME: Korean Warrior
+
+ID: 2022072 NAME: Forza Corea
+
+ID: 2022073 NAME: A Prayer for Victory
+
+ID: 2022074 NAME: Oolleung Squid
+
+ID: 2022075 NAME: Mini Coke
+
+ID: 2022076 NAME: Coke Pill
+
+ID: 2022077 NAME: Coke Lite Pill
+
+ID: 2022078 NAME: Coke Zero Pill
+
+ID: 2022079 NAME: Barbecue
+
+ID: 2022086 NAME: Red Fruit
+
+ID: 2022087 NAME: Black Fruit
+
+ID: 2022088 NAME: Blue Fruit
+
+ID: 2022089 NAME: Baby Dragon Food
+
+ID: 2022090 NAME: Blessing from Wonky the Fairy
+
+ID: 2022091 NAME: Blessing from Wonky the Fairy
+
+ID: 2022092 NAME: Blessing from Wonky the Fairy
+
+ID: 2022093 NAME: Blessing from Wonky the Fairy
+
+ID: 2022094 NAME: Chicken Soup
+
+ID: 2022096 NAME: Fried Chicken
+
+ID: 2022097 NAME: Chun Gwon
+
+ID: 2022098 NAME: Bubble Gum
+
+ID: 2022099 NAME: HP up
+
+ID: 2022100 NAME: Song Pyun
+
+ID: 2022101 NAME: Han Gwa
+
+ID: 2022102 NAME: Massage Oil
+
+ID: 2022103 NAME: Thai Cookie
+
+ID: 2022105 NAME: Green Malady's Candy
+
+ID: 2022106 NAME: Red Malady's Candy
+
+ID: 2022107 NAME: Blue Malady's Candy
+
+ID: 2022108 NAME: Horntail Squad : Victory
+
+ID: 2022109 NAME: The Breath of Nine Spirit
+
+ID: 2022112 NAME: Baby Witch
+
+ID: 2022113 NAME: Pumpkin Pie
+
+ID: 2022114 NAME: Enchanted Apple Crisp
+
+ID: 2022116 NAME: Peach
+
+ID: 2022117 NAME: Maple Syrup
+
+ID: 2022118 NAME: Admin's Congrats
+
+ID: 2022119 NAME: Tree Ornament
+
+ID: 2022120 NAME: Christmas Melon
+
+ID: 2022121 NAME: Gelt Chocolate
+
+ID: 2022123 NAME: Banana Graham Pie
+
+ID: 2022124 NAME: Magic of Kasandra
+
+ID: 2022125 NAME: Increase in Weapon Defense
+
+ID: 2022126 NAME: Increase in Magic Defense
+
+ID: 2022127 NAME: Increase in Accuracy
+
+ID: 2022128 NAME: Increase in Avoidablility
+
+ID: 2022129 NAME: Increase in Attack
+
+ID: 2022130 NAME: Blossom Juice
+
+ID: 2022131 NAME: Ginseng Concentrate
+
+ID: 2022132 NAME: Bellflower Concentrate
+
+ID: 2022142 NAME: Mind & Heart Medicine
+
+ID: 2022143 NAME: Mastery Medicine
+
+ID: 2022144 NAME: Body & Physics Medicine
+
+ID: 2022145 NAME: Canned Peach
+
+ID: 2022146 NAME: Peach Juice
+
+ID: 2022147 NAME: Bellflower Medicine Soup
+
+ID: 2022148 NAME: Pill of Tunnel Vision
+
+ID: 2022149 NAME: Pill of Intelligence
+
+ID: 2022150 NAME: Slithering Balm
+
+ID: 2022151 NAME: Cassandra's Magic
+
+ID: 2022152 NAME: Cassandra's Magic
+
+ID: 2022153 NAME: Happy birthday
+
+ID: 2022154 NAME: Petit Rose
+
+ID: 2022155 NAME: Desert Mist
+
+ID: 2022156 NAME: Black Bean Noodle
+
+ID: 2022160 NAME: Party Mana Elixir
+
+ID: 2022161 NAME: Party Elixir
+
+ID: 2022162 NAME: Party Power Elixir
+
+ID: 2022163 NAME: Party All Cure Potion
+
+ID: 2022164 NAME: Mini Cube of Darkness
+
+ID: 2022165 NAME: Cube of Darkness
+
+ID: 2022166 NAME: Stunner
+
+ID: 2022174 NAME: White Potion
+
+ID: 2022179 NAME: Onyx Apple
+
+ID: 2022180 NAME: Amorian Rice Cookie
+
+ID: 2022181 NAME: Victoria's Amorian Basket
+
+ID: 2022182 NAME: Crystalized Pineapple Chew
+
+ID: 2022183 NAME: Flower Shower
+
+ID: 2022184 NAME: Maple BBQ
+
+ID: 2022185 NAME: Fireworks
+
+ID: 2022186 NAME: Soft White Bun
+
+ID: 2022187 NAME: Cassandra's Magic
+
+ID: 2022189 NAME: Grilled Cheese
+
+ID: 2022190 NAME: Cherry Pie
+
+ID: 2022191 NAME: Supreme Pizza
+
+ID: 2022192 NAME: Waffle
+
+ID: 2022193 NAME: Merlin Orb
+
+ID: 2022194 NAME: Leaf Crystal
+
+ID: 2022195 NAME: Mapleade
+
+ID: 2022196 NAME: Wedding Bouquet
+
+ID: 2022197 NAME: Wedding Bouquet
+
+ID: 2022198 NAME: Russellon's Pills
+
+ID: 2022199 NAME: Russellon's Potion
+
+ID: 2022200 NAME: Wedding Bouquet
+
+ID: 2022203 NAME: Laksa
+
+ID: 2022204 NAME: Hokkien Mee
+
+ID: 2022205 NAME: Carrot Cake
+
+ID: 2022206 NAME: Chicken Rice
+
+ID: 2022207 NAME: Satay
+
+ID: 2022208 NAME: Guava
+
+ID: 2022209 NAME: Rambutan
+
+ID: 2022210 NAME: Dragon Fruit
+
+ID: 2022211 NAME: Durian
+
+ID: 2022212 NAME: Nasi Lemak
+
+ID: 2022213 NAME: Roti Prata
+
+ID: 2022214 NAME: Pepper Crab
+
+ID: 2022215 NAME: Chili Crab
+
+ID: 2022224 NAME: Russellon's Potion
+
+ID: 2022225 NAME: Russellon's Potion
+
+ID: 2022226 NAME: Russellon's Potion
+
+ID: 2022227 NAME: Russellon's Potion
+
+ID: 2022228 NAME: Russellon's Potion
+
+ID: 2022238 NAME: MesoGears Ring
+
+ID: 2022239 NAME: Cassandra's Magic
+
+ID: 2022240 NAME: Cassandra's Magic
+
+ID: 2022242 NAME: Edmund's Special Brew
+
+ID: 2022243 NAME: Sophilia's Necklace
+
+ID: 2022244 NAME: Smore
+
+ID: 2022245 NAME: Heartstopper
+
+ID: 2022246 NAME: Pumpkin Taffy
+
+ID: 2022247 NAME: Red Gummy Slime
+
+ID: 2022248 NAME: Green Gummy Slime
+
+ID: 2022249 NAME: Purple Gummy Slime
+
+ID: 2022250 NAME: Orange Gummy Slime
+
+ID: 2022251 NAME: Maple Pop
+
+ID: 2022252 NAME: Tae Roon's Note
+
+ID: 2022253 NAME: Mushroom Candy
+
+ID: 2022255 NAME: Pumpkin Pieces
+
+ID: 2022256 NAME: Halloween Candy
+
+ID: 2022257 NAME: Power of the Glowing Rock
+
+ID: 2022258 NAME: Coconut Juice
+
+ID: 2022259 NAME: Attack Crystal
+
+ID: 2022260 NAME: Accuracy Crystal
+
+ID: 2022261 NAME: Stuffing Scoop
+
+ID: 2022262 NAME: Cranberry Sauce
+
+ID: 2022263 NAME: Mashed Potato
+
+ID: 2022264 NAME: Gravy
+
+ID: 2022265 NAME: Snowing Fishbread
+
+ID: 2022266 NAME: Power Punch
+
+ID: 2022267 NAME: Wing of the Wind
+
+ID: 2022268 NAME: Crazy Skull
+
+ID: 2022269 NAME: Shield
+
+ID: 2022271 NAME: Maplemas Ham
+
+ID: 2022272 NAME: Smoken Salmon
+
+ID: 2022273 NAME: Ssiws Cheese
+
+ID: 2022274 NAME: Sugar-Coated Olives
+
+ID: 2022275 NAME: Caramel Onion
+
+ID: 2022276 NAME: Chocolate Wafers
+
+ID: 2022277 NAME: Sunblock
+
+ID: 2022278 NAME: Lump of Coal
+
+ID: 2022279 NAME: Snow Cake Piece
+
+ID: 2022280 NAME: A Flurry of Snow
+
+ID: 2022281 NAME: Chinese Firecrackers
+
+ID: 2022282 NAME: Naricain's Demon Elixir
+
+ID: 2022283 NAME: Subani's Mystic Cauldron
+
+ID: 2022284 NAME: Barricade Booster
+
+ID: 2022285 NAME: Sweet Heart
+
+ID: 2022296 NAME: Power Scream
+
+ID: 2022302 NAME: Party Bear
+
+ID: 2022305 NAME: Taru Face Paint
+
+ID: 2022306 NAME: Primal Brew
+
+ID: 2022307 NAME: Spirit Herbs
+
+ID: 2022308 NAME: Jungle Juice
+
+ID: 2022309 NAME: Treasure Hunt Note
+
+ID: 2022310 NAME: Chocolate Cream Cupcake
+
+ID: 2022311 NAME: Big Cream Puff
+
+ID: 2022332 NAME: Agent O's Encouragement
+
+ID: 2022333 NAME: Agent O's Encouragement
+
+ID: 2022335 NAME: Baby Chick Cookie
+
+ID: 2022336 NAME: Secret Box
+
+ID: 2022337 NAME: Sorcerer's Potion
+
+ID: 2022338 NAME: VitroJuice
+
+ID: 2022339 NAME: NitroJuice
+
+ID: 2022340 NAME: BlastroJuice
+
+ID: 2022341 NAME: ElectroJuice
+
+ID: 2022342 NAME: MegaJuice
+
+ID: 2022343 NAME: GigaJuice
+
+ID: 2022344 NAME: JigaJuice
+
+ID: 2022345 NAME: The Energizer Drink
+
+ID: 2022354 NAME: Tick-Tock's Egg
+
+ID: 2022355 NAME: Cronos' Egg
+
+ID: 2022436 NAME: Holiday Buff
+
+ID: 2022437 NAME: Holiday Buff
+
+ID: 2022438 NAME: Holiday Buff
+
+ID: 2022439 NAME: Elixir of Darkness
+
+ID: 2022440 NAME: Gold Dust
+
+ID: 2022441 NAME: Adonis Cauldron
+
+ID: 2022443 NAME: Fireworks
+
+ID: 2022444 NAME: Mihile's Blessing
+
+ID: 2022445 NAME: Oz's Blessing
+
+ID: 2022446 NAME: Irena's Blessing
+
+ID: 2022447 NAME: Eckhart's Blessing
+
+ID: 2022448 NAME: Hawkeye's Blessing
+
+ID: 2022449 NAME: Pink Bean Squad : Victory
+
+ID: 2022453 NAME: Fireworks
+
+ID: 2022454 NAME: Cygnus's Blessing
+
+ID: 2022538 NAME: Red Easter Egg
+
+ID: 2030000 NAME: Return Scroll - Nearest Town
+
+ID: 2030001 NAME: Return Scroll to Lith Harbor
+
+ID: 2030002 NAME: Return Scroll to Ellinia
+
+ID: 2030003 NAME: Return Scroll to Perion
+
+ID: 2030004 NAME: Return Scroll to Henesys
+
+ID: 2030005 NAME: Return Scroll to Kerning City
+
+ID: 2030006 NAME: Return Scroll to Sleepywood
+
+ID: 2030007 NAME: Return Scroll for Dead Mine
+
+ID: 2030008 NAME: Coffee Milk
+
+ID: 2030009 NAME: Strawberry Milk
+
+ID: 2030010 NAME: Fruit Milk
+
+ID: 2030011 NAME: Command Center Warp Capsule
+
+ID: 2030012 NAME: Ludibrium Warp Capsule
+
+ID: 2030016 NAME: Phyllia's Warp Powder
+
+ID: 2030019 NAME: Nautilus Return Scroll
+
+ID: 2030020 NAME: Return to New Leaf City Scroll
+
+ID: 2031000 NAME: Masked Man's Invitation
+
+ID: 2031001 NAME: Studio Invitation
+
+ID: 2040000 NAME: Scroll for Helmet for DEF
+
+ID: 2040001 NAME: Scroll for Helmet for DEF
+
+ID: 2040002 NAME: Scroll for Helmet for DEF
+
+ID: 2040003 NAME: Scroll for Helmet for HP
+
+ID: 2040004 NAME: Scroll for Helmet for HP
+
+ID: 2040005 NAME: Scroll for Helmet for HP
+
+ID: 2040006 NAME: Scroll for Helmet for DEF
+
+ID: 2040007 NAME: Scroll for Helmet for HP
+
+ID: 2040008 NAME: Dark scroll for Helmet for DEF
+
+ID: 2040009 NAME: Dark Scroll for Helmet for DEF
+
+ID: 2040010 NAME: Scroll for Helmet for HP
+
+ID: 2040011 NAME: Dark Scroll for Helmet for HP
+
+ID: 2040012 NAME: Dark Scroll for Helmet for INT
+
+ID: 2040013 NAME: Dark Scroll for Helmet for INT
+
+ID: 2040014 NAME: Dark Scroll for Helmet for Accuracy
+
+ID: 2040015 NAME: Dark Scroll for Helmet for Accuracy
+
+ID: 2040016 NAME: Scroll for Helmet for Accuracy
+
+ID: 2040017 NAME: Scroll for Helmet for Accuracy
+
+ID: 2040018 NAME: Scroll for Helmet for Accuracy
+
+ID: 2040019 NAME: Scroll for Helmet for DEF
+
+ID: 2040020 NAME: Scroll for Helmet for DEF
+
+ID: 2040021 NAME: Scroll for Helmet for MaxHP
+
+ID: 2040022 NAME: Scroll for Helmet for MaxHP
+
+ID: 2040023 NAME: Scroll for Rudolph's Horn 60%
+
+ID: 2040024 NAME: Scroll for Helmet for INT 100%
+
+ID: 2040025 NAME: Scroll for Helmet for INT 60%
+
+ID: 2040026 NAME: Scroll for Helmet for INT 10%
+
+ID: 2040027 NAME: Scroll for Helmet for DEX 100%
+
+ID: 2040028 NAME: Scroll for Helmet for DEX 70%
+
+ID: 2040029 NAME: Scroll for Helmet for DEX 60%
+
+ID: 2040030 NAME: Scroll for Helmet for DEX 30%
+
+ID: 2040031 NAME: Scroll for Helmet for DEX 10%
+
+ID: 2040100 NAME: Scroll for Face Accessory for HP
+
+ID: 2040101 NAME: Scroll for Face Accessory for HP
+
+ID: 2040102 NAME: Scroll for Face Accessory for HP
+
+ID: 2040103 NAME: Dark Scroll for Face Accessory for HP
+
+ID: 2040104 NAME: Dark Scroll for Face Accessory for HP
+
+ID: 2040105 NAME: Scroll for Face Accessory for Avoidability
+
+ID: 2040106 NAME: Scroll for Face Accessory for Avoidability
+
+ID: 2040107 NAME: Scroll for Face Accessory for Avoidability
+
+ID: 2040108 NAME: Dark Scroll for Face Accessory for Avoidability
+
+ID: 2040109 NAME: Dark Scroll for Face Accessory for Avoidability
+
+ID: 2040200 NAME: Scroll for Eye Accessory for Accuracy
+
+ID: 2040201 NAME: Scroll for Eye Accessory for Accuracy
+
+ID: 2040202 NAME: Scroll for Eye Accessory for Accuracy
+
+ID: 2040203 NAME: Dark Scroll for Eye Accessory for Accuracy
+
+ID: 2040204 NAME: Dark Scroll for Eye Accessory for Accuracy
+
+ID: 2040205 NAME: Scroll for Eye Accessory for INT
+
+ID: 2040206 NAME: Scroll for Eye Accessory for INT
+
+ID: 2040207 NAME: Scroll for Eye Accessory for INT
+
+ID: 2040208 NAME: Dark Scroll for Eye Accessory for INT
+
+ID: 2040209 NAME: Dark Scroll for Eye Accessory for INT
+
+ID: 2040300 NAME: Scroll for Earring for INT
+
+ID: 2040301 NAME: Scroll for Earring for INT
+
+ID: 2040302 NAME: Scroll for Earring for INT
+
+ID: 2040303 NAME: Scroll for Earring for INT
+
+ID: 2040304 NAME: Dark scroll for Earring for INT
+
+ID: 2040305 NAME: Dark scroll for Earring for INT
+
+ID: 2040306 NAME: Dark scroll for Earring for DEX
+
+ID: 2040307 NAME: Dark scroll for Earring for DEX
+
+ID: 2040308 NAME: Dark Scroll for Earrings for DEF
+
+ID: 2040309 NAME: Dark Scroll for Earrings for DEF
+
+ID: 2040310 NAME: Scroll for Earring for DEF
+
+ID: 2040311 NAME: Scroll for Earring for DEF
+
+ID: 2040312 NAME: Scroll for Earring for DEF
+
+ID: 2040313 NAME: Scroll for Earring for INT
+
+ID: 2040314 NAME: Scroll for Earring for INT
+
+ID: 2040315 NAME: [4yrAnniv]Scroll for Earring for INT
+
+ID: 2040316 NAME: Scroll for Earring for DEX 100%
+
+ID: 2040317 NAME: Scroll for Earring for DEX 60%
+
+ID: 2040318 NAME: Scroll for Earring for DEX 10%
+
+ID: 2040319 NAME: Scroll for Earring for LUK 100%
+
+ID: 2040320 NAME: Scroll for Earring for LUK 70%
+
+ID: 2040321 NAME: Scroll for Earring for LUK 60%
+
+ID: 2040322 NAME: Scroll for Earring for LUK 30%
+
+ID: 2040323 NAME: Scroll for Earring for LUK 10%
+
+ID: 2040324 NAME: Scroll for Earring for HP 100%
+
+ID: 2040325 NAME: Scroll for Earring for HP 70%
+
+ID: 2040326 NAME: Scroll for Earring for HP 60%
+
+ID: 2040327 NAME: Scroll for Earring for HP 30%
+
+ID: 2040328 NAME: Scroll for Earring for HP 10%
+
+ID: 2040400 NAME: Scroll for Topwear for DEF
+
+ID: 2040401 NAME: Scroll for Topwear for DEF
+
+ID: 2040402 NAME: Scroll for Topwear for DEF
+
+ID: 2040403 NAME: Scroll for Topwear for DEF
+
+ID: 2040404 NAME: Dark scroll for Topwear for DEF
+
+ID: 2040405 NAME: Dark scroll for Topwear for DEF
+
+ID: 2040406 NAME: Dark scroll for Topwear for STR
+
+ID: 2040407 NAME: Dark scroll for Topwear for STR
+
+ID: 2040408 NAME: Dark scroll for Topwear for HP
+
+ID: 2040409 NAME: Dark scroll for Topwear for HP
+
+ID: 2040410 NAME: Dark Scroll for Topwear for LUK
+
+ID: 2040411 NAME: Dark Scroll for Topwear for LUK
+
+ID: 2040412 NAME: Scroll for Topwear for LUK
+
+ID: 2040413 NAME: Scroll for Topwear for LUK
+
+ID: 2040414 NAME: Scroll for Topwear for LUK
+
+ID: 2040415 NAME: Scroll for Topwear for DEF
+
+ID: 2040416 NAME: Scroll for Topwear for DEF
+
+ID: 2040417 NAME: Scroll for Topwear for STR 100%
+
+ID: 2040418 NAME: Scroll for Topwear for STR 60%
+
+ID: 2040419 NAME: Scroll for Topwear for STR 10%
+
+ID: 2040420 NAME: Scroll for Topwear for HP 100%
+
+ID: 2040421 NAME: Scroll for Topwear for HP 60%
+
+ID: 2040422 NAME: Scroll for Topwear for HP 10%
+
+ID: 2040423 NAME: Scroll for Topwear for LUK 100%
+
+ID: 2040424 NAME: Scroll for Topwear for LUK 70%
+
+ID: 2040425 NAME: Scroll for Topwear for LUK 60%
+
+ID: 2040426 NAME: Scroll for Topwear for LUK 30%
+
+ID: 2040427 NAME: Scroll for Topwear for LUK 10%
+
+ID: 2040500 NAME: Scroll for Overall Armor for DEX
+
+ID: 2040501 NAME: Scroll for Overall Armor for DEX
+
+ID: 2040502 NAME: Scroll for Overall Armor for DEX
+
+ID: 2040503 NAME: Scroll for Overall Armor for DEF
+
+ID: 2040504 NAME: Scroll for Overall Armor for DEF
+
+ID: 2040505 NAME: Scroll for Overall Armor for DEF
+
+ID: 2040506 NAME: Scroll for Overall Armor for DEX
+
+ID: 2040507 NAME: Scroll for Overall Armor for DEF
+
+ID: 2040508 NAME: Dark scroll for Overall Armor for DEX
+
+ID: 2040509 NAME: Dark scroll for Overall Armor for DEX
+
+ID: 2040510 NAME: Dark scroll for Overall Armor for DEF
+
+ID: 2040511 NAME: Dark scroll for Overall Armor for DEF
+
+ID: 2040512 NAME: Scroll for Overall Armor for INT
+
+ID: 2040513 NAME: Scroll for Overall Armor for INT
+
+ID: 2040514 NAME: Scroll for Overall Armor for INT
+
+ID: 2040515 NAME: Scroll for Overall Armor for LUK
+
+ID: 2040516 NAME: Scroll for Overall Armor for LUK
+
+ID: 2040517 NAME: Scroll for Overall Armor for LUK
+
+ID: 2040518 NAME: Dark scroll for Overall Armor for INT
+
+ID: 2040519 NAME: Dark scroll for Overall Armor for INT
+
+ID: 2040520 NAME: Dark scroll for Overall Armor for LUK
+
+ID: 2040521 NAME: Dark scroll for Overall Armor for LUK
+
+ID: 2040522 NAME: Scroll for Overall Armor for DEX
+
+ID: 2040523 NAME: Scroll for Overall Armor for DEX
+
+ID: 2040524 NAME: Overall Armor Scroll for DEF
+
+ID: 2040525 NAME: Overall Armor Scroll for DEF
+
+ID: 2040526 NAME: Scroll for Overall Armor for INT
+
+ID: 2040527 NAME: Scroll for Overall Armor for INT
+
+ID: 2040528 NAME: Scroll for Overall Armor for LUK
+
+ID: 2040529 NAME: Scroll for Overall Armor for LUK
+
+ID: 2040530 NAME: Scroll for Overall for STR 100%
+
+ID: 2040531 NAME: Scroll for Overall for STR 70%
+
+ID: 2040532 NAME: Scroll for Overall for STR 60%
+
+ID: 2040533 NAME: Scroll for Overall for STR 30%
+
+ID: 2040534 NAME: Scroll for Overall for STR 10%
+
+ID: 2040600 NAME: Scroll for Bottomwear for DEF
+
+ID: 2040601 NAME: Scroll for Bottomwear for DEF
+
+ID: 2040602 NAME: Scroll for Bottomwear for DEF
+
+ID: 2040603 NAME: Scroll for Bottomwear for DEF
+
+ID: 2040604 NAME: Dark scroll for Bottomwear for DEF
+
+ID: 2040605 NAME: Dark scroll for Bottomwear for DEF
+
+ID: 2040606 NAME: Dark scroll for Bottomwear for Jump
+
+ID: 2040607 NAME: Dark scroll for Bottomwear for Jump
+
+ID: 2040608 NAME: Dark scroll for Bottomwear for HP
+
+ID: 2040609 NAME: Dark scroll for Bottomwear for HP
+
+ID: 2040610 NAME: Dark Scroll for Bottomwear for DEX
+
+ID: 2040611 NAME: Dark Scroll for Bottomwear for DEX
+
+ID: 2040612 NAME: Scroll for Bottomwear for DEX
+
+ID: 2040613 NAME: Scroll for Bottomwear for DEX
+
+ID: 2040614 NAME: Scroll for Bottomwear for DEX
+
+ID: 2040615 NAME: Scroll for Bottomwear for DEF
+
+ID: 2040616 NAME: Scroll for Bottomwear for DEF
+
+ID: 2040617 NAME: Scroll for Bottomwear for Jump 100%
+
+ID: 2040618 NAME: Scroll for Bottomwear for Jump 60%
+
+ID: 2040619 NAME: Scroll for Bottomwear for Jump 10%
+
+ID: 2040620 NAME: Scroll for Bottomwear for HP 100%
+
+ID: 2040621 NAME: Scroll for Bottomwear for HP 60%
+
+ID: 2040622 NAME: Scroll for Bottomwear for HP 10%
+
+ID: 2040623 NAME: Scroll for Bottomwear for DEX 100%
+
+ID: 2040624 NAME: Scroll for Bottomwear for DEX 70%
+
+ID: 2040625 NAME: Scroll for Bottomwear for DEX 60%
+
+ID: 2040626 NAME: Scroll for Bottomwear for DEX 30%
+
+ID: 2040627 NAME: Scroll for Bottomwear for DEX 10%
+
+ID: 2040700 NAME: Scroll for Shoes for DEX
+
+ID: 2040701 NAME: Scroll for Shoes for DEX
+
+ID: 2040702 NAME: Scroll for Shoes for DEX
+
+ID: 2040703 NAME: Scroll for Shoes for Jump
+
+ID: 2040704 NAME: Scroll for Shoes for Jump
+
+ID: 2040705 NAME: Scroll for Shoes for Jump
+
+ID: 2040706 NAME: Scroll for Shoes for Speed
+
+ID: 2040707 NAME: Scroll for Shoes for Speed
+
+ID: 2040708 NAME: Scroll for Shoes for Speed
+
+ID: 2040709 NAME: Scroll for Shoes for DEX
+
+ID: 2040710 NAME: Scroll for Shoes for Jump
+
+ID: 2040711 NAME: Scroll for Shoes for Speed
+
+ID: 2040712 NAME: Dark scroll for Shoes for DEX
+
+ID: 2040713 NAME: Dark scroll for Shoes for DEX
+
+ID: 2040714 NAME: Dark scroll for Shoes for Jump
+
+ID: 2040715 NAME: Dark scroll for Shoes for Jump
+
+ID: 2040716 NAME: Dark scroll for Shoes for Speed
+
+ID: 2040717 NAME: Dark scroll for Shoes for Speed
+
+ID: 2040718 NAME: Scroll for Shoes for DEX
+
+ID: 2040719 NAME: Scroll for Shoes for DEX
+
+ID: 2040720 NAME: Scroll for Jump for DEX
+
+ID: 2040721 NAME: Scroll for Jump for DEX
+
+ID: 2040722 NAME: Scroll for Speed for DEX
+
+ID: 2040723 NAME: Scroll for Speed for DEX
+
+ID: 2040727 NAME: Scroll for Spikes on Shoes 10%
+
+ID: 2040800 NAME: Scroll for Gloves for DEX
+
+ID: 2040801 NAME: Scroll for Gloves for DEX
+
+ID: 2040802 NAME: Scroll for Gloves for DEX
+
+ID: 2040803 NAME: Scroll for Gloves for ATT
+
+ID: 2040804 NAME: Scroll for Gloves for ATT
+
+ID: 2040805 NAME: Scroll for Gloves for ATT
+
+ID: 2040806 NAME: Scroll for Gloves for DEX
+
+ID: 2040807 NAME: Scroll for Gloves for ATT
+
+ID: 2040808 NAME: Dark scroll for Gloves for DEX
+
+ID: 2040809 NAME: Dark scroll for Gloves for DEX
+
+ID: 2040810 NAME: Dark scroll for Gloves for ATT
+
+ID: 2040811 NAME: Dark scroll for Gloves for ATT
+
+ID: 2040812 NAME: Dark scroll for Gloves for HP
+
+ID: 2040813 NAME: Dark scroll for Gloves for HP
+
+ID: 2040814 NAME: Dark Scroll for Gloves for Magic Att.
+
+ID: 2040815 NAME: Dark Scroll for Gloves for Magic Att.
+
+ID: 2040816 NAME: Scroll for Gloves for Magic Att.
+
+ID: 2040817 NAME: Scroll for Gloves for Magic Att.
+
+ID: 2040818 NAME: Scroll for Gloves for Magic Att.
+
+ID: 2040819 NAME: Scroll for Gloves for DEX
+
+ID: 2040820 NAME: Scroll for Gloves for DEX
+
+ID: 2040821 NAME: Scroll for Gloves for ATT
+
+ID: 2040822 NAME: Scroll for Gloves for ATT
+
+ID: 2040823 NAME: Scroll for Gloves for HP 100%
+
+ID: 2040824 NAME: Scroll for Gloves for HP 60%
+
+ID: 2040825 NAME: Scroll for Gloves for HP 10%
+
+ID: 2040900 NAME: Scroll for Shield for DEF
+
+ID: 2040901 NAME: Scroll for Shield for DEF
+
+ID: 2040902 NAME: Scroll for Shield for DEF
+
+ID: 2040903 NAME: Scroll for Shield for DEF
+
+ID: 2040904 NAME: Dark scroll for Shield for DEF
+
+ID: 2040905 NAME: Dark scroll for Shield for DEF
+
+ID: 2040906 NAME: Dark scroll for Shield for LUK
+
+ID: 2040907 NAME: Dark scroll for Shield for LUK
+
+ID: 2040908 NAME: Dark scroll for Shield for HP
+
+ID: 2040909 NAME: Dark scroll for Shield for HP
+
+ID: 2040910 NAME: Scroll for Shield for DEF
+
+ID: 2040911 NAME: Scroll for Shield for DEF
+
+ID: 2040912 NAME: [4yrAnniv]Scroll for Shield for DEF
+
+ID: 2040914 NAME: Scroll for Shield for Weapon Att.
+
+ID: 2040915 NAME: Scroll for Shield for Weapon Att.
+
+ID: 2040916 NAME: Dark Scroll for Shield for Weapon Att.
+
+ID: 2040917 NAME: Dark Scroll for Shield for Weapon Att.
+
+ID: 2040918 NAME: Scroll for Shield for Magic Att.
+
+ID: 2040919 NAME: Scroll for Shield for Magic Att.
+
+ID: 2040920 NAME: Scroll for Shield for Magic Att.
+
+ID: 2040921 NAME: Dark Scroll for Shield for Magic Att.
+
+ID: 2040922 NAME: Dark Scroll for Shield for Magic Att.
+
+ID: 2040923 NAME: Scroll for Shield for LUK 100%
+
+ID: 2040924 NAME: Scroll for Shield for LUK 60%
+
+ID: 2040925 NAME: Scroll for Shield for LUK 10%
+
+ID: 2040926 NAME: Scroll for Shield for HP 100%
+
+ID: 2040927 NAME: Scroll for Shield for HP 60%
+
+ID: 2040928 NAME: Scroll for Shield for HP 10%
+
+ID: 2040929 NAME: Scroll for Shield for STR 100%
+
+ID: 2040930 NAME: Scroll for Shield for STR 70%
+
+ID: 2040931 NAME: Scroll for Shield for STR 60%
+
+ID: 2040932 NAME: Scroll for Shield for STR 30%
+
+ID: 2040933 NAME: Scroll for Shield for STR 10%
+
+ID: 2041000 NAME: Scroll for Cape for Magic Def.
+
+ID: 2041001 NAME: Scroll for Cape for Magic Def.
+
+ID: 2041002 NAME: Scroll for Cape for Magic Def.
+
+ID: 2041003 NAME: Scroll for Cape for Weapon Def.
+
+ID: 2041004 NAME: Scroll for Cape for Weapon Def.
+
+ID: 2041005 NAME: Scroll for Cape for Weapon Def.
+
+ID: 2041006 NAME: Scroll for Cape for HP
+
+ID: 2041007 NAME: Scroll for Cape for HP
+
+ID: 2041008 NAME: Scroll for Cape for HP
+
+ID: 2041009 NAME: Scroll for Cape for MP
+
+ID: 2041010 NAME: Scroll for Cape for MP
+
+ID: 2041011 NAME: Scroll for Cape for MP
+
+ID: 2041012 NAME: Scroll for Cape for STR
+
+ID: 2041013 NAME: Scroll for Cape for STR
+
+ID: 2041014 NAME: Scroll for Cape for STR
+
+ID: 2041015 NAME: Scroll for Cape for INT
+
+ID: 2041016 NAME: Scroll for Cape for INT
+
+ID: 2041017 NAME: Scroll for Cape for INT
+
+ID: 2041018 NAME: Scroll for Cape for DEX
+
+ID: 2041019 NAME: Scroll for Cape for DEX
+
+ID: 2041020 NAME: Scroll for Cape for DEX
+
+ID: 2041021 NAME: Scroll for Cape for LUK
+
+ID: 2041022 NAME: Scroll for Cape for LUK
+
+ID: 2041023 NAME: Scroll for Cape for LUK
+
+ID: 2041024 NAME: Scroll for Cape for Magic Def.
+
+ID: 2041025 NAME: Scroll for Cape for Weapon Def.
+
+ID: 2041026 NAME: Dark scroll for Cape for Magic Def.
+
+ID: 2041027 NAME: Dark scroll for Cape for Magic Def.
+
+ID: 2041028 NAME: Dark scroll for Cape for Weapon Def.
+
+ID: 2041029 NAME: Dark scroll for Cape for Weapon Def.
+
+ID: 2041030 NAME: Dark scroll for Cape for HP
+
+ID: 2041031 NAME: Dark scroll for Cape for HP
+
+ID: 2041032 NAME: Dark scroll for Cape for MP
+
+ID: 2041033 NAME: Dark scroll for Cape for MP
+
+ID: 2041034 NAME: Dark scroll for Cape for STR
+
+ID: 2041035 NAME: Dark scroll for Cape for STR
+
+ID: 2041036 NAME: Dark scroll for Cape for INT
+
+ID: 2041037 NAME: Dark scroll for Cape for INT
+
+ID: 2041038 NAME: Dark scroll for Cape for DEX
+
+ID: 2041039 NAME: Dark scroll for Cape for DEX
+
+ID: 2041040 NAME: Dark scroll for Cape for LUK
+
+ID: 2041041 NAME: Dark scroll for Cape for LUK
+
+ID: 2041042 NAME: Scroll for Cape for Magic DEF
+
+ID: 2041043 NAME: Scroll for Cape for Magic DEF
+
+ID: 2041044 NAME: Scroll for Cape for Weapon DEF
+
+ID: 2041045 NAME: Scroll for Cape for Weapon DEF
+
+ID: 2041046 NAME: Scroll for Cape for MaxHP
+
+ID: 2041047 NAME: Scroll for Cape for MaxHP
+
+ID: 2041048 NAME: Scroll for Cape for MP
+
+ID: 2041049 NAME: Scroll for Cape for MP
+
+ID: 2041050 NAME: Scroll for Cape for STR
+
+ID: 2041051 NAME: Scroll for Cape for STR
+
+ID: 2041052 NAME: Scroll for Cape for INT
+
+ID: 2041053 NAME: Scroll for Cape for INT
+
+ID: 2041054 NAME: Scroll for Cape for DEX
+
+ID: 2041055 NAME: Scroll for Cape for DEX
+
+ID: 2041056 NAME: Scroll for Cape for LUK
+
+ID: 2041057 NAME: Scroll for Cape for LUK
+
+ID: 2041058 NAME: Scroll for Cape for Cold Protection 10%
+
+ID: 2041059 NAME: [4yrAnniv] Scroll for Cape for STR 20%
+
+ID: 2041060 NAME: [4yrAnniv] Scroll for Cape for INT 20%
+
+ID: 2041061 NAME: [4yrAnniv] Scroll for Cape for DEX 20%
+
+ID: 2041062 NAME: [4yrAnniv] Scroll for Cape for LUK 20%
+
+ID: 2041200 NAME: Dragon Stone
+
+ID: 2041212 NAME: Rock of Wisdom
+
+ID: 2043000 NAME: Scroll for One-Handed Sword for ATT
+
+ID: 2043001 NAME: Scroll for One-Handed Sword for ATT
+
+ID: 2043002 NAME: Scroll for One-Handed Sword for ATT
+
+ID: 2043003 NAME: Scroll for One-Handed Sword for ATT
+
+ID: 2043004 NAME: Dark scroll for One-Handed Sword for ATT
+
+ID: 2043005 NAME: Dark scroll for One-Handed Sword for ATT
+
+ID: 2043006 NAME: Dark Scroll for One-Handed Sword for Magic Att.
+
+ID: 2043007 NAME: Dark Scroll for One-Handed Sword for Magic Att.
+
+ID: 2043008 NAME: Scroll for One-Handed Sword for Magic Att.
+
+ID: 2043009 NAME: Scroll for One-Handed Sword for Magic Att.
+
+ID: 2043010 NAME: Scroll for One-Handed Sword for Magic Att.
+
+ID: 2043011 NAME: Scroll for One-Handed Sword for ATT
+
+ID: 2043012 NAME: Scroll for One-Handed Sword for ATT
+
+ID: 2043013 NAME: [4yrAnniv]Scroll for One-Handed Sword for ATT
+
+ID: 2043015 NAME: Scroll for One-Handed Sword for Accuracy 100%
+
+ID: 2043016 NAME: Scroll for One-Handed Sword for Accuracy 70%
+
+ID: 2043017 NAME: Scroll for One-Handed Sword for Accuracy 60%
+
+ID: 2043018 NAME: Scroll for One-Handed Sword for Accuracy 30%
+
+ID: 2043019 NAME: Scroll for One-Handed Sword for Accuracy 10%
+
+ID: 2043100 NAME: Scroll for One-Handed Axe for ATT
+
+ID: 2043101 NAME: Scroll for One-Handed Axe for ATT
+
+ID: 2043102 NAME: Scroll for One-Handed Axe for ATT
+
+ID: 2043103 NAME: Scroll for One-Handed Axe for ATT
+
+ID: 2043104 NAME: Dark scroll for One-Handed Axe for ATT
+
+ID: 2043105 NAME: Dark scroll for One-Handed Axe for ATT
+
+ID: 2043106 NAME: Scroll for One-Handed Axe for ATT
+
+ID: 2043107 NAME: Scroll for One-Handed Axe for ATT
+
+ID: 2043108 NAME: [4yrAnniv]Scroll for One-Handed Axe for ATT
+
+ID: 2043110 NAME: Scroll for One-Handed Axe for Accuracy 100%
+
+ID: 2043111 NAME: Scroll for One-Handed Axe for Accuracy 70%
+
+ID: 2043112 NAME: Scroll for One-Handed Axe for Accuracy 60%
+
+ID: 2043113 NAME: Scroll for One-Handed Axe for Accuracy 30%
+
+ID: 2043114 NAME: Scroll for One-Handed Axe for Accuracy 10%
+
+ID: 2043200 NAME: Scroll for One-Handed BW for ATT
+
+ID: 2043201 NAME: Scroll for One-Handed BW for ATT
+
+ID: 2043202 NAME: Scroll for One-Handed BW for ATT
+
+ID: 2043203 NAME: Scroll for One-Handed BW for ATT
+
+ID: 2043204 NAME: Dark scroll for One-Handed BW for ATT
+
+ID: 2043205 NAME: Dark scroll for One-Handed BW for ATT
+
+ID: 2043206 NAME: Scroll for One-Handed BW for ATT
+
+ID: 2043207 NAME: Scroll for One-Handed BW for ATT
+
+ID: 2043208 NAME: [4yrAnniv]Scroll for One-Handed BW for ATT
+
+ID: 2043210 NAME: Scroll for One-Handed BW for Accuracy 100%
+
+ID: 2043211 NAME: Scroll for One-Handed BW for Accuracy 70%
+
+ID: 2043212 NAME: Scroll for One-Handed BW for Accuracy 60%
+
+ID: 2043213 NAME: Scroll for One-Handed BW for Accuracy 30%
+
+ID: 2043214 NAME: Scroll for One-Handed BW for Accuracy 10%
+
+ID: 2043300 NAME: Scroll for Dagger for ATT
+
+ID: 2043301 NAME: Scroll for Dagger for ATT
+
+ID: 2043302 NAME: Scroll for Dagger for ATT
+
+ID: 2043303 NAME: Scroll for Dagger for ATT
+
+ID: 2043304 NAME: Dark scroll for Dagger for ATT
+
+ID: 2043305 NAME: Dark scroll for Dagger for ATT
+
+ID: 2043306 NAME: Scroll for Dagger for ATT
+
+ID: 2043307 NAME: Scroll for Dagger for ATT
+
+ID: 2043308 NAME: [4yrAnniv]Scroll for Dagger for ATT
+
+ID: 2043700 NAME: Scroll for Wand for Magic Att.
+
+ID: 2043701 NAME: Scroll for Wand for Magic Att.
+
+ID: 2043702 NAME: Scroll for Wand for Magic Att.
+
+ID: 2043703 NAME: Scroll for Wand for Magic Att.
+
+ID: 2043704 NAME: Dark scroll for Wand for Magic Att.
+
+ID: 2043705 NAME: Dark scroll for Wand for Magic Att.
+
+ID: 2043706 NAME: Scroll for Wand for Magic Att.
+
+ID: 2043707 NAME: Scroll for Wand for Magic Att.
+
+ID: 2043708 NAME: [4yrAnniv]Scroll for Wand for Magic Att.
+
+ID: 2043800 NAME: Scroll for Staff for Magic Att.
+
+ID: 2043801 NAME: Scroll for Staff for Magic Att.
+
+ID: 2043802 NAME: Scroll for Staff for Magic Att.
+
+ID: 2043803 NAME: Scroll for Staff for Magic Att.
+
+ID: 2043804 NAME: Dark scroll for Staff for Magic Att.
+
+ID: 2043805 NAME: Dark scroll for Staff for Magic Att.
+
+ID: 2043806 NAME: Scroll for Staff for Magic Att.
+
+ID: 2043807 NAME: Scroll for Staff for Magic Att.
+
+ID: 2043808 NAME: [4yrAnniv]Scroll for Staff for Magic Att.
+
+ID: 2044000 NAME: Scroll for Two-handed Sword for ATT
+
+ID: 2044001 NAME: Scroll for Two-handed Sword for ATT
+
+ID: 2044002 NAME: Scroll for Two-handed Sword for ATT
+
+ID: 2044003 NAME: Scroll for Two-handed Sword for ATT
+
+ID: 2044004 NAME: Dark scroll for Two-handed Sword for ATT
+
+ID: 2044005 NAME: Dark scroll for Two-handed Sword for ATT
+
+ID: 2044006 NAME: Scroll for Two-Handed Sword for ATT
+
+ID: 2044007 NAME: Scroll for Two-Handed Sword for ATT
+
+ID: 2044008 NAME: [4yrAnniv]Scroll for Two-Handed Sword for ATT
+
+ID: 2044010 NAME: Scroll for Two-Handed Sword for Accuracy 100%
+
+ID: 2044011 NAME: Scroll for Two-Handed Sword for Accuracy 70%
+
+ID: 2044012 NAME: Scroll for Two-Handed Sword for Accuracy 60%
+
+ID: 2044013 NAME: Scroll for Two-Handed Sword for Accuracy 30%
+
+ID: 2044014 NAME: Scroll for Two-Handed Sword for Accuracy 10%
+
+ID: 2044100 NAME: Scroll for Two-handed Axe for ATT
+
+ID: 2044101 NAME: Scroll for Two-handed Axe for ATT
+
+ID: 2044102 NAME: Scroll for Two-handed Axe for ATT
+
+ID: 2044103 NAME: Scroll for Two-handed Axe for ATT
+
+ID: 2044104 NAME: Dark scroll for Two-handed Axe for ATT
+
+ID: 2044105 NAME: Dark scroll for Two-handed Axe for ATT
+
+ID: 2044106 NAME: Scroll for Two-Handed Axe for ATT
+
+ID: 2044107 NAME: Scroll for Two-Handed Axe for ATT
+
+ID: 2044108 NAME: [4yrAnniv]Scroll for Two-Handed Axe for ATT
+
+ID: 2044110 NAME: Scroll for Two-Handed Axe for Accuracy 100%
+
+ID: 2044111 NAME: Scroll for Two-Handed Axe for Accuracy 70%
+
+ID: 2044112 NAME: Scroll for Two-Handed Axe for Accuracy 60%
+
+ID: 2044113 NAME: Scroll for Two-Handed Axe for Accuracy 30%
+
+ID: 2044114 NAME: Scroll for Two-Handed Axe for Accuracy 10%
+
+ID: 2044200 NAME: Scroll for Two-handed BW for ATT
+
+ID: 2044201 NAME: Scroll for Two-handed BW for ATT
+
+ID: 2044202 NAME: Scroll for Two-handed BW for ATT
+
+ID: 2044203 NAME: Scroll for Two-handed BW for ATT
+
+ID: 2044204 NAME: Dark scroll for Two-handed BW for ATT
+
+ID: 2044205 NAME: Dark scroll for Two-handed BW for ATT
+
+ID: 2044206 NAME: Scroll for Two-Handed BW for ATT
+
+ID: 2044207 NAME: Scroll for Two-Handed BW for ATT
+
+ID: 2044208 NAME: [4yrAnniv]Scroll for Two-Handed BW for ATT
+
+ID: 2044210 NAME: Scroll for Two-Handed BW for Accuracy 100%
+
+ID: 2044211 NAME: Scroll for Two-Handed BW for Accuracy 70%
+
+ID: 2044212 NAME: Scroll for Two-Handed BW for Accuracy 60%
+
+ID: 2044213 NAME: Scroll for Two-Handed BW for Accuracy 30%
+
+ID: 2044214 NAME: Scroll for Two-Handed BW for Accuracy 10%
+
+ID: 2044300 NAME: Scroll for Spear for ATT
+
+ID: 2044301 NAME: Scroll for Spear for ATT
+
+ID: 2044302 NAME: Scroll for Spear for ATT
+
+ID: 2044303 NAME: Scroll for Spear for ATT
+
+ID: 2044304 NAME: Dark scroll for Spear for ATT
+
+ID: 2044305 NAME: Dark scroll for Spear for ATT
+
+ID: 2044306 NAME: Scroll for Spear for ATT
+
+ID: 2044307 NAME: Scroll for Spear for ATT
+
+ID: 2044308 NAME: [4yrAnniv]Scroll for Spear for ATT
+
+ID: 2044310 NAME: Scroll for Spear for Accuracy 100%
+
+ID: 2044311 NAME: Scroll for Spear for Accuracy 70%
+
+ID: 2044312 NAME: Scroll for Spear for Accuracy 60%
+
+ID: 2044313 NAME: Scroll for Spear for Accuracy 30%
+
+ID: 2044314 NAME: Scroll for Spear for Accuracy 10%
+
+ID: 2044400 NAME: Scroll for Pole Arm for ATT
+
+ID: 2044401 NAME: Scroll for Pole Arm for ATT
+
+ID: 2044402 NAME: Scroll for Pole Arm for ATT
+
+ID: 2044403 NAME: Scroll for Pole Arm for ATT
+
+ID: 2044404 NAME: Dark scroll for Pole Arm for ATT
+
+ID: 2044405 NAME: Dark scroll for Pole Arm for ATT
+
+ID: 2044406 NAME: Scroll for Pole Arm for ATT
+
+ID: 2044407 NAME: Scroll for Pole Arm for ATT
+
+ID: 2044408 NAME: [4yrAnniv]Scroll for Pole Arm for ATT
+
+ID: 2044410 NAME: Scroll for Pole-Arm for Accuracy 100%
+
+ID: 2044411 NAME: Scroll for Pole-Arm for Accuracy 70%
+
+ID: 2044412 NAME: Scroll for Pole-Arm for Accuracy 60%
+
+ID: 2044413 NAME: Scroll for Pole-Arm for Accuracy 30%
+
+ID: 2044414 NAME: Scroll for Pole-Arm for Accuracy 10%
+
+ID: 2044500 NAME: Scroll for Bow for ATT
+
+ID: 2044501 NAME: Scroll for Bow for ATT
+
+ID: 2044502 NAME: Scroll for Bow for ATT
+
+ID: 2044503 NAME: Scroll for Bow for ATT
+
+ID: 2044504 NAME: Dark scroll for Bow for ATT
+
+ID: 2044505 NAME: Dark scroll for Bow for ATT
+
+ID: 2044506 NAME: Scroll for Bow for ATT
+
+ID: 2044507 NAME: Scroll for Bow for ATT
+
+ID: 2044508 NAME: [4yrAnniv]Scroll for Bow for ATT
+
+ID: 2044600 NAME: Scroll for Crossbow for ATT
+
+ID: 2044601 NAME: Scroll for Crossbow for ATT
+
+ID: 2044602 NAME: Scroll for Crossbow for ATT
+
+ID: 2044603 NAME: Scroll for Crossbow for ATT
+
+ID: 2044604 NAME: Dark scroll for Crossbow for ATT
+
+ID: 2044605 NAME: Dark scroll for Crossbow for ATT
+
+ID: 2044606 NAME: Scroll for Crossbow for ATT
+
+ID: 2044607 NAME: Scroll for Crossbow for ATT
+
+ID: 2044608 NAME: [4yrAnniv]Scroll for Crossbow for ATT
+
+ID: 2044700 NAME: Scroll for Claw for ATT
+
+ID: 2044701 NAME: Scroll for Claw for ATT
+
+ID: 2044702 NAME: Scroll for Claw for ATT
+
+ID: 2044703 NAME: Scroll for Claw for ATT
+
+ID: 2044704 NAME: Dark Scroll for Claw for ATT
+
+ID: 2044705 NAME: Dark scroll for Claw for ATT
+
+ID: 2044706 NAME: Scroll for Claw for ATT
+
+ID: 2044707 NAME: Scroll for Claw for ATT
+
+ID: 2044708 NAME: [4yrAnniv]Scroll for Claw for ATT
+
+ID: 2044800 NAME: Scroll for Knuckler for Attack 100%
+
+ID: 2044801 NAME: Scroll for Knuckler for Attack 60%
+
+ID: 2044802 NAME: Scroll for Knuckler for ATT
+
+ID: 2044803 NAME: Scroll for Knuckler for Attack 70%
+
+ID: 2044804 NAME: Scroll for Knuckler for Attack 30%
+
+ID: 2044805 NAME: Scroll for Knuckle for Accuracy 100%
+
+ID: 2044806 NAME: Scroll for Knuckle for Accuracy 70%
+
+ID: 2044807 NAME: Scroll for Knuckle for Accuracy 60%
+
+ID: 2044808 NAME: Scroll for Knuckle for Accuracy 30%
+
+ID: 2044809 NAME: Scroll for Knuckle for Accuracy 10%
+
+ID: 2044810 NAME: [4yrAnniv] Scroll for Knuckle for Attack 40%
+
+ID: 2044900 NAME: Scroll for Gun for Attack 100%
+
+ID: 2044901 NAME: Scroll for Gun for Attack 60%
+
+ID: 2044902 NAME: Scroll for Gun for ATT
+
+ID: 2044903 NAME: Scroll for Gun for Attack 70%
+
+ID: 2044904 NAME: Scroll for Gun for Attack 30%
+
+ID: 2044905 NAME: [4yrAnniv] Gun for Attack 40%
+
+ID: 2048000 NAME: Scroll for Pet Equip. for Speed
+
+ID: 2048001 NAME: Scroll for Pet Equip. for Speed
+
+ID: 2048002 NAME: Scroll for Pet Equip. for Speed
+
+ID: 2048003 NAME: Scroll for Pet Equip. for Jump
+
+ID: 2048004 NAME: Scroll for Pet Equip. for Jump
+
+ID: 2048005 NAME: Scroll for Pet Equip. for Jump
+
+ID: 2048006 NAME: Scroll for Speed for Pet Equip.
+
+ID: 2048007 NAME: Scroll for Speed for Pet Equip.
+
+ID: 2048008 NAME: Scroll for jump for Pet Equip.
+
+ID: 2048009 NAME: Scroll for jump for Pet Equip.
+
+ID: 2048010 NAME: Scroll for Pet Equip. for STR 60%
+
+ID: 2048011 NAME: Scroll for Pet Equip. for INT 60%
+
+ID: 2048012 NAME: Scroll for Pet Equip. for DEX 60%
+
+ID: 2048013 NAME: Scroll for Pet Equip. for LUK 60%
+
+ID: 2049000 NAME: Clean Slate Scroll 1%
+
+ID: 2049001 NAME: Clean Slate Scroll 3%
+
+ID: 2049002 NAME: Clean Slate Scroll 5%
+
+ID: 2049003 NAME: Clean Slate Scroll 20%
+
+ID: 2049100 NAME: Chaos Scroll 60%
+
+ID: 2049101 NAME: Liar Tree Sap 100%
+
+ID: 2049102 NAME: Maple Syrup 100%
+
+ID: 2049104 NAME: Agent Equipment Scroll 100%
+
+ID: 2050000 NAME: Antidote
+
+ID: 2050001 NAME: Eyedrop
+
+ID: 2050002 NAME: Tonic
+
+ID: 2050003 NAME: Holy Water
+
+ID: 2050004 NAME: All Cure Potion
+
+ID: 2050005 NAME: One View
+
+ID: 2050006 NAME: Owl Potion
+
+ID: 2050098 NAME: The Lost eye
+
+ID: 2050099 NAME: Flaming feather
+
+ID: 2060000 NAME: Arrow for Bow
+
+ID: 2060001 NAME: Bronze Arrow for Bow
+
+ID: 2060002 NAME: Steel Arrow for Bow
+
+ID: 2060003 NAME: Red Arrow for Bow
+
+ID: 2060004 NAME: Diamond Arrow for Bow
+
+ID: 2060005 NAME: Snowball
+
+ID: 2060006 NAME: Big Snowball
+
+ID: 2061000 NAME: Arrow for Crossbow
+
+ID: 2061001 NAME: Bronze Arrow for Crossbow
+
+ID: 2061002 NAME: Steel Arrow for Crossbow
+
+ID: 2061003 NAME: Blue Arrow for Crossbow
+
+ID: 2061004 NAME: Diamond Arrow for Crossbow
+
+ID: 2070000 NAME: Subi Throwing-Stars
+
+ID: 2070001 NAME: Wolbi Throwing-Stars
+
+ID: 2070002 NAME: Mokbi Throwing-Stars
+
+ID: 2070003 NAME: Kumbi Throwing-Stars
+
+ID: 2070004 NAME: Tobi Throwing-Stars
+
+ID: 2070005 NAME: Steely Throwing-Knives
+
+ID: 2070006 NAME: Ilbi Throwing-Stars
+
+ID: 2070007 NAME: Hwabi Throwing-Stars
+
+ID: 2070008 NAME: Snowball
+
+ID: 2070009 NAME: Wooden Top
+
+ID: 2070010 NAME: Icicle
+
+ID: 2070011 NAME: Maple Throwing-Stars
+
+ID: 2070012 NAME: Paper Fighter Plane
+
+ID: 2070013 NAME: Orange
+
+ID: 2070014 NAME: Devil Rain Throwing Star
+
+ID: 2070015 NAME: A Beginner Thief's Throwing Stars
+
+ID: 2070016 NAME: Crystal Ilbi Throwing-Stars
+
+ID: 2070018 NAME: Balanced Fury
+
+ID: 2083000 NAME: Heart Megaphone
+
+ID: 2084000 NAME: Skull Megaphone
+
+ID: 2100000 NAME: Black Sack
+
+ID: 2100001 NAME: Monster Sack 1
+
+ID: 2100002 NAME: Monster Sack 2
+
+ID: 2100003 NAME: Monster Sack 3
+
+ID: 2100004 NAME: Monster Sack 4
+
+ID: 2100005 NAME: Monster Sack 5
+
+ID: 2100006 NAME: Monster Sack 6
+
+ID: 2100007 NAME: Monster Sack 7
+
+ID: 2100008 NAME: Summoning the Boss
+
+ID: 2100009 NAME: Summoning New-Type Balrog
+
+ID: 2100010 NAME: Summoning "Dances with Balrog's Clone"
+
+ID: 2100011 NAME: Summoning Grendel the Really Old's Clone
+
+ID: 2100012 NAME: Summoning Athena Pierce's Clone
+
+ID: 2100013 NAME: Summoning Dark Lord's Clone
+
+ID: 2100014 NAME: Brand New Monster Galore
+
+ID: 2100015 NAME: Summoning Bag of Birds
+
+ID: 2100016 NAME: Different Sack
+
+ID: 2100017 NAME: Alien Sack
+
+ID: 2100018 NAME: Toy Robot Sack
+
+ID: 2100019 NAME: Toy Trojan Sack
+
+ID: 2100020 NAME: Moon Sack
+
+ID: 2100021 NAME: Moon Sack
+
+ID: 2100022 NAME: Moon Sack
+
+ID: 2100023 NAME: Moon Sack
+
+ID: 2100024 NAME: Moon Sack
+
+ID: 2100025 NAME: Moon Sack
+
+ID: 2100026 NAME: Penalty Monster Sack 1
+
+ID: 2100027 NAME: Penalty Monster Sack 2
+
+ID: 2100028 NAME: Summoning Three-Tail Fox
+
+ID: 2100029 NAME: Summoning Ghosts
+
+ID: 2100030 NAME: Summoning Goblins
+
+ID: 2100031 NAME: Summoning Horntail A
+
+ID: 2100032 NAME: Summoning Horntail C
+
+ID: 2100033 NAME: Monster Sack 8
+
+ID: 2100034 NAME: Monster Sack 9
+
+ID: 2100035 NAME: Monster Sack 10
+
+ID: 2100036 NAME: Monster Sack 11
+
+ID: 2100037 NAME: Summon Master Monsters 1
+
+ID: 2100038 NAME: Summon Master Monsters 2
+
+ID: 2100039 NAME: Summon Master Monsters 3
+
+ID: 2100040 NAME: Summon Master Monsters 4
+
+ID: 2100041 NAME: Summoning Lord Pirate
+
+ID: 2100042 NAME: Summoning Peeking Lord Pirate
+
+ID: 2100043 NAME: Summoning Angry Lord Pirate
+
+ID: 2100044 NAME: Summoning Enraged Lord Pirate
+
+ID: 2100045 NAME: Summoning Lord Pirate's Jar
+
+ID: 2100046 NAME: Summoning Lord Pirate's Ginseng Jar
+
+ID: 2100047 NAME: Summoning Lord Pirate's Bellflower
+
+ID: 2100048 NAME: Summoning Lord Pirate's Old Bellflower
+
+ID: 2100049 NAME: Summoning Lord Pirate's Mr. Alli
+
+ID: 2100050 NAME: Summoning Lord Pirate's Kru
+
+ID: 2100051 NAME: Summoning Lord Pirate's Captain
+
+ID: 2100052 NAME: Moon Rabit Monster Sack
+
+ID: 2100053 NAME: Summon Romeo and Juliet PQ Mob
+
+ID: 2100054 NAME: Summon Romeo and Juliet PQ Mob
+
+ID: 2100055 NAME: Summon Romeo and Juliet PQ Mob
+
+ID: 2100056 NAME: Summon Romeo and Juliet PQ Mob
+
+ID: 2100057 NAME: Summon Romeo and Juliet PQ Mob
+
+ID: 2100058 NAME: Summon Romeo and Juliet PQ Mob
+
+ID: 2100059 NAME: Summon Romeo and Juliet PQ Mob
+
+ID: 2100060 NAME: Weird Sack
+
+ID: 2100061 NAME: Strange Sack
+
+ID: 2100062 NAME: Interesting Sack
+
+ID: 2100063 NAME: Summon Ghost
+
+ID: 2100064 NAME: Summon Ghost  2
+
+ID: 2100065 NAME: Summon Ghost  3
+
+ID: 2100066 NAME: Summon Slime
+
+ID: 2100067 NAME: Bombs for Hunting Competition
+
+ID: 2100068 NAME: Snowman Summon Sack
+
+ID: 2100069 NAME: Event Box
+
+ID: 2100070 NAME: 1st Monster Marble
+
+ID: 2100071 NAME: Mu Lung Dojo Summon Package1_Mano
+
+ID: 2100072 NAME: Mu Lung Dojo Summon Package2_Stumpy
+
+ID: 2101000 NAME: Summoning Mushmom
+
+ID: 2101001 NAME: Summoning Crimson Balrog
+
+ID: 2101002 NAME: Summoning Werewolf
+
+ID: 2101003 NAME: Summoning Yeti & Pepe
+
+ID: 2101004 NAME: Summoning Superslime
+
+ID: 2101005 NAME: Summoning Tauromacis
+
+ID: 2101006 NAME: Summoning Taurospear
+
+ID: 2101007 NAME: Summoning Lycanthrope
+
+ID: 2101008 NAME: Summoning Dark Yeti & Pepe
+
+ID: 2101009 NAME: Summon Red Boogie
+
+ID: 2101010 NAME: Summon Blue Boogie
+
+ID: 2101011 NAME: Summon Green Boogie
+
+ID: 2101012 NAME: Summon Black Boogie
+
+ID: 2101013 NAME: Summon Showa Boss
+
+ID: 2101014 NAME: Summon Monsters
+
+ID: 2101015 NAME: Summon Bodyguard A
+
+ID: 2101016 NAME: Summon Toy Robot
+
+ID: 2101017 NAME: Summon Black Boogie
+
+ID: 2101018 NAME: Summon Black Boogie
+
+ID: 2101019 NAME: Summon Pachinko Monster
+
+ID: 2101020 NAME: Halloween Monster Sack
+
+ID: 2101021 NAME: Monster Sack (Jr. Mimick)
+
+ID: 2101022 NAME: Monster Sack (Golden Egg)
+
+ID: 2101023 NAME: Monster Sack (Slime Gold)
+
+ID: 2101024 NAME: Monster Sack (Slime Silver)
+
+ID: 2101025 NAME: Monster Sack (Slime Red)
+
+ID: 2101026 NAME: Monster Sack (Mushmom Blue)
+
+ID: 2101039 NAME: Monster Summoning Sack(Alishar)
+
+ID: 2101043 NAME: Amoria Penalty Monster Sack1
+
+ID: 2101044 NAME: Amoria Penalty Monster Sack2
+
+ID: 2101045 NAME: Amoria Penalty Monster Sack3
+
+ID: 2101046 NAME: Amoria Penalty Monster Sack4
+
+ID: 2101047 NAME: Amoria Penalty Monster Sack5
+
+ID: 2101048 NAME: Amoria Penalty Monster Sack6
+
+ID: 2101049 NAME: Amoria Penalty Monster Sack7
+
+ID: 2101050 NAME: GM event Sack1
+
+ID: 2101051 NAME: GM event Sack2
+
+ID: 2101052 NAME: GM event Sack3
+
+ID: 2101053 NAME: GM event Sack4
+
+ID: 2101054 NAME: GM event Sack5
+
+ID: 2101055 NAME: GM event Sack6
+
+ID: 2101056 NAME: GM event Sack7
+
+ID: 2101057 NAME: Amoria Penalty Monster Sack8
+
+ID: 2101058 NAME: Amoria Penalty Monster Sack8
+
+ID: 2101060 NAME: Monster Sack (SG CBD)
+
+ID: 2101061 NAME: Monster Sack (SG Ghost ship)
+
+ID: 2101072 NAME: Monster Sack
+
+ID: 2101073 NAME: Monster Sack
+
+ID: 2101080 NAME: Monster Sack(x-mas07_1)
+
+ID: 2101081 NAME: Monster Sack(x-mas07_2)
+
+ID: 2101082 NAME: Monster Sack(x-mas07_3)
+
+ID: 2101083 NAME: Monster Sack(x-mas07_4)
+
+ID: 2101084 NAME: Monster Sack(x-mas07_5)
+
+ID: 2101085 NAME: Monster Sack(x-mas07_6)
+
+ID: 2101086 NAME: Monster Sack(x-mas07_7)
+
+ID: 2101087 NAME: Monster Sack(x-mas07_8)
+
+ID: 2101088 NAME: Monster Sack(x-mas07_9)
+
+ID: 2101089 NAME: Monster Sack(x-mas07_10)
+
+ID: 2101090 NAME: Monster Sack(x-mas07_11)
+
+ID: 2101091 NAME: Monster Sack(x-mas07_12)
+
+ID: 2101092 NAME: Monster Sack(x-mas07_13)
+
+ID: 2101093 NAME: Monster Sack(x-mas07_14)
+
+ID: 2101124 NAME: Giant Snowman (Lvl 1) - Easy Sack
+
+ID: 2101125 NAME: Giant Snowman (Lvl 1) - Medium Sack
+
+ID: 2101126 NAME: Giant Snowman (Lvl 1) - Hard Sack
+
+ID: 2101127 NAME: Cross (Easy) Sack
+
+ID: 2101128 NAME: Cross (Medium) Sack
+
+ID: 2101129 NAME: Cross (Hard) Sack
+
+ID: 2101130 NAME: Summon Christmas Socks
+
+ID: 2101131 NAME: Summon Luck Sack
+
+ID: 2101137 NAME: Masteria Summoning Bag-Jungle Jam
+
+ID: 2101138 NAME: Masteria Summoning Bag-Corrupted Army
+
+ID: 2101139 NAME: Masteria Summoning Bag-Bosses
+
+ID: 2101140 NAME: MasteriaPQ Summon Bag1
+
+ID: 2101141 NAME: MasteriaPQ Summon Bag2
+
+ID: 2101142 NAME: MasteriaPQ Summon Bag3
+
+ID: 2101143 NAME: MasteriaPQ Summon Bag4
+
+ID: 2101144 NAME: MasteriaPQ Summon Bag5
+
+ID: 2101145 NAME: MasteriaPQ Summon Bag6
+
+ID: 2101146 NAME: MasteriaPQ Summon Bag7
+
+ID: 2101147 NAME: MasteriaPQ Summon Bag8
+
+ID: 2101148 NAME: MasteriaPQ Summon Bag9
+
+ID: 2101158 NAME: Big Puff Daddy Sack
+
+ID: 2102000 NAME: Monster Attack Lvl 1
+
+ID: 2102001 NAME: Monster Attack Lvl 2
+
+ID: 2102002 NAME: Monster Attack Lvl 3
+
+ID: 2102003 NAME: Monster Attack Lvl 4
+
+ID: 2102004 NAME: Monster Attack Lvl 5
+
+ID: 2102005 NAME: Monster Attack Lvl 6
+
+ID: 2102006 NAME: Monster Attack Lvl 7
+
+ID: 2102007 NAME: Monster Attack Lvl 8
+
+ID: 2102008 NAME: Monster Attack Package 1
+
+ID: 2102009 NAME: Monster Attack Package 2
+
+ID: 2109000 NAME: Monster Marble
+
+ID: 2109001 NAME: 1st Monster Marble
+
+ID: 2109002 NAME: 2nd Monster Marble
+
+ID: 2109003 NAME: 3rd Monster Marble
+
+ID: 2120000 NAME: Pet Food
+
+ID: 2120008 NAME: Dry Treat
+
+ID: 2160101 NAME: New Year's Card
+
+ID: 2190000 NAME: Lie Detector Test
+
+ID: 2210000 NAME: Orange Mushroom Piece
+
+ID: 2210001 NAME: Ribbon Pig Piece
+
+ID: 2210002 NAME: Grey Piece
+
+ID: 2210003 NAME: Dragon Elixir
+
+ID: 2210005 NAME: Tigun Transformation Bundle.
+
+ID: 2210006 NAME: Rainbow-colored Snail Shell
+
+ID: 2210007 NAME: Change to Ghost
+
+ID: 2210008 NAME: Ghost Candy
+
+ID: 2210009 NAME: Sophillia's Abandoned Doll
+
+ID: 2210010 NAME: Potion of Transformation
+
+ID: 2210011 NAME: Potion of Transformation
+
+ID: 2210012 NAME: Change to Mouse
+
+ID: 2210016 NAME: Mini Draco Transformation
+
+ID: 2210023 NAME: Cliff's Special Potion
+
+ID: 2210024 NAME: Maplemas Party Potion
+
+ID: 2210032 NAME: Cody's Picture
+
+ID: 2210033 NAME: Cake Picture
+
+ID: 2211000 NAME: Cliff's Special Potion
+
+ID: 2212000 NAME: Maplemas Party Potion
+
+ID: 2240000 NAME: Moonstone Engagement Ring Box
+
+ID: 2240001 NAME: Star gem Engagement Ring Box
+
+ID: 2240002 NAME: Golden Heart Engagement Ring Box
+
+ID: 2240003 NAME: Silver Swan Engagement Ring Box
+
+ID: 2240004 NAME: Ring of Moon Stone
+
+ID: 2240005 NAME: Ring of Moon Stone: 2 Carats
+
+ID: 2240006 NAME: Ring of Moon Stone: 3 Carats
+
+ID: 2240007 NAME: Ring of Shining Star
+
+ID: 2240008 NAME: Ring of Shining Star: 2 Carats
+
+ID: 2240009 NAME: Ring of Shining Star: 3 Carats
+
+ID: 2240010 NAME: Gold Heart Ring
+
+ID: 2240011 NAME: Gold Heart Ring: 2 Carats
+
+ID: 2240012 NAME: Gold Heart Ring: 3 Carats
+
+ID: 2240013 NAME: Ring of Silver Wing
+
+ID: 2240014 NAME: Ring of Silver Wing: 2 Carats
+
+ID: 2240015 NAME: Ring of Silver Wing: 3 Carats
+
+ID: 2260000 NAME: Revitalizer
+
+ID: 2270000 NAME: Pheromone Perfume
+
+ID: 2270001 NAME: Pouch
+
+ID: 2270002 NAME: Element Rock
+
+ID: 2270003 NAME: Cliff's Magic Cane
+
+ID: 2270004 NAME: Purification Marble
+
+ID: 2270005 NAME: 1st Transparent Marble
+
+ID: 2270006 NAME: 2nd Transparent Marble
+
+ID: 2270007 NAME: 3rd Transparent Marble
+
+ID: 2280000 NAME: Lava Bottle
+
+ID: 2280001 NAME: Black Cloud Machine
+
+ID: 2280002 NAME: Firm Hand
+
+ID: 2280003 NAME: [Skill Book] Maple Hero
+
+ID: 2280004 NAME: [Skill Book] Infinity
+
+ID: 2280005 NAME: [Skill Book] Dragon's Breath
+
+ID: 2280006 NAME: [Skill Book] Taunt
+
+ID: 2280007 NAME: [Skill Book] Advanced Combo Attack
+
+ID: 2280008 NAME: [Skill Book] Advanced Charge
+
+ID: 2280009 NAME: [Skill Book] Angel Ray
+
+ID: 2280010 NAME: [Skill Book] Triple Throw
+
+ID: 2280011 NAME: Ancient Ice Powder
+
+ID: 2280012 NAME: [Skill Book] Rush
+
+ID: 2290000 NAME: [Mastery Book] Monster Magnet
+
+ID: 2290001 NAME: [Mastery Book] Monster Magnet
+
+ID: 2290002 NAME: [Mastery Book] Achilles
+
+ID: 2290003 NAME: [Mastery Book] Achilles
+
+ID: 2290004 NAME: [Mastery Book] Rush
+
+ID: 2290005 NAME: [Mastery Book] Rush
+
+ID: 2290006 NAME: [Mastery Book] Power Stance
+
+ID: 2290007 NAME: [Mastery Book] Power Stance
+
+ID: 2290008 NAME: [Mastery Book] Advanced Combo Attack
+
+ID: 2290009 NAME: [Mastery Book] Advanced Combo Attack
+
+ID: 2290010 NAME: [Mastery Book] Brandish
+
+ID: 2290011 NAME: [Mastery Book] Brandish
+
+ID: 2290012 NAME: [Mastery Book] Blast
+
+ID: 2290013 NAME: [Mastery Book] Blast
+
+ID: 2290014 NAME: [Mastery Book] Guardian
+
+ID: 2290015 NAME: [Mastery Book] Guardian
+
+ID: 2290016 NAME: [Mastery Book] Enrage
+
+ID: 2290017 NAME: [Mastery Book] Enrage
+
+ID: 2290018 NAME: [Mastery Book] Holy Charge
+
+ID: 2290019 NAME: [Mastery Book] Divine Charge
+
+ID: 2290020 NAME: [Mastery Book] Heaven's Hammer
+
+ID: 2290021 NAME: [Mastery Book] Heaven's Hammer
+
+ID: 2290022 NAME: [Mastery Book] Berserk
+
+ID: 2290023 NAME: [Mastery Book] Berserk
+
+ID: 2290024 NAME: [Mastery Book] Mana Reflection
+
+ID: 2290025 NAME: [Mastery Book] Mana Reflection
+
+ID: 2290026 NAME: [Mastery Book] Big Bang
+
+ID: 2290027 NAME: [Mastery Book] Big Bang
+
+ID: 2290028 NAME: [Mastery Book] Infinity
+
+ID: 2290029 NAME: [Mastery Book] Infinity
+
+ID: 2290030 NAME: [Mastery Book] Paralyze
+
+ID: 2290031 NAME: [Mastery Book] Paralyze
+
+ID: 2290032 NAME: [Mastery Book] Chain Lightning
+
+ID: 2290033 NAME: [Mastery Book] Chain Lightning
+
+ID: 2290034 NAME: [Mastery Book]  Holy Shield
+
+ID: 2290035 NAME: [Mastery Book] Holy Shield
+
+ID: 2290036 NAME: [Mastery Book] Fire Demon
+
+ID: 2290037 NAME: [Mastery Book] Fire Demon
+
+ID: 2290038 NAME: [Mastery Book] Elquines
+
+ID: 2290039 NAME: [Mastery Book] Elquines
+
+ID: 2290040 NAME: [Mastery Book] Meteor Shower
+
+ID: 2290041 NAME: [Mastery Book] Meteor Shower
+
+ID: 2290042 NAME: [Mastery Book] Ice Demon
+
+ID: 2290043 NAME: [Mastery Book] Ice Demon
+
+ID: 2290044 NAME: [Mastery Book] Ifrit
+
+ID: 2290045 NAME: [Mastery Book] Ifrit
+
+ID: 2290046 NAME: [Mastery Book] Blizzard
+
+ID: 2290047 NAME: [Mastery Book] Blizzard
+
+ID: 2290048 NAME: [Mastery Book] Genesis
+
+ID: 2290049 NAME: [Mastery Book] Genesis
+
+ID: 2290050 NAME: [Mastery Book] Angel Ray
+
+ID: 2290051 NAME: [Mastery Book] Angel Ray
+
+ID: 2290052 NAME: [Mastery Book] Sharp Eyes
+
+ID: 2290053 NAME: [Mastery Book] Sharp Eyes
+
+ID: 2290054 NAME: [Mastery Book] Dragon's Breath
+
+ID: 2290055 NAME: [Mastery Book] Dragon's Breath
+
+ID: 2290056 NAME: [Mastery Book] Bow Expert
+
+ID: 2290057 NAME: [Mastery Book] Bow Expert
+
+ID: 2290058 NAME: [Mastery Book] Hamstring Shot
+
+ID: 2290059 NAME: [Mastery Book] Hamstring Shot
+
+ID: 2290060 NAME: [Mastery Book] Hurricane
+
+ID: 2290061 NAME: [Mastery Book] Hurricane
+
+ID: 2290062 NAME: [Mastery Book] Phoenix
+
+ID: 2290063 NAME: [Mastery Book] Phoenix
+
+ID: 2290064 NAME: [Mastery Book] Concentrate
+
+ID: 2290065 NAME: [Mastery Book] Concentrate
+
+ID: 2290066 NAME: [Mastery Book] Marksman Boost
+
+ID: 2290067 NAME: [Mastery Book] Marksman Boost
+
+ID: 2290068 NAME: [Mastery Book] Blind
+
+ID: 2290069 NAME: [Mastery Book] Blind
+
+ID: 2290070 NAME: [Mastery Book] Piercing Arrow
+
+ID: 2290071 NAME: [Mastery Book] Piercing Arrow
+
+ID: 2290072 NAME: [Mastery Book] Frostprey
+
+ID: 2290073 NAME: [Mastery Book] Frostprey
+
+ID: 2290074 NAME: [Mastery Book] Snipe
+
+ID: 2290075 NAME: [Mastery Book] Snipe
+
+ID: 2290076 NAME: [Mastery Book] Shadow Shifter
+
+ID: 2290077 NAME: [Mastery Book] Shadow Shifter
+
+ID: 2290078 NAME: [Mastery Book] Venomous Star/Venomous Stab
+
+ID: 2290079 NAME: [Mastery Book] Venomous Star/Venomous Stab
+
+ID: 2290080 NAME: [Mastery Book] Taunt
+
+ID: 2290081 NAME: [Mastery Book] Taunt
+
+ID: 2290082 NAME: [Mastery Book] Ninja Ambush
+
+ID: 2290083 NAME: [Mastery Book] Ninja Ambush
+
+ID: 2290084 NAME: [Mastery Book] Triple Throw
+
+ID: 2290085 NAME: [Mastery Book] Triple Throw
+
+ID: 2290086 NAME: [Mastery Book] Ninja Storm
+
+ID: 2290087 NAME: [Mastery Book] Ninja Storm
+
+ID: 2290088 NAME: [Mastery Book] Shadow Claw
+
+ID: 2290089 NAME: [Mastery Book] Shadow Claw
+
+ID: 2290090 NAME: [Mastery Book] Boomerang Step
+
+ID: 2290091 NAME: [Mastery Book] Boomerang Step
+
+ID: 2290092 NAME: [Mastery Book] Assassinate
+
+ID: 2290093 NAME: [Mastery Book] Assassinate
+
+ID: 2290094 NAME: [Mastery Book] Smokescreen
+
+ID: 2290095 NAME: [Mastery Book] Smokescreen
+
+ID: 2290096 NAME: [Mastery Book] Maple Hero 20
+
+ID: 2290097 NAME: [Mastery Book] Dragon Strike
+
+ID: 2290098 NAME: [Mastery Book] Dragon Strike
+
+ID: 2290099 NAME: [Mastery Book] Energy Orb
+
+ID: 2290100 NAME: [Mastery Book] Energy Orb
+
+ID: 2290101 NAME: [Mastery Book] Super Transformation
+
+ID: 2290102 NAME: [Mastery Book] Demolition
+
+ID: 2290103 NAME: [Mastery Book] Demolition
+
+ID: 2290104 NAME: [Mastery Book] Snatch
+
+ID: 2290105 NAME: [Mastery Book] Snatch
+
+ID: 2290106 NAME: [Mastery Book] Barrage
+
+ID: 2290107 NAME: [Mastery Book] Barrage
+
+ID: 2290108 NAME: [Mastery Book] Speed Infusion
+
+ID: 2290109 NAME: [Mastery Book] Wind Booster
+
+ID: 2290110 NAME: [Mastery Book] Time Leap
+
+ID: 2290111 NAME: [Mastery Book] Time Leap
+
+ID: 2290112 NAME: [Mastery Book] Elemental Boost
+
+ID: 2290113 NAME: [Mastery Book] Elemental Boost
+
+ID: 2290114 NAME: [Mastery Book] Wrath of the Octopi
+
+ID: 2290115 NAME: [Mastery Book] Air Strike
+
+ID: 2290116 NAME: [Mastery Book] Air Strike
+
+ID: 2290117 NAME: [Mastery Book] Rapid Fire
+
+ID: 2290118 NAME: [Mastery Book] Rapid Fire
+
+ID: 2290119 NAME: [Mastery Book] Battleship Cannon
+
+ID: 2290120 NAME: [Mastery Book] Battleship Cannon
+
+ID: 2290121 NAME: [Mastery Book] Battleship Torpedo
+
+ID: 2290122 NAME: [Mastery Book] Battleship Torpedo
+
+ID: 2290123 NAME: [Mastery Book] Hypnotize
+
+ID: 2290124 NAME: [Mastery Book] Bullseye
+
+ID: 2290125 NAME: [Mastery Book] Maple Hero 30
+
+ID: 2310000 NAME: The Owl of Minerva
+
+ID: 2320000 NAME: Teleport Rock
+
+ID: 2330000 NAME: Bullet
+
+ID: 2330001 NAME: Split Bullet
+
+ID: 2330002 NAME: Mighty Bullet
+
+ID: 2330003 NAME: Vital Bullet
+
+ID: 2330004 NAME: Shiny Bullet
+
+ID: 2330005 NAME: Eternal Bullet
+
+ID: 2330006 NAME: Bullet for Novice Pirates
+
+ID: 2331000 NAME: Blaze Capsule
+
+ID: 2332000 NAME: Glaze Capsule
+
+ID: 2340000 NAME: White Scroll
+
+ID: 2360000 NAME: Change to Ghost
+
+ID: 2360001 NAME: Ghost Candy
+
+ID: 2370000 NAME: The Songs of Solomon
+
+ID: 2370001 NAME: The Stories of Solomon
+
+ID: 2370002 NAME: The Travels of Solomon
+
+ID: 2370003 NAME: The Writs of Solomon X
+
+ID: 2370004 NAME: The Writs of Solomon IX
+
+ID: 2370005 NAME: The Writs of Solomon VIII
+
+ID: 2370006 NAME: The Writs of Solomon VII
+
+ID: 2370007 NAME: The Writs of Solomon VI
+
+ID: 2370008 NAME: The Writs of Solomon V
+
+ID: 2370009 NAME: The Writs of Solomon IV
+
+ID: 2370010 NAME: The Writs of Solomon III
+
+ID: 2370011 NAME: The Writs of Solomon II
+
+ID: 2370012 NAME: The Writs of Solomon I
+
+ID: 2380000 NAME: Snail Card
+
+ID: 2380001 NAME: Blue Snail Card
+
+ID: 2380002 NAME: Spore Card
+
+ID: 2380003 NAME: Stump Card
+
+ID: 2380004 NAME: Red Snail Card
+
+ID: 2380005 NAME: Slime Card
+
+ID: 2380006 NAME: Pig Card
+
+ID: 2380007 NAME: Orange Mushroom Card
+
+ID: 2380008 NAME: Dark Stump Card
+
+ID: 2380009 NAME: Ribbon Pig Card
+
+ID: 2380010 NAME: Octopus Card
+
+ID: 2380011 NAME: Green Mushroom Card
+
+ID: 2380012 NAME: Bubbling Card
+
+ID: 2381000 NAME: Axe Stump Card
+
+ID: 2381001 NAME: Ghost Stump Card
+
+ID: 2381002 NAME: Blue Mushroom Card
+
+ID: 2381003 NAME: Stirge Card
+
+ID: 2381004 NAME: Female Desert Rabbit Card
+
+ID: 2381005 NAME: Male Desert Rabbit Card
+
+ID: 2381006 NAME: Jr. Necki Card
+
+ID: 2381007 NAME: Horny Mushroom Card
+
+ID: 2381008 NAME: Dark Axe Stump Card
+
+ID: 2381009 NAME: Pinboom Card
+
+ID: 2381010 NAME: Jr. Cactus Card
+
+ID: 2381011 NAME: Trixter Card
+
+ID: 2381012 NAME: Jr. Sentinel Card
+
+ID: 2381013 NAME: Seacle Card
+
+ID: 2381014 NAME: Wooden Mask Card
+
+ID: 2381015 NAME: Bellamoa Card
+
+ID: 2381016 NAME: Zombie Mushroom Card
+
+ID: 2381017 NAME: Krappy Card
+
+ID: 2381018 NAME: Rocky Mask Card
+
+ID: 2381019 NAME: Ear Plug Plead Card
+
+ID: 2381020 NAME: Sand Rat Card
+
+ID: 2381021 NAME: Cico Card
+
+ID: 2381022 NAME: Wild Boar Card
+
+ID: 2381023 NAME: Cactus Card
+
+ID: 2381024 NAME: Evil Eye Card
+
+ID: 2381025 NAME: Scarf Plead Card
+
+ID: 2381026 NAME: Bubble Fish Card
+
+ID: 2381027 NAME: Green Trixter Card
+
+ID: 2381028 NAME: Royal Cactus Card
+
+ID: 2381029 NAME: Flower Fish Card
+
+ID: 2381030 NAME: Meercat Card
+
+ID: 2381031 NAME: Scorpion Card
+
+ID: 2381032 NAME: Sentinel Card
+
+ID: 2381033 NAME: Fairy Card
+
+ID: 2381034 NAME: Brown Teddy Card
+
+ID: 2381035 NAME: Krip Card
+
+ID: 2381036 NAME: Kiyo Card
+
+ID: 2381037 NAME: Ice Sentinel Card
+
+ID: 2381038 NAME: Fire Sentinel Card
+
+ID: 2382000 NAME: Chirppy Card
+
+ID: 2382001 NAME: Drum Bunny Card
+
+ID: 2382002 NAME: Ligator Card
+
+ID: 2382003 NAME: Fireboar Card
+
+ID: 2382004 NAME: Pink Teddy Card
+
+ID: 2382005 NAME: Ratz Card
+
+ID: 2382006 NAME: Leatty Card
+
+ID: 2382007 NAME: Mask Fish Card
+
+ID: 2382008 NAME: Sand Dwarf Card
+
+ID: 2382009 NAME: Cube Slime Card
+
+ID: 2382010 NAME: Red Sand Dwarf Card
+
+ID: 2382011 NAME: Jr. Cellion Card
+
+ID: 2382012 NAME: Jr. Lioner Card
+
+ID: 2382013 NAME: Jr. Grupin Card
+
+ID: 2382014 NAME: Dark Leatty Card
+
+ID: 2382015 NAME: Roloduck Card
+
+ID: 2382016 NAME: Black Ratz Card
+
+ID: 2382017 NAME: Tick Card
+
+ID: 2382018 NAME: Curse Eye Card
+
+ID: 2382019 NAME: Jr. Wraith Card
+
+ID: 2382020 NAME: Star Pixie Card
+
+ID: 2382021 NAME: Jr. Boogie Card
+
+ID: 2382022 NAME: Bloctopus Card
+
+ID: 2382023 NAME: Jr. Pepe Card
+
+ID: 2382024 NAME: Rumo Card
+
+ID: 2382025 NAME: Panda Teddy Card
+
+ID: 2382026 NAME: Helly Card
+
+ID: 2382027 NAME: Scuba Pepe Card
+
+ID: 2382028 NAME: Retz
+
+ID: 2382029 NAME: Lupin Card
+
+ID: 2382030 NAME: Lorang Card
+
+ID: 2382031 NAME: Propelly Card
+
+ID: 2382032 NAME: Chronos Card
+
+ID: 2382033 NAME: King Bloctopus Card
+
+ID: 2382034 NAME: Planey Card
+
+ID: 2382035 NAME: Jr. Seal Card
+
+ID: 2382036 NAME: Triple Rumo Card
+
+ID: 2382037 NAME: Tweeter Card
+
+ID: 2382038 NAME: Toy Trojan Card
+
+ID: 2382039 NAME: Cold Eye Card
+
+ID: 2382040 NAME: Zombie Lupin Card
+
+ID: 2382041 NAME: Tick-Tock Card
+
+ID: 2382042 NAME: Barnard Grey Card
+
+ID: 2382043 NAME: Poopa Card
+
+ID: 2382044 NAME: Poison Poopa Card
+
+ID: 2382045 NAME: Chipmunk Card
+
+ID: 2382046 NAME: Desert Giant Card
+
+ID: 2382047 NAME: Flyeye
+
+ID: 2382048 NAME: Robo Card
+
+ID: 2382049 NAME: Platoon Chronos Card
+
+ID: 2382050 NAME: Mateon Card
+
+ID: 2382051 NAME: Red Porky Card
+
+ID: 2382052 NAME: Nependeath Card
+
+ID: 2382053 NAME: Iron Hog Card
+
+ID: 2382054 NAME: Block Golem
+
+ID: 2382055 NAME: Zeta Grey Card
+
+ID: 2382056 NAME: Freezer Card
+
+ID: 2382057 NAME: Iron Mutae
+
+ID: 2382058 NAME: Jr. Cerebes Card
+
+ID: 2382059 NAME: Sparker Card
+
+ID: 2382060 NAME: Black Porky Card
+
+ID: 2382061 NAME: Plateon Card
+
+ID: 2382062 NAME: Master Robo Card
+
+ID: 2382063 NAME: Skeledog Card
+
+ID: 2382064 NAME: Lunar Pixie Card
+
+ID: 2382065 NAME: Copper Drake Card
+
+ID: 2382066 NAME: King Block Golem Card
+
+ID: 2382067 NAME: Ultra Grey Card
+
+ID: 2382068 NAME: Moon Bunny Card
+
+ID: 2382069 NAME: Iron Boar Card
+
+ID: 2382070 NAME: Blue Flower Serpent
+
+ID: 2382071 NAME: Red Flower Serpent
+
+ID: 2382072 NAME: Reinforced Iron Mutae
+
+ID: 2382076 NAME: Mossy Snail Card
+
+ID: 2383000 NAME: Mecateon Card
+
+ID: 2383001 NAME: Tortie Card
+
+ID: 2383002 NAME: Master Chronos Card
+
+ID: 2383003 NAME: Dark Nependeath Card
+
+ID: 2383004 NAME: Rombot Card
+
+ID: 2383005 NAME: Mummy Dog Card
+
+ID: 2383006 NAME: Jar Card
+
+ID: 2383007 NAME: Mithril Mutae Card
+
+ID: 2383008 NAME: Wraith Card
+
+ID: 2383009 NAME: Clang Card
+
+ID: 2383010 NAME: Ginseng Jar
+
+ID: 2383011 NAME: Chief Grey Card
+
+ID: 2383012 NAME: Drake Card
+
+ID: 2383013 NAME: Jr. Yeti Card
+
+ID: 2383014 NAME: Hodori Card
+
+ID: 2383015 NAME: Straw Target Dummy
+
+ID: 2383016 NAME: Reinforced Mithril Mutae
+
+ID: 2383017 NAME: Firebomb Card
+
+ID: 2383018 NAME: Wooden Target Dummy
+
+ID: 2383019 NAME: Croco Card
+
+ID: 2383020 NAME: Luster Pixe Card
+
+ID: 2383021 NAME: Cellion Card
+
+ID: 2383022 NAME: Lioner Card
+
+ID: 2383023 NAME: Grupin Card
+
+ID: 2383024 NAME: Hogul
+
+ID: 2383025 NAME: Bellflower Root Card
+
+ID: 2383026 NAME: MT-09 Card
+
+ID: 2383027 NAME: Sr. Bellflower Root Card
+
+ID: 2383028 NAME: Roid Card
+
+ID: 2383029 NAME: Malady Card
+
+ID: 2383030 NAME: Stone Golem Card
+
+ID: 2383031 NAME: Hector Card
+
+ID: 2383032 NAME: The Book Ghost Card
+
+ID: 2383033 NAME: Dark Jr. Yeti Card
+
+ID: 2383034 NAME: Tri-Tailed Fox Card
+
+ID: 2383035 NAME: Grizzly Card
+
+ID: 2383036 NAME: Skeleton Soldier
+
+ID: 2383037 NAME: Coolie Zombie Card
+
+ID: 2383038 NAME: Miner Zombie
+
+ID: 2383039 NAME: Dark Stone Golem
+
+ID: 2383040 NAME: White Fang Card
+
+ID: 2383041 NAME: Reindeer Card
+
+ID: 2383042 NAME: Neo Huroid Card
+
+ID: 2383043 NAME: Mixed Golem Card
+
+ID: 2383044 NAME: Red Drake Card
+
+ID: 2383045 NAME: Pepe Card
+
+ID: 2383046 NAME: Blin Card
+
+ID: 2383047 NAME: Panda Card
+
+ID: 2383048 NAME: Shade Card
+
+ID: 2383049 NAME: Master Dummy Card
+
+ID: 2383056 NAME: Tree Rod Card
+
+ID: 2383057 NAME: Mossy Mushroom Card
+
+ID: 2383058 NAME: Primitive Boar Card
+
+ID: 2383059 NAME: Stone Bug Card
+
+ID: 2384000 NAME: Buffy Card
+
+ID: 2384001 NAME: Wild Cargo Card
+
+ID: 2384002 NAME: Peach Monkey Card
+
+ID: 2384003 NAME: Officer Skeleton Card
+
+ID: 2384004 NAME: Soul Teddy Card
+
+ID: 2384005 NAME: Jr. Luinel Card
+
+ID: 2384006 NAME: Ice Drake Card
+
+ID: 2384007 NAME: Dark Pepe Card
+
+ID: 2384008 NAME: Mr. Alli Card
+
+ID: 2384009 NAME: Yeti Card
+
+ID: 2384010 NAME: Riche Card
+
+ID: 2384011 NAME: Homun Card
+
+ID: 2384012 NAME: Lazy Buffy Card
+
+ID: 2384013 NAME: Sage Cat Card
+
+ID: 2384014 NAME: Master Soul Teddy Card
+
+ID: 2384015 NAME: Dark Drake Card
+
+ID: 2384016 NAME: Dark Yeti Card
+
+ID: 2384017 NAME: Kru Card
+
+ID: 2384018 NAME: Cyti Card
+
+ID: 2384019 NAME: Klock Card
+
+ID: 2384020 NAME: Tauromacis Card
+
+ID: 2384021 NAME: Yellow King Goblin Card
+
+ID: 2384022 NAME: Blue King Goblin Card
+
+ID: 2384023 NAME: Green King Goblin Card
+
+ID: 2384024 NAME: Rash Card
+
+ID: 2384025 NAME: Captain Card
+
+ID: 2384026 NAME: Cerebes Card
+
+ID: 2384027 NAME: Beetle Card
+
+ID: 2384028 NAME: Hobi Card
+
+ID: 2384029 NAME: Commander Skeleton Card
+
+ID: 2384030 NAME: Luinel Card
+
+ID: 2384031 NAME: Homunculu Card
+
+ID: 2384032 NAME: Buffoon Card
+
+ID: 2384033 NAME: Dark Rash Card
+
+ID: 2384034 NAME: D.Roy Card
+
+ID: 2384035 NAME: Werewolf Card
+
+ID: 2384036 NAME: Taurospear Card
+
+ID: 2384037 NAME: Snow Witch Card
+
+ID: 2384038 NAME: Security Camera Card
+
+ID: 2384039 NAME: Scholar Ghost Card
+
+ID: 2384040 NAME: Rurumo Card
+
+ID: 2385000 NAME: Dark Klock Card
+
+ID: 2385001 NAME: Dual Beetle Card
+
+ID: 2385002 NAME: Green Hobi Card
+
+ID: 2385003 NAME: Deep Buffoon Card
+
+ID: 2385004 NAME: Yeti and Pepe Card
+
+ID: 2385005 NAME: Hankie Card
+
+ID: 2385006 NAME: Lycanthrope Card
+
+ID: 2385007 NAME: Harp Card
+
+ID: 2385008 NAME: Homunscullo Card
+
+ID: 2385009 NAME: Dark Yeti and Pepe Card
+
+ID: 2385010 NAME: Pirate Card
+
+ID: 2385011 NAME: Blood Harp Card
+
+ID: 2385012 NAME: Death Teddy Card
+
+ID: 2385013 NAME: Goby Card
+
+ID: 2385014 NAME: Birk Card
+
+ID: 2385015 NAME: Dual Pirate Card
+
+ID: 2385016 NAME: Black Kentaurus Card
+
+ID: 2385017 NAME: Red Kentaurus Card
+
+ID: 2385018 NAME: Blue Kentaurus Card
+
+ID: 2385019 NAME: Dual Birk Card
+
+ID: 2385020 NAME: Master Death Teddy Card
+
+ID: 2385021 NAME: Bain Card
+
+ID: 2385022 NAME: Blue Dragon Turtle Card
+
+ID: 2385023 NAME: Deet and Roi Card
+
+ID: 2385025 NAME: Eye of Time Card
+
+ID: 2386000 NAME: Bone Fish Card
+
+ID: 2386001 NAME: Red Dragon Turtle Card
+
+ID: 2386002 NAME: Viking Card
+
+ID: 2386003 NAME: Squid Card
+
+ID: 2386004 NAME: Phantom Watch Card
+
+ID: 2386005 NAME: Rexton Card
+
+ID: 2386006 NAME: Brexton Card
+
+ID: 2386007 NAME: Risell Squid Card
+
+ID: 2386008 NAME: Red Wyvern Card
+
+ID: 2386009 NAME: Gigantic Viking Card
+
+ID: 2386010 NAME: G. Phantom Watch Card
+
+ID: 2386011 NAME: Green Cornian Card
+
+ID: 2386012 NAME: Shark Card
+
+ID: 2386013 NAME: Blue Wyvern Card
+
+ID: 2386014 NAME: Cold Shark Card
+
+ID: 2386015 NAME: Dark Wyvern Card
+
+ID: 2386016 NAME: Dark Cornian Card
+
+ID: 2386017 NAME: Jr. Newtie Card
+
+ID: 2386021 NAME: Memory Monk Card
+
+ID: 2386022 NAME: Memory Monk Trainee Card
+
+ID: 2386023 NAME: Memory Guardian Card
+
+ID: 2386024 NAME: Chief Memory Guardian Card
+
+ID: 2387000 NAME: Gatekeeper Card
+
+ID: 2387001 NAME: Thanatos Card
+
+ID: 2387002 NAME: Skelegon Card
+
+ID: 2387003 NAME: Skelosaurus Card
+
+ID: 2387004 NAME: Nest Golem Card
+
+ID: 2387006 NAME: Qualm Monk Card
+
+ID: 2387007 NAME: Qualm Monk Trainee Card
+
+ID: 2387008 NAME: Qualm Guardian Card
+
+ID: 2387009 NAME: Chief Qualm Guardian Card
+
+ID: 2387010 NAME: Oblivion Monk Card
+
+ID: 2387011 NAME: Oblivion Monk Trainee Card
+
+ID: 2387012 NAME: Oblivion Guardian Card
+
+ID: 2387013 NAME: Chief Oblivion Guardian Card
+
+ID: 2388000 NAME: Mano Card
+
+ID: 2388001 NAME: King Slime Card
+
+ID: 2388002 NAME: Faust Card
+
+ID: 2388003 NAME: King Clang Card
+
+ID: 2388004 NAME: Alishar Card
+
+ID: 2388005 NAME: Timer Card
+
+ID: 2388006 NAME: Mushmom Card
+
+ID: 2388007 NAME: Dyle Card
+
+ID: 2388008 NAME: Zombie Mushmom
+
+ID: 2388009 NAME: Nine-Tailed Fox Card
+
+ID: 2388010 NAME: Tae Roon Card
+
+ID: 2388011 NAME: Lord Pirate Card
+
+ID: 2388012 NAME: Papa Pixie Card
+
+ID: 2388013 NAME: King Sage Cat Card
+
+ID: 2388014 NAME: Frankenroid Card
+
+ID: 2388015 NAME: Elliza Card
+
+ID: 2388016 NAME: Snowman Card
+
+ID: 2388017 NAME: Crimson Balrog Card
+
+ID: 2388018 NAME: Manon Card
+
+ID: 2388019 NAME: Griffey Card
+
+ID: 2388020 NAME: Pianus Card
+
+ID: 2388021 NAME: Ergoth Card
+
+ID: 2388022 NAME: Papulatus Card
+
+ID: 2388023 NAME: Zakum Card
+
+ID: 2388024 NAME: Horned Tail Card
+
+ID: 2388025 NAME: Stumpy Card
+
+ID: 2388026 NAME: Jr. Balrog Card
+
+ID: 2388027 NAME: Rudolph Card
+
+ID: 2388028 NAME: Kid Snowman Card
+
+ID: 2388029 NAME: Deo Card
+
+ID: 2388030 NAME: Seruf Card
+
+ID: 2388031 NAME: Zeno Card
+
+ID: 2388032 NAME: Kimera Card
+
+ID: 2388033 NAME: Leviathan Card
+
+ID: 2388039 NAME: Poison Golme Card
+
+ID: 2388040 NAME: Dodo Card
+
+ID: 2388041 NAME: Lilynouch Card
+
+ID: 2388042 NAME: Lyka Card
+
+ID: 2388043 NAME: Pink Bean
+
+ID: 2390000 NAME: Helena's Marble
+
+ID: 2430000 NAME: Torn Cygnus' Book Volume 1
+
+ID: 2430001 NAME: Torn Cygnus' Book Volume 2
+
+ID: 2430002 NAME: Torn Cygnus' Book Volume 3
+
+ID: 2430003 NAME: Cygnus Quiz
+
+ID: 2022554 NAME: Independence Day Firecracker 1
+
+ID: 2022555 NAME: Independence Day Firecracker 2
+
+ID: 2022556 NAME: Independence Day Firecracker 3
+
+ID: 2000020 NAME: Red Potion for Noblesse
+
+ID: 2000021 NAME: Blue Potion for Noblesse
+
+ID: 2022323 NAME: Fish Net with a Catch
+
+ID: 2022324 NAME: Big Belly Fish
+
+ID: 2022326 NAME: Blessing of the Forest
+
+ID: 2022352 NAME: Fire Grill Skewer
+
+ID: 2022356 NAME: Sweet Rice Cake
+
+ID: 2022357 NAME: Sweet Rice Cake
+
+ID: 2022358 NAME: Sweet Rice Cake
+
+ID: 2022359 NAME: Increases Physical Attack Rat.
+
+ID: 2022360 NAME: Increases Magic Attack Rate.
+
+ID: 2022361 NAME: Increases Physical Defense Rate.
+
+ID: 2022362 NAME: Increases Magic Defense Rate.
+
+ID: 2022363 NAME: Increases Accuracy
+
+ID: 2022364 NAME: Increases Avoidability
+
+ID: 2022365 NAME: Increases Speed
+
+ID: 2022366 NAME: Increases Max HP
+
+ID: 2022367 NAME: Increases Max MP
+
+ID: 2022368 NAME: Increases Physical Attack Rate
+
+ID: 2022369 NAME: Increases Magic Attack Rate
+
+ID: 2022370 NAME: Increases Physical Defense Rate
+
+ID: 2022371 NAME: Increases Magic Defense Rate
+
+ID: 2022372 NAME: Increases Accuracy
+
+ID: 2022373 NAME: Increases Avoidability
+
+ID: 2022374 NAME: Increases Speed
+
+ID: 2022375 NAME: Increases MaxHP
+
+ID: 2022376 NAME: Increases Max MP
+
+ID: 2022377 NAME: Increases Physical Attack Rate
+
+ID: 2022378 NAME: Increases Magic Attack Rate
+
+ID: 2022379 NAME: Increases Physical Defense Rate
+
+ID: 2022380 NAME: Increases Magic Defense Rate
+
+ID: 2022381 NAME: Increases Accuracy
+
+ID: 2022382 NAME: Increases Avoidability
+
+ID: 2022383 NAME: Increases Speed
+
+ID: 2022384 NAME: Increases Max HP
+
+ID: 2022385 NAME: Increases Max MP
+
+ID: 2022386 NAME: Increases Physical Attack Rate
+
+ID: 2022387 NAME: Increases Magic Attack Rate
+
+ID: 2022388 NAME: Increases Physical Defense Rate
+
+ID: 2022389 NAME: Increases Magic Defense Rate
+
+ID: 2022390 NAME: Increases Accuracy
+
+ID: 2022391 NAME: Increases Avoidability
+
+ID: 2022392 NAME: Increases Speed
+
+ID: 2022393 NAME: Increases Max HP
+
+ID: 2022394 NAME: Increases Max MP
+
+ID: 2022395 NAME: Increases Physical Attack Rate
+
+ID: 2022396 NAME: Increases Magic Attack Rate
+
+ID: 2022397 NAME: Increases Physical Defense Rate
+
+ID: 2022398 NAME: Increases Magic Defense Rate
+
+ID: 2022399 NAME: Increases Accuracy
+
+ID: 2022400 NAME: Increases Avoidability
+
+ID: 2022401 NAME: Increases Speed
+
+ID: 2022402 NAME: Increases Max HP
+
+ID: 2022403 NAME: Increases Max MP
+
+ID: 2022404 NAME: Increases Physical Attack Rate
+
+ID: 2022405 NAME: Increases Magic Attack Rate
+
+ID: 2022406 NAME: Increases Physical Defense Rate
+
+ID: 2022407 NAME: Increases Magic Defense Rate
+
+ID: 2022408 NAME: Increases Accuracy
+
+ID: 2022409 NAME: Increases Avoidability
+
+ID: 2022410 NAME: Increases Speed
+
+ID: 2022411 NAME: Increases Max HP
+
+ID: 2022412 NAME: Increases Max MP
+
+ID: 2022413 NAME: Increases Physical Attack Rate
+
+ID: 2022414 NAME: Increases Magic Attack Rate
+
+ID: 2022415 NAME: Increases Physical Defense Rate
+
+ID: 2022416 NAME: Increases Magic Defense Rate
+
+ID: 2022417 NAME: Increases Accuracy
+
+ID: 2022418 NAME: Increases Avoidability
+
+ID: 2022419 NAME: Increases Speed
+
+ID: 2022420 NAME: Increases Max HP
+
+ID: 2022421 NAME: Increases Max MP
+
+ID: 2022422 NAME: Small Stories
+
+ID: 2022423 NAME: Gaga's Appreciation
+
+ID: 2022424 NAME: Gaga's Appreciation
+
+ID: 2022428 NAME: Mysterious Box
+
+ID: 2022429 NAME: Protective Shield
+
+ID: 2022430 NAME: Mu Lung Dojo Mana Elixir
+
+ID: 2022431 NAME: Mu Lung Dojo Elixir
+
+ID: 2022432 NAME: Mu Lung Dojo Power Elixir
+
+ID: 2022433 NAME: Mu Lung Dojo Cure-All Medicine
+
+ID: 2022434 NAME: Warm and Fuzzy Winter
+
+ID: 2022442 NAME: Maze Reward
+
+ID: 2022450 NAME: EXP Increase(S)
+
+ID: 2022451 NAME: EXP Increase(M)
+
+ID: 2022452 NAME: EXP Increase(L)
+
+ID: 2022455 NAME: Happy New Year!
+
+ID: 2022456 NAME: Elixir
+
+ID: 2022457 NAME: Power Elixir
+
+ID: 2022458 NAME: Shinsoo's Blessing
+
+ID: 2022459 NAME: Cassandra's Reward 1
+
+ID: 2022460 NAME: Cassandra's Reward 2
+
+ID: 2022461 NAME: Cassandra's Reward 3
+
+ID: 2022462 NAME: Cassandra's Reward 4
+
+ID: 2022463 NAME: Cassandra's Reward 5
+
+ID: 2022465 NAME: Heartpounding Box
+
+ID: 2022466 NAME: Heartpounding Box
+
+ID: 2022467 NAME: Heartpounding Box
+
+ID: 2022468 NAME: Heartpounding Box
+
+ID: 2031002 NAME: Invitation to the Moon
+
+ID: 2031003 NAME: Invitation to the Nest
+
+ID: 2031004 NAME: Invitation to Ereve
+
+ID: 2032000 NAME: Richie Gold's Strange Lamp
+
+ID: 2040110 NAME: Red-Nose STR Bandage 60%
+
+ID: 2040111 NAME: Red-Nose DEX Bandage 60%
+
+ID: 2040112 NAME: Red-Nose INT Bandage 60%
+
+ID: 2040113 NAME: Red-Nose LUK Bandage 60%
+
+ID: 2040114 NAME: Red-Nose ATT Bandage 60%
+
+ID: 2040115 NAME: Red-Nose Weapon DEF Bandage 60%
+
+ID: 2040116 NAME: Red-Nose MP Bandage 60%
+
+ID: 2040117 NAME: Red-Nose Magic DEF Bandage 60%
+
+ID: 2040118 NAME: Red-Nose Avoidability Bandage 60%
+
+ID: 2040119 NAME: Red-Nose Accuracy Bandage 60%
+
+ID: 2044811 NAME: Scroll for Knuckles for ATT 65%
+
+ID: 2044812 NAME: Scroll for Knuckles for ATT 15%
+
+ID: 2044813 NAME: Scroll for Knuckles for Accuracy 65%
+
+ID: 2044814 NAME: Scroll for Knuckles for Accuracy 15%
+
+ID: 2044906 NAME: Gun ATT Scroll 65%
+
+ID: 2044907 NAME: Gun ATT Scroll 15%
+
+ID: 2049103 NAME: Beach Sandals Scroll 100%
+
+ID: 2100073 NAME: Mu Lung Dojo Summon Package3_Deo
+
+ID: 2100074 NAME: Mu Lung Dojo Summon Package4_King Slime
+
+ID: 2100075 NAME: Mu Lung Dojo Summon Package5_Giant Centepede
+
+ID: 2100076 NAME: Mu Lung Dojo Summon Package6_Faust
+
+ID: 2100077 NAME: Mu Lung Dojo Summon Package7_King Clang
+
+ID: 2100078 NAME: Mu Lung Dojo Summon Package8_Mushroom
+
+ID: 2100079 NAME: Mu Lung Dojo Summon Package9_Alishar
+
+ID: 2100080 NAME: Mu Lung Dojo Summon Package10_Timer
+
+ID: 2100081 NAME: Mu Lung Dojo Summon Package11_Dyle
+
+ID: 2100082 NAME: Mu Lung Dojo Summon Package12_Papa Pixie
+
+ID: 2100083 NAME: Mu Lung Dojo Summon Package13_Zombie Mushroom
+
+ID: 2100084 NAME: Mu Lung Dojo Summon Package14_Zeno
+
+ID: 2100085 NAME: Mu Lung Dojo Summon Package15_Lord Pirate
+
+ID: 2100086 NAME: Mu Lung Dojo Summon Package16_Nine-Tailed Fox
+
+ID: 2100087 NAME: Mu Lung Dojo Summon Package17_Tae Room
+
+ID: 2100088 NAME: Mu Lung Dojo Summon Package18_Poison Golem
+
+ID: 2100089 NAME: Mu Lung Dojo Summon Package19_Priest Cat
+
+ID: 2100090 NAME: Mu Lung Dojo Summon Package20_Jr. Balrog
+
+ID: 2100091 NAME: Mu Lung Dojo Summon Package21_Elliza
+
+ID: 2100092 NAME: Mu Lung Dojo Summon Package22_Franken Lloyd
+
+ID: 2100093 NAME: Mu Lung Dojo Summon Package23_Kimera
+
+ID: 2100094 NAME: Mu Lung Dojo Summon Package24_Snack Bar
+
+ID: 2100095 NAME: Mu Lung Dojo Summon Package25_Snowman
+
+ID: 2100096 NAME: Mu Lung Dojo Summon Package26_Blue Mushroom
+
+ID: 2100097 NAME: Mu Lung Dojo Summon Package27_Crimson Balrog
+
+ID: 2100098 NAME: Mu Lung Dojo Summon Package28_Manon
+
+ID: 2100099 NAME: Mu Lung Dojo Summon Package29_Griffey
+
+ID: 2100100 NAME: Mu Lung Dojo Summon Package30_Leviathan
+
+ID: 2100101 NAME: Mu Lung Dojo Summon Package31_Papulatus
+
+ID: 2100102 NAME: Mu Lung Dojo Summon Package32_Moo Gong
+
+ID: 2100103 NAME: Mu Lung Dojo Summon Package00_So Gong
+
+ID: 2100104 NAME: Maple Ambush Sack
+
+ID: 2100105 NAME: Maze Snail Set
+
+ID: 2100106 NAME: Maze Transformation Snail Set
+
+ID: 2100107 NAME: Maze Transformation Snail Set2
+
+ID: 2100112 NAME: Summon Flying Monsters (Mark)
+
+ID: 2100116 NAME: Summon Maze Pigs
+
+ID: 2100117 NAME: Summon Maze Rash
+
+ID: 2100118 NAME: Dr. Kim's Anti-Virus Project
+
+ID: 2100119 NAME: Summons Maze Sand Bunny
+
+ID: 2210017 NAME: Moon Photo
+
+ID: 2210018 NAME: Sweet Rice Cake
+
+ID: 2210021 NAME: Gaga Transformation Potion
+
+ID: 2210022 NAME: Peto Transformation Potion
+
+ID: 2270012 NAME: Purple Ribbon Pig
+
+ID: 2270008 NAME: Fish Net
+
+ID: 2270009 NAME: Red Ribbon Pig
+
+ID: 2270010 NAME: Green Ribbon Pig
+
+ID: 2270011 NAME: Blue Ribbon Pig
+
+ID: 2380013 NAME: Cynical Orange Mushroom Card
+
+ID: 2388046 NAME: Mu Gong Card
+
+ID: 2430004 NAME: Richie Gold's Random Key Pot
+
+ID: 2430005 NAME: Memorial Map
+
+ID: 2440000 NAME: Richie Gold's Fake Lead
+
+ID: 2022157 NAME: Carnival Point 1
+
+ID: 2022158 NAME: Carnival Point 2
+
+ID: 2022159 NAME: Carnival Point 3
+
+ID: 2022175 NAME: Elixir
+
+ID: 2022176 NAME: Power Elixir
+
+ID: 2022177 NAME: Mana Elixir
+
+ID: 2022178 NAME: All-Cure Potion
+
+ID: 2041211 NAME: Spiegelmann's Marble
+
+ID: 2044712 NAME: Scroll for Claw for ATT 100%
+
+ID: 2044612 NAME: Scroll for Crossbow for ATT 100%
+
+ID: 2044512 NAME: Scroll for Bow for ATT 100%
+
+ID: 2044417 NAME: Scroll for Pole Arm for ATT 100%
+
+ID: 2044317 NAME: Scroll for Spear for ATT 100%
+
+ID: 2044217 NAME: Scroll for Two-handed BW for ATT 100%
+
+ID: 2044117 NAME: Scroll for Two-handed Axe for ATT 100%
+
+ID: 2044025 NAME: Scroll for Two-handed Sword for ATT 100%
+
+ID: 2043812 NAME: Scroll for Staff for Magic ATT 100%
+
+ID: 2043712 NAME: Scroll for Wand for Magic ATT 100%
+
+ID: 2043312 NAME: Scroll for Dagger for ATT 100%
+
+ID: 2043217 NAME: Scroll for One-Handed BW for ATT 100%
+
+ID: 2043117 NAME: Scroll for One-Handed Axe for ATT 100%
+
+ID: 2043023 NAME: Scroll for One-Handed Sword for ATT 100%
+
+ID: 2041066 NAME: Scroll for Cape for Magic DEF 100%
+
+ID: 2041067 NAME: Scroll for Cape for Weapon DEF 100%
+
+ID: 2040936 NAME: Scroll for Shield for DEF 100%
+
+ID: 2040829 NAME: Scroll for Gloves for DEX 100%
+
+ID: 2040830 NAME: Scroll for Gloves for ATT 100%
+
+ID: 2040740 NAME: Scroll for Shoes for DEX 100%
+
+ID: 2040741 NAME: Scroll for Shoes for Jump 100%
+
+ID: 2040742 NAME: Scroll for Shoes for Speed 100%
+
+ID: 2040630 NAME: Scroll for Bottomwear for DEF 100%
+
+ID: 2040538 NAME: Scroll for Overall Armor for DEX 100%
+
+ID: 2040539 NAME: Scroll for Overall Armor for DEF 100%
+
+ID: 2040430 NAME: Scroll for Topwear for DEF 100%
+
+ID: 2040334 NAME: Scroll for Earring for INT 100%
+
+ID: 2040041 NAME: Scroll for Helmet for DEF 100%
+
+ID: 2040042 NAME: Scroll for Helmet for HP 100%
+
+ID: 2101200 NAME: GMEvent_Horntail's Left Head
+
+ID: 2101201 NAME: GMEvent_Horntail's Right Head
+
+ID: 2101202 NAME: GMEvent_Pink Bean
+
+ID: 2022481 NAME: Mysterious Maple
+
+ID: 2022482 NAME: Pigmy's Wings
+
+ID: 2022496 NAME: Cassandra's Star
+
+ID: 2022499 NAME: Point Improvement Treasure Chest
+
+ID: 2022500 NAME: Point Increase Treasure Chest
+
+ID: 2022501 NAME: Geppetto's Writing Analysis
+
+ID: 2022502 NAME: Hero's Gladius
+
+ID: 2022503 NAME: Golden Pig's Shiny Egg
+
+ID: 2022504 NAME: Golden Pig's Shiny Egg
+
+ID: 2022505 NAME: Golden Pig's Shiny Egg
+
+ID: 2022506 NAME: Golden Pig's Shiny Egg
+
+ID: 2022507 NAME: Golden Pig's Shiny Egg
+
+ID: 2022508 NAME: Golden Pig's Shiny Egg
+
+ID: 2022509 NAME: Golden Pig's Shiny Egg
+
+ID: 2022510 NAME: Golden Pig's Shiny Egg
+
+ID: 2022511 NAME: Golden Pig's Shiny Egg
+
+ID: 2022512 NAME: Golden Pig's Shiny Egg
+
+ID: 2022513 NAME: Golden Pig's Shiny Egg
+
+ID: 2022514 NAME: Golden Pig's Dazzling Egg
+
+ID: 2022515 NAME: Golden Pig's Dazzling Egg
+
+ID: 2022516 NAME: Golden Pig's Dazzling Egg
+
+ID: 2022517 NAME: Golden Pig's Dazzling Egg
+
+ID: 2022518 NAME: Golden Pig's Dazzling Egg
+
+ID: 2022519 NAME: Golden Pig's Dazzling Egg
+
+ID: 2022520 NAME: Golden Pig's Dazzling Egg
+
+ID: 2022521 NAME: Golden Pig's Dazzling Egg
+
+ID: 2022522 NAME: Golden Pig's Dazzling Egg
+
+ID: 2022523 NAME: Golden Pig's Dazzling Egg
+
+ID: 2022524 NAME: Golden Pig's Dazzling Egg
+
+ID: 2022526 NAME: Azalea
+
+ID: 2022527 NAME: Forsythia
+
+ID: 2022528 NAME: Clover
+
+ID: 2022529 NAME: Meaning of Azaleas
+
+ID: 2022530 NAME: Meaning of Forsythias
+
+ID: 2022531 NAME: Meaning of Clovers
+
+ID: 2022536 NAME: Underground Temple's Seal
+
+ID: 2022537 NAME: Gladius' Strength
+
+ID: 2022539 NAME: Cry of a Little Lamb
+
+ID: 2022540 NAME: Danger Escape
+
+ID: 2022541 NAME: Self Protection
+
+ID: 2022542 NAME: Little Lamb's Surprise Attack
+
+ID: 2022543 NAME: Great Confusion
+
+ID: 2022547 NAME: Sound of the Sheep's Bells
+
+ID: 2022548 NAME: Sound of the Wolf's Bells
+
+ID: 2022549 NAME: Wolf's Threat
+
+ID: 2022550 NAME: Sheep Ranch Golden ? Egg
+
+ID: 2022552 NAME: 6th Anniversary Gift Box
+
+ID: 2022553 NAME: Crackers's Buff
+
+ID: 2022562 NAME: Artifact Hunt Encouragement Buff
+
+ID: 2022563 NAME: Artifact Hunt Encouragement Buff
+
+ID: 2031006 NAME: Family Studio Photo Coupon
+
+ID: 2040329 NAME: Scroll for Earring for DEX 10%
+
+ID: 2040330 NAME: Scroll for Earring for INT 10%
+
+ID: 2040331 NAME: Scroll for Earring for LUK 10%
+
+ID: 2040728 NAME: Balrog's STR Scroll 30%
+
+ID: 2040729 NAME: Balrog's INT Scroll 30%
+
+ID: 2040730 NAME: Balrog's LUK Scroll 30%
+
+ID: 2040731 NAME: Balrog's DEX Scroll 30%
+
+ID: 2040732 NAME: Balrog's HP Scroll 30%
+
+ID: 2040733 NAME: Balrog's MP Scroll 30%
+
+ID: 2040734 NAME: Balrog's Speed Scroll 30%
+
+ID: 2040735 NAME: Balrog's Jump Scroll 30%
+
+ID: 2040736 NAME: Balrog's Accuracy Scroll 30%
+
+ID: 2040737 NAME: Balrog's Avoidability Scroll 30%
+
+ID: 2040738 NAME: Balrog's Defense Scroll 30%
+
+ID: 2040739 NAME: Balrog's Twilight Scroll 5%
+
+ID: 2040826 NAME: Scroll for Gloves for ATT 60%
+
+ID: 2041100 NAME: Scroll for Ring for STR 100%
+
+ID: 2041101 NAME: Scroll for Rings for STR 60%
+
+ID: 2041102 NAME: Scroll for Rings for STR 10%
+
+ID: 2041103 NAME: Scroll for Rings for INT 100%
+
+ID: 2041104 NAME: Scroll for Rings for INT 60%
+
+ID: 2041105 NAME: Scroll for Rings for INT 10%
+
+ID: 2041106 NAME: Scroll for Rings for DEX 100%
+
+ID: 2041107 NAME: Scroll for Rings for DEX 60%
+
+ID: 2041108 NAME: Scroll for Rings for DEX 10%
+
+ID: 2041109 NAME: Scroll for Rings for LUK 100%
+
+ID: 2041110 NAME: Scroll for Rings for LUK 60%
+
+ID: 2041111 NAME: Scroll for Rings for LUK 10%
+
+ID: 2041112 NAME: Dark Scroll for Rings for STR 70%
+
+ID: 2041113 NAME: Dark Scroll for Rings for STR 30%
+
+ID: 2041114 NAME: Dark Scroll for Rings for INT 70%
+
+ID: 2041115 NAME: Dark Scroll for Rings for INT 30%
+
+ID: 2041116 NAME: Dark Scroll for Rings for DEX 70%
+
+ID: 2041117 NAME: Dark Scroll for Rings for DEX 30%
+
+ID: 2041118 NAME: Dark Scroll for Rings for LUK 70%
+
+ID: 2041119 NAME: Dark Scroll for Rings for LUK 30%
+
+ID: 2041300 NAME: Scroll for Belts for STR 100%
+
+ID: 2041301 NAME: Scroll for Belts for STR 60%
+
+ID: 2041302 NAME: Scroll for Belts for STR 10%
+
+ID: 2041303 NAME: Scroll for Belts for INT 100%
+
+ID: 2041304 NAME: Scroll for Belts for INT 60%
+
+ID: 2041305 NAME: Scroll for Belts for INT 10%
+
+ID: 2041306 NAME: Scroll for Belts for DEX 100%
+
+ID: 2041307 NAME: Scroll for Belts for DEX 60%
+
+ID: 2041308 NAME: Scroll for Belts for DEX 10%
+
+ID: 2041309 NAME: Scroll for Belts for LUK 100%
+
+ID: 2041310 NAME: Scroll for Belts for LUK 60%
+
+ID: 2041311 NAME: Scroll for Belts for LUK 10%
+
+ID: 2041312 NAME: Dark Scroll for Belts for STR 70%
+
+ID: 2041313 NAME: Dark Scroll for Belts for STR 30%
+
+ID: 2041314 NAME: Dark Scroll for Belts for INT 70%
+
+ID: 2041315 NAME: Dark Scroll for Belts for INT 30%
+
+ID: 2041316 NAME: Dark Scroll for Belts for DEX 70%
+
+ID: 2041317 NAME: Dark Scroll for Belts for DEX 30%
+
+ID: 2041318 NAME: Dark Scroll for Belts for LUK 70%
+
+ID: 2041319 NAME: Dark Scroll for Belts for LUK 30%
+
+ID: 2044015 NAME: Scroll for Two-Handed Swords for ATT 10%
+
+ID: 2049105 NAME: [6th Anniversary] Dark Scroll for Gloves for ATT 70%
+
+ID: 2049106 NAME: [6th Anniversary] Dark Scroll for Gloves for ATT 30%
+
+ID: 2049107 NAME: [6th Anniversary] Dark Scroll for Gloves for STR 70%   [
+
+ID: 2049108 NAME: [6th Anniversary] Dark Scroll for Gloves for LUK 70%
+
+ID: 2049109 NAME: [6th Anniversary] Dark Scroll for Gloves for INT 70%
+
+ID: 2049110 NAME: [6th Anniversary] Dark Scroll for Gloves for DEX 70%
+
+ID: 2100108 NAME: Master of Disguise Summoning Sack
+
+ID: 2100109 NAME: Black Witch Summoning Summoning Sack
+
+ID: 2100110 NAME: Blue Mushroom Summoning Sack
+
+ID: 2100111 NAME: Puppeteer Summoning Sack
+
+ID: 2100113 NAME: Tristan's Balrog Summon
+
+ID: 2100120 NAME: Snail Summoning Sack
+
+ID: 2100121 NAME: Slime Summoning Sack
+
+ID: 2100122 NAME: Green Mushroom Summoning Sack
+
+ID: 2100123 NAME: Octopus Summoning Sack
+
+ID: 2100124 NAME: Pig Summoning Sack
+
+ID: 2100125 NAME: Ribbon Pig Summoning Sack
+
+ID: 2100126 NAME: Orange Mushroom Summoning Sack
+
+ID: 2100127 NAME: Bubbling Summoning Sack
+
+ID: 2100128 NAME: Horny Mushroom Summoning Sack
+
+ID: 2100129 NAME: Jr. Necki Summoning Sack.
+
+ID: 2100130 NAME: Blue Mushroom Summoning Sack
+
+ID: 2100131 NAME: Tristan's Balrog Summoning Sack
+
+ID: 2100132 NAME: Balrog Summoning Sack
+
+ID: 2100133 NAME: Balrog's Spirit
+
+ID: 2100134 NAME: Rescued Gaga Summoning Sack
+
+ID: 2100135 NAME: Test MOB Summoning Sack
+
+ID: 2100136 NAME: Easy Mode Balrog Summoning Sack
+
+ID: 2100137 NAME: Easy Mode Balrog's Spirit
+
+ID: 2100138 NAME: Puppeteer Summoning Sack
+
+ID: 2100139 NAME: Puppeteer Summoning Sack
+
+ID: 2100140 NAME: Puppeteer Summong Sack
+
+ID: 2101110 NAME: Monster Summoning Sack(Leviathan)
+
+ID: 2210004 NAME: Blue Ribbon Pig Piece
+
+ID: 2100900 NAME: Mysterious Sack
+
+ID: 2109004 NAME: Steal Sheep Wool
+
+ID: 2109005 NAME: Plant a Rose Thorn
+
+ID: 2210030 NAME: Geppetto Transformation
+
+ID: 2210034 NAME: Alien Gray Transformation
+
+ID: 2210035 NAME: Penguin Transformation 1
+
+ID: 2210036 NAME: Penguin Transformation 2
+
+ID: 2210037 NAME: Penguin Transformation 3
+
+ID: 2210038 NAME: Penguin Transformation 4
+
+ID: 2210039 NAME: Penguin Transformation 5
+
+ID: 2360002 NAME: Board the Spaceship
+
+ID: 2388055 NAME: Balrog Card
+
+ID: 2430006 NAME: Mysterious Piece of Paper
+
+ID: 2430007 NAME: Empty Compass
+
+ID: 2430008 NAME: Golden Compass
+
+ID: 2430009 NAME: Pure Perfume
+
+ID: 2430010 NAME: Mysterious Artifact
+
+ID: 2430011 NAME: Agent Summon
+
+ID: 2430012 NAME: Agent Removal
+
+ID: 2022476 NAME: Chicken Kapitan
+
+ID: 2022477 NAME: Mee Siam
+
+ID: 2022478 NAME: Rojak
+
+ID: 2022479 NAME: Kangkung belacan
+
+ID: 2022480 NAME: Kuih
+
+ID: 2044713 NAME: Scroll for Claw for ATT 50%
+
+ID: 2044613 NAME: Scroll for Crossbow for ATT 50%
+
+ID: 2044513 NAME: Scroll for Bow for ATT 50%
+
+ID: 2044420 NAME: Scroll for Pole Arm for ATT 50%
+
+ID: 2044320 NAME: Scroll for Spear for ATT 50%
+
+ID: 2044220 NAME: Scroll for Two-handed BW for ATT 50%
+
+ID: 2044120 NAME: Scroll for Two-handed Axe for ATT 50%
+
+ID: 2044028 NAME: Scroll for Two-handed Sword for ATT 50%
+
+ID: 2043813 NAME: Scroll for Staff for Magic Att. 50%
+
+ID: 2043713 NAME: Scroll for Wand for Magic Att. 50%
+
+ID: 2043313 NAME: Scroll for Dagger for ATT 50%
+
+ID: 2043220 NAME: Scroll for One-Handed BW for ATT 50%
+
+ID: 2043120 NAME: Scroll for One-Handed Axe for ATT 50%
+
+ID: 2043022 NAME: Scroll for One-Handed Sword for ATT 50%
+
+ID: 2041068 NAME: Scroll for Cape for Magic Def. 50%
+
+ID: 2041069 NAME: Scroll for Cape for Weapon Def. 50%
+
+ID: 2040943 NAME: Scroll for Shield for DEF 50%
+
+ID: 2040833 NAME: Scroll for Gloves for DEX 50%
+
+ID: 2040834 NAME: Scroll for Gloves for ATT 50%
+
+ID: 2040755 NAME: Scroll for Shoes for DEX 50%
+
+ID: 2040756 NAME: Scroll for Shoes for Jump 50%
+
+ID: 2040757 NAME: Scroll for Shoes for Speed 50%
+
+ID: 2040629 NAME: Scroll for Bottomwear for DEF 50%
+
+ID: 2040542 NAME: Scroll for Overall Armor for DEX 50%
+
+ID: 2040543 NAME: Scroll for Overall Armor for DEF 50%
+
+ID: 2040429 NAME: Scroll for Topwear for DEF 50%
+
+ID: 2040333 NAME: Scroll for Earring for INT 50%
+
+ID: 2040045 NAME: Scroll for Helmet for DEF 50%
+
+ID: 2040046 NAME: Scroll for Helmet for HP 50%
+
+ID: 2101207 NAME: A Parasite Summoning Sack
+
+ID: 2101208 NAME: Andras Summoning Sack
+
+ID: 2101209 NAME: Marbas Summoning Sack
+
+ID: 2101210 NAME: Amdusias Summoning Sack
+
+ID: 2101211 NAME: Valefor Summoning Sack
+
+ID: 2101212 NAME: Crocell Summoning Sack
+
+ID: 2101213 NAME: Astaroth Summoning Sack
+
+ID: 2022623 NAME: Seasoned Frog Eggs and Mushrooms
+
+ID: 2022624 NAME: Bloody Mushroom Wine
+
+ID: 2022625 NAME: Slimy Canape
+
+ID: 2022626 NAME: Zingy Kabab
+
+ID: 2022627 NAME: Swamp Wrap
+
+ID: 2022628 NAME: Rough Leather Steak
+
+ID: 2022629 NAME: Witch's Special Stew
+
+ID: 2049113 NAME: Normal Witch Scroll
+
+ID: 2049114 NAME: Witch's Belt Scroll
+
+ID: 2101203 NAME: Suspicious Black Sack
+
+ID: 2101204 NAME: Olivia (30) Monster Sack
+
+ID: 2101205 NAME: Olivia (50) Monster Sack
+
+ID: 2101206 NAME: Olivia (70) Monster Sack
+
+ID: 2210043 NAME: Leech Costume
+
+ID: 2022634 NAME: Turkey Leg
+
+ID: 2101236 NAME: GMEvent_Pink Bean2
+
+ID: 2000022 NAME: Special Rien Red Potion
+
+ID: 2000023 NAME: Special Rien Blue Potion
+
+ID: 2002030 NAME: Angelic Steps
+
+ID: 2012005 NAME: Angel Apple
+
+ID: 2012006 NAME: Angel Lemon
+
+ID: 2022564 NAME: Aran Paper Box
+
+ID: 2022570 NAME: King Pepe Warrior Weapon Box
+
+ID: 2022571 NAME: King Pepe Magician Weapon Box
+
+ID: 2022572 NAME: King Pepe Bowman Weapon Box
+
+ID: 2022573 NAME: King Pepe Thief Weapon Box
+
+ID: 2022574 NAME: King Pepe Pirate Weapon Box
+
+ID: 2022575 NAME: King Pepe Warrior Armor Box
+
+ID: 2022576 NAME: King Pepe Magician Armor Box
+
+ID: 2022577 NAME: King Pepe Bowman Armor Box
+
+ID: 2022578 NAME: King Pepe Thief Armor Box
+
+ID: 2022579 NAME: King Pepe Pirate Armor Box
+
+ID: 2022580 NAME: King Pepe Warrior Box
+
+ID: 2022581 NAME: King Pepe Magician Box
+
+ID: 2022582 NAME: King Pepe Bowman Box
+
+ID: 2022583 NAME: King Pepe Thief Box
+
+ID: 2022584 NAME: King Pepe Pirate Box
+
+ID: 2022585 NAME: Pharaoh's Blessing Lv. 1
+
+ID: 2022586 NAME: Pharaoh's Blessing Lv. 2
+
+ID: 2022587 NAME: Pharaoh's Blessing Lv. 3
+
+ID: 2022588 NAME: Pharaoh's Blessing Lv. 4
+
+ID: 2022613 NAME: Pharaoh's Treasure Chest
+
+ID: 2022614 NAME: Bingo Gift Box
+
+ID: 2022615 NAME: Subway Lost and Found
+
+ID: 2022616 NAME: Power Buff Lv. 1
+
+ID: 2022617 NAME: Power Buff Lv. 2
+
+ID: 2022618 NAME: Pharaoh's Treasure Chest
+
+ID: 2031008 NAME: Rien Teleport Ticket
+
+ID: 2043021 NAME: King Pepe's 60% Scroll for One-handed Sword Attacks
+
+ID: 2043116 NAME: King Pepe's 60% Scroll for One-handed Axe Attacks
+
+ID: 2043216 NAME: King Pepe's 60% Scroll for One-handed BW Attacks
+
+ID: 2043311 NAME: King Pepe's 60% Scroll for Dagger Attacks
+
+ID: 2043711 NAME: King Pepe's 60% Scroll for Wand Magic Attacks
+
+ID: 2043811 NAME: King Pepe's 60% Scroll for Staff Magic Attacks
+
+ID: 2044024 NAME: King Pepe's 60% Scroll for Two-handed Sword Attacks
+
+ID: 2044116 NAME: King Pepe's 60% Scroll for Two-handed Axe Attacks
+
+ID: 2044216 NAME: King Pepe's 60% Scroll for Two-handed BW Attacks
+
+ID: 2044316 NAME: King Pepe's 60% Scroll for Spear Attacks
+
+ID: 2044416 NAME: King Pepe's 60% Scroll for Polearm Attacks
+
+ID: 2044511 NAME: King Pepe's 60% Scroll for Bow Attacks
+
+ID: 2044611 NAME: King Pepe's 60% Scroll for Crossbow Attacks
+
+ID: 2044711 NAME: King Pepe's 60% Scroll for Thief Attacks
+
+ID: 2044816 NAME: King Pepe's 60% Scroll for Knuckle Attacks
+
+ID: 2044909 NAME: King Pepe's 60% Scroll for Gun Attacks
+
+ID: 2049112 NAME: King Pepe's 100% Scroll for Weapons
+
+ID: 2100160 NAME: Gray Yeti and King Pepe Summoning Bag
+
+ID: 2100161 NAME: Gold Yeti and King Pepe Summoning Bag
+
+ID: 2100162 NAME: White Yeti and King Pepe Summoning Bag
+
+ID: 2100163 NAME: Prime Minister Summoning Bag
+
+ID: 2109006 NAME: Pharaoh Yeti Summoning Bag
+
+ID: 2109007 NAME: Pharaoh Yeti Summoning Bag
+
+ID: 2109008 NAME: Bubbling Summoning Bag
+
+ID: 2109009 NAME: Jr. Yeti Pharaoh Summoning Bag
+
+ID: 2109010 NAME: Jr. Yeti Pharaoh Summoning Bag
+
+ID: 2280013 NAME: [Skill Book] Final Blow
+
+ID: 2280014 NAME: [Skill Book] High Defense
+
+ID: 2280015 NAME: [Skill Book] Combo Tempest
+
+ID: 2280017 NAME: [Skill Book] Pig's Weakness
+
+ID: 2280016 NAME: [Skill Book] Combo Barrier
+
+ID: 2280018 NAME: [Skill Book] Stump's Weakness
+
+ID: 2280019 NAME: [Skill Book] Slime's Weakness
+
+ID: 2290126 NAME: [Mastery Book] Overswing 20
+
+ID: 2290127 NAME: [Mastery Book] Overswing 30
+
+ID: 2290128 NAME: [Mastery Book] High Mastery 20
+
+ID: 2290129 NAME: [Mastery Book]High Mastery 30
+
+ID: 2290130 NAME: [Mastery Book] Freeze Standing 20
+
+ID: 2290131 NAME: [Mastery Book] Freeze Standing 30
+
+ID: 2290132 NAME: [Mastery Book] Final Blow 20
+
+ID: 2290133 NAME: [Mastery Book] Final Blow 30
+
+ID: 2290134 NAME: [Mastery Book] High Defense 20
+
+ID: 2290135 NAME: [Mastery Book] High Defense 30
+
+ID: 2290136 NAME: [Mastery Book] Combo Tempest 20
+
+ID: 2290137 NAME: [Mastery Book] Combo Tempest 30
+
+ID: 2290138 NAME: [Mastery Book] Combo Barrier 20
+
+ID: 2290139 NAME: [Mastery Book] Combo Barrier 30
+
+ID: 2380014 NAME: Dejected Green Mushroom Card
+
+ID: 2380015 NAME: Muru Card
+
+ID: 2380016 NAME: Murupa Card
+
+ID: 2380017 NAME: Murupia Card
+
+ID: 2380018 NAME: MuruMuru Card
+
+ID: 2380019 NAME: Murukun Card
+
+ID: 2381082 NAME: Smiling Ghost Stump Card
+
+ID: 2381083 NAME: Annoyed Zombie Mushroom Card
+
+ID: 2382092 NAME: Renegade Spore Card
+
+ID: 2382093 NAME: Poison Mushroom Card
+
+ID: 2382094 NAME: Intoxicated Pig Card
+
+ID: 2382095 NAME: Helmet Pepe Card
+
+ID: 2382096 NAME: Royal Guard Pepe Card
+
+ID: 2388052 NAME: Giant Centipede Card
+
+ID: 2388053 NAME: Blue Mushmom Card
+
+ID: 2388054 NAME: Snack Bar Card
+
+ID: 2388067 NAME: Gray Yeti and King Pepe Card
+
+ID: 2388068 NAME: Gold Yeti and King Pepe Card
+
+ID: 2388069 NAME: White Yeti and King Pepe Card
+
+ID: 2388070 NAME: Prime Minister Mushroom Card
+
+ID: 2430013 NAME: Peng Peng Popsicle
+
+ID: 2430014 NAME: Killer Mushroom Spore
+
+ID: 2430015 NAME: Thorn Remover
+
+ID: 2430016 NAME: Crystal Chest
+
+ID: 2450000 NAME: Hunter's Luck
+
+ID: 2040758 NAME: Scroll for Shoes for ATT
+
+ID: 2040759 NAME: Scroll for Shoes for ATT
+
+ID: 2040760 NAME: Scroll for Shoes for ATT
+
+ID: 2044815 NAME: Scroll for Knuckler for Attack 100%
+
+ID: 2044817 NAME: Scroll for Knuckler for Attack 50%
+
+ID: 2044908 NAME: Scroll for Gun for Attack 100%
+
+ID: 2044910 NAME: Scroll for Gun for Attack 50%
+
+ID: 2022544 NAME: White Elixir
+
+ID: 2022545 NAME: Dynamite Drink EX
+
+ID: 2022546 NAME: Energy Drink
+
+ID: 2430032 NAME: Black Bag
+
+ID: 2430030 NAME: Golden Compass
+
+ID: 2430029 NAME: Mystery Box 
+
+ID: 2430028 NAME: Mystery Box 
+
+ID: 2430027 NAME: Mystery Box 
+
+ID: 2430026 NAME: Mystery Box 
+
+ID: 2430031 NAME: Instant Camera
+
+ID: 2100164 NAME: Black Wing Henchman Summoning Sack
+
+ID: 2100165 NAME: Hiver Summoning Sack
+
+ID: 2100152 NAME: Giant Summoning Sack
+
+ID: 2100153 NAME: Shadow Knight Summoning Sack
+
+ID: 2100154 NAME: Gentleman Summoning Sack
+
+ID: 2100155 NAME: Master of Disguise Summoning Sack
+
+ID: 2100159 NAME: Transformed Tru Summoning Sack
+
+ID: 2049200 NAME: Dark Scroll for Accessory for STR 70%  
+
+ID: 2049201 NAME: Dark Scroll for Accessory for STR 30%
+
+ID: 2049202 NAME: Dark Scroll for Accessory for DEX 70%
+
+ID: 2049203 NAME: Dark Scroll for Accessory for DEX 30%
+
+ID: 2049204 NAME: Dark Scroll for Accessory for INT 70%
+
+ID: 2049205 NAME: Dark Scroll for Accessory for INT 30%
+
+ID: 2049206 NAME: Dark Scroll for Accessory for LUK 70%
+
+ID: 2049207 NAME: Dark Scroll for Accessory for LUK 30%
+
+ID: 2049208 NAME: Dark Scroll for Accessory for HP 70%
+
+ID: 2049209 NAME: Dark Scroll for Accessory for HP 30%
+
+ID: 2049210 NAME: Dark Scroll for Accessory for MP 70%
+
+ID: 2049211 NAME: Dark Scroll for Accessory for MP 30%
+
+ID: 2044418 NAME: Scroll for Polearm for Accuracy 65%
+
+ID: 2044419 NAME: Scroll for Polearm for Accuracy 15%
+
+ID: 2044318 NAME: Scroll for Spears for Accuracy 65%
+
+ID: 2044319 NAME: Scroll for Spears for Accuracy 15%
+
+ID: 2044218 NAME: Scroll for Two-Handed BW for Accuracy 65%
+
+ID: 2044219 NAME: Scroll for Two-Handed BW for Accuracy 15%
+
+ID: 2044118 NAME: Scroll for Two-Handed Axe for Accuracy 65%
+
+ID: 2044119 NAME: Scroll for Two-Handed Axe for Accuracy 15%
+
+ID: 2044026 NAME: Scroll for Two-Handed Sword for Accuracy 65%
+
+ID: 2044027 NAME: Scroll for Two-Handed Sword for Accuracy 15%
+
+ID: 2043218 NAME: Scroll for One-Handed BW for Accuracy 65%
+
+ID: 2043219 NAME: Scroll for One-Handed BW for Accuracy 15%
+
+ID: 2043118 NAME: Scroll for One-Handed Axe for Accuracy 65%
+
+ID: 2043119 NAME: Scroll for One-Handed Axe for Accuracy 15%
+
+ID: 2043024 NAME: Scroll for One-Handed Sword for Accuracy 65%
+
+ID: 2043025 NAME: Scroll for One-Handed Sword for Accuracy 15%
+
+ID: 2040937 NAME: Scroll for Shield for LUK 65%
+
+ID: 2040938 NAME: Scroll for Shield for LUK 15%
+
+ID: 2040939 NAME: Scroll for Shield for HP 65%
+
+ID: 2040940 NAME: Scroll for Shield for HP 15%
+
+ID: 2040941 NAME: Scroll for Shield for STR 65%
+
+ID: 2040942 NAME: Scroll for Shield for STR 15%
+
+ID: 2040831 NAME: Scroll for Gloves for HP 65%
+
+ID: 2040832 NAME: Scroll for Gloves for HP 15%
+
+ID: 2040631 NAME: Scroll for Bottomwear for Jump 65%
+
+ID: 2040632 NAME: Scroll for Bottomwear for Jump 15%
+
+ID: 2040633 NAME: Scroll for Bottomwear for HP 65%
+
+ID: 2040634 NAME: Scroll for Bottomwear for HP 15%
+
+ID: 2040635 NAME: Scroll for Bottomwear for DEX 65%
+
+ID: 2040636 NAME: Scroll for Bottomwear for DEX 15%
+
+ID: 2040540 NAME: Scroll for Overall Armor for STR 65%
+
+ID: 2040541 NAME: Scroll for Overall Armor for STR 15%
+
+ID: 2040431 NAME: Scroll for Topwear for STR 65%
+
+ID: 2040432 NAME: Scroll for Topwear for STR 15%
+
+ID: 2040433 NAME: Scroll for Topwear for HP 65%
+
+ID: 2040434 NAME: Scroll for Topwear for HP 15%
+
+ID: 2040435 NAME: Scroll for Topwear for LUK 65%
+
+ID: 2040436 NAME: Scroll for Topwear for LUK 15%
+
+ID: 2040335 NAME: Scroll for Earring for DEX 65%
+
+ID: 2040336 NAME: Scroll for Earring for DEX 15%
+
+ID: 2040337 NAME: Scroll for Earring for LUK 65%
+
+ID: 2040338 NAME: Scroll for Earring for LUK 15%
+
+ID: 2040339 NAME: Scroll for Earring for HP 65%
+
+ID: 2040340 NAME: Scroll for Earring for HP 15%
+
+ID: 2040043 NAME: Scroll for Helmet for DEX 65%
+
+ID: 2040044 NAME: Scroll for Helmet for DEX 15%
+
+ID: 2022620 NAME: Handmade Sandwich 
+
+ID: 2022621 NAME: Tasty Milk
+
+ID: 2022622 NAME: Squeezed Juice
+
+ID: 2022631 NAME: Rose Scent
+
+ID: 2022632 NAME: Freesia Scent
+
+ID: 2022633 NAME: Lavender Scent
+
+ID: 2012008 NAME: Unripe Onyx Apple

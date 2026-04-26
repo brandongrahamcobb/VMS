@@ -13,6 +13,7 @@ use crate::net::packet::io::error::IOError::{ReadError, WriteError};
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
 use crate::runtime::relay::RuntimeContext;
+use crate::runtime::session::SessionState;
 use bcrypt::{DEFAULT_COST, hash, verify};
 use std::io::BufReader;
 use std::time::UNIX_EPOCH;
@@ -20,8 +21,8 @@ use std::time::UNIX_EPOCH;
 pub enum StatusCode {
     Banned = 2,
     InvalidCredentials = 5,
-    PendingTOS = 7,
-    Playing = 23,
+    Playing = 7,
+    PendingTOS = 23,
 }
 
 pub struct CredentialsHandler;
@@ -65,7 +66,7 @@ impl CredentialsHandler {
         return Ok(false);
     }
 
-    fn get_login_action(&self, acc: Account, hwid: String) -> Result<LoginAction, NetworkError> {
+    fn get_login_action(&self, acc: Account) -> Result<LoginAction, NetworkError> {
         if self.check_if_banned(&acc)? {
             return Ok(LoginAction::RejectLogin {
                 reason: RejectLoginReason::Banned,
@@ -84,7 +85,7 @@ impl CredentialsHandler {
                 acc: Some(acc),
             });
         }
-        Ok(LoginAction::AcceptLogin { acc, hwid })
+        Ok(LoginAction::AcceptLogin { acc })
     }
 
     fn read_credentials(
@@ -142,7 +143,15 @@ impl CredentialsHandler {
             Ok(acc) => {
                 let login_action = {
                     if self.authenticate(&acc, &pw)? {
-                        self.get_login_action(acc, hwid)?
+                        ctx.shared_state
+                            .sessions
+                            .update(ctx.session_id as u32, |session| {
+                                session.account_id = Some(acc.id);
+                                session.authenticated = true;
+                                session.hwid = Some(hwid);
+                                session.session_state = SessionState::Transition;
+                            });
+                        self.get_login_action(acc)?
                     } else {
                         LoginAction::RejectLogin {
                             acc: None,

@@ -235,27 +235,33 @@ fn write_char_meta(packet: &mut Packet, character: &Character) -> Result<(), Net
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
+    use tracing::debug;
+    debug!("Test9");
     packet
         .write_short(character.max_hp.ok_or(NetworkError::UnexpectedError)?)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
+    debug!("Test9");
     packet
         .write_short(character.mp.ok_or(NetworkError::UnexpectedError)?)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
+    debug!("Test9");
     packet
         .write_short(character.max_mp.ok_or(NetworkError::UnexpectedError)?)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
+    debug!("Test9");
     packet
         .write_short(character.ap.ok_or(NetworkError::UnexpectedError)?)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     // SP
+    debug!("Test9");
     packet
         .write_short(0)
         .map_err(WriteError)

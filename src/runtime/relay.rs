@@ -21,7 +21,7 @@ use crate::runtime::state::SharedState;
 use itertools::izip;
 use rand::{RngExt, rng};
 use tokio::net::TcpStream;
-use tracing::info;
+use tracing::debug;
 
 pub struct RuntimeContext {
     pub session_id: i32,
@@ -112,7 +112,7 @@ impl RuntimeRelay for Login {
         packet: &Packet,
     ) -> Result<HandlerResult<LoginAction>, RuntimeError> {
         let opcode = packet.opcode();
-        info!("Received opcode: {}", opcode);
+        debug!("Received opcode: {}", opcode);
         match opcode {
             x if x == RecvOpcode::RequestLogin as i16 => {
                 let handler = credentials::CredentialsHandler::new();
@@ -121,7 +121,14 @@ impl RuntimeRelay for Login {
                     .await
                     .map_err(RuntimeError::from)
             }
-            x if x != RecvOpcode::RequestLogin as i16 => {
+            x if x == RecvOpcode::AcceptTOS as i16 => {
+                let handler = tos::TOSHandler::new();
+                handler
+                    .handle(ctx, packet)
+                    .await
+                    .map_err(RuntimeError::from)
+            }
+            _ => {
                 let session = ctx
                     .shared_state
                     .sessions
@@ -131,13 +138,6 @@ impl RuntimeRelay for Login {
                     .map_err(RuntimeError::from)?;
                 if session.authenticated == true {
                     match opcode {
-                        x if x == RecvOpcode::AcceptTOS as i16 => {
-                            let handler = tos::TOSHandler::new();
-                            handler
-                                .handle(ctx, packet)
-                                .await
-                                .map_err(RuntimeError::from)
-                        }
                         x if x == RecvOpcode::LoginStarted as i16
                             || x == RecvOpcode::ServerListRequest as i16 =>
                         {
@@ -186,7 +186,6 @@ impl RuntimeRelay for Login {
                     return Ok(result);
                 }
             }
-            _ => Err(RuntimeError::NetworkError(UnsupportedOpcodeError(opcode))),
         }
     }
 
@@ -199,16 +198,8 @@ impl RuntimeRelay for Login {
         let actions = result.actions;
         for action in actions {
             match action {
-                LoginAction::AcceptLogin { acc, hwid } => {
+                LoginAction::AcceptLogin { acc } => {
                     let mut packet = credentials::build_successful_login_packet(&acc, ctx)?;
-                    ctx.shared_state
-                        .sessions
-                        .update(ctx.session_id as u32, |session| {
-                            session.account_id = Some(acc.id);
-                            session.authenticated = true;
-                            session.hwid = Some(hwid);
-                            session.session_state = SessionState::Transition;
-                        });
                     writer.send_encrypted_packet(&mut packet).await?;
                     ctx.shared_state
                         .sessions

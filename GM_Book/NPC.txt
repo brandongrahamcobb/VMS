@@ -1,0 +1,3465 @@
+ID: 10000 NAME: Pio
+
+ID: 1001000 NAME: Silver
+
+ID: 1001001 NAME: Natasha
+
+ID: 1001100 NAME: Mina
+
+ID: 1002000 NAME: Phil
+
+ID: 1002001 NAME: Teo
+
+ID: 1002002 NAME: Pason
+
+ID: 1002003 NAME: Mr. Goldstein
+
+ID: 1002004 NAME: VIP Cab
+
+ID: 1002005 NAME: Mr. Kim
+
+ID: 1002006 NAME: Chef
+
+ID: 1002100 NAME: Jane
+
+ID: 1002101 NAME: Olaf
+
+ID: 1002102 NAME: Eels
+
+ID: 1002103 NAME: Captain Al
+
+ID: 1010100 NAME: Rina
+
+ID: 1011000 NAME: Karl
+
+ID: 1011001 NAME: Sam
+
+ID: 1011100 NAME: Luna
+
+ID: 1012000 NAME: Regular Cab
+
+ID: 1012001 NAME: Dr. Squint
+
+ID: 1012002 NAME: Vicious
+
+ID: 1012003 NAME: Chief Stan
+
+ID: 1012004 NAME: Doofus
+
+ID: 1012005 NAME: Cloy
+
+ID: 1012006 NAME: Trainer Bartos
+
+ID: 1012007 NAME: Trainer Frod
+
+ID: 1012008 NAME: Casey
+
+ID: 1012009 NAME: Mr. Lee
+
+ID: 1012100 NAME: Athena Pierce
+
+ID: 1012101 NAME: Maya
+
+ID: 1012102 NAME: Pia
+
+ID: 1012103 NAME: Natalie
+
+ID: 1012104 NAME: Brittany
+
+ID: 1012105 NAME: Ms. Tan
+
+ID: 1012106 NAME: Mrs. Ming Ming
+
+ID: 1012107 NAME: Utah
+
+ID: 1012108 NAME: Camila
+
+ID: 1012109 NAME: Jay
+
+ID: 1012110 NAME: Anne
+
+ID: 1012111 NAME: Bruce
+
+ID: 1012112 NAME: Tory
+
+ID: 1012113 NAME: Tommy
+
+ID: 1012114 NAME: Growlie
+
+ID: 1012115 NAME: Henesys Forest
+
+ID: 1012116 NAME: Henesys Forest
+
+ID: 1012117 NAME: Big Headward
+
+ID: 1020000 NAME: Blackbull
+
+ID: 1021000 NAME: River
+
+ID: 1021001 NAME: Harry
+
+ID: 1021100 NAME: Arturo
+
+ID: 1022000 NAME: Dances with Balrog
+
+ID: 1022001 NAME: Regular Cab
+
+ID: 1022002 NAME: Manji
+
+ID: 1022003 NAME: Mr. Thunder
+
+ID: 1022004 NAME: Mr. Smith
+
+ID: 1022005 NAME: Mr. Wang
+
+ID: 1022006 NAME: Winston
+
+ID: 1022007 NAME: Ayan
+
+ID: 1022008 NAME: Burnt Sword
+
+ID: 1022100 NAME: Sophia
+
+ID: 1022101 NAME: Rooney
+
+ID: 1022102 NAME: The Excavator Board
+
+ID: 1022103 NAME: Fountain Statue
+
+ID: 1031000 NAME: Flora the Fairy
+
+ID: 1031001 NAME: Serabi the Fairy
+
+ID: 1031100 NAME: Len the Fairy
+
+ID: 1032000 NAME: Regular Cab
+
+ID: 1032001 NAME: Grendel the Really Old
+
+ID: 1032002 NAME: Francois
+
+ID: 1032003 NAME: Shane
+
+ID: 1032004 NAME: Louis
+
+ID: 1032005 NAME: VIP Cab
+
+ID: 1032006 NAME: Mr. Park
+
+ID: 1032007 NAME: Joel
+
+ID: 1032008 NAME: Cherry
+
+ID: 1032009 NAME: Purin
+
+ID: 1032100 NAME: Arwen the Fairy
+
+ID: 1032101 NAME: Rowen the Fairy
+
+ID: 1032102 NAME: Mar the Fairy
+
+ID: 1032103 NAME: El Moth
+
+ID: 1032104 NAME: Betty
+
+ID: 1032105 NAME: Estelle
+
+ID: 1032106 NAME: Wing the Fairy
+
+ID: 1032107 NAME: Reef
+
+ID: 1032108 NAME: Reef
+
+ID: 1032109 NAME: Corner of the Magic Library
+
+ID: 1032110 NAME: Corner of the Magic Library
+
+ID: 1032111 NAME: Small Tree Stump
+
+ID: 1040000 NAME: Luke
+
+ID: 1040001 NAME: Mike
+
+ID: 1040002 NAME: Fanzy
+
+ID: 1043000 NAME: a pile of flowers
+
+ID: 1043001 NAME: a pile of herbs
+
+ID: 1051000 NAME: Cutthroat Manny
+
+ID: 1051001 NAME: Don Hwang
+
+ID: 1051002 NAME: Dr. Faymus
+
+ID: 1052000 NAME: Alex
+
+ID: 1052001 NAME: Dark Lord
+
+ID: 1052002 NAME: JM From tha Streetz
+
+ID: 1052003 NAME: Chris
+
+ID: 1052004 NAME: Denma the Owner
+
+ID: 1052005 NAME: Dr. Feeble
+
+ID: 1052006 NAME: Jake
+
+ID: 1052007 NAME: The Ticket Gate
+
+ID: 1052008 NAME: Treasure Chest
+
+ID: 1052009 NAME: Treasure Chest
+
+ID: 1052010 NAME: Treasure Chest
+
+ID: 1052011 NAME: Exit
+
+ID: 1052012 NAME: Mong from Kong
+
+ID: 1052013 NAME: Computer
+
+ID: 1052014 NAME: Vending Machine
+
+ID: 1052015 NAME: Billy
+
+ID: 1052016 NAME: Regular Cab
+
+ID: 1052017 NAME: Mr. Hong
+
+ID: 1052100 NAME: Don Giovanni
+
+ID: 1052101 NAME: Andre
+
+ID: 1052102 NAME: Shumi
+
+ID: 1052103 NAME: Nella
+
+ID: 1052104 NAME: Tulcus
+
+ID: 1052105 NAME: Jane Doe
+
+ID: 1052106 NAME: Icarus
+
+ID: 1052107 NAME: Small Street Light
+
+ID: 1052108 NAME: Knocked Trash Can
+
+ID: 1052109 NAME: Subway Trash Can
+
+ID: 1052110 NAME: Subway Trash Can
+
+ID: 1052111 NAME: Subway Trash Can
+
+ID: 1052112 NAME: Subway Trash Can
+
+ID: 1061000 NAME: Chrishrama
+
+ID: 1061001 NAME: 24 Hr Mobile Store
+
+ID: 1061002 NAME: Mr. Sweatbottom
+
+ID: 1061003 NAME: Mr. Wetbottom
+
+ID: 1061004 NAME: Ronnie
+
+ID: 1061005 NAME: Sabitrama
+
+ID: 1061006 NAME: Mysterious Statue
+
+ID: 1061007 NAME: Crumbling Statue
+
+ID: 1061008 NAME: Mr. Oh
+
+ID: 1061009 NAME: Door of Dimension
+
+ID: 1061010 NAME: Sparkling Crystal
+
+ID: 1061011 NAME: The Rememberer
+
+ID: 1061012 NAME: Insignificant Being
+
+ID: 1061013 NAME: Gwin
+
+ID: 1061014 NAME: Mu Young
+
+ID: 1061015 NAME: Tristan's Spirit
+
+ID: 1061016 NAME: Suspicious Man
+
+ID: 1061017 NAME: Tristan's Spirit
+
+ID: 1061018 NAME: Mu Young
+
+ID: 1061019 NAME: Ilji
+
+ID: 1061100 NAME: Hotel Receptionist
+
+ID: 1063000 NAME: a pile of pink flowers
+
+ID: 1063001 NAME: a pile of blue flowers
+
+ID: 1063002 NAME: a pile of white flowers
+
+ID: 1063003 NAME: Wanted : G. Mushroom
+
+ID: 1063004 NAME: Wanted : Curse Eye
+
+ID: 1063005 NAME: Wanted : Evil Eye
+
+ID: 1063006 NAME: Wanted : Cold Eye
+
+ID: 1063007 NAME: Wanted : Z. Mushroom
+
+ID: 1063008 NAME: Wanted : H. Mushroom
+
+ID: 1063009 NAME: Wanted : Jr. Boogie
+
+ID: 1063010 NAME: Wanted : Drake
+
+ID: 1063011 NAME: Cave Wall of Evil Eye
+
+ID: 1063012 NAME: Shaman Rock
+
+ID: 1063013 NAME: Shaman Rock
+
+ID: 1063014 NAME: Mysterious Piece of Paper
+
+ID: 1063015 NAME: Underground Temple Entrance
+
+ID: 1063016 NAME: Strange Looking Statue 
+
+ID: 1063017 NAME: Monstrous Looking Statue 
+
+ID: 1072000 NAME: Warrior Job Instructor
+
+ID: 1072001 NAME: Magician Job Instructor
+
+ID: 1072002 NAME: Bowman Job Instructor
+
+ID: 1072003 NAME: Thief Job Instructor
+
+ID: 1072004 NAME: Warrior Job Instructor
+
+ID: 1072005 NAME: Magician Job Instructor
+
+ID: 1072006 NAME: Bowman Job Instructor
+
+ID: 1072007 NAME: Thief Job Instructor
+
+ID: 1072008 NAME: Kyrin
+
+ID: 1081000 NAME: Valen
+
+ID: 1081001 NAME: Pison
+
+ID: 1081100 NAME: Riel
+
+ID: 1081101 NAME: Roel
+
+ID: 1081102 NAME: Rael
+
+ID: 1090000 NAME: Kyrin
+
+ID: 1091000 NAME: Morgan
+
+ID: 1091001 NAME: Rodos
+
+ID: 1091002 NAME: Gali
+
+ID: 1091003 NAME: Serryl
+
+ID: 1091004 NAME: Dondlass
+
+ID: 1092000 NAME: Tangyoon
+
+ID: 1092001 NAME: Bonnie
+
+ID: 1092002 NAME: Baine
+
+ID: 1092003 NAME: Sharyl
+
+ID: 1092004 NAME: Calico
+
+ID: 1092006 NAME: Black Bark
+
+ID: 1092007 NAME: Muirhat
+
+ID: 1092008 NAME: Shulynch
+
+ID: 1092009 NAME: Mrs. Reade
+
+ID: 1092010 NAME: Jack
+
+ID: 1092011 NAME: Bartol
+
+ID: 1092012 NAME: Rolonay
+
+ID: 1092013 NAME: Porchay
+
+ID: 1092014 NAME: Nautilus' Mid-Sized Taxi
+
+ID: 1092015 NAME: Water Filter
+
+ID: 1092016 NAME: Shiny Stone
+
+ID: 1092017 NAME: Anonymous Merchant
+
+ID: 1092018 NAME: Trash Can
+
+ID: 1092019 NAME: Lord Jonathan
+
+ID: 1092090 NAME: Mother Milk Cow
+
+ID: 1092091 NAME: Mother Milk Cow
+
+ID: 1092092 NAME: Mother Milk Cow
+
+ID: 1092093 NAME: Baby Milk Cow
+
+ID: 1092094 NAME: Baby Milk Cow
+
+ID: 1092095 NAME: Baby Milk Cow
+
+ID: 1092097 NAME: Mother of Pearl
+
+ID: 1093000 NAME: Pupa
+
+ID: 1094000 NAME: Bart
+
+ID: 1094001 NAME: Abel
+
+ID: 1094002 NAME: Bush
+
+ID: 1094003 NAME: Bush
+
+ID: 1094004 NAME: Bush
+
+ID: 1094005 NAME: Bush
+
+ID: 1094006 NAME: Bush
+
+ID: 1095000 NAME: Shulynch
+
+ID: 11000 NAME: Sid
+
+ID: 1100000 NAME: Kirium
+
+ID: 1100001 NAME: Kiriyu
+
+ID: 1100002 NAME: Kiriwing
+
+ID: 1100003 NAME: Kiriru
+
+ID: 1100004 NAME: Kiru
+
+ID: 1100005 NAME: Kiruru
+
+ID: 1100006 NAME: Kiru
+
+ID: 1100007 NAME: Kiriru
+
+ID: 1100008 NAME: Kiru
+
+ID: 1101000 NAME: Cygnus
+
+ID: 1101001 NAME: Shinsoo
+
+ID: 1101002 NAME: Neinheart
+
+ID: 1101003 NAME: Mihile
+
+ID: 1101004 NAME: Oz
+
+ID: 1101005 NAME: Irena
+
+ID: 1101006 NAME: Eckhart
+
+ID: 1101007 NAME: Hawkeye
+
+ID: 1101008 NAME: Mimo
+
+ID: 1102000 NAME: Kiku
+
+ID: 1102001 NAME: Kiriko
+
+ID: 1102002 NAME: Kiridu
+
+ID: 1102003 NAME: Kidan
+
+ID: 1102004 NAME: Kimu
+
+ID: 1102005 NAME: Kizan
+
+ID: 1102006 NAME: Kinu
+
+ID: 1102007 NAME: Kia
+
+ID: 1102008 NAME: Kisha
+
+ID: 1102009 NAME: Neinheart
+
+ID: 1103000 NAME: Dunamis
+
+ID: 1103001 NAME: Roca
+
+ID: 1103002 NAME: Matthias
+
+ID: 1103003 NAME: Hersha
+
+ID: 1103004 NAME: 10 Boogies
+
+ID: 1103005 NAME: Neinheart
+
+ID: 1104000 NAME: Francis
+
+ID: 1104001 NAME: Baroq
+
+ID: 1104002 NAME: Eleanor
+
+ID: 1104100 NAME: Mihile
+
+ID: 1104101 NAME: Oz
+
+ID: 1104102 NAME: Irena
+
+ID: 1104103 NAME: Eckhart
+
+ID: 1104104 NAME: Hawkeye
+
+ID: 1104200 NAME: Fallen Knight
+
+ID: 1104201 NAME: Cygnus
+
+ID: 1104202 NAME: Neinheart
+
+ID: 1104203 NAME: Mihile
+
+ID: 1104204 NAME: Oz
+
+ID: 1104205 NAME: Irena
+
+ID: 1104206 NAME: Eckhart
+
+ID: 1104207 NAME: Hawkeye
+
+ID: 1104208 NAME: Shinsoo
+
+ID: 11100 NAME: Lucy
+
+ID: 12000 NAME: Lucas
+
+ID: 12100 NAME: Mai
+
+ID: 12101 NAME: Rain
+
+ID: 2000 NAME: Roger
+
+ID: 20000 NAME: John
+
+ID: 20001 NAME: Bari
+
+ID: 20002 NAME: Biggs
+
+ID: 2001 NAME: Sen
+
+ID: 2001000 NAME: Cliff
+
+ID: 2001001 NAME: Branch Snowman
+
+ID: 2001002 NAME: Metal Bucket Snowman
+
+ID: 2001003 NAME: Straw Hat Snowman
+
+ID: 2001004 NAME: Scarf Snowman
+
+ID: 2001005 NAME: Rupert
+
+ID: 2002 NAME: Peter
+
+ID: 2002000 NAME: Rupi
+
+ID: 2002001 NAME: Rudi
+
+ID: 2002002 NAME: Torr
+
+ID: 2003 NAME: Robin
+
+ID: 2004 NAME: Todd
+
+ID: 2005 NAME: Sam
+
+ID: 2006 NAME: Tienk
+
+ID: 20100 NAME: Yoona
+
+ID: 2010000 NAME: Staff Sergeant Charlie
+
+ID: 2010001 NAME: Mino the Owner
+
+ID: 2010002 NAME: Franz the Owner
+
+ID: 2010003 NAME: Neve
+
+ID: 2010004 NAME: Corporal Wilson
+
+ID: 2010005 NAME: Shuri
+
+ID: 2010006 NAME: Trina
+
+ID: 2010007 NAME: Heracle
+
+ID: 2010008 NAME: Lea
+
+ID: 2010009 NAME: Lenario
+
+ID: 2012000 NAME: Agatha
+
+ID: 2012001 NAME: Rini
+
+ID: 2012002 NAME: Erin
+
+ID: 2012003 NAME: Neri the Fairy
+
+ID: 2012004 NAME: Nuri the Fairy
+
+ID: 2012005 NAME: Edel the Fairy
+
+ID: 2012006 NAME: Isa the Station Guide
+
+ID: 2012007 NAME: Rinz the Assistant
+
+ID: 2012008 NAME: Romi
+
+ID: 2012009 NAME: Riza the Assistant
+
+ID: 2012010 NAME: Elma the Housekeeper
+
+ID: 2012011 NAME: Kriel the Fairy
+
+ID: 2012012 NAME: Lisa
+
+ID: 2012013 NAME: Sunny
+
+ID: 2012014 NAME: Orbis Magic Spot
+
+ID: 2012015 NAME: El Nath Magic Spot
+
+ID: 2012016 NAME: Aileen
+
+ID: 2012017 NAME: Hughes the Fuse
+
+ID: 2012018 NAME: Ericsson
+
+ID: 2012019 NAME: Moppie
+
+ID: 2012020 NAME: Alfonse Green
+
+ID: 2012021 NAME: Ramini
+
+ID: 2012022 NAME: Pelace
+
+ID: 2012023 NAME: Maple Leaf Marble
+
+ID: 2012024 NAME: Egnet
+
+ID: 2012025 NAME: Geras
+
+ID: 2012026 NAME: Elliza
+
+ID: 2012027 NAME: Harp String <C>
+
+ID: 2012028 NAME: Harp String <D>
+
+ID: 2012029 NAME: Harp String <E>
+
+ID: 2012030 NAME: Harp String <F>
+
+ID: 2012031 NAME: Harp String <G>
+
+ID: 2012032 NAME: Harp String <A>
+
+ID: 2012033 NAME: Harp String <B>
+
+ID: 2013000 NAME: Wonky the Fairy
+
+ID: 2013001 NAME: Chamberlain Eak
+
+ID: 2013002 NAME: Minerva the Goddess
+
+ID: 2020000 NAME: Vogen
+
+ID: 2020001 NAME: Scott
+
+ID: 2020002 NAME: Gordon
+
+ID: 2020003 NAME: Master Sergeant Fox
+
+ID: 2020004 NAME: Mr. Mohammed
+
+ID: 2020005 NAME: Alcaster
+
+ID: 2020006 NAME: Jade
+
+ID: 2020007 NAME: Scadur
+
+ID: 2020008 NAME: Tylus
+
+ID: 2020009 NAME: Robeira
+
+ID: 2020010 NAME: Rene
+
+ID: 2020011 NAME: Arec
+
+ID: 2020012 NAME: Spirit of Snow Statue
+
+ID: 2020013 NAME: Pedro
+
+ID: 2022000 NAME: Rumi
+
+ID: 2022001 NAME: Hana
+
+ID: 2022002 NAME: Barun
+
+ID: 2022003 NAME: Shammos
+
+ID: 2022004 NAME: Tylus
+
+ID: 2023000 NAME: Danger Zone Taxi
+
+ID: 2030000 NAME: Jeff
+
+ID: 2030001 NAME: Sergeant Bravo
+
+ID: 2030002 NAME: Corporal Easy
+
+ID: 2030003 NAME: Rock Covered in Snow
+
+ID: 2030004 NAME: Small Tomb
+
+ID: 2030005 NAME: Statue
+
+ID: 2030006 NAME: Holy Stone
+
+ID: 2030007 NAME: Piece of Statue
+
+ID: 2030008 NAME: Adobis
+
+ID: 2030009 NAME: Glibber
+
+ID: 2030010 NAME: Amon
+
+ID: 2030011 NAME: Ali
+
+ID: 2030012 NAME: Huckle
+
+ID: 2030013 NAME: Adobis
+
+ID: 2030014 NAME: Ancient Icy Stone
+
+ID: 2032000 NAME: ????
+
+ID: 2032001 NAME: Spiruna
+
+ID: 2032002 NAME: Aura
+
+ID: 2032003 NAME: Lira
+
+ID: 2032004 NAME: Suspicious Lava
+
+ID: 2040000 NAME: Mel
+
+ID: 2040001 NAME: Delv the Toy Soldier
+
+ID: 2040002 NAME: Olson the Toy Soldier
+
+ID: 2040003 NAME: Assistant Cheng
+
+ID: 2040004 NAME: Roly-Poly 1
+
+ID: 2040005 NAME: Roly-Poly 2
+
+ID: 2040006 NAME: Roly-Poly 3
+
+ID: 2040007 NAME: Roly-Poly 4
+
+ID: 2040008 NAME: Roly-Poly 5
+
+ID: 2040009 NAME: Roly-Poly 6
+
+ID: 2040010 NAME: Roly-Poly 7
+
+ID: 2040011 NAME: Roly-Poly 8
+
+ID: 2040012 NAME: Roly-Poly 9
+
+ID: 2040013 NAME: Roly-Poly 10
+
+ID: 2040014 NAME: Chico
+
+ID: 2040015 NAME: Manager Karl
+
+ID: 2040016 NAME: Pi
+
+ID: 2040017 NAME: Green Mesoranger
+
+ID: 2040018 NAME: Black Mesoranger
+
+ID: 2040019 NAME: Everton
+
+ID: 2040020 NAME: Sarah
+
+ID: 2040021 NAME: Tara
+
+ID: 2040022 NAME: Rydole
+
+ID: 2040023 NAME: Lost Soldier
+
+ID: 2040024 NAME: First Eos Rock
+
+ID: 2040025 NAME: Second Eos Rock
+
+ID: 2040026 NAME: Third Eos Rock
+
+ID: 2040027 NAME: Fourth Eos Rock
+
+ID: 2040028 NAME: Mark the Toy Soldier
+
+ID: 2040029 NAME: Grandpa Clock
+
+ID: 2040030 NAME: Wisp
+
+ID: 2040031 NAME: Document Roll
+
+ID: 2040032 NAME: Weaver
+
+ID: 2040033 NAME: Neru
+
+ID: 2040034 NAME: Red Sign
+
+ID: 2040035 NAME: Arturo
+
+ID: 2040036 NAME: Red Balloon
+
+ID: 2040037 NAME: Orange Balloon
+
+ID: 2040038 NAME: Yellow Balloon
+
+ID: 2040039 NAME: Lime Balloon
+
+ID: 2040040 NAME: Green Balloon
+
+ID: 2040041 NAME: Aqua Balloon
+
+ID: 2040042 NAME: Sky-Blue Balloon
+
+ID: 2040043 NAME: Blue Balloon
+
+ID: 2040044 NAME: Violet Balloon
+
+ID: 2040045 NAME: Pink Balloon
+
+ID: 2040046 NAME: Robert Holly
+
+ID: 2040047 NAME: Sgt. Anderson
+
+ID: 2040048 NAME: Nara
+
+ID: 2040049 NAME: Gumball Machine
+
+ID: 2040050 NAME: Eurek the Alchemist
+
+ID: 2040051 NAME: Toly
+
+ID: 2040052 NAME: Wiz the Librarian
+
+ID: 2041000 NAME: Tian
+
+ID: 2041001 NAME: Rosey
+
+ID: 2041002 NAME: Hid
+
+ID: 2041003 NAME: Miru
+
+ID: 2041004 NAME: Marcel
+
+ID: 2041005 NAME: Nemi
+
+ID: 2041006 NAME: Misky
+
+ID: 2041007 NAME: Miyu
+
+ID: 2041008 NAME: Seppy
+
+ID: 2041009 NAME: Mini
+
+ID: 2041010 NAME: Ellie
+
+ID: 2041011 NAME: Yellow Mesoranger
+
+ID: 2041012 NAME: Pink Mesoranger
+
+ID: 2041013 NAME: Gina
+
+ID: 2041014 NAME: Patricia
+
+ID: 2041015 NAME: Korin
+
+ID: 2041016 NAME: Vega
+
+ID: 2041017 NAME: Ace of Hearts
+
+ID: 2041018 NAME: Hans the Assembler
+
+ID: 2041019 NAME: Rocky the Repairman
+
+ID: 2041020 NAME: Mac the Mechanic
+
+ID: 2041021 NAME: Mr. Bouffon
+
+ID: 2041022 NAME: Tigun the Advisor
+
+ID: 2041023 NAME: Flo
+
+ID: 2041024 NAME: Tombstone
+
+ID: 2041025 NAME: Machine Apparatus
+
+ID: 2041026 NAME: Ghosthunter Bob
+
+ID: 2041027 NAME: Mason the Collector
+
+ID: 2041028 NAME: Unknown Thief
+
+ID: 2041029 NAME: Karen
+
+ID: 2042000 NAME: Spiegelmann
+
+ID: 2042001 NAME: Spiegelmann
+
+ID: 2042002 NAME: Spiegelmann
+
+ID: 2042003 NAME: Assistant Red
+
+ID: 2042004 NAME: Assistant Blue
+
+ID: 2042005 NAME: Spiegelmann
+
+ID: 2042006 NAME: Spiegelmann
+
+ID: 2042007 NAME: Spiegelmann
+
+ID: 2042008 NAME: Assistant Red
+
+ID: 2042009 NAME: Assistant Blue
+
+ID: 2043000 NAME: Papulatus
+
+ID: 2050000 NAME: Dr. San
+
+ID: 2050001 NAME: Dr. Kim
+
+ID: 2050002 NAME: Alien Gray
+
+ID: 2050003 NAME: Spacen
+
+ID: 2050004 NAME: Kubo the Storageman
+
+ID: 2050005 NAME: Chury
+
+ID: 2050006 NAME: Hoony
+
+ID: 2050007 NAME: Gunny
+
+ID: 2050008 NAME: General Maestro
+
+ID: 2050009 NAME: Jr. Officer Medin
+
+ID: 2050010 NAME: Rice the Medic
+
+ID: 2050011 NAME: Kevin the Soldier
+
+ID: 2050012 NAME: Agent M
+
+ID: 2050013 NAME: Porter
+
+ID: 2050014 NAME: Meteorite 1
+
+ID: 2050015 NAME: Meteorite 2
+
+ID: 2050016 NAME: Meteorite 3
+
+ID: 2050017 NAME: Meteorite 4
+
+ID: 2050018 NAME: Meteorite 5
+
+ID: 2050019 NAME: Meteorite 6
+
+ID: 2050020 NAME: Dropship
+
+ID: 2051000 NAME: Dr. Pepper
+
+ID: 2051001 NAME: Kay
+
+ID: 2060000 NAME: Nanuke
+
+ID: 2060001 NAME: Robinson
+
+ID: 2060002 NAME: Tae Gong
+
+ID: 2060003 NAME: Melias
+
+ID: 2060004 NAME: Oannes
+
+ID: 2060005 NAME: Kenta
+
+ID: 2060006 NAME: Muse
+
+ID: 2060007 NAME: Calypso
+
+ID: 2060008 NAME: Gerrard
+
+ID: 2060009 NAME: Dolphin
+
+ID: 2060100 NAME: Carta
+
+ID: 2060101 NAME: Taeng the Explorer
+
+ID: 2060102 NAME: Door to the Warped Dimension
+
+ID: 2070000 NAME: Mr. Noh
+
+ID: 2070001 NAME: Bung's Mama
+
+ID: 2070002 NAME: Moki
+
+ID: 2070003 NAME: Dori
+
+ID: 2071000 NAME: Chumji
+
+ID: 2071001 NAME: Hongbu
+
+ID: 2071002 NAME: Nolbu
+
+ID: 2071003 NAME: Chil Nam
+
+ID: 2071004 NAME: Kong Ji
+
+ID: 2071005 NAME: Chil Sung
+
+ID: 2071006 NAME: Swallow
+
+ID: 2071007 NAME: Grandma Yeon
+
+ID: 2071008 NAME: Haenim
+
+ID: 2071009 NAME: Mr. Shim
+
+ID: 2071010 NAME: God of Mountains
+
+ID: 2071011 NAME: Tree Cutter
+
+ID: 2071012 NAME: A Familiar Lady
+
+ID: 2071013 NAME: Yellow King Goblin
+
+ID: 2071014 NAME: Blue King Goblin
+
+ID: 2071015 NAME: Green King Goblin
+
+ID: 2072000 NAME: Chil Sung's Rice Stacks
+
+ID: 2072001 NAME: Chil Nam's Rice Stacks
+
+ID: 2073000 NAME: Park Chum Ji
+
+ID: 2080000 NAME: Mos
+
+ID: 2080001 NAME: Sly
+
+ID: 2080002 NAME: Max
+
+ID: 2080003 NAME: Norman
+
+ID: 2080004 NAME: Moodie
+
+ID: 2080005 NAME: Koscu
+
+ID: 2080006 NAME: Dolphin
+
+ID: 2081000 NAME: Chief Tatamo
+
+ID: 2081001 NAME: Kumo
+
+ID: 2081002 NAME: Ito
+
+ID: 2081003 NAME: Yaku
+
+ID: 2081004 NAME: Pam
+
+ID: 2081005 NAME: Keroben
+
+ID: 2081006 NAME: Moira
+
+ID: 2081007 NAME: Raul the Knight
+
+ID: 2081008 NAME: Nein Spirit's Baby Dragon
+
+ID: 2081009 NAME: Moose
+
+ID: 2081010 NAME: Moose
+
+ID: 2081011 NAME: Nein Spirit's Baby Dragon
+
+ID: 2081012 NAME: Nix
+
+ID: 2081013 NAME: Frightening Marble
+
+ID: 2081014 NAME: Dunamis
+
+ID: 2081100 NAME: Harmonia
+
+ID: 2081200 NAME: Gritto
+
+ID: 2081300 NAME: Legor
+
+ID: 2081400 NAME: Hellin
+
+ID: 2081500 NAME: Samuel
+
+ID: 2082000 NAME: Mue
+
+ID: 2082001 NAME: Tommie
+
+ID: 2082002 NAME: Harry
+
+ID: 2082003 NAME: Corba
+
+ID: 2083000 NAME: Encrypted Slate of the Squad
+
+ID: 2083001 NAME: Horned Tail's Schedule
+
+ID: 2083002 NAME: Crystal of Roots
+
+ID: 2083003 NAME: Stump at the Room of Maze
+
+ID: 2083004 NAME: Mark of the Squad
+
+ID: 2083005 NAME: Fountain of Life
+
+ID: 2084000 NAME: Gold Compass
+
+ID: 2084001 NAME: Gold Richie
+
+ID: 2084002 NAME: Gold Richie
+
+ID: 2084003 NAME: Gold Richie
+
+ID: 2084004 NAME: Gold Richie
+
+ID: 2084005 NAME: Gold Richie
+
+ID: 2084006 NAME: Gold Richie
+
+ID: 2084007 NAME: Gold Richie
+
+ID: 2084008 NAME: Gold Richie
+
+ID: 2084009 NAME: OX Bird
+
+ID: 2084010 NAME: Gold Key Box
+
+ID: 2090000 NAME: Mr. Pan
+
+ID: 2090001 NAME: Gong Gong
+
+ID: 2090002 NAME: Bidiwon
+
+ID: 2090003 NAME: Dalsuk
+
+ID: 2090004 NAME: Mr. Do
+
+ID: 2090005 NAME: Crane
+
+ID: 2090006 NAME: Laya
+
+ID: 2090100 NAME: Grandpa Luo
+
+ID: 2090101 NAME: Lilishu
+
+ID: 2090102 NAME: Naran
+
+ID: 2090103 NAME: Pata
+
+ID: 2090104 NAME: Noma
+
+ID: 2091000 NAME: No Gong
+
+ID: 2091001 NAME: Do Gong
+
+ID: 2091002 NAME: Tae Sang
+
+ID: 2091003 NAME: Tae Soo
+
+ID: 2091004 NAME: Master Goblin
+
+ID: 2091005 NAME: So Gong
+
+ID: 2091006 NAME: Mu Lung Dojo Bulletin Board
+
+ID: 2092000 NAME: Mr. Ku
+
+ID: 2092001 NAME: Captain Hwang
+
+ID: 2093000 NAME: Mu Tan
+
+ID: 2093001 NAME: So Won
+
+ID: 2093002 NAME: Lan Ming
+
+ID: 2093003 NAME: Mr. Gong
+
+ID: 2093004 NAME: Dolphin
+
+ID: 2094000 NAME: Guon
+
+ID: 2094001 NAME: Wu Yang
+
+ID: 2094002 NAME: Guon
+
+ID: 2095000 NAME: Delli
+
+ID: 2096000 NAME: Practice Chart
+
+ID: 2100 NAME: Sera
+
+ID: 21000 NAME: Pan
+
+ID: 2100000 NAME: Ahmad
+
+ID: 2100001 NAME: Muhamad
+
+ID: 2100002 NAME: Zaid
+
+ID: 2100003 NAME: Jasmin
+
+ID: 2100004 NAME: SagaT
+
+ID: 2100005 NAME: Shati
+
+ID: 2100006 NAME: Mazra
+
+ID: 2100007 NAME: Lila
+
+ID: 2100008 NAME: Vard
+
+ID: 2100009 NAME: Aldin
+
+ID: 2101 NAME: Heena
+
+ID: 2101000 NAME: Sirin
+
+ID: 2101001 NAME: Jiyur
+
+ID: 2101002 NAME: Eleska
+
+ID: 2101003 NAME: Ardin
+
+ID: 2101004 NAME: Tigun
+
+ID: 2101005 NAME: Byron
+
+ID: 2101006 NAME: Le Petit Prince
+
+ID: 2101007 NAME: Areda
+
+ID: 2101008 NAME: Schegerazade
+
+ID: 2101009 NAME: Abdullah VIII
+
+ID: 2101010 NAME: Jano
+
+ID: 2101011 NAME: Sejan
+
+ID: 2101012 NAME: Strange Guy
+
+ID: 2101013 NAME: Karcasa
+
+ID: 2101014 NAME: Cesar
+
+ID: 2101015 NAME: Abdullah VIII
+
+ID: 2101016 NAME: Areda
+
+ID: 2101017 NAME: Cesar
+
+ID: 2101018 NAME: Cesar
+
+ID: 2102 NAME: Nina
+
+ID: 2102000 NAME: Asesson
+
+ID: 2102001 NAME: Slyn
+
+ID: 2102002 NAME: Syras
+
+ID: 2103 NAME: Maria
+
+ID: 2103000 NAME: Palace Oasis
+
+ID: 2103001 NAME: Secret wall
+
+ID: 2103002 NAME: Queen's cabinet
+
+ID: 2103003 NAME: Ariant private house1
+
+ID: 2103004 NAME: Ariant private house2
+
+ID: 2103005 NAME: Ariant private house4
+
+ID: 2103006 NAME: Ariant private house6
+
+ID: 2103007 NAME: Treasure Box
+
+ID: 2103008 NAME: Mysterious voice
+
+ID: 2103009 NAME: Ariant private house1 Cupboard
+
+ID: 2103010 NAME: Ariant private house2 Cupboard
+
+ID: 2103011 NAME: Ariant private house4 Cupboard
+
+ID: 2103012 NAME: Ariant private house6 Cupboard
+
+ID: 2110000 NAME: Rosen
+
+ID: 2110001 NAME: Jerry
+
+ID: 2110002 NAME: Keol
+
+ID: 2110003 NAME: Ramain
+
+ID: 2110004 NAME: Moren
+
+ID: 2110005 NAME: Camel Cab
+
+ID: 2111000 NAME: Carson
+
+ID: 2111001 NAME: Maed
+
+ID: 2111002 NAME: Dr. De Lang
+
+ID: 2111003 NAME: Humanoid A
+
+ID: 2111004 NAME: Phyllia
+
+ID: 2111005 NAME: Keeny
+
+ID: 2111006 NAME: Parwen
+
+ID: 2111007 NAME: Han the Broker
+
+ID: 2111008 NAME: Bedin
+
+ID: 2111009 NAME: Russellon
+
+ID: 2111010 NAME: Alcando's Cabinet.
+
+ID: 2111011 NAME: Wall
+
+ID: 2111012 NAME: Cabinet
+
+ID: 2111013 NAME: Picture frame
+
+ID: 2111014 NAME: Desk
+
+ID: 2111015 NAME: Russellon's Desk
+
+ID: 2111016 NAME: Dr. De Lang's Secret book
+
+ID: 2111017 NAME: 1st Pipe handle
+
+ID: 2111018 NAME: 2nd Pipe handle
+
+ID: 2111019 NAME: 3rd Pipe handle
+
+ID: 2111020 NAME: 1st Magic Pentagram
+
+ID: 2111021 NAME: 2nd Magic Pentagram
+
+ID: 2111022 NAME: 3rd Magic Pentagram
+
+ID: 2111023 NAME: Center of the Magic Pentagram
+
+ID: 2111024 NAME: Secret Passage
+
+ID: 2111025 NAME: Control Device
+
+ID: 2111026 NAME: Incomplete Magic Square
+
+ID: 2112000 NAME: Yulete
+
+ID: 2112001 NAME: Yulete
+
+ID: 2112002 NAME: Yulete
+
+ID: 2112003 NAME: Juliet
+
+ID: 2112004 NAME: Romeo
+
+ID: 2112005 NAME: Juliet
+
+ID: 2112006 NAME: Romeo
+
+ID: 2112007 NAME: Investigation Result.
+
+ID: 2112008 NAME: Juliet
+
+ID: 2112009 NAME: Romeo
+
+ID: 2112010 NAME: Yulete
+
+ID: 2112011 NAME: Yulete
+
+ID: 2112012 NAME: Yulete
+
+ID: 2112013 NAME: Investigation Result.
+
+ID: 2112014 NAME: Yulete
+
+ID: 2112015 NAME: Yulete
+
+ID: 2112016 NAME: Hidden Documents
+
+ID: 2112017 NAME: Dropped Piece of Paper
+
+ID: 2112018 NAME: Romeo & Juliet
+
+ID: 2120000 NAME: Masked Gentleman
+
+ID: 2120001 NAME: Gatekeeper
+
+ID: 2120002 NAME: Steward
+
+ID: 2120003 NAME: Maid
+
+ID: 2120004 NAME: Jonas
+
+ID: 2120005 NAME: Sophelia
+
+ID: 2120006 NAME: Lyudmila
+
+ID: 2120007 NAME: Joey
+
+ID: 2120008 NAME: Ghost T
+
+ID: 2120009 NAME: Steward
+
+ID: 2120010 NAME: Butler
+
+ID: 2121000 NAME: Nameless Cat
+
+ID: 2121001 NAME: A grave with a collapsed gravestone
+
+ID: 2121002 NAME: Nameless Grave
+
+ID: 2121003 NAME: Unvisited Grave
+
+ID: 2121004 NAME: Somebody's Grave
+
+ID: 2121005 NAME: Piano
+
+ID: 2121006 NAME: Someone's Picture Frame 1
+
+ID: 2121007 NAME: Someone's Picture Frame 2
+
+ID: 2121008 NAME: Someone's Picture Frame 3
+
+ID: 2121009 NAME: Someone's Picture Frame 4
+
+ID: 2121010 NAME: Someone's Picture Frame 5
+
+ID: 2121011 NAME: Sophelia's Picture Frame
+
+ID: 2121012 NAME: A Girl Dressed In Her Halloween Outfit
+
+ID: 2130000 NAME: Mayoren
+
+ID: 2131000 NAME: Athena Pierce
+
+ID: 2131001 NAME: Perzen
+
+ID: 2131002 NAME: Yuris
+
+ID: 2131003 NAME: Loha
+
+ID: 2131004 NAME: Crawls with Balrog
+
+ID: 2131005 NAME: Sion
+
+ID: 2131006 NAME: Duru
+
+ID: 2131007 NAME: Tess
+
+ID: 2132000 NAME: Kanderune
+
+ID: 2132001 NAME: Lohd
+
+ID: 2132002 NAME: Rius
+
+ID: 2132003 NAME: Shadrion
+
+ID: 2133000 NAME: Ellin
+
+ID: 2133001 NAME: Ellin
+
+ID: 2133002 NAME: Ellin Forest Milepost
+
+ID: 2133003 NAME: Wooden Desk
+
+ID: 2133004 NAME: Sprite
+
+ID: 2140000 NAME: Temple Keeper 
+
+ID: 2140001 NAME: Memory Keeper
+
+ID: 2140002 NAME: Sorcerer
+
+ID: 2140003 NAME: Record Keeper
+
+ID: 2141000 NAME: Kirston
+
+ID: 2141001 NAME: Forgotten Temple Keeper
+
+ID: 2141002 NAME: Forgotten Temple Keeper
+
+ID: 22000 NAME: Shanks
+
+ID: 9000000 NAME: Paul
+
+ID: 9000001 NAME: Jean
+
+ID: 9000002 NAME: Pietro
+
+ID: 9000003 NAME: Vikan
+
+ID: 9000004 NAME: Vikon
+
+ID: 9000005 NAME: Vikone
+
+ID: 9000006 NAME: Vikoon
+
+ID: 9000007 NAME: Chun Ji
+
+ID: 9000008 NAME: Mr. Pickall
+
+ID: 9000009 NAME: Vikin
+
+ID: 9000010 NAME: Pietra
+
+ID: 9000011 NAME: Martin
+
+ID: 9000012 NAME: Harry
+
+ID: 9000013 NAME: Tony
+
+ID: 9000014 NAME: Geanie
+
+ID: 9000015 NAME: Tamis
+
+ID: 9000016 NAME: Jester
+
+ID: 9000017 NAME: Coco
+
+ID: 9000018 NAME: Matilda
+
+ID: 9000019 NAME: Rock, Paper, Scissor Admin
+
+ID: 9000020 NAME: Spinel
+
+ID: 9000021 NAME: Gaga
+
+ID: 9000032 NAME: Agent W
+
+ID: 9000033 NAME: Agent C
+
+ID: 9000034 NAME: Agent O
+
+ID: 9000035 NAME: Agent P
+
+ID: 9000036 NAME: Agent E
+
+ID: 9000037 NAME: Agent Meow
+
+ID: 9000038 NAME: Agent Kitty
+
+ID: 9000039 NAME: Agent W
+
+ID: 9000040 NAME: Dalair
+
+ID: 9000041 NAME: Donation Box
+
+ID: 9000042 NAME: Gaga
+
+ID: 9000043 NAME: The Lost Snipe
+
+ID: 9000044 NAME: The Lost Snipe
+
+ID: 9000045 NAME: The Lost Snipe
+
+ID: 9000046 NAME: Cygnus Mentality
+
+ID: 9000047 NAME: Fairytale Pinnochio 
+
+ID: 9000048 NAME: Fairytale Jack 
+
+ID: 9000049 NAME: Fairytale Crackers
+
+ID: 9000050 NAME: Sign Inside Whale 
+
+ID: 9000051 NAME: Jump Wings
+
+ID: 9000052 NAME: Courageous Little Lamb  
+
+ID: 9000053 NAME: Big Bad Wolf 
+
+ID: 9000054 NAME: Ranch Owner  
+
+ID: 9000055 NAME: Aramia 
+
+ID: 9000056 NAME: Small Gift Box
+
+ID: 9000057 NAME: Candy Gift Box 
+
+ID: 9000058 NAME: Cake Gift Box
+
+ID: 9000059 NAME: Gingerbread man
+
+ID: 9000060 NAME: Gingerbread man
+
+ID: 9000061 NAME: Agent M
+
+ID: 9000062 NAME: Agent C
+
+ID: 9000063 NAME: Agent E
+
+ID: 9000064 NAME: Agent  S
+
+ID: 9000065 NAME: Agent O
+
+ID: 9000066 NAME: Dalair
+
+ID: 9000067 NAME: Wolf Awaiting It's Owner
+
+ID: 9000068 NAME: Ice Piece
+
+ID: 9001000 NAME: Cokebear operator
+
+ID: 9001001 NAME: Lolo
+
+ID: 9001002 NAME: Polar bear Poch
+
+ID: 9001003 NAME: Polar bear Nell
+
+ID: 9001004 NAME: Polar bear Hoop
+
+ID: 9001005 NAME: Polar bear Poch
+
+ID: 9001006 NAME: Polar bear Poch
+
+ID: 9001008 NAME: Bohun
+
+ID: 9001009 NAME: Shimmy
+
+ID: 9001100 NAME: Gaga
+
+ID: 9001101 NAME: Master Moon Bunny
+
+ID: 9001102 NAME: Baby Moon Bunny
+
+ID: 9001103 NAME: Moon Bunny the Salesman
+
+ID: 9001104 NAME: Smart Moon Bunny
+
+ID: 9001105 NAME: Grandpa Moon Bunny
+
+ID: 9001106 NAME: The Lost Grey
+
+ID: 9001107 NAME: Guide Moon Bunny
+
+ID: 9001108 NAME: Gatekeeper Moon Bunny
+
+ID: 9010000 NAME: Maple Administrator
+
+ID: 9010001 NAME: Tia
+
+ID: 9010002 NAME: Mia
+
+ID: 9010003 NAME: Ria
+
+ID: 9010004 NAME: Mia
+
+ID: 9010005 NAME: Diane
+
+ID: 9010006 NAME: Sally
+
+ID: 9010007 NAME: Josh
+
+ID: 9010008 NAME: Pettite
+
+ID: 9010009 NAME: Duey
+
+ID: 9010010 NAME: Cassandra
+
+ID: 9010011 NAME: Orange Mushroom
+
+ID: 9010012 NAME: Star Pixie
+
+ID: 9010013 NAME: Hengki
+
+ID: 9010014 NAME: Aramia
+
+ID: 9010015 NAME: Street Cat
+
+ID: 9010016 NAME: Aru
+
+ID: 9010017 NAME: Dev Doll
+
+ID: 9010018 NAME: Cryssea
+
+ID: 9010019 NAME: Mushroomie
+
+ID: 9010020 NAME: Witch's Tomb
+
+ID: 9020000 NAME: Lakelis
+
+ID: 9020001 NAME: Cloto
+
+ID: 9020002 NAME: Nella
+
+ID: 9030000 NAME: Fredrick
+
+ID: 9030100 NAME: Scrooge
+
+ID: 9040000 NAME: Shuang
+
+ID: 9040001 NAME: Nuris
+
+ID: 9040002 NAME: Shawn
+
+ID: 9040003 NAME: Sharen III's Soul
+
+ID: 9040004 NAME: Honorable Rock
+
+ID: 9040005 NAME: Returning Rock
+
+ID: 9040006 NAME: Guard Statue
+
+ID: 9040007 NAME: Sharen III's Will
+
+ID: 9040008 NAME: Guild Rank Board
+
+ID: 9040009 NAME: Gatekeeper
+
+ID: 9040010 NAME: Tiger Statue
+
+ID: 9040011 NAME: Bulletin Board
+
+ID: 9040012 NAME: Knight Armor
+
+ID: 9050000 NAME: Pigmi the Summoner
+
+ID: 9050001 NAME: Pigmi the Summoner
+
+ID: 9050002 NAME: Pigmi the Summoner
+
+ID: 9050003 NAME: Pigmi the Summoner
+
+ID: 9050004 NAME: Pigmi the Summoner
+
+ID: 9050005 NAME: Pigmi the Summoner
+
+ID: 9050006 NAME: Pigmi the Summoner
+
+ID: 9050007 NAME: Pigmi the Summoner
+
+ID: 9050008 NAME: Pigmi and Etran
+
+ID: 9050009 NAME: Etran's Information Board
+
+ID: 9050010 NAME: Pet Pygmy
+
+ID: 9060000 NAME: Kenta
+
+ID: 9060001 NAME: Kenta
+
+ID: 9090000 NAME: Mu Mu
+
+ID: 9100000 NAME: Kerning City Manekineko
+
+ID: 9100001 NAME: Henesys Manekineko
+
+ID: 9100002 NAME: Ellinia Manekineko
+
+ID: 9100003 NAME: Perion Manekineko
+
+ID: 9100004 NAME: Sleepywood Manekineko
+
+ID: 9100100 NAME: Gachapon
+
+ID: 9100101 NAME: Gachapon
+
+ID: 9100102 NAME: Gachapon
+
+ID: 9100103 NAME: Gachapon
+
+ID: 9100104 NAME: Gachapon
+
+ID: 9100105 NAME: Gachapon
+
+ID: 9100106 NAME: Gachapon
+
+ID: 9100107 NAME: Gachapon
+
+ID: 9100108 NAME: Gachapon
+
+ID: 9100109 NAME: Gachapon
+
+ID: 9100110 NAME: Gachapon
+
+ID: 9100111 NAME: Gachapon
+
+ID: 9100112 NAME: EXP Gachapon
+
+ID: 9100117 NAME: Gachapon
+
+ID: 9100200 NAME: Pachinko 1
+
+ID: 9100201 NAME: Pachinko 2
+
+ID: 9100202 NAME: Pachinko 3
+
+ID: 9100203 NAME: Pachinko 4
+
+ID: 9100204 NAME: Pachinko 5
+
+ID: 9100205 NAME: Pachinko 6
+
+ID: 9101000 NAME: No String
+
+ID: 9101001 NAME: Peter
+
+ID: 9101002 NAME: Todd
+
+ID: 9101003 NAME: Peter
+
+ID: 9102000 NAME: Scon
+
+ID: 9102001 NAME: Garnox
+
+ID: 9102100 NAME: ?
+
+ID: 9102101 NAME: ?
+
+ID: 9103000 NAME: Pietri
+
+ID: 9103001 NAME: Rolly
+
+ID: 9103002 NAME: Rolly
+
+ID: 9103003 NAME: Rolly
+
+ID: 9105002 NAME: Naomi
+
+ID: 9105003 NAME: Snow Spirit
+
+ID: 9105004 NAME: Snow Spirit
+
+ID: 9105005 NAME: Snowman
+
+ID: 9110000 NAME: Perry
+
+ID: 9110001 NAME: Raimu the Warrior
+
+ID: 9110002 NAME: Kino Konoko
+
+ID: 9110003 NAME: Janken
+
+ID: 9110004 NAME: Taru
+
+ID: 9110005 NAME: Bronze
+
+ID: 9110006 NAME: Jin Jia
+
+ID: 9110007 NAME: Robo
+
+ID: 9110008 NAME: Perry
+
+ID: 9110009 NAME: Gachapon Charity Box
+
+ID: 9110010 NAME: Gachapon Statue
+
+ID: 9110011 NAME: Gachapon
+
+ID: 9110012 NAME: Gachapon
+
+ID: 9110013 NAME: Gachapon
+
+ID: 9110014 NAME: Gachapon
+
+ID: 9110015 NAME: Mushroom Statue
+
+ID: 9110016 NAME: No String.
+
+ID: 9110100 NAME: Charity Box
+
+ID: 9120000 NAME: Shinta
+
+ID: 9120001 NAME: Hanako
+
+ID: 9120002 NAME: Doran
+
+ID: 9120003 NAME: Hikari
+
+ID: 9120004 NAME: Momoyo
+
+ID: 9120005 NAME: Umi
+
+ID: 9120006 NAME: Skai
+
+ID: 9120007 NAME: Furano
+
+ID: 9120008 NAME: Tsuri
+
+ID: 9120009 NAME: Yuse
+
+ID: 9120010 NAME: Faito
+
+ID: 9120011 NAME: Sakura
+
+ID: 9120012 NAME: Fraidy Cat
+
+ID: 9120013 NAME: Boss Kitty
+
+ID: 9120014 NAME: Popo
+
+ID: 9120015 NAME: Konpei
+
+ID: 9120016 NAME: Mariwaka
+
+ID: 9120017 NAME: Poni Chai
+
+ID: 9120018 NAME: Grako
+
+ID: 9120019 NAME: Momoyo
+
+ID: 9120020 NAME: Minstein
+
+ID: 9120021 NAME: Clamshell
+
+ID: 9120022 NAME: Manstein
+
+ID: 9120023 NAME: YokoYoko
+
+ID: 9120024 NAME: Ueriba
+
+ID: 9120100 NAME: Tepei
+
+ID: 9120101 NAME: Midori
+
+ID: 9120102 NAME: Hikekuro
+
+ID: 9120103 NAME: Saeko
+
+ID: 9120104 NAME: Naoko
+
+ID: 9120200 NAME: Konpei
+
+ID: 9120201 NAME: Konpei
+
+ID: 9120202 NAME: Konpei
+
+ID: 9120203 NAME: Konpei
+
+ID: 9200000 NAME: Cody
+
+ID: 9200001 NAME: Mad Bunny
+
+ID: 9200100 NAME: Dr. Lenu
+
+ID: 9200101 NAME: Dr. Rhomes
+
+ID: 9200102 NAME: Dr. Bosch
+
+ID: 9201000 NAME: Moony
+
+ID: 9201001 NAME: Nana(H)
+
+ID: 9201002 NAME: High Priest John
+
+ID: 9201003 NAME: Mom and Dad
+
+ID: 9201004 NAME: Ames the Wise
+
+ID: 9201005 NAME: Assistant Nicole
+
+ID: 9201006 NAME: Assistant Debbie
+
+ID: 9201007 NAME: Assistant Nancy
+
+ID: 9201008 NAME: Assistant Bonnie
+
+ID: 9201009 NAME: Assistant Jackie
+
+ID: 9201010 NAME: Assistant Travis
+
+ID: 9201011 NAME: Pelvis Bebop
+
+ID: 9201012 NAME: Wayne
+
+ID: 9201013 NAME: Victoria
+
+ID: 9201014 NAME: Pila Present
+
+ID: 9201015 NAME: Julius Styleman
+
+ID: 9201016 NAME: Salon Seamus
+
+ID: 9201017 NAME: Dr.Roberts
+
+ID: 9201018 NAME: Dr. 90212
+
+ID: 9201019 NAME: Intern Shakihands
+
+ID: 9201020 NAME: Vivian Boutique
+
+ID: 9201021 NAME: Robin The Huntress
+
+ID: 9201022 NAME: Thomas Swift
+
+ID: 9201023 NAME: Nana(K)
+
+ID: 9201024 NAME: Nana(E)
+
+ID: 9201025 NAME: Nana(O)
+
+ID: 9201026 NAME: Nana(L)
+
+ID: 9201027 NAME: Nana(P)
+
+ID: 9201028 NAME: Malady
+
+ID: 9201029 NAME: Grandma Benson
+
+ID: 9201030 NAME: Maple Claws
+
+ID: 9201031 NAME: Hannah
+
+ID: 9201032 NAME: Mr. Kit Kat
+
+ID: 9201033 NAME: Simon
+
+ID: 9201034 NAME: Ben
+
+ID: 9201035 NAME: Jacob
+
+ID: 9201036 NAME: Angelique
+
+ID: 9201037 NAME: Gary and Shatima
+
+ID: 9201038 NAME: Richard the Sailor
+
+ID: 9201039 NAME: Claudia
+
+ID: 9201040 NAME: Mr. Spot
+
+ID: 9201041 NAME: Bullseye
+
+ID: 9201042 NAME: Mr. Sandman
+
+ID: 9201043 NAME: Amos the Strong
+
+ID: 9201044 NAME: Amos the Strong
+
+ID: 9201045 NAME: Amos the Strong
+
+ID: 9201046 NAME: Amos the Strong
+
+ID: 9201047 NAME: The Glimmer Man
+
+ID: 9201048 NAME: Amos the Strong
+
+ID: 9201049 NAME: Ames the Wise
+
+ID: 9201050 NAME: Icebyrd Slimm
+
+ID: 9201051 NAME: John Barricade
+
+ID: 9201052 NAME: Professor Foxwit
+
+ID: 9201053 NAME: Jack Masque
+
+ID: 9201054 NAME: Lita Lawless
+
+ID: 9201055 NAME: Elpam Gorlab
+
+ID: 9201056 NAME: NLC Taxi
+
+ID: 9201057 NAME: Bell
+
+ID: 9201058 NAME: Delphi
+
+ID: 9201059 NAME: Kyle
+
+ID: 9201060 NAME: Miki
+
+ID: 9201061 NAME: Bomack
+
+ID: 9201062 NAME: J.J.
+
+ID: 9201063 NAME: Ari
+
+ID: 9201064 NAME: Mani
+
+ID: 9201065 NAME: Miranda
+
+ID: 9201066 NAME: NLC Maple TV
+
+ID: 9201067 NAME: Claw Machine
+
+ID: 9201068 NAME: NLC ticket gate
+
+ID: 9201069 NAME: V. Isage
+
+ID: 9201070 NAME: Nerbit
+
+ID: 9201071 NAME: Sunstone Grave
+
+ID: 9201072 NAME: Moonstone Grave
+
+ID: 9201073 NAME: Tombstone
+
+ID: 9201074 NAME: Bob
+
+ID: 9201075 NAME: Agent Falcon
+
+ID: 9201076 NAME: Ludmilla
+
+ID: 9201077 NAME: Jonas Prendergast
+
+ID: 9201078 NAME: Sophilia
+
+ID: 9201079 NAME: Old Man Tom
+
+ID: 9201080 NAME: Edmunds
+
+ID: 9201081 NAME: Rob
+
+ID: 9201082 NAME: Spindle
+
+ID: 9201083 NAME: The Glimmer Man
+
+ID: 9201084 NAME: Tombstone
+
+ID: 9201085 NAME: Nicholas
+
+ID: 9201086 NAME: Andy
+
+ID: 9201087 NAME: Kate
+
+ID: 9201088 NAME: Barry
+
+ID: 9201089 NAME: Alex
+
+ID: 9201090 NAME: Jill
+
+ID: 9201091 NAME: O-Pongo
+
+ID: 9201092 NAME: Mr. Grubber
+
+ID: 9201093 NAME: Little Suzy
+
+ID: 9201094 NAME: Corine
+
+ID: 9201095 NAME: Fiona
+
+ID: 9201096 NAME: Jack
+
+ID: 9201097 NAME: Joko
+
+ID: 9201098 NAME: Lukan
+
+ID: 9201099 NAME: Mo
+
+ID: 9201100 NAME: Taggrin
+
+ID: 9201101 NAME: T-1337
+
+ID: 9201102 NAME: Stirgeman
+
+ID: 9201103 NAME: Ridley
+
+ID: 9201104 NAME: Sage
+
+ID: 9201105 NAME: Sage 
+
+ID: 9201106 NAME: Adonis
+
+ID: 9201107 NAME: Master Warrior
+
+ID: 9201108 NAME: Master Bowman
+
+ID: 9201109 NAME: Master Mage
+
+ID: 9201110 NAME: Master Thief
+
+ID: 9201111 NAME: Master Pirate
+
+ID: 9201112 NAME: Jack
+
+ID: 9201113 NAME: Jack
+
+ID: 9201114 NAME: Gate
+
+ID: 9201115 NAME: Battle Statue
+
+ID: 9201116 NAME: Kopee Relicseeker
+
+ID: 9201117 NAME: Toh Relicseeker
+
+ID: 9201118 NAME: Hill
+
+ID: 9201119 NAME: Silence of the Wolf
+
+ID: 9201120 NAME: Ervine
+
+ID: 9201121 NAME: Lucci
+
+ID: 9201122 NAME: Old Bow
+
+ID: 9201123 NAME: Warrior Statue
+
+ID: 9201124 NAME: Bowman Statue
+
+ID: 9201125 NAME: Magician Statue
+
+ID: 9201126 NAME: Thief Statue
+
+ID: 9201127 NAME: Pirate Statue
+
+ID: 9201128 NAME: Demon's Doorway
+
+ID: 9201129 NAME: Demon's Doorway
+
+ID: 9201130 NAME: Demon's Doorway
+
+ID: 9201131 NAME: Demon's Doorway
+
+ID: 9201132 NAME: Demon's Doorway
+
+ID: 9201133 NAME: Astaroth's Doorway
+
+ID: 9201134 NAME: Aldol
+
+ID: 9201135 NAME: Audrey
+
+ID: 9201136 NAME: Olivia
+
+ID: 9201137 NAME: Joe
+
+ID: 9201143 NAME: Steward
+
+ID: 9201139 NAME: Olivia's Mirror1
+
+ID: 9201140 NAME: Olivia's Mirror2
+
+ID: 9201141 NAME: Olivia's Mirror3
+
+ID: 9201142 NAME: Witch Malady
+
+ID: 9209000 NAME: Abdula
+
+ID: 9209001 NAME: Mimi
+
+ID: 9209002 NAME: Mr. Oh
+
+ID: 9209003 NAME: Lung Tup
+
+ID: 9209004 NAME: Lena
+
+ID: 9209005 NAME: Tae Gong
+
+ID: 9209006 NAME: Hanako
+
+ID: 9209007 NAME: Lazy Daisy
+
+ID: 9209008 NAME: Lazy Daisy
+
+ID: 9209100 NAME: Santa
+
+ID: 9209101 NAME: Santa
+
+ID: 9220000 NAME: Milla
+
+ID: 9220001 NAME: Charles
+
+ID: 9220004 NAME: Happy
+
+ID: 9220005 NAME: Roodolph
+
+ID: 9220006 NAME: Bill
+
+ID: 9220016 NAME: Lara
+
+ID: 9220018 NAME: Charles
+
+ID: 9220019 NAME: Milla
+
+ID: 9220020 NAME: Charles
+
+ID: 9250000 NAME: Ponlaa
+
+ID: 9250001 NAME: Apaporn
+
+ID: 9250003 NAME: Kith
+
+ID: 9250004 NAME: Jit
+
+ID: 9250005 NAME: Pond
+
+ID: 9250006 NAME: Nid
+
+ID: 9250007 NAME: Dang
+
+ID: 9250008 NAME: Parn
+
+ID: 9250009 NAME: Noi-nha
+
+ID: 9250010 NAME: Pornsak
+
+ID: 9250011 NAME: Chut
+
+ID: 9250012 NAME: Chai
+
+ID: 9250013 NAME: Lung Tup
+
+ID: 9250014 NAME: Pooyai Lee
+
+ID: 9250016 NAME: Toon
+
+ID: 9250022 NAME: Yai Bua
+
+ID: 9250023 NAME: Aquarium Maple TV
+
+ID: 9250024 NAME: El Nath Maple TV
+
+ID: 9250025 NAME: Free Market Maple TV
+
+ID: 9250026 NAME: Ludibrium Maple TV
+
+ID: 9250027 NAME: Kob
+
+ID: 9250028 NAME: Lung Thid
+
+ID: 9250029 NAME: Thawee
+
+ID: 9250042 NAME: Henesys Maple TV
+
+ID: 9250043 NAME: Kerning City Maple TV
+
+ID: 9250044 NAME: Elinia Maple TV
+
+ID: 9250045 NAME: Perion Maple TV
+
+ID: 9250046 NAME: Orbis Maple TV
+
+ID: 9250052 NAME: News Stand
+
+ID: 9250053 NAME: Christmas Tree
+
+ID: 9250054 NAME: Bicho
+
+ID: 9270000 NAME: Amoria Maple TV
+
+ID: 9270001 NAME: Lith Harbor Maple TV
+
+ID: 9270002 NAME: Sleepywood Maple TV
+
+ID: 9270003 NAME: Omega Sector Maple TV
+
+ID: 9270004 NAME: Korean Folk Town Maple TV
+
+ID: 9270005 NAME: Leafre Maple TV
+
+ID: 9270006 NAME: Murung Maple TV
+
+ID: 9270007 NAME: Bak Cho Maple TV
+
+ID: 9270008 NAME: Y Tan Maple TV
+
+ID: 9270009 NAME: Yuan Maple TV
+
+ID: 9270010 NAME: SeuMunJung Maple TV
+
+ID: 9270011 NAME: NightMarket Maple TV
+
+ID: 9270012 NAME: Mushroom Shine Maple TV
+
+ID: 9270013 NAME: Showa Maple TV
+
+ID: 9270014 NAME: Ninja Maple TV
+
+ID: 9270015 NAME: Taiwan Water Market Maple TV
+
+ID: 9270016 NAME: Golden Temple Maple TV
+
+ID: 9270017 NAME: Xinga
+
+ID: 9270018 NAME: Kerny
+
+ID: 9270019 NAME: Chan
+
+ID: 9270020 NAME: Hui Ting
+
+ID: 9270021 NAME: Wendy
+
+ID: 9270022 NAME: Candy
+
+ID: 9270023 NAME: Noel
+
+ID: 9270024 NAME: Kelvin
+
+ID: 9270025 NAME: Xan
+
+ID: 9270026 NAME: Sixx
+
+ID: 9270027 NAME: Alwyn
+
+ID: 9270028 NAME: Adrian
+
+ID: 9270029 NAME: Johnson
+
+ID: 9270030 NAME: Ralph the wanderer
+
+ID: 9270031 NAME: Dave & Iris
+
+ID: 9270032 NAME: Angie
+
+ID: 9270033 NAME: Bob
+
+ID: 9270034 NAME: Airu
+
+ID: 9270035 NAME: Eunice
+
+ID: 9270036 NAME: Eric
+
+ID: 9270037 NAME: Jimmy
+
+ID: 9270038 NAME: Shalon
+
+ID: 9270039 NAME: Sureen
+
+ID: 9270040 NAME: Singapore Maple TV
+
+ID: 9270041 NAME: Irene
+
+ID: 9270042 NAME: Mr. Hwang
+
+ID: 9270043 NAME: Gachapon
+
+ID: 9270047 NAME: Aldol
+
+ID: 9270054 NAME: Encik Musa
+
+ID: 9270055 NAME: Chiang
+
+ID: 9270056 NAME: Riduan
+
+ID: 9270057 NAME: Kok Hua
+
+ID: 9270058 NAME: Hurliza
+
+ID: 9270059 NAME: Nuri
+
+ID: 9270060 NAME: Chee Wee
+
+ID: 9270061 NAME: Village Chief Malek
+
+ID: 9270062 NAME: Lam
+
+ID: 9270063 NAME: Mutu
+
+ID: 9270064 NAME: Theme Park Owner
+
+ID: 9270065 NAME: Ali
+
+ID: 9270066 NAME: MY Maple TV
+
+ID: 9300000 NAME: Tang San Zang
+
+ID: 9300001 NAME: Fa Hai
+
+ID: 9300002 NAME: Di Zang Wang
+
+ID: 9300003 NAME: Yue Lao
+
+ID: 9300004 NAME: Wu Yuan
+
+ID: 9300005 NAME: Hong Niang
+
+ID: 9300006 NAME: Banquet Master
+
+ID: 9300007 NAME: Tian Bing
+
+ID: 9300008 NAME: Tian Sha Gu Xing
+
+ID: 9300009 NAME: Mi Le
+
+ID: 9300010 NAME: Mr. Moneybags
+
+ID: 9300011 NAME: Cai Shen
+
+ID: 9300012 NAME: Guan Zhong
+
+ID: 9300013 NAME: Sima Qian
+
+ID: 9300014 NAME: Zhang Liang
+
+ID: 9310000 NAME: Hong the Pilot
+
+ID: 9310001 NAME: Lady Li
+
+ID: 9310002 NAME: Owner Jang
+
+ID: 9310003 NAME: Lady Jin
+
+ID: 9310004 NAME: Officer Lim
+
+ID: 9310005 NAME: Officer Chung
+
+ID: 9310006 NAME: Officer Huh
+
+ID: 9310007 NAME: Officer Kang
+
+ID: 9310008 NAME: Chief Officer Chu
+
+ID: 9310009 NAME: Ms. Jo
+
+ID: 9310010 NAME: Mr. Yang
+
+ID: 9310011 NAME: Owner Yeo
+
+ID: 9310012 NAME: Cho the photographer
+
+ID: 9310013 NAME: Yang the Pilot
+
+ID: 9310014 NAME: TMS
+
+ID: 9310015 NAME: TMS
+
+ID: 9310016 NAME: TMS
+
+ID: 9310017 NAME: TMS
+
+ID: 9310018 NAME: TMS
+
+ID: 9310019 NAME: TMS
+
+ID: 9310021 NAME: TMS
+
+ID: 9330000 NAME: 란
+
+ID: 9330001 NAME: 황씨
+
+ID: 9330002 NAME: 제갈윤
+
+ID: 9330003 NAME: 주걸균
+
+ID: 9330004 NAME: 채이림
+
+ID: 9330005 NAME: 손연주
+
+ID: 9330006 NAME: 황력홍
+
+ID: 9330007 NAME: 포청
+
+ID: 9330008 NAME: FAQ 퀘스트 npc 1
+
+ID: 9330009 NAME: FAQ 퀘스트 npc 2
+
+ID: 9330010 NAME: FAQ 퀘스트 npc 3
+
+ID: 9330011 NAME: FAQ 퀘스트 npc 4
+
+ID: 9330012 NAME: FAQ npc
+
+ID: 9330013 NAME: FAQ 퀘스트 npc 5
+
+ID: 9330014 NAME: 조위
+
+ID: 9330015 NAME: 굴원
+
+ID: 9330016 NAME: 요리사 아종
+
+ID: 9330017 NAME: 껌팔이 소녀
+
+ID: 9330018 NAME: 노점상 주인 오씨
+
+ID: 9330019 NAME: 쥬디
+
+ID: 9330020 NAME: 크리스틴
+
+ID: 9330021 NAME: 니키
+
+ID: 9330022 NAME: 줄리
+
+ID: 9330023 NAME: 허치희
+
+ID: 9330024 NAME: 곽이랑
+
+ID: 9330025 NAME: 소부현
+
+ID: 9330026 NAME: 동네 총각
+
+ID: 9330027 NAME: 동네 아가씨
+
+ID: 9330028 NAME: 과일가게 할아버지
+
+ID: 9330029 NAME: 유유
+
+ID: 9330030 NAME: 불량 청소년
+
+ID: 9330031 NAME: 과일주스 아줌마
+
+ID: 9330032 NAME: 과일가게 할아버지
+
+ID: 9330045 NAME: Kedrick
+
+ID: 9330046 NAME: Madrick
+
+ID: 9900000 NAME: KIN
+
+ID: 9900001 NAME: NimaKIN
+
+ID: 9901000 NAME: NULL
+
+ID: 9901001 NAME: NULL
+
+ID: 9901002 NAME: NULL
+
+ID: 9901003 NAME: NULL
+
+ID: 9901004 NAME: NULL
+
+ID: 9901005 NAME: NULL
+
+ID: 9901006 NAME: NULL
+
+ID: 9901007 NAME: NULL
+
+ID: 9901008 NAME: NULL
+
+ID: 9901009 NAME: NULL
+
+ID: 9901010 NAME: NULL
+
+ID: 9901011 NAME: NULL
+
+ID: 9901012 NAME: NULL
+
+ID: 9901013 NAME: NULL
+
+ID: 9901014 NAME: NULL
+
+ID: 9901015 NAME: NULL
+
+ID: 9901016 NAME: NULL
+
+ID: 9901017 NAME: NULL
+
+ID: 9901018 NAME: NULL
+
+ID: 9901019 NAME: NULL
+
+ID: 9901100 NAME: NULL
+
+ID: 9901101 NAME: NULL
+
+ID: 9901102 NAME: NULL
+
+ID: 9901103 NAME: NULL
+
+ID: 9901104 NAME: NULL
+
+ID: 9901105 NAME: NULL
+
+ID: 9901106 NAME: NULL
+
+ID: 9901107 NAME: NULL
+
+ID: 9901108 NAME: NULL
+
+ID: 9901109 NAME: NULL
+
+ID: 9901110 NAME: NULL
+
+ID: 9901111 NAME: NULL
+
+ID: 9901112 NAME: NULL
+
+ID: 9901113 NAME: NULL
+
+ID: 9901114 NAME: NULL
+
+ID: 9901115 NAME: NULL
+
+ID: 9901116 NAME: NULL
+
+ID: 9901117 NAME: NULL
+
+ID: 9901118 NAME: NULL
+
+ID: 9901119 NAME: NULL
+
+ID: 9901200 NAME: NULL
+
+ID: 9901201 NAME: NULL
+
+ID: 9901202 NAME: NULL
+
+ID: 9901203 NAME: NULL
+
+ID: 9901204 NAME: NULL
+
+ID: 9901205 NAME: NULL
+
+ID: 9901206 NAME: NULL
+
+ID: 9901207 NAME: NULL
+
+ID: 9901208 NAME: NULL
+
+ID: 9901209 NAME: NULL
+
+ID: 9901210 NAME: NULL
+
+ID: 9901211 NAME: NULL
+
+ID: 9901212 NAME: NULL
+
+ID: 9901213 NAME: NULL
+
+ID: 9901214 NAME: NULL
+
+ID: 9901215 NAME: NULL
+
+ID: 9901216 NAME: NULL
+
+ID: 9901217 NAME: NULL
+
+ID: 9901218 NAME: NULL
+
+ID: 9901219 NAME: NULL
+
+ID: 9901300 NAME: NULL
+
+ID: 9901301 NAME: NULL
+
+ID: 9901302 NAME: NULL
+
+ID: 9901303 NAME: NULL
+
+ID: 9901304 NAME: NULL
+
+ID: 9901305 NAME: NULL
+
+ID: 9901306 NAME: NULL
+
+ID: 9901307 NAME: NULL
+
+ID: 9901308 NAME: NULL
+
+ID: 9901309 NAME: NULL
+
+ID: 9901310 NAME: NULL
+
+ID: 9901311 NAME: NULL
+
+ID: 9901312 NAME: NULL
+
+ID: 9901313 NAME: NULL
+
+ID: 9901314 NAME: NULL
+
+ID: 9901315 NAME: NULL
+
+ID: 9901316 NAME: NULL
+
+ID: 9901317 NAME: NULL
+
+ID: 9901318 NAME: NULL
+
+ID: 9901319 NAME: NULL
+
+ID: 9901500 NAME: NULL
+
+ID: 9901501 NAME: NULL
+
+ID: 9901502 NAME: NULL
+
+ID: 9901503 NAME: NULL
+
+ID: 9901504 NAME: NULL
+
+ID: 9901505 NAME: NULL
+
+ID: 9901506 NAME: NULL
+
+ID: 9901507 NAME: NULL
+
+ID: 9901508 NAME: NULL
+
+ID: 9901509 NAME: NULL
+
+ID: 9901510 NAME: NULL
+
+ID: 9901511 NAME: NULL
+
+ID: 9901512 NAME: NULL
+
+ID: 9901513 NAME: NULL
+
+ID: 9901514 NAME: NULL
+
+ID: 9901515 NAME: NULL
+
+ID: 9901516 NAME: NULL
+
+ID: 9901517 NAME: NULL
+
+ID: 9901518 NAME: NULL
+
+ID: 9901519 NAME: NULL
+
+ID: 9901520 NAME: NULL
+
+ID: 9901521 NAME: NULL
+
+ID: 9901522 NAME: NULL
+
+ID: 9901523 NAME: NULL
+
+ID: 9901524 NAME: NULL
+
+ID: 9901525 NAME: NULL
+
+ID: 9901526 NAME: NULL
+
+ID: 9901527 NAME: NULL
+
+ID: 9901528 NAME: NULL
+
+ID: 9901529 NAME: NULL
+
+ID: 9901530 NAME: NULL
+
+ID: 9901531 NAME: NULL
+
+ID: 9901532 NAME: NULL
+
+ID: 9901533 NAME: NULL
+
+ID: 9901534 NAME: NULL
+
+ID: 9901535 NAME: NULL
+
+ID: 9901536 NAME: NULL
+
+ID: 9901537 NAME: NULL
+
+ID: 9901538 NAME: NULL
+
+ID: 9901539 NAME: NULL
+
+ID: 9901540 NAME: NULL
+
+ID: 9901541 NAME: NULL
+
+ID: 9901542 NAME: NULL
+
+ID: 9901543 NAME: NULL
+
+ID: 9901544 NAME: NULL
+
+ID: 9901545 NAME: NULL
+
+ID: 9901546 NAME: NULL
+
+ID: 9901547 NAME: NULL
+
+ID: 9901548 NAME: NULL
+
+ID: 9901549 NAME: NULL
+
+ID: 9901550 NAME: NULL
+
+ID: 9901551 NAME: NULL
+
+ID: 9999999 NAME: test
+
+ID: 9201138 NAME: Jonas
+
+ID: 9201144 NAME: Steward
+
+ID: 2007 NAME: Maple Administrator
+
+ID: 10200 NAME: Athena Pierce
+
+ID: 10201 NAME: Grendel the Really Old
+
+ID: 10202 NAME: Dances with Balrog
+
+ID: 10203 NAME: Dark Lord
+
+ID: 10204 NAME: Kyrin
+
+ID: 1002007 NAME: Regular Cab at Lith Harbor
+
+ID: 1002104 NAME: Tru
+
+ID: 1012118 NAME: Power B. Fore
+
+ID: 1012119 NAME: Power B. Fore
+
+ID: 1022104 NAME: Power B. Fore
+
+ID: 1022105 NAME: Power B. Fore
+
+ID: 1032112 NAME: Talking Tree
+
+ID: 1032113 NAME: Power B. Fore
+
+ID: 1032114 NAME: Power B. Fore
+
+ID: 1052113 NAME: Power B. Fore
+
+ID: 1052114 NAME: Power B. Fore
+
+ID: 1052115 NAME: Mr. Lim
+
+ID: 1095001 NAME: Power B. Fore
+
+ID: 1095002 NAME: Power B. Fore
+
+ID: 1200000 NAME: Pusla
+
+ID: 1200001 NAME: Puno
+
+ID: 1200002 NAME: Puri Puri
+
+ID: 1200003 NAME: Puro
+
+ID: 1200004 NAME: Puro
+
+ID: 1200005 NAME: Puro
+
+ID: 1200006 NAME: Puro
+
+ID: 1201000 NAME: Lilin
+
+ID: 1201001 NAME: Giant Polearm
+
+ID: 1201002 NAME: Maha
+
+ID: 1202000 NAME: Tutorial Lilin
+
+ID: 1202001 NAME: Puka
+
+ID: 1202002 NAME: Puen
+
+ID: 1202003 NAME: Puir
+
+ID: 1202004 NAME: Purun
+
+ID: 1202005 NAME: Putzki
+
+ID: 1202006 NAME: Puo
+
+ID: 1202007 NAME: Pucci
+
+ID: 1202008 NAME: Head Wolf
+
+ID: 1202009 NAME: Wolf Guard
+
+ID: 1202010 NAME: Pudin
+
+ID: 1203000 NAME: Sir Blacksmith
+
+ID: 1203001 NAME: Tititi
+
+ID: 1204000 NAME: Shadow
+
+ID: 1204001 NAME: Francis
+
+ID: 1204002 NAME: Francis
+
+ID: 1204003 NAME: Francis
+
+ID: 1204004 NAME: ???
+
+ID: 1204005 NAME: Tru
+
+ID: 1204006 NAME: Francis
+
+ID: 1204007 NAME: Tru
+
+ID: 1204010 NAME: Dargoth
+
+ID: 1204020 NAME: Nameless
+
+ID: 1204030 NAME: Storage Bookshelf
+
+ID: 1204031 NAME: ???
+
+ID: 1204032 NAME: Athena Pierce
+
+ID: 1209000 NAME: Athena Pierce
+
+ID: 1209001 NAME: Refugee
+
+ID: 1209002 NAME: Refugee
+
+ID: 1209003 NAME: 3 Refugees
+
+ID: 1209004 NAME: Refugee
+
+ID: 1209005 NAME: Refugee
+
+ID: 1209006 NAME: Lost Kid
+
+ID: 1209007 NAME: Athena Pierce
+
+ID: 1300000 NAME: Mushking
+
+ID: 1300001 NAME: King Pepe
+
+ID: 1300002 NAME: Violetta
+
+ID: 1300003 NAME: Secretary of Domestic Affairs
+
+ID: 1300004 NAME: Secretary of Magic
+
+ID: 1300005 NAME: Head Security Officer
+
+ID: 1300006 NAME: Prince Giuseppe
+
+ID: 1300007 NAME: Scarrs
+
+ID: 1300008 NAME: James
+
+ID: 1300009 NAME: Mushroom Soldier
+
+ID: 1300010 NAME: Killer Spore Potion
+
+ID: 1300011 NAME: Thorn Remover
+
+ID: 1300012 NAME: Door to East Castle Tower
+
+ID: 1300013 NAME: Blocked Entrance
+
+ID: 1300014 NAME: SELF
+
+ID: 1301000 NAME: Thorr
+
+ID: 2091007 NAME: Mu Gong
+
+ID: 2091008 NAME: Jin Jin
+
+ID: 2091009 NAME: Entrance of Sealed Shrine
+
+ID: 2103013 NAME: Duarte
+
+ID: 9000022 NAME: John
+
+ID: 9000023 NAME: Athena Pierce
+
+ID: 9000024 NAME: Dances with Balrog
+
+ID: 9000025 NAME: Grendel the Really Old
+
+ID: 9000026 NAME: Dark Lord
+
+ID: 9000027 NAME: Kyrin
+
+ID: 9000028 NAME: Tae Gong
+
+ID: 9000029 NAME: Winky the Fairy
+
+ID: 9000030 NAME: Maple Admin the Witness
+
+ID: 9000031 NAME: Cassandra
+
+ID: 9901600 NAME: NULL
+
+ID: 9901601 NAME: NULL
+
+ID: 9901602 NAME: NULL
+
+ID: 9901603 NAME: NULL
+
+ID: 9901604 NAME: NULL
+
+ID: 9901605 NAME: NULL
+
+ID: 9901606 NAME: NULL
+
+ID: 9901607 NAME: NULL
+
+ID: 9901608 NAME: NULL
+
+ID: 9901609 NAME: NULL
+
+ID: 9901610 NAME: NULL
+
+ID: 9901611 NAME: NULL
+
+ID: 9901612 NAME: NULL
+
+ID: 9901613 NAME: NULL
+
+ID: 9901614 NAME: NULL
+
+ID: 9901615 NAME: NULL
+
+ID: 9901616 NAME: NULL
+
+ID: 9310083 NAME: Talking Snow Man
+
+ID: 1204033 NAME: John's Box
+
+ID: 9250051 NAME: Mrs. Claus
+
+ID: 9310058 NAME: Santa 
+
+ID: 1013000 NAME: 미르
+
+ID: 1013001 NAME: 드래곤
+
+ID: 1013002 NAME: 드래곤의 둥지
+
+ID: 1013100 NAME: 애나
+
+ID: 1013101 NAME: 유타
+
+ID: 1013102 NAME: 불독
+
+ID: 1013103 NAME: 그리드
+
+ID: 1013104 NAME: 암탉
+
+ID: 1013105 NAME: 젖소
+
+ID: 1013201 NAME: 카밀라
+
+ID: 1013202 NAME: 검은 그림자
+
+ID: 1013203 NAME: 이베흐
+
+ID: 1013200 NAME: Baby Pig
+
+ID: 9000070 NAME: Full Moon
+
+ID: 1022106 NAME: Christopher
+
+ID: 1022107 NAME: Perion Warning Post
+
+ID: 1052116 NAME: Thompson
+
+ID: 1052117 NAME: Blake
+
+ID: 1052118 NAME: Lockers
+
+ID: 1052119 NAME: Lala
+
+ID: 1052120 NAME: Maestro Rho
+
+ID: 1052121 NAME: Lana
+
+ID: 1052122 NAME: Tina
+
+ID: 1052123 NAME: Robby Fray
+
+ID: 1052124 NAME: Marshall
+
+ID: 1052125 NAME: June
+
+ID: 1063018 NAME: Doll Left Behind
+
+ID: 1205000 NAME: Afrien
+
+ID: 2012034 NAME: Hidden Brick
+
+ID: 2030015 NAME: Hidden Rock
+
+ID: 2060010 NAME: Dolphin
+
+ID: 2060103 NAME: Norrington
+
+ID: 2082004 NAME: Andy
+
+ID: 2082005 NAME: Brainy Boy
+
+ID: 2082006 NAME: Crying Girl
+
+ID: 2082007 NAME: Policeman
+
+ID: 2082008 NAME: Captain Edmond
+
+ID: 2082009 NAME: May
+
+ID: 2082010 NAME: Bao
+
+ID: 2082011 NAME: Hoya
+
+ID: 2082012 NAME: Nalo
+
+ID: 2082013 NAME: Ashura
+
+ID: 2082014 NAME: Asia
+
+ID: 2082015 NAME: Electronic Induction Device
+
+ID: 2082016 NAME: Isabella
+
+ID: 2082017 NAME: Ken
+
+ID: 2083006 NAME: Time Gate
+
+ID: 2092100 NAME: Potter
+
+ID: 9010022 NAME: Dimensional Mirror
+
+ID: 9010021 NAME: Wolf Spirit Ryko
+
+ID: 9901700 NAME: NULL
+
+ID: 9901701 NAME: NULL
+
+ID: 9901702 NAME: NULL
+
+ID: 9901703 NAME: NULL
+
+ID: 9901704 NAME: NULL
+
+ID: 9901705 NAME: NULL
+
+ID: 9901706 NAME: NULL
+
+ID: 9901707 NAME: NULL
+
+ID: 9901708 NAME: NULL
+
+ID: 9901709 NAME: NULL
+
+ID: 9901710 NAME: NULL
+
+ID: 9901711 NAME: NULL
+
+ID: 9901712 NAME: NULL
+
+ID: 9901713 NAME: NULL
+
+ID: 9901714 NAME: NULL
+
+ID: 9901715 NAME: NULL
+
+ID: 9901716 NAME: NULL
+
+ID: 9901717 NAME: NULL
+
+ID: 9901718 NAME: NULL
+
+ID: 9901719 NAME: NULL
+
+ID: 9901720 NAME: NULL
+
+ID: 9901721 NAME: NULL
+
+ID: 9901722 NAME: NULL
+
+ID: 9901723 NAME: NULL
+
+ID: 9901724 NAME: NULL
+
+ID: 9901725 NAME: NULL
+
+ID: 9901726 NAME: NULL
+
+ID: 9901727 NAME: NULL
+
+ID: 9901728 NAME: NULL
+
+ID: 9901729 NAME: NULL
+
+ID: 9901730 NAME: NULL
+
+ID: 9901731 NAME: NULL
+
+ID: 9901732 NAME: NULL
+
+ID: 9901733 NAME: NULL
+
+ID: 9901734 NAME: NULL
+
+ID: 9901735 NAME: NULL
+
+ID: 9901736 NAME: NULL
+
+ID: 9901737 NAME: NULL
+
+ID: 9901738 NAME: NULL
+
+ID: 9901739 NAME: NULL
+
+ID: 9901740 NAME: NULL
+
+ID: 9901741 NAME: NULL
+
+ID: 9901742 NAME: NULL
+
+ID: 9901743 NAME: NULL
+
+ID: 9901744 NAME: NULL
+
+ID: 9901745 NAME: NULL
+
+ID: 9901746 NAME: NULL
+
+ID: 9901747 NAME: NULL
+
+ID: 9901748 NAME: NULL
+
+ID: 9901749 NAME: NULL
+
+ID: 9901800 NAME: NULL
+
+ID: 9901801 NAME: NULL
+
+ID: 9901802 NAME: NULL
+
+ID: 9901803 NAME: NULL
+
+ID: 9901804 NAME: NULL
+
+ID: 9901805 NAME: NULL
+
+ID: 9901806 NAME: NULL
+
+ID: 9901807 NAME: NULL
+
+ID: 9901808 NAME: NULL
+
+ID: 9901809 NAME: NULL
+
+ID: 9901810 NAME: NULL
+
+ID: 9901811 NAME: NULL
+
+ID: 9901812 NAME: NULL
+
+ID: 9901813 NAME: NULL
+
+ID: 9901814 NAME: NULL
+
+ID: 9901815 NAME: NULL
+
+ID: 9901816 NAME: NULL
+
+ID: 9901817 NAME: NULL
+
+ID: 9901818 NAME: NULL
+
+ID: 9901819 NAME: NULL
+
+ID: 9901820 NAME: NULL
+
+ID: 9901821 NAME: NULL
+
+ID: 9901822 NAME: NULL
+
+ID: 9901823 NAME: NULL
+
+ID: 9901824 NAME: NULL
+
+ID: 9901825 NAME: NULL
+
+ID: 9901826 NAME: NULL
+
+ID: 9901827 NAME: NULL
+
+ID: 9901828 NAME: NULL
+
+ID: 9901829 NAME: NULL
+
+ID: 9901830 NAME: NULL
+
+ID: 9901831 NAME: NULL
+
+ID: 9901832 NAME: NULL
+
+ID: 9901833 NAME: NULL
+
+ID: 9901834 NAME: NULL
+
+ID: 9901835 NAME: NULL
+
+ID: 9901836 NAME: NULL
+
+ID: 9901837 NAME: NULL
+
+ID: 9901838 NAME: NULL
+
+ID: 9901839 NAME: NULL
+
+ID: 9901840 NAME: NULL
+
+ID: 9901841 NAME: NULL
+
+ID: 9901842 NAME: NULL
+
+ID: 9901843 NAME: NULL
+
+ID: 9901844 NAME: NULL
+
+ID: 9901845 NAME: NULL
+
+ID: 9901846 NAME: NULL
+
+ID: 9901847 NAME: NULL
+
+ID: 9901848 NAME: NULL
+
+ID: 9901849 NAME: NULL
+
+ID: 9901900 NAME: NULL
+
+ID: 9901901 NAME: NULL
+
+ID: 9901902 NAME: NULL
+
+ID: 9901903 NAME: NULL
+
+ID: 9901904 NAME: NULL
+
+ID: 9901905 NAME: NULL
+
+ID: 9901906 NAME: NULL
+
+ID: 9901907 NAME: NULL
+
+ID: 9901908 NAME: NULL
+
+ID: 9901909 NAME: NULL
+
+ID: 9000069 NAME: Inkwell

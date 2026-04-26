@@ -1,0 +1,612 @@
+ID: 000 NAME: Beginner's Basics
+ID: 0000008 NAME: Follow the Lead
+ID: 0001000 NAME: Three Snails
+ID: 0001001 NAME: Recovery
+ID: 0001003 NAME: Legendary Spirit
+ID: 0001004 NAME: Monster Rider
+ID: 0001002 NAME: Nimble Feet
+ID: 0001013 NAME: Spaceship
+ID: 0001014 NAME: Space Dash
+ID: 0001015 NAME: Space Beam
+ID: 100 NAME: Warrior Basics
+ID: 1000000 NAME: Improved HP Recovery
+ID: 1000001 NAME: Improved MaxHP Increase
+ID: 1000002 NAME: Endure
+ID: 1001003 NAME: Iron Body
+ID: 1001004 NAME: Power Strike
+ID: 1001005 NAME: Slash Blast
+ID: 200 NAME: Intro. to Magic
+ID: 2000000 NAME: Improved MP Recovery
+ID: 2000001 NAME: Improved MaxMP Increase
+ID: 2001002 NAME: Magic Guard
+ID: 2001003 NAME: Magic Armor
+ID: 2001004 NAME: Energy Bolt
+ID: 2001005 NAME: Magic Claw
+ID: 300 NAME: Bowman Basics
+ID: 3000000 NAME: The Blessing of Amazon
+ID: 3000001 NAME: Critical Shot
+ID: 3000002 NAME: The Eye of Amazon
+ID: 3001003 NAME: Focus
+ID: 3001004 NAME: Arrow Blow
+ID: 3001005 NAME: Double Shot
+ID: 400 NAME: Thief Skills
+ID: 4000000 NAME: Nimble Body
+ID: 4000001 NAME: Keen Eyes
+ID: 4001002 NAME: Disorder
+ID: 4001003 NAME: Dark Sight
+ID: 4001334 NAME: Double Stab
+ID: 4001344 NAME: Lucky Seven
+ID: 110 NAME: Fighter Techniques
+ID: 1100000 NAME: Sword Mastery
+ID: 1100001 NAME: Axe Mastery
+ID: 1100002 NAME: Final Attack : Sword
+ID: 1100003 NAME: Final Attack : Axe
+ID: 1101004 NAME: Sword Booster
+ID: 1101005 NAME: Axe Booster
+ID: 1101006 NAME: Rage
+ID: 1101007 NAME: Power Guard
+ID: 120 NAME: Page's Path
+ID: 1200000 NAME: Sword Mastery
+ID: 1200001 NAME: BW Mastery
+ID: 1200002 NAME: Final Attack : Sword
+ID: 1200003 NAME: Final Attack : BW
+ID: 1201004 NAME: Sword Booster
+ID: 1201005 NAME: BW Booster
+ID: 1201006 NAME: Threaten
+ID: 1201007 NAME: Power Guard
+ID: 130 NAME: Spearman Techniques
+ID: 1300000 NAME: Spear Mastery
+ID: 1300001 NAME: Pole Arm Mastery
+ID: 1300002 NAME: Final Attack : Spear
+ID: 1300003 NAME: Final Attack : Pole Arm
+ID: 1301004 NAME: Spear Booster
+ID: 1301005 NAME: Pole Arm Booster
+ID: 1301006 NAME: Iron Will
+ID: 1301007 NAME: Hyper Body
+ID: 210 NAME: Fire & Poison Basics
+ID: 2100000 NAME: MP Eater
+ID: 2101001 NAME: Meditation
+ID: 2101002 NAME: Teleport
+ID: 2101003 NAME: Slow
+ID: 2101004 NAME: Fire Arrow
+ID: 2101005 NAME: Poison Breath
+ID: 220 NAME: Ice & Lightning Basics
+ID: 2200000 NAME: MP Eater
+ID: 2201001 NAME: Meditation
+ID: 2201002 NAME: Teleport
+ID: 2201003 NAME: Slow
+ID: 2201004 NAME: Cold Beam
+ID: 2201005 NAME: Thunder Bolt
+ID: 230 NAME: Holy Magic Basics
+ID: 2300000 NAME: MP Eater
+ID: 2301001 NAME: Teleport
+ID: 2301002 NAME: Heal
+ID: 2301003 NAME: Invincible
+ID: 2301004 NAME: Bless
+ID: 2301005 NAME: Holy Arrow
+ID: 310 NAME: Hunter's Guide
+ID: 3100000 NAME: Bow Mastery
+ID: 3100001 NAME: Final Attack : Bow
+ID: 3101002 NAME: Bow Booster
+ID: 3101003 NAME: Power Knock-Back
+ID: 3101004 NAME: Soul Arrow : Bow
+ID: 3101005 NAME: Arrow Bomb : Bow
+ID: 320 NAME: Crossbowman Guide
+ID: 3200000 NAME: Crossbow Mastery
+ID: 3200001 NAME: Final Attack : Crossbow
+ID: 3201002 NAME: Crossbow Booster
+ID: 3201003 NAME: Power Knock-Back
+ID: 3201004 NAME: Soul Arrow : Crossbow
+ID: 3201005 NAME: Iron Arrow : Crossbow
+ID: 410 NAME: Assassin Skills
+ID: 4100000 NAME: Claw Mastery
+ID: 4100001 NAME: Critical Throw
+ID: 4100002 NAME: Endure
+ID: 4101003 NAME: Claw Booster
+ID: 4101004 NAME: Haste
+ID: 4101005 NAME: Drain
+ID: 420 NAME: Bandit's Tricks
+ID: 4200000 NAME: Dagger Mastery
+ID: 4200001 NAME: Endure
+ID: 4201002 NAME: Dagger Booster
+ID: 4201003 NAME: Haste
+ID: 4201004 NAME: Steal
+ID: 4201005 NAME: Savage Blow
+ID: 111 NAME: Crusader's Guide
+ID: 1110000 NAME: Improving MP Recovery
+ID: 1110001 NAME: Shield Mastery
+ID: 1111002 NAME: Combo Attack
+ID: 1111003 NAME: Panic : Sword
+ID: 1111004 NAME: Panic : Axe
+ID: 1111005 NAME: Coma: Sword
+ID: 1111006 NAME: Coma: Axe
+ID: 1111007 NAME: Armor Crash
+ID: 1111008 NAME: Shout
+ID: 121 NAME: White Knight's Code
+ID: 1210000 NAME: Improving MP Recovery
+ID: 1210001 NAME: Shield Mastery
+ID: 1211002 NAME: Charged Blow
+ID: 1211003 NAME: Fire Charge: Sword
+ID: 1211004 NAME: Flame Charge: BW
+ID: 1211005 NAME: Ice Charge: Sword
+ID: 1211006 NAME: Blizzard Charge: BW
+ID: 1211007 NAME: Thunder Charge: Sword
+ID: 1211008 NAME: Lightning Charge: BW
+ID: 1211009 NAME: Magic Crash
+ID: 131 NAME: Dragon Knight's Path
+ID: 1310000 NAME: Elemental Resistance
+ID: 1311001 NAME: Spear Crusher
+ID: 1311002 NAME: Pole Arm Crusher
+ID: 1311003 NAME: Dragon Fury: Spear
+ID: 1311004 NAME: Dragon Fury: Pole Arm
+ID: 1311005 NAME: Sacrifice
+ID: 1311006 NAME: Dragon Roar
+ID: 1311007 NAME: Power Crash
+ID: 1311008 NAME: Dragon Blood
+ID: 211 NAME: Adv. Fire & Poison
+ID: 2110000 NAME: Partial Resistance
+ID: 2110001 NAME: Element Amplification
+ID: 2111002 NAME: Explosion
+ID: 2111003 NAME: Poison Mist
+ID: 2111004 NAME: Seal
+ID: 2111005 NAME: Spell Booster
+ID: 2111006 NAME: Element Composition
+ID: 221 NAME: Adv. Ice & Lightning
+ID: 2210000 NAME: Partial Resistance
+ID: 2210001 NAME: Element Amplification
+ID: 2211002 NAME: Ice Strike
+ID: 2211003 NAME: Thunder Spear
+ID: 2211004 NAME: Seal
+ID: 2211005 NAME: Spell Booster
+ID: 2211006 NAME: Element Composition
+ID: 231 NAME: Adv. Holy Magic
+ID: 2310000 NAME: Elemental Resistance
+ID: 2311001 NAME: Dispel
+ID: 2311002 NAME: Mystic Door
+ID: 2311003 NAME: Holy Symbol
+ID: 2311004 NAME: Shining Ray
+ID: 2311005 NAME: Doom
+ID: 2311006 NAME: Summon Dragon
+ID: 311 NAME: Path of the Ranger
+ID: 3110000 NAME: Thrust
+ID: 3110001 NAME: Mortal Blow
+ID: 3111002 NAME: Puppet
+ID: 3111003 NAME: Inferno
+ID: 3111004 NAME: Arrow Rain
+ID: 3111005 NAME: Silver Hawk
+ID: 3111006 NAME: Strafe
+ID: 321 NAME: Sniper's Scope
+ID: 3210000 NAME: Thrust
+ID: 3210001 NAME: Mortal Blow
+ID: 3211002 NAME: Puppet
+ID: 3211003 NAME: Blizzard
+ID: 3211004 NAME: Arrow Eruption
+ID: 3211005 NAME: Golden Eagle
+ID: 3211006 NAME: Strafe
+ID: 411 NAME: The Way of Hermit
+ID: 4110000 NAME: Alchemist
+ID: 4111001 NAME: Meso Up
+ID: 4111002 NAME: Shadow Partner
+ID: 4111003 NAME: Shadow Web
+ID: 4111004 NAME: Shadow Meso
+ID: 4111005 NAME: Avenger
+ID: 4111006 NAME: Flash Jump
+ID: 421 NAME: Chief Bandit's Tricks
+ID: 4210000 NAME: Shield Mastery
+ID: 4211001 NAME: Chakra
+ID: 4211002 NAME: Assaulter
+ID: 4211003 NAME: Pickpocket
+ID: 4211004 NAME: Band of Thieves
+ID: 4211005 NAME: Meso Guard
+ID: 4211006 NAME: Meso Explosion
+ID: 900 NAME: Admin. Skill Book (Normal)
+ID: 9001000 NAME: Haste (Normal)
+ID: 9001001 NAME: Super Dragon Roar
+ID: 9001002 NAME: Teleport
+ID: 910 NAME: Admin. Skill Book (Super)
+ID: 9101000 NAME: Heal + Dispel
+ID: 9101001 NAME: Haste (Super)
+ID: 9101002 NAME: Holy Symbol
+ID: 9101003 NAME: Bless
+ID: 9101004 NAME: Hide
+ID: 9101005 NAME: Resurrection
+ID: 9101006 NAME: Super Dragon Roar
+ID: 9101007 NAME: Teleport
+ID: 9101008 NAME: Hyper Body
+ID: 0001005 NAME: Echo of Hero
+ID: 112 NAME: Ultimate Hero
+ID: 1121000 NAME: Maple Warrior
+ID: 1121001 NAME: Monster Magnet
+ID: 1121002 NAME: Power Stance
+ID: 1120003 NAME: Advanced Combo Attack
+ID: 1120004 NAME: Achilles
+ID: 1120005 NAME: Guardian
+ID: 1121006 NAME: Rush
+ID: 1121008 NAME: Brandish
+ID: 1121010 NAME: Enrage
+ID: 1121011 NAME: Hero's Will
+ID: 122 NAME: Paladin of Light
+ID: 1221000 NAME: Maple Warrior
+ID: 1221001 NAME: Monster Magnet
+ID: 1221002 NAME: Power Stance
+ID: 1221003 NAME: Holy Charge : Sword
+ID: 1221004 NAME: Divine Charge : BW
+ID: 1220005 NAME: Achilles
+ID: 1220006 NAME: Guardian
+ID: 1221007 NAME: Rush
+ID: 1221009 NAME: Blast
+ID: 1220010 NAME: Advanced Charge
+ID: 1221011 NAME: Heaven's Hammer
+ID: 1221012 NAME: Hero's Will
+ID: 132 NAME: Dark Knight of Darkness
+ID: 1321000 NAME: Maple Warrior
+ID: 1321001 NAME: Monster Magnet
+ID: 1321002 NAME: Power Stance
+ID: 1321003 NAME: Rush
+ID: 1320005 NAME: Achilles
+ID: 1320006 NAME: Berserk
+ID: 1321007 NAME: Beholder
+ID: 1320008 NAME: Aura of the Beholder
+ID: 1320009 NAME: Hex of the Beholder
+ID: 1321010 NAME: Hero's Will
+ID: 212 NAME: Highest class of Magic (F,P)
+ID: 2121000 NAME: Maple Warrior
+ID: 2121001 NAME: Big Bang
+ID: 2121002 NAME: Mana Reflection
+ID: 2121003 NAME: Fire Demon
+ID: 2121004 NAME: Infinity
+ID: 2121005 NAME: Elquines
+ID: 2121006 NAME: Paralyze
+ID: 2121007 NAME: Meteor Shower
+ID: 2121008 NAME: Hero's Will
+ID: 222 NAME: Highest class of Magic (I,L)
+ID: 2221000 NAME: Maple Warrior
+ID: 2221001 NAME: Big Bang
+ID: 2221002 NAME: Mana Reflection
+ID: 2221003 NAME: Ice Demon
+ID: 2221004 NAME: Infinity
+ID: 2221005 NAME: Ifrit
+ID: 2221006 NAME: Chain Lightning
+ID: 2221007 NAME: Blizzard
+ID: 2221008 NAME: Hero's Will
+ID: 232 NAME: Highest class of Holy Magic
+ID: 2321000 NAME: Maple Warrior
+ID: 2321001 NAME: Big Bang
+ID: 2321002 NAME: Mana Reflection
+ID: 2321003 NAME: Bahamut
+ID: 2321004 NAME: Infinity
+ID: 2321005 NAME: Holy Shield
+ID: 2321006 NAME: Resurrection
+ID: 2321007 NAME: Angel Ray
+ID: 2321008 NAME: Genesis
+ID: 2321009 NAME: Hero's Will
+ID: 312 NAME: Bow master
+ID: 3121000 NAME: Maple Warrior
+ID: 3121002 NAME: Sharp Eyes
+ID: 3121003 NAME: Dragon's Breath
+ID: 3121004 NAME: Hurricane
+ID: 3120005 NAME: Bow Expert
+ID: 3121006 NAME: Phoenix
+ID: 3121007 NAME: Hamstring
+ID: 3121008 NAME: Concentrate
+ID: 3121009 NAME: Hero's Will
+ID: 322 NAME: Marksman
+ID: 3221000 NAME: Maple Warrior
+ID: 3221001 NAME: Piercing Arrow
+ID: 3221002 NAME: Sharp Eyes
+ID: 3221003 NAME: Dragon's Breath
+ID: 3220004 NAME: Marksman Boost
+ID: 3221005 NAME: Frostprey
+ID: 3221006 NAME: Blind
+ID: 3221007 NAME: Snipe
+ID: 3221008 NAME: Hero's Will
+ID: 412 NAME: Secret Skills of Nights Lord
+ID: 4121000 NAME: Maple Warrior
+ID: 4120002 NAME: Shadow Shifter
+ID: 4121003 NAME: Taunt
+ID: 4121004 NAME: Ninja Ambush
+ID: 4120005 NAME: Venomous Star
+ID: 4121006 NAME: Shadow Stars
+ID: 4121007 NAME: Triple Throw
+ID: 4121008 NAME: Ninja Storm
+ID: 4121009 NAME: Hero's Will
+ID: 422 NAME: Secret Skills of Shadower
+ID: 4221000 NAME: Maple Warrior
+ID: 4221001 NAME: Assassinate
+ID: 4220002 NAME: Shadow Shifter
+ID: 4221003 NAME: Taunt
+ID: 4221004 NAME: Ninja Ambush
+ID: 4220005 NAME: Venomous Stab
+ID: 4221006 NAME: Smokescreen
+ID: 4221007 NAME: Boomerang Step
+ID: 4221008 NAME: Hero's Will
+ID: 0001006 NAME: Jump Down
+ID: 500 NAME: Pirate Beginner Guide
+ID: 5000000 NAME: Bullet Time
+ID: 5001001 NAME: Flash Fist
+ID: 5001002 NAME: Sommersault Kick
+ID: 5001003 NAME: Double Shot
+ID: 5001005 NAME: Dash
+ID: 510 NAME: Brawler Guide
+ID: 5100000 NAME: Improve MaxHP
+ID: 5100001 NAME: Knuckler Mastery
+ID: 5101002 NAME: Backspin Blow
+ID: 5101003 NAME: Double Uppercut
+ID: 5101004 NAME: Corkscrew Blow
+ID: 5101005 NAME: MP Recovery
+ID: 5101006 NAME: Knuckler Booster
+ID: 5101007 NAME: Oak Barrel
+ID: 520 NAME: Gunslinger Guide
+ID: 5200000 NAME: Gun Mastery
+ID: 5201001 NAME: Invisible Shot
+ID: 5201002 NAME: Grenade
+ID: 5201003 NAME: Gun Booster
+ID: 5201004 NAME: Blank Shot
+ID: 5201005 NAME: Wings
+ID: 5201006 NAME: Recoil Shot
+ID: 511 NAME: The Path of the Marauder
+ID: 5110000 NAME: Stun Mastery
+ID: 5110001 NAME: Energy Charge
+ID: 5111002 NAME: Energy Blast
+ID: 5111004 NAME: Energy Drain
+ID: 5111005 NAME: Transformation
+ID: 5111006 NAME: Shockwave
+ID: 521 NAME: The Path of the Outlaw
+ID: 5210000 NAME: Burst Fire
+ID: 5211001 NAME: Octopus
+ID: 5211002 NAME: Gaviota
+ID: 5211004 NAME: Flamethrower
+ID: 5211005 NAME: Ice Splitter
+ID: 5211006 NAME: Homing Beacon
+ID: 512 NAME: The Perfect Buccaneer
+ID: 5121000 NAME: Maple Warrior
+ID: 5121001 NAME: Dragon Strike
+ID: 5121002 NAME: Energy Orb
+ID: 5121003 NAME: Super Transformation
+ID: 5121004 NAME: Demolition
+ID: 5121005 NAME: Snatch
+ID: 5121007 NAME: Barrage
+ID: 5121008 NAME: Pirate's Rage
+ID: 5121009 NAME: Speed Infusion
+ID: 5121010 NAME: Time Leap
+ID: 522 NAME: The Perfect Corsair
+ID: 5221000 NAME: Maple Warrior
+ID: 5220001 NAME: Elemental Boost
+ID: 5220002 NAME: Wrath of the Octopi
+ID: 5221003 NAME: Aerial Strike
+ID: 5221004 NAME: Rapid Fire
+ID: 5221006 NAME: Battleship
+ID: 5221007 NAME: Battleship Cannon
+ID: 5221008 NAME: Battleship Torpedo
+ID: 5221009 NAME: Hypnotize
+ID: 5221010 NAME: Speed Infusion
+ID: 5220011 NAME: Bullseye
+ID: 0001009 NAME: Bamboo Rain
+ID: 0001010 NAME: Invincibility
+ID: 0001011 NAME: Power Explosion
+ID: 800 NAME: 매니저 스킬북
+ID: 8001000 NAME: 매크로 테스트
+ID: 8001001 NAME: 텔레포트
+ID: 11001002 NAME: Power Strike
+ID: 11001003 NAME: Slash Blast
+ID: 11101003 NAME: Rage
+ID: 13111001 NAME: Strafe
+ID: 15111007 NAME: Shark Wave
+ID: 1510 NAME: Thunder Breaker guide
+ID: 15100000 NAME: Improve MaxHP
+ID: 15100001 NAME: Knuckle Mastery
+ID: 15101002 NAME: Knuckle Booster
+ID: 15101003 NAME: Corkscrew Blow
+ID: 15100004 NAME: Energy Charge
+ID: 15101005 NAME: Energy Blast
+ID: 15101006 NAME: Lightning Charge
+ID: 1511 NAME: Path of the Thunder Breaker
+ID: 15110000 NAME: Critical Punch
+ID: 15111001 NAME: Energy Drain
+ID: 15111002 NAME: Transformation
+ID: 15111003 NAME: Shockwave
+ID: 15111004 NAME: Barrage
+ID: 15111005 NAME: Speed Infusion
+ID: 15111006 NAME: Spark
+ID: 14111005 NAME: Triple throw
+ID: 14111006 NAME: Poison Bomb
+ID: 1412 NAME: Secret skill of the Night Walker
+ID: 1500 NAME: Intro to the Thunder Breaker
+ID: 15000000 NAME: Quick Motion
+ID: 15001001 NAME: Straight
+ID: 15001002 NAME: Somersault Kick
+ID: 15001003 NAME: Dash
+ID: 15001004 NAME: Lightning
+ID: 1310 NAME: Skill of the Wind Archer
+ID: 13100000 NAME: Bow Mastery
+ID: 13101001 NAME: Bow Booster
+ID: 13101002 NAME: Final Attack
+ID: 13101003 NAME: Soul Arrow
+ID: 13100004 NAME: Thrust
+ID: 13101005 NAME: Storm Break
+ID: 13101006 NAME: Wind Walk
+ID: 1311 NAME: Path of the Wind Archer
+ID: 13111000 NAME: Arrow Rain
+ID: 13111002 NAME: Hurricane
+ID: 13110003 NAME: Bow Expert
+ID: 13111004 NAME: Puppet
+ID: 13111005 NAME: Eagle Eye
+ID: 13111006 NAME: Wind Piercing
+ID: 13111007 NAME: Wind Shot
+ID: 1312 NAME: Completion of the Wind Archer
+ID: 1400 NAME: The Night Walker Guide
+ID: 14000000 NAME: Nimble Body
+ID: 14000001 NAME: Keen Eyes
+ID: 14001002 NAME: Disorder
+ID: 14001003 NAME: Dark Sight
+ID: 14001004 NAME: Lucky Seven
+ID: 14001005 NAME: Darkness
+ID: 1410 NAME: Night Walker Guide
+ID: 14100000 NAME: Claw Mastery
+ID: 14100001 NAME: Critical Throw
+ID: 14101002 NAME: Claw Booster
+ID: 14101003 NAME: Haste
+ID: 14101004 NAME: Flash Jump
+ID: 14100005 NAME: Vanish
+ID: 14101006 NAME: Vampire
+ID: 1411 NAME: Night Walker's Path
+ID: 14111000 NAME: Shadow Partner
+ID: 14111001 NAME: Shadow Web
+ID: 14111002 NAME: Avenger
+ID: 14110003 NAME: Alchemist
+ID: 14110004 NAME: Venom
+ID: 11101004 NAME: Soul Blade
+ID: 11101005 NAME: Soul Rush
+ID: 1111 NAME: Dawn Warrior's Guide
+ID: 11110000 NAME: MP Recovery Rate Enhancement
+ID: 11111001 NAME: Combo Attack
+ID: 11111002 NAME: Panic
+ID: 11111003 NAME: Coma
+ID: 11111004 NAME: Brandish
+ID: 11110005 NAME: Advanced combo
+ID: 11111006 NAME: Soul Driver
+ID: 11111007 NAME: Soul Charge
+ID: 1112 NAME: Completion of the Dawn Warrior
+ID: 1200 NAME: The Blaze Wizard Guide
+ID: 12000000 NAME: Increasing Max MP.
+ID: 12001001 NAME: Magic Guard
+ID: 12001002 NAME: Magic Armor
+ID: 12001003 NAME: Magic Claw
+ID: 12001004 NAME: Flame
+ID: 1210 NAME: Blaze Wizard Guide
+ID: 12101000 NAME: Meditation
+ID: 12101001 NAME: Slow
+ID: 12101002 NAME: Fire Arrow
+ID: 12101003 NAME: Teleport
+ID: 12101004 NAME: Spell Booster
+ID: 12101005 NAME: Elemental Reset
+ID: 12101006 NAME: Fire Pillar
+ID: 1211 NAME: Adv. Flame Magic
+ID: 12110000 NAME: Elemental Resistance
+ID: 12110001 NAME: Element Amplification
+ID: 12111002 NAME: Seal
+ID: 12111003 NAME: Meteor Shower
+ID: 12111004 NAME: Ifrit
+ID: 12111005 NAME: Flame Gear
+ID: 12111006 NAME: Fire Strike
+ID: 1212 NAME: Premium Flame Magic
+ID: 1300 NAME: Intro of the Wind Archer
+ID: 13000000 NAME: Critical Shot
+ID: 13000001 NAME: The Eye of Amazon
+ID: 13001002 NAME: Focus
+ID: 13001003 NAME: Double Shot
+ID: 13001004 NAME: Storm
+ID: 11001004 NAME: Soul
+ID: 1110 NAME: Path of the Dawn Warrior
+ID: 11100000 NAME: Sword Mastery
+ID: 11101001 NAME: Sword Booster
+ID: 11101002 NAME: Final Attack
+ID: 1000 NAME: Noblesse Techniques
+ID: 10000018 NAME: Follow the Lead
+ID: 10001000 NAME: Three Snails
+ID: 10001001 NAME: Recovery
+ID: 10001002 NAME: Nimble Feet
+ID: 10001003 NAME: Legendary Spirit
+ID: 10001004 NAME: Monster Rider
+ID: 10001005 NAME: Echo of Hero
+ID: 10001006 NAME: Jump Down
+ID: 10001007 NAME: Maker
+ID: 10001009 NAME: Bamboo Thrust
+ID: 10001010 NAME: Invincible Barrier
+ID: 10001011 NAME: Meteo Shower
+ID: 10000012 NAME: Blessing of the Fairy
+ID: 1100 NAME: The Basics of a Dawn Warrior
+ID: 11000000 NAME: Max HP Enhancement
+ID: 11001001 NAME: Iron Body
+ID: 0000012 NAME: Blessing of the Fairy
+ID: 0001007 NAME: Maker
+ID: 9001003 NAME: Bless
+ID: 9001004 NAME: Hide
+ID: 9001005 NAME: Resurrection
+ID: 9001006 NAME: Super Dragon Roar
+ID: 9001007 NAME: Teleport
+ID: 9001009 NAME: ADMIN_ANTIMACRO
+ID: 9001008 NAME: Hyper Body
+ID: 10001014 NAME: Spaceship
+ID: 10001015 NAME: Space Dash
+ID: 10001016 NAME: Space Beam
+ID: 1512 NAME: Completion of Thunder Breaker
+ID: 2000 NAME: Legendary Skill
+ID: 20001000 NAME: Three Snails
+ID: 20001001 NAME: Recovery
+ID: 20001002 NAME: Agile Body
+ID: 20001003 NAME: Legendary Spirit
+ID: 20001004 NAME: Monster Rider
+ID: 20001005 NAME: Echo of Hero
+ID: 20001006 NAME: Jump Down
+ID: 20001007 NAME: Maker
+ID: 20001009 NAME: Bamboo Thrust
+ID: 20001010 NAME: Invincible Barrier
+ID: 20001011 NAME: Meteo Shower
+ID: 20000012 NAME: Blessing of the Fairy
+ID: 20001013 NAME: Helper
+ID: 20000014 NAME: Tutorial Skill
+ID: 20000015 NAME: Tutorial Skill
+ID: 20000016 NAME: Tutorial Skill
+ID: 20000017 NAME: Tutorial Skill
+ID: 20000018 NAME: Tutorial Skill
+ID: 20000024 NAME: Follow the Lead
+ID: 2100 NAME: Aran
+ID: 21000000 NAME: Combo Ability
+ID: 21000002 NAME: Double Swing
+ID: 21001003 NAME: Polearm Booster
+ID: 2110 NAME: Aran
+ID: 21100000 NAME: Polearm Mastery
+ID: 21100002 NAME: Final Charge
+ID: 21101003 NAME: Body Pressure
+ID: 2111 NAME: Aran
+ID: 21110000 NAME: Combo Critical
+ID: 21111001 NAME: Smart Knockback
+ID: 21110004 NAME: Combo Penril
+ID: 21111005 NAME: Snow Charge
+ID: 21110007 NAME: (hidden) Full Swing - Double Swing
+ID: 21110008 NAME: (hidden) Full Swing - Triple Swing
+ID: 2112 NAME: Aran
+ID: 21121000 NAME: Maple Warrior
+ID: 21120001 NAME: High Mastery
+ID: 21121003 NAME: Freeze Standing
+ID: 21120004 NAME: High Defense
+ID: 21120006 NAME: Combo Tempest
+ID: 21120007 NAME: Combo Barrier
+ID: 21121008 NAME: Hero's Will
+ID: 21120009 NAME: (hidden) Over Swing - Double Swing
+ID: 21120010 NAME: (hidden) Over Swing - Triple Swing
+ID: 0001020 NAME: Rage of Pharaoh
+ID: 0009000 NAME: Pig's Weakness
+ID: 0009001 NAME: Stump's Weakness
+ID: 0009002 NAME: Slime's Weakness
+ID: 10000013 NAME: Helper
+ID: 10001019 NAME: Yeti Rider
+ID: 10001020 NAME: Rage of Pharaoh
+ID: 10009000 NAME: Pig's Weakness
+ID: 10009001 NAME: Stump's Weakness
+ID: 10009002 NAME: Slime's Weakness
+ID: 20001019 NAME: Yeti Rider
+ID: 20001020 NAME: Rage of Pharaoh
+ID: 20009000 NAME: Pig's Weakness
+ID: 20009001 NAME: Stump's Weakness
+ID: 20009002 NAME: Slime's Weakness
+ID: 0001017 NAME: Yeti Rider
+ID: 21001001 NAME: Combat Step
+ID: 21100001 NAME: Triple Swing
+ID: 21100004 NAME: Combo Smash
+ID: 21100005 NAME: Combo Drain
+ID: 21120005 NAME: Final Blow
+ID: 21120002 NAME: Over Swing
+ID: 21110006 NAME: Rolling Spin
+ID: 21110003 NAME: Final Cross
+ID: 21110002 NAME: Full Swing
+ID: 0001018 NAME: Yeti Mount
+ID: 0001019 NAME: Witch's Broomstick
+ID: 10001023 NAME: Witch's Broomstick
+ID: 10001022 NAME: Yeti Mount
+ID: 20001023 NAME: Witch's Broomstick
+ID: 20001022 NAME: Yeti Mount
+ID: 0001031 NAME: Barlog Mount
+ID: 10001031 NAME: Barlog Mount
+ID: 20001031 NAME: Barlog Mount

@@ -1,6 +1,5 @@
 use crate::db::models::account::core::Account;
 use crate::db::models::character::core::{Character, NewCharacter};
-use crate::net::packet::core::Packet;
 
 #[derive(Clone)]
 pub enum BroadcastScope {
@@ -13,6 +12,7 @@ pub enum BroadcastScope {
     Nearby(i32, i16, i16),
 }
 
+#[derive(Debug)]
 pub enum RejectLoginReason {
     Banned,
     PendingTOS,
@@ -27,7 +27,6 @@ pub enum LoginAction {
     },
     AcceptLogin {
         acc: Account,
-        hwid: String,
     },
     ServerStatus {
         status: i8,

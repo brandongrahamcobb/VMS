@@ -46,10 +46,6 @@ impl TOSHandler {
             .get(ctx.session_id as u32)
             .ok_or(SessionError::NotFound(ctx.session_id))
             .map_err(NetworkError::from)?;
-        let hwid = session
-            .hwid
-            .ok_or(SessionError::NoHWID)
-            .map_err(NetworkError::from)?;
         let account_id = session
             .account_id
             .ok_or(SessionError::NoAccount)
@@ -62,7 +58,7 @@ impl TOSHandler {
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
-        let action = LoginAction::AcceptLogin { acc, hwid };
+        let action = LoginAction::AcceptLogin { acc };
         result.add_action(action)?;
         Ok(result)
     }

@@ -8,7 +8,7 @@ use vms::runtime::state::{SharedState, State};
 #[tokio::main]
 async fn main() -> Result<(), RuntimeError> {
     tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::from_default_env().add_directive("v=info".parse().unwrap()))
+        .with_env_filter(EnvFilter::from_default_env().add_directive("vms=debug".parse().unwrap()))
         .init();
     info!("Loading Shared State...");
     let shared_state: SharedState = Arc::new(State::new()?);
