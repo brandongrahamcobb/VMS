@@ -17,6 +17,6 @@ FROM alpine:3.19
 RUN apk add --no-cache libgcc
 
 WORKDIR /app
-COPY --from=builder /app/target/release/v /app/v
+COPY --from=builder /app/target/release/vms /app/vms
 
-CMD ["./v"
+CMD ["./vms"

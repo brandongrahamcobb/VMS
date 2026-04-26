@@ -112,7 +112,7 @@ pub fn get_gender_required(settings: &Config) -> Result<bool, ConfigError> {
     Ok(gender_req)
 }
 
-pub fn get_channel_world_pairs(settings: &Config) -> Result<Vec<(i8, i8)>, ConfigError> {
+pub fn get_channel_world_pairs(settings: &Config) -> Result<Vec<(i16, i16)>, ConfigError> {
     let mut list = Vec::new();
     let worlds = [
         ("scania", WorldID::SCANIA),
@@ -127,11 +127,11 @@ pub fn get_channel_world_pairs(settings: &Config) -> Result<Vec<(i8, i8)>, Confi
     for (name, id) in worlds {
         if settings.get_bool(name)? {
             let key = String::from(format!("{name}_channel_count"));
-            let count: i8 = settings
+            let count: i16 = settings
                 .get_int(&key)?
                 .try_into()
                 .map_err(|e| ConfigError::IntConversion(e))?;
-            list.push((id as i8, count));
+            list.push((id as i16, count));
         }
     }
     Ok(list)

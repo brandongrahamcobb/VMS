@@ -3,7 +3,7 @@ use crate::constants::WORLDS;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::core::action::CoreAction;
+use crate::net::packet::handler::action::login::LoginAction;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::world;
@@ -23,9 +23,9 @@ impl WorldListHandler {
         self: &Self,
         _ctx: &RuntimeContext,
         _packet: &Packet,
-    ) -> Result<HandlerResult<CoreAction>, NetworkError> {
+    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
         let mut result = HandlerResult::new();
-        let action = CoreAction::ListWorlds;
+        let action = LoginAction::ListWorlds;
         result.add_action(action)?;
         Ok(result)
     }

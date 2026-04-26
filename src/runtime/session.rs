@@ -16,8 +16,8 @@ pub struct Session {
     pub account_id: Option<i64>,
     pub authenticated: bool,
     pub hwid: Option<String>,
-    pub selected_world_id: Option<i8>,
-    pub selected_channel_id: Option<i8>,
+    pub selected_world_id: Option<i16>,
+    pub selected_channel_id: Option<i16>,
     pub session_state: SessionState,
 }
 

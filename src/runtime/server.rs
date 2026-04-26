@@ -1,6 +1,6 @@
 use crate::config::settings;
 use crate::runtime::error::RuntimeError;
-use crate::runtime::relay::{Core, Runtime, World};
+use crate::runtime::relay::{Login, Runtime, World};
 use crate::runtime::state::SharedState;
 use tracing::info;
 
@@ -20,7 +20,7 @@ impl CoreServer {
                     Ok((stream, _addr)) => {
                         let shared_state = shared_state.clone();
                         tokio::spawn(async move {
-                            match Runtime::<Core>::new(shared_state, stream).await {
+                            match Runtime::<Login>::new(shared_state, stream).await {
                                 Ok(mut core) => {
                                     if let Err(e) = core.run().await {
                                         use std::error::Error;

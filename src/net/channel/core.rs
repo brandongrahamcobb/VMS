@@ -5,16 +5,16 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone, Debug)]
 pub struct Channel {
-    pub world_id: i8,
-    pub channel_id: i8,
+    pub world_id: i16,
+    pub channel_id: i16,
     pub name: String,
     pub capacity: i16,
     pub port: i16,
 }
 
 pub fn resolve_channel(
-    channel_id: i8,
-    world_id: i8,
+    channel_id: i16,
+    world_id: i16,
     shared_state: &SharedState,
 ) -> Result<Channel, NetworkError> {
     for world in &shared_state.worlds {

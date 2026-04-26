@@ -21,8 +21,8 @@ pub enum WorldAction {
     },
     Disconnect,
     ChangeChannel {
-        world_id: i8,
-        channel_id: i8,
+        world_id: i16,
+        channel_id: i16,
     },
     Whisper {
         target_name: String,

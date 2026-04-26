@@ -6,8 +6,7 @@ use crate::inc::helpers;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::core::action::{CoreAction, RejectLoginReason};
-use crate::net::packet::handler::core::login::error::LoginError;
+use crate::net::packet::handler::action::login::{LoginAction, RejectLoginReason};
 use crate::net::packet::handler::error::HandlerError;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::{ReadError, WriteError};
@@ -36,12 +35,12 @@ impl CredentialsHandler {
         let hash = hash(&acc.password, DEFAULT_COST)?;
         match verify(pw, &hash) {
             Ok(true) => Ok(true),
-            Ok(false) => Err(NetworkError::from(PacketError::from(HandlerError::from(
-                LoginError::InvalidCredentials,
-            )))),
-            Err(_) => Err(NetworkError::from(PacketError::from(HandlerError::from(
-                LoginError::UnexpectedError,
-            )))),
+            Ok(false) => Err(NetworkError::from(PacketError::from(
+                HandlerError::LoginError,
+            ))),
+            Err(_) => Err(NetworkError::from(PacketError::from(
+                HandlerError::LoginError,
+            ))),
         }
     }
 
@@ -66,26 +65,26 @@ impl CredentialsHandler {
         return Ok(false);
     }
 
-    fn get_login_action(&self, acc: Account, hwid: String) -> Result<CoreAction, NetworkError> {
+    fn get_login_action(&self, acc: Account, hwid: String) -> Result<LoginAction, NetworkError> {
         if self.check_if_banned(&acc)? {
-            return Ok(CoreAction::RejectLogin {
+            return Ok(LoginAction::RejectLogin {
                 reason: RejectLoginReason::Banned,
                 acc: Some(acc),
             });
         }
         if self.check_if_pending_tos(&acc)? {
-            return Ok(CoreAction::RejectLogin {
+            return Ok(LoginAction::RejectLogin {
                 reason: RejectLoginReason::PendingTOS,
                 acc: Some(acc),
             });
         }
         if self.check_if_playing(&acc)? {
-            return Ok(CoreAction::RejectLogin {
+            return Ok(LoginAction::RejectLogin {
                 reason: RejectLoginReason::Playing,
                 acc: Some(acc),
             });
         }
-        Ok(CoreAction::AcceptLogin { acc, hwid })
+        Ok(LoginAction::AcceptLogin { acc, hwid })
     }
 
     fn read_credentials(
@@ -127,12 +126,12 @@ impl CredentialsHandler {
         self: &Self,
         ctx: &RuntimeContext,
         packet: &Packet,
-    ) -> Result<HandlerResult<CoreAction>, NetworkError> {
+    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
         let mut result = HandlerResult::new();
         let (user, pw, hwid) = self.read_credentials(packet)?;
         match db::models::account::service::get_account_by_username(ctx, &user) {
             Err(e) if e == diesel::result::Error::NotFound => {
-                let login_action = CoreAction::RejectLogin {
+                let login_action = LoginAction::RejectLogin {
                     acc: None,
                     reason: RejectLoginReason::InvalidCredentials,
                 };
@@ -145,7 +144,7 @@ impl CredentialsHandler {
                     if self.authenticate(&acc, &pw)? {
                         self.get_login_action(acc, hwid)?
                     } else {
-                        CoreAction::RejectLogin {
+                        LoginAction::RejectLogin {
                             acc: None,
                             reason: RejectLoginReason::InvalidCredentials,
                         }

@@ -6,14 +6,14 @@ services:
     env_file:
       - .env
     volumes:
-      - ./scripts:/docker-entrypoint-initdb.d:Z
+      - ./migrations:/docker-entrypoint-initdb.d:Z
     healthcheck:
       test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
       interval: 10s
       timeout: 3s
       retries: 3
 
-  v:
+  vms:
     build: .
     restart: always
     depends_on:
@@ -22,7 +22,7 @@ services:
     env_file:
       - .env
     volumes:
-      - v-backups:/app/backups
+      - vms-backups:/app/backups
 
     healthcheck:
       test: "healthcheck.sh || kill 1"
@@ -30,4 +30,4 @@ services:
       retries: 3
       
 volumes:
-  v-backups:
+  vms-backups:

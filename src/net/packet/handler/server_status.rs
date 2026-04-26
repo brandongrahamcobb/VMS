@@ -1,7 +1,7 @@
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::core::action::CoreAction;
+use crate::net::packet::handler::action::login::LoginAction;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::world;
@@ -20,15 +20,15 @@ impl ServerStatusHandler {
         self: &Self,
         ctx: &RuntimeContext,
         _packet: &Packet,
-    ) -> Result<HandlerResult<CoreAction>, NetworkError> {
-        let mut result = HandlerResult::new();
+    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
         let worlds = world::core::load_worlds(&ctx.shared_state.settings)?;
         let status: i8 = if worlds.iter().any(|world| !world.channels.is_empty()) {
             0
         } else {
             2
         };
-        let action = CoreAction::ServerStatus { status };
+        let mut result = HandlerResult::new();
+        let action = LoginAction::ServerStatus { status };
         result.add_action(action)?;
         Ok(result)
     }

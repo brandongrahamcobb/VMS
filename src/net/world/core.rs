@@ -5,13 +5,13 @@ use crate::net::error::NetworkError;
 use config::Config;
 
 pub struct WorldInfo {
-    pub id: i8,
+    pub id: i16,
     pub name: &'static str,
 }
 
 #[derive(Clone, Debug)]
 pub struct World {
-    pub id: i8,
+    pub id: i16,
     pub name: String,
     pub flag: i8,
     pub event_message: String,
@@ -23,7 +23,7 @@ pub fn load_worlds(settings: &Config) -> Result<Vec<World>, NetworkError> {
     let capacity: i16 = settings::get_channel_capacity(&settings)?;
     let flag: i8 = settings::get_world_flag(&settings)?;
     let event_message: String = settings::get_world_event_message(&settings)?;
-    let pairs: Vec<(i8, i8)> = settings::get_channel_world_pairs(&settings)?;
+    let pairs: Vec<(i16, i16)> = settings::get_channel_world_pairs(&settings)?;
     let world_port = settings::get_world_port(&settings)?;
     for (id, count) in pairs {
         let name: &str = name_for_world_by_id(id).unwrap_or("Unkown");
@@ -47,6 +47,6 @@ pub fn load_worlds(settings: &Config) -> Result<Vec<World>, NetworkError> {
     Ok(worlds)
 }
 
-pub fn name_for_world_by_id(id: i8) -> Option<&'static str> {
+pub fn name_for_world_by_id(id: i16) -> Option<&'static str> {
     WORLDS.get(id as usize).map(|w| w.name)
 }

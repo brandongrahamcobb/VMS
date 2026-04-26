@@ -24,28 +24,28 @@ diesel::table! {
         account -> Int8,
         world -> Int2,
         ign -> Text,
-        level -> Int2,
-        exp -> Int4,
-        strength -> Int2,
-        dexterity -> Int2,
-        luck -> Int2,
-        intelligence -> Int2,
-        hp -> Int2,
-        mp -> Int2,
-        max_hp -> Int2,
-        max_mp -> Int2,
-        ap -> Int2,
-        fame -> Int2,
-        meso -> Int4,
+        level -> Nullable<Int2>,
+        exp -> Nullable<Int4>,
+        strength -> Nullable<Int2>,
+        dexterity -> Nullable<Int2>,
+        luck -> Nullable<Int2>,
+        intelligence -> Nullable<Int2>,
+        hp -> Nullable<Int2>,
+        mp -> Nullable<Int2>,
+        max_hp -> Nullable<Int2>,
+        max_mp -> Nullable<Int2>,
+        ap -> Nullable<Int2>,
+        fame -> Nullable<Int2>,
+        meso -> Nullable<Int4>,
         job -> Int2,
         face -> Int4,
         hair -> Int4,
         hair_color -> Int4,
         skin -> Int4,
         gender -> Int2,
-        created_at -> Timestamp,
-        map -> Int4,
-        updated_at -> Timestamp
+        created_at -> Nullable<Timestamp>,
+        map -> Nullable<Int4>,
+        updated_at -> Nullable<Timestamp>
     }
 }
 
@@ -61,6 +61,17 @@ diesel::table! {
         world_id -> Int2,
         char_max -> Int4,
         updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+
+    keybindings (id) {
+        id -> Int4,
+        character_id -> Int4,
+        key -> Int2,
+        bind_type -> Int2,
+        action -> Int2,
     }
 }
 diesel::allow_tables_to_appear_in_same_query!(accounts, character_limits, characters, worlds);

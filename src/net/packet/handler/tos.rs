@@ -3,8 +3,7 @@ use crate::db::error::DatabaseError;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::core::action::CoreAction;
-use crate::net::packet::handler::core::login::error::LoginError;
+use crate::net::packet::handler::action::login::LoginAction;
 use crate::net::packet::handler::error::HandlerError;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError;
@@ -24,7 +23,7 @@ impl TOSHandler {
         &self,
         ctx: &RuntimeContext,
         packet: &Packet,
-    ) -> Result<HandlerResult<CoreAction>, NetworkError> {
+    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
         let mut reader = BufReader::new(&**packet);
         reader
             .read_short()
@@ -37,9 +36,9 @@ impl TOSHandler {
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
         if confirmed != 0x01 {
-            return Err(NetworkError::from(PacketError::from(HandlerError::from(
-                LoginError::DeniedTOS,
-            ))));
+            return Err(NetworkError::from(PacketError::from(
+                HandlerError::LoginError,
+            )));
         }
         let session = ctx
             .shared_state
@@ -63,7 +62,7 @@ impl TOSHandler {
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
-        let action = CoreAction::AcceptLogin { acc, hwid };
+        let action = LoginAction::AcceptLogin { acc, hwid };
         result.add_action(action)?;
         Ok(result)
     }

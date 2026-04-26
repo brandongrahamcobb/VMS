@@ -18,3 +18,11 @@ sudo cargo add config
 sudo cargo add num-traits
 sudo cargo add num-derive
 sudo cargo add dotenvy
+export DATABASE_URL='postgres://vms:admin@localhost/vms'
+export POSTGRES_DB=vms
+diesel setup
+psql
+CREATE USER vms WITH PASSWORD admin;
+CREATE DATABASE vms;
+ALTER DATABASE vms OWNER TO vms;
+

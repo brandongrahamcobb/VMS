@@ -5,8 +5,8 @@ use crate::net::channel::core::Channel;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
+use crate::net::packet::handler::action::world::WorldAction;
 use crate::net::packet::handler::result::HandlerResult;
-use crate::net::packet::handler::world::action::WorldAction;
 use crate::net::packet::io::error::IOError::{ReadError, WriteError};
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
@@ -55,7 +55,7 @@ impl ChangeChannelHandler {
             .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
         let action = WorldAction::ChangeChannel {
-            channel_id,
+            channel_id: channel_id as i16,
             world_id,
         };
         result.add_action(action)?;

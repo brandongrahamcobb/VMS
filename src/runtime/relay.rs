@@ -1,17 +1,24 @@
+use crate::constants::{DEFAULT_ACTION, DEFAULT_KEY, DEFAULT_TYPE};
+use crate::db::error::DatabaseError;
+use crate::db::models::character;
+use crate::db::models::keybinding;
+use crate::db::models::keybinding::core::NewKeybinding;
 use crate::net::channel;
 use crate::net::error::NetworkError::{self, UnsupportedOpcodeError};
 use crate::net::packet::core::Packet;
-use crate::net::packet::handler::core::action::{CoreAction, RejectLoginReason};
-use crate::net::packet::handler::core::login;
-use crate::net::packet::handler::core::session::handshake;
+use crate::net::packet::handler::action::login::{LoginAction, RejectLoginReason};
+use crate::net::packet::handler::action::world::WorldAction;
 use crate::net::packet::handler::result::HandlerResult;
-use crate::net::packet::handler::world::action::WorldAction;
-use crate::net::packet::handler::world::cc;
+use crate::net::packet::handler::{
+    cc, check_char_name, create_char, credentials, handshake, list_chars, list_worlds,
+    server_status, tos,
+};
 use crate::net::packet::io::{read::PacketReader, write::PacketWriter};
 use crate::op::recv::RecvOpcode;
 use crate::runtime::error::{RuntimeError, SessionError};
 use crate::runtime::session::{Session, SessionState};
 use crate::runtime::state::SharedState;
+use itertools::izip;
 use rand::{RngExt, rng};
 use tokio::net::TcpStream;
 use tracing::info;
@@ -94,21 +101,21 @@ pub trait RuntimeRelay {
 }
 
 #[derive(Default)]
-pub struct Core;
+pub struct Login;
 
-impl RuntimeRelay for Core {
-    type HandlerAction = CoreAction;
+impl RuntimeRelay for Login {
+    type HandlerAction = LoginAction;
 
     async fn handle_packet(
         self: &mut Self,
         ctx: &RuntimeContext,
         packet: &Packet,
-    ) -> Result<HandlerResult<CoreAction>, RuntimeError> {
+    ) -> Result<HandlerResult<LoginAction>, RuntimeError> {
         let opcode = packet.opcode();
         info!("Received opcode: {}", opcode);
         match opcode {
             x if x == RecvOpcode::RequestLogin as i16 => {
-                let handler = login::credentials::CredentialsHandler::new();
+                let handler = credentials::CredentialsHandler::new();
                 handler
                     .handle(ctx, packet)
                     .await
@@ -125,7 +132,7 @@ impl RuntimeRelay for Core {
                 if session.authenticated == true {
                     match opcode {
                         x if x == RecvOpcode::AcceptTOS as i16 => {
-                            let handler = login::tos::TOSHandler::new();
+                            let handler = tos::TOSHandler::new();
                             handler
                                 .handle(ctx, packet)
                                 .await
@@ -134,21 +141,35 @@ impl RuntimeRelay for Core {
                         x if x == RecvOpcode::LoginStarted as i16
                             || x == RecvOpcode::ServerListRequest as i16 =>
                         {
-                            let handler = login::list_worlds::WorldListHandler::new();
+                            let handler = list_worlds::WorldListHandler::new();
                             handler
                                 .handle(ctx, packet)
                                 .await
                                 .map_err(RuntimeError::from)
                         }
                         x if x == RecvOpcode::ServerStatusRequest as i16 => {
-                            let handler = login::server_status::ServerStatusHandler::new();
+                            let handler = server_status::ServerStatusHandler::new();
                             handler
                                 .handle(ctx, packet)
                                 .await
                                 .map_err(RuntimeError::from)
                         }
                         x if x == RecvOpcode::CharListRequest as i16 => {
-                            let handler = login::list_chars::CharListHandler::new();
+                            let handler = list_chars::CharListHandler::new();
+                            handler
+                                .handle(ctx, packet)
+                                .await
+                                .map_err(RuntimeError::from)
+                        }
+                        x if x == RecvOpcode::CreateChar as i16 => {
+                            let handler = create_char::CreateCharacterHandler::new();
+                            handler
+                                .handle(ctx, packet)
+                                .await
+                                .map_err(RuntimeError::from)
+                        }
+                        x if x == RecvOpcode::CheckCharName as i16 => {
+                            let handler = check_char_name::CheckCharNameHandler::new();
                             handler
                                 .handle(ctx, packet)
                                 .await
@@ -160,7 +181,7 @@ impl RuntimeRelay for Core {
                     let mut result = HandlerResult::new();
                     let reason = RejectLoginReason::InvalidCredentials;
                     let acc = None;
-                    let action = CoreAction::RejectLogin { acc, reason };
+                    let action = LoginAction::RejectLogin { acc, reason };
                     result.add_action(action)?;
                     return Ok(result);
                 }
@@ -172,14 +193,14 @@ impl RuntimeRelay for Core {
     async fn execute(
         self: &mut Self,
         ctx: &RuntimeContext,
-        result: HandlerResult<CoreAction>,
+        result: HandlerResult<LoginAction>,
         writer: &mut PacketWriter,
     ) -> Result<(), RuntimeError> {
         let actions = result.actions;
         for action in actions {
             match action {
-                CoreAction::AcceptLogin { acc, hwid } => {
-                    let mut packet = login::credentials::build_successful_login_packet(&acc, ctx)?;
+                LoginAction::AcceptLogin { acc, hwid } => {
+                    let mut packet = credentials::build_successful_login_packet(&acc, ctx)?;
                     ctx.shared_state
                         .sessions
                         .update(ctx.session_id as u32, |session| {
@@ -195,7 +216,7 @@ impl RuntimeRelay for Core {
                             session.session_state = SessionState::AfterLogin;
                         });
                 }
-                CoreAction::RejectLogin { reason, acc } => {
+                LoginAction::RejectLogin { reason, acc } => {
                     if let Some(acc) = acc {
                         ctx.shared_state
                             .sessions
@@ -206,56 +227,79 @@ impl RuntimeRelay for Core {
                     }
                     match reason {
                         RejectLoginReason::InvalidCredentials => {
-                            let mut packet = login::credentials::build_failed_login_packet(
-                                login::credentials::StatusCode::InvalidCredentials as i8,
+                            let mut packet = credentials::build_failed_login_packet(
+                                credentials::StatusCode::InvalidCredentials as i8,
                             )?;
                             writer.send_encrypted_packet(&mut packet).await?
                         }
                         RejectLoginReason::Banned => {
-                            let mut packet = login::credentials::build_failed_login_packet(
-                                login::credentials::StatusCode::Banned as i8,
+                            let mut packet = credentials::build_failed_login_packet(
+                                credentials::StatusCode::Banned as i8,
                             )?;
                             writer.send_encrypted_packet(&mut packet).await?
                         }
                         RejectLoginReason::PendingTOS => {
-                            let mut packet = login::credentials::build_failed_login_packet(
-                                login::credentials::StatusCode::PendingTOS as i8,
+                            let mut packet = credentials::build_failed_login_packet(
+                                credentials::StatusCode::PendingTOS as i8,
                             )?;
                             writer.send_encrypted_packet(&mut packet).await?
                         }
                         RejectLoginReason::Playing => {
-                            let mut packet = login::credentials::build_failed_login_packet(
-                                login::credentials::StatusCode::Playing as i8,
+                            let mut packet = credentials::build_failed_login_packet(
+                                credentials::StatusCode::Playing as i8,
                             )?;
                             writer.send_encrypted_packet(&mut packet).await?
                         }
                     }
                 }
-                CoreAction::ListWorlds => {
-                    let packets = login::list_worlds::build_world_packets(ctx)?;
+                LoginAction::ListWorlds => {
+                    let packets = list_worlds::build_world_packets(ctx)?;
                     for mut packet in packets {
                         writer.send_encrypted_packet(&mut packet).await?
                     }
                 }
-                CoreAction::ServerStatus { status } => {
-                    let mut packet = login::server_status::build_server_status_packet(status)?;
+                LoginAction::ServerStatus { status } => {
+                    let mut packet = server_status::build_server_status_packet(status)?;
                     writer.send_encrypted_packet(&mut packet).await?
                 }
-                CoreAction::ListChars {
+                LoginAction::ListChars {
                     chars,
                     char_max,
                     channel_id,
                     pic_status,
                     world_id,
                 } => {
-                    let mut packet =
-                        login::list_chars::build_char_list(chars, char_max, pic_status)?;
+                    let mut packet = list_chars::build_char_list(chars, char_max, pic_status)?;
                     ctx.shared_state
                         .sessions
                         .update(ctx.session_id as u32, |session| {
-                            session.selected_world_id = Some(world_id);
+                            session.selected_world_id = Some(world_id as i16);
                             session.selected_channel_id = Some(channel_id);
                         });
+                    writer.send_encrypted_packet(&mut packet).await?
+                }
+                LoginAction::CreateCharacter { character } => {
+                    let character = character::service::create_character(ctx, &character)
+                        .map_err(DatabaseError::from)
+                        .map_err(NetworkError::from)?;
+                    let binds: Vec<NewKeybinding> =
+                        izip!(DEFAULT_KEY, DEFAULT_TYPE, DEFAULT_ACTION)
+                            .map(|(key, bind_type, action): (i16, u8, i16)| NewKeybinding {
+                                character_id: character.id,
+                                key,
+                                bind_type: bind_type.into(),
+                                action,
+                            })
+                            .collect();
+                    keybinding::service::update_keybindings(ctx, binds)
+                        .map_err(DatabaseError::from)
+                        .map_err(NetworkError::from)?;
+                    let mut packet = Packet::new_empty();
+                    list_chars::write_char(&mut packet, &character)?;
+                    writer.send_encrypted_packet(&mut packet).await?
+                }
+                LoginAction::CheckCharName { exists, ign } => {
+                    let mut packet = check_char_name::build_check_char_name(&ign, exists)?;
                     writer.send_encrypted_packet(&mut packet).await?
                 }
             }
