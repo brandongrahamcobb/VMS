@@ -23,11 +23,13 @@ services:
       - .env
     volumes:
       - vms-backups:/app/backups
-
     healthcheck:
       test: "healthcheck.sh || kill 1"
       interval: 10s
       retries: 3
+    ports:
+      - "8484:8484"
+      - "8485:8485"
       
 volumes:
   vms-backups:

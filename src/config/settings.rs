@@ -46,7 +46,7 @@ pub fn get_version(settings: &Config) -> Result<i16, ConfigError> {
 
 pub fn get_db_url(settings: &Config) -> Result<String, ConfigError> {
     let db_key = String::from("postgres_database");
-    let ip_key = String::from("postgres_address");
+    let ip_key = String::from("postgres_host");
     let port_key = String::from("postgres_port");
     let user_key = String::from("postgres_user");
     let pw_key = String::from("postgres_password");

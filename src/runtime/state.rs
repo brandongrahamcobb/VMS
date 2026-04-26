@@ -22,7 +22,6 @@ pub type SharedState = Arc<State>;
 
 impl State {
     pub fn new() -> Result<Self, RuntimeError> {
-        dotenvy::dotenv()?;
         let settings = settings::get_settings().map_err(RuntimeError::from)?;
         let db_url = settings::get_db_url(&settings)?;
         let manager = ConnectionManager::<PgConnection>::new(db_url);

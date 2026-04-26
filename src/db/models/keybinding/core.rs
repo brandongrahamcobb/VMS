@@ -3,7 +3,6 @@ use crate::db::schema::keybindings;
 use diesel::QueryResult;
 use diesel::prelude::*;
 use diesel::query_builder::QueryId;
-use diesel_derive_enum::DbEnum;
 use std::collections::HashMap;
 
 #[derive(Identifiable, Queryable, Insertable, AsChangeset)]
