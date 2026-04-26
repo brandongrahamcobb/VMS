@@ -3,6 +3,7 @@ use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
 use crate::net::packet::handler::action::login::LoginAction;
+use crate::net::packet::handler::error::HandlerError;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::ReadError;
 use crate::prelude::*;
@@ -49,6 +50,7 @@ impl CreateCharacterHandler {
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)? as i16;
+        let map = get_map_id_for_job(job)?;
         let face = reader
             .read_int()
             .map_err(ReadError)
@@ -122,12 +124,23 @@ impl CreateCharacterHandler {
             skin: skin,
             gender: gender,
             created_at: None,
-            map: None,
+            map: Some(map),
             updated_at: None,
         };
         let mut result = HandlerResult::new();
         let action = LoginAction::CreateCharacter { character };
         result.add_action(action)?;
         Ok(result)
+    }
+}
+
+fn get_map_id_for_job(job: i16) -> Result<i32, NetworkError> {
+    match job {
+        1 => Ok(0),
+        1000 => Ok(130000000),
+        2000 => Ok(140000000),
+        _ => Err(NetworkError::from(PacketError::from(
+            HandlerError::LoginError,
+        ))),
     }
 }

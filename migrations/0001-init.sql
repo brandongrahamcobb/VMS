@@ -1,0 +1,65 @@
+CREATE TABLE accounts (
+    id BIGSERIAL PRIMARY KEY,
+    username TEXT NOT NULL,
+    password TEXT NOT NULL,
+    pin TEXT NULL,
+    pic TEXT NULL,
+    last_login_at TIMESTAMP NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    character_slots SMALLINT NOT NULL DEFAULT 8,
+    gender SMALLINT NOT NULL,
+    accepted_tos BOOLEAN NOT NULL DEFAULT FALSE,
+    banned BOOLEAN NOT NULL DEFAULT FALSE,
+    playing BOOLEAN NOT NULL DEFAULT FALSE,
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE characters (
+    id SERIAL PRIMARY KEY,
+    account BIGINT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+    world SMALLINT NOT NULL,
+    ign TEXT NOT NULL,
+    level SMALLINT NOT NULL DEFAULT 1,
+    exp INTEGER NOT NULL DEFAULT 0,
+    strength SMALLINT NOT NULL DEFAULT 4,
+    dexterity SMALLINT NOT NULL DEFAULT 4,
+    luck SMALLINT NOT NULL DEFAULT 4,
+    intelligence SMALLINT NOT NULL DEFAULT 4,
+    hp SMALLINT NOT NULL DEFAULT 50,
+    mp SMALLINT NOT NULL DEFAULT 5,
+    max_hp SMALLINT NOT NULL DEFAULT 50,
+    max_mp SMALLINT NOT NULL DEFAULT 0,
+    ap SMALLINT NOT NULL DEFAULT 0,
+    fame SMALLINT NOT NULL DEFAULT 0,
+    meso INTEGER NOT NULL DEFAULT 0,
+    job SMALLINT NOT NULL,
+    face INTEGER NOT NULL,
+    hair INTEGER NOT NULL,
+    hair_color INTEGER NOT NULL,
+    skin INTEGER NOT NULL,
+    gender SMALLINT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    map INTEGER NOT NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE character_limits (
+    account_id BIGINT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+    world_id SMALLINT NOT NULL,
+    char_max INTEGER NOT NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (account_id, world_id)
+);
+
+CREATE TABLE keybindings (
+    id SERIAL PRIMARY KEY,
+    character_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+    key SMALLINT NOT NULL,
+    bind_type SMALLINT NOT NULL,
+    action SMALLINT NOT NULL
+);
+
+ALTER TABLE keybindings
+ADD CONSTRAINT key_is_unique_per_character UNIQUE (character_id, key);
+
+
