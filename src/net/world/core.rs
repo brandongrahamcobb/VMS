@@ -2,7 +2,6 @@ use crate::config::settings;
 use crate::constants::WORLDS;
 use crate::net::channel::core::Channel;
 use crate::net::error::NetworkError;
-use config::Config;
 
 pub struct WorldInfo {
     pub id: i16,
@@ -18,13 +17,13 @@ pub struct World {
     pub channels: Vec<Channel>,
 }
 
-pub fn load_worlds(settings: &Config) -> Result<Vec<World>, NetworkError> {
+pub fn load_worlds() -> Result<Vec<World>, NetworkError> {
     let mut worlds: Vec<World> = Vec::new();
-    let capacity: i16 = settings::get_channel_capacity(&settings)?;
-    let flag: i8 = settings::get_world_flag(&settings)?;
-    let event_message: String = settings::get_world_event_message(&settings)?;
-    let pairs: Vec<(i16, i16)> = settings::get_channel_world_pairs(&settings)?;
-    let world_port = settings::get_world_port(&settings)?;
+    let capacity: i16 = settings::get_channel_capacity()?;
+    let flag: i8 = settings::get_world_flag()?;
+    let event_message: String = settings::get_world_event_message()?;
+    let pairs: Vec<(i16, i16)> = settings::get_channel_world_pairs()?;
+    let world_port = settings::get_world_port()?;
     for (id, count) in pairs {
         let name: &str = name_for_world_by_id(id).unwrap_or("Unkown");
         let channels: Vec<Channel> = (0..count)

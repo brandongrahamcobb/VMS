@@ -1,13 +1,13 @@
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::action::login::LoginAction;
+use crate::net::packet::handler::action::Action;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::world;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
-use crate::runtime::relay::RuntimeContext;
+use crate::runtime::state::SharedState;
 
 pub struct ServerStatusHandler;
 
@@ -18,17 +18,18 @@ impl ServerStatusHandler {
 
     pub async fn handle(
         self: &Self,
-        ctx: &RuntimeContext,
-        _packet: &Packet,
-    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let worlds = world::core::load_worlds(&ctx.shared_state.settings)?;
+        _state: SharedState,
+        _packet: Packet,
+    ) -> Result<HandlerResult<Action>, NetworkError> {
+        let worlds = world::core::load_worlds()?;
         let status: i8 = if worlds.iter().any(|world| !world.channels.is_empty()) {
             0
         } else {
             2
         };
         let mut result = HandlerResult::new();
-        let action = LoginAction::ServerStatus { status };
+        let packet = build_server_status_packet(status)?;
+        let action = Action::SendPacket { packet };
         result.add_action(action)?;
         Ok(result)
     }

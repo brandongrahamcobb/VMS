@@ -3,14 +3,14 @@ use crate::constants::WORLDS;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::action::login::LoginAction;
+use crate::net::packet::handler::action::Action;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::world;
 use crate::net::world::core::World;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
-use crate::runtime::relay::RuntimeContext;
+use crate::runtime::state::SharedState;
 
 pub struct WorldListHandler;
 
@@ -21,22 +21,25 @@ impl WorldListHandler {
 
     pub async fn handle(
         self: &Self,
-        _ctx: &RuntimeContext,
-        _packet: &Packet,
-    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
+        _state: SharedState,
+        _packet: Packet,
+    ) -> Result<HandlerResult<Action>, NetworkError> {
         let mut result = HandlerResult::new();
-        let action = LoginAction::ListWorlds;
-        result.add_action(action)?;
+        let packets = build_world_packets()?;
+        for packet in packets {
+            let action = Action::SendPacket { packet };
+            result.add_action(action)?;
+        }
         Ok(result)
     }
 }
 
-pub fn build_world_packets(ctx: &RuntimeContext) -> Result<Vec<Packet>, NetworkError> {
-    let worlds = world::core::load_worlds(&ctx.shared_state.settings)?;
+pub fn build_world_packets() -> Result<Vec<Packet>, NetworkError> {
+    let worlds = world::core::load_worlds()?;
     let mut packets: Vec<Packet> = Vec::new();
     packets.push(build_world_list_packet(worlds)?);
     packets.push(build_last_connected_world_packet()?);
-    packets.push(build_recommended_worlds_packet(&ctx)?);
+    packets.push(build_recommended_worlds_packet()?);
     Ok(packets)
 }
 
@@ -56,7 +59,8 @@ fn build_last_connected_world_packet() -> Result<Packet, NetworkError> {
     Ok(packet)
 }
 
-fn build_recommended_worlds_packet(ctx: &RuntimeContext) -> Result<Packet, NetworkError> {
+fn build_recommended_worlds_packet() -> Result<Packet, NetworkError> {
+    let recommended_world_names = settings::get_recommended_worlds()?;
     let mut packet = Packet::new_empty();
     let op = SendOpcode::RecommendedWorlds as i16;
     packet
@@ -64,7 +68,6 @@ fn build_recommended_worlds_packet(ctx: &RuntimeContext) -> Result<Packet, Netwo
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
-    let recommended_world_names = settings::get_recommended_worlds(&ctx.shared_state.settings)?;
     let count: i8 = recommended_world_names.len().try_into().unwrap();
     if count != 0 {
         packet

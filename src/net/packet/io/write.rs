@@ -3,7 +3,8 @@ use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
 use crate::net::packet::io::error::IOError::WriteError;
-use crate::runtime::state::SharedState;
+use crate::op::send::SendOpcode;
+use crate::prelude::*;
 use crate::sec::aes::AES;
 use crate::sec::custom;
 use byteorder::{LittleEndian, WriteBytesExt};
@@ -18,17 +19,10 @@ pub struct PacketWriter {
 }
 
 impl PacketWriter {
-    pub fn new(
-        write_half: OwnedWriteHalf,
-        send_iv: &[u8],
-        shared_state: &SharedState,
-    ) -> Result<Self, NetworkError> {
+    pub async fn new(write_half: OwnedWriteHalf, send_iv: &[u8]) -> Result<Self, NetworkError> {
         Ok(Self {
             writer: BufWriter::new(write_half),
-            aes: AES::new(
-                &send_iv.to_vec(),
-                settings::get_version(&shared_state.settings)?,
-            ),
+            aes: AES::new(&send_iv.to_vec(), settings::get_version()?),
         })
     }
 
@@ -53,7 +47,8 @@ impl PacketWriter {
 
     pub async fn send_encrypted_packet(&mut self, packet: &mut Packet) -> Result<(), NetworkError> {
         let opcode = packet.opcode();
-        info!("Sent packet: {}", opcode);
+        let en = SendOpcode::from_i16(opcode).unwrap();
+        info!("Sent opcode: {} (0x{:02X}) ({:?})", opcode, opcode, en);
         let header = self.aes.gen_packet_header(packet.len() + 2);
         custom::encrypt(&mut packet.bytes);
         self.aes.crypt(&mut packet.bytes);

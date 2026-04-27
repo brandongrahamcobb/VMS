@@ -52,20 +52,20 @@ pub const HEADER_SIZE: u8 = 4;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum WorldID {
-    BELLOCAN = 0,
+    SCANIA = 0,
     BERA = 1,
     BROA = 2,
-    KHAINI = 3,
-    MARDIA = 4,
-    SCANIA = 5,
-    WINDIA = 6,
-    YELLONDE = 7,
+    WINDIA = 3,
+    KHAINI = 4,
+    MARDIA = 5,
+    YELLONDE = 6,
+    BELLOCAN = 7,
 }
 
 pub const WORLDS: &[WorldInfo] = &[
     WorldInfo {
         id: 0,
-        name: "Bellocan",
+        name: "Scania",
     },
     WorldInfo {
         id: 1,
@@ -73,26 +73,26 @@ pub const WORLDS: &[WorldInfo] = &[
     },
     WorldInfo {
         id: 2,
-        name: "Broa",
-    },
-    WorldInfo {
-        id: 3,
-        name: "Khaini",
-    },
-    WorldInfo {
-        id: 4,
-        name: "Mardia",
-    },
-    WorldInfo {
-        id: 5,
-        name: "Scania",
-    },
-    WorldInfo {
-        id: 6,
         name: "Windia",
     },
     WorldInfo {
-        id: 7,
+        id: 3,
+        name: "Broa",
+    },
+    WorldInfo {
+        id: 4,
+        name: "Khaini",
+    },
+    WorldInfo {
+        id: 5,
+        name: "Mardia",
+    },
+    WorldInfo {
+        id: 6,
         name: "Yellonde",
+    },
+    WorldInfo {
+        id: 7,
+        name: "Bellocan",
     },
 ];

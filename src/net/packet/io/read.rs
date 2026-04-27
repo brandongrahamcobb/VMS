@@ -5,7 +5,6 @@ use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
 use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::validation;
-use crate::runtime::state::SharedState;
 use crate::sec::aes::AES;
 use crate::sec::custom;
 use byteorder::{LittleEndian, ReadBytesExt};
@@ -19,17 +18,10 @@ pub struct PacketReader {
 }
 
 impl PacketReader {
-    pub fn new(
-        read_half: OwnedReadHalf,
-        recv_iv: &[u8],
-        shared_state: &SharedState,
-    ) -> Result<Self, NetworkError> {
+    pub fn new(read_half: OwnedReadHalf, recv_iv: &[u8]) -> Result<Self, NetworkError> {
         Ok(Self {
             reader: BufReader::new(read_half),
-            aes: AES::new(
-                &recv_iv.to_vec(),
-                settings::get_version(&shared_state.settings)?,
-            ),
+            aes: AES::new(&recv_iv.to_vec(), settings::get_version()?),
         })
     }
 

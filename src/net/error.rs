@@ -3,7 +3,6 @@ use crate::db::error::DatabaseError;
 use crate::net::channel::error::ChannelError;
 use crate::net::packet::error::PacketError;
 use crate::net::world::error::WorldError;
-use crate::runtime::error::SessionError;
 use bcrypt::BcryptError;
 use std::time::SystemTimeError;
 use thiserror::Error;
@@ -21,9 +20,6 @@ pub enum NetworkError {
 
     #[error("Database error in network layer")]
     DatabaseError(#[from] DatabaseError),
-
-    #[error("Session error in network layer")]
-    SessionError(#[from] SessionError),
 
     #[error("System time error in network layer")]
     SystemTimeError(#[from] SystemTimeError),

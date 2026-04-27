@@ -1,7 +1,7 @@
-use crate::config::settings;
 use crate::db::error::DatabaseError;
 use crate::db::models::character::core::Character;
-use crate::db::models::{character, world};
+use crate::db::models::keybinding::core::Keybinding;
+use crate::db::models::{character, keybinding};
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
@@ -12,10 +12,11 @@ use crate::op::send::SendOpcode;
 use crate::prelude::*;
 use crate::runtime::state::SharedState;
 use std::io::Cursor;
+use std::time::{SystemTime, UNIX_EPOCH};
 
-pub struct CharListHandler;
+pub struct PlayerLoggedInHandler;
 
-impl CharListHandler {
+impl PlayerLoggedInHandler {
     pub fn new() -> Self {
         Self
     }
@@ -26,21 +27,13 @@ impl CharListHandler {
         packet: Packet,
     ) -> Result<HandlerResult<Action>, NetworkError> {
         let mut reader = Cursor::new(packet.bytes);
-        use tracing::debug;
-        let value = reader
-            .read_short()
+        reader
+            .read_short() // prune opcode
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        debug!("CharList: {}", value);
-        let value = reader
-            .read_byte()
-            .map_err(ReadError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
-        debug!("CharList: {}", value);
-        let world_id = reader
-            .read_byte()
+        let char_id = reader
+            .read_int()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
@@ -49,69 +42,109 @@ impl CharListHandler {
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let acc_id = 0; //placeholder
-        let chars = character::service::get_characters_by_account_id(state.clone(), acc_id)
+        let char = character::service::get_character_by_id(state.clone(), char_id)
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
-        let char_max = world::service::get_character_max_by_account_and_world_id(
-            state.clone(),
-            acc_id,
-            world_id as i16,
-        )
-        .await
-        .map_err(DatabaseError::from)
-        .map_err(NetworkError::from)
-        .unwrap_or(8);
-        let use_pic = settings::get_pic_required()?;
-        let pic_status = if use_pic { 2 } else { 0 };
+        let binds = keybinding::service::get_keybindings_by_character_id(state.clone(), char_id)
+            .await
+            .map_err(DatabaseError::from)
+            .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
-        let packet = build_char_list(chars, char_max, pic_status)?;
-        let action = Action::SendPacket { packet };
-        result.add_action(action)?;
+        let mut packets = Vec::new();
+        packets.push(build_keymap(&binds)?);
+        packets.push(build_char_info(&char, channel_id as i16)?);
+        for packet in packets {
+            let action = Action::SendPacket { packet };
+            result.add_action(action)?;
+        }
         Ok(result)
     }
 }
 
-pub fn build_char_list(
-    chars: Vec<Character>,
-    char_max: i32,
-    pic_status: i8,
-) -> Result<Packet, NetworkError> {
+pub fn build_keymap(binds: &Vec<Keybinding>) -> Result<Packet, NetworkError> {
     let mut packet = Packet::new_empty();
-    let op = SendOpcode::CharList as i16;
+    let op = SendOpcode::KeyMap as i16;
     packet
         .write_short(op)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     packet
-        .write_byte(0) // account status
+        .write_byte(0)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
-    packet
-        .write_byte(chars.len() as u8) // number of chars
-        .map_err(WriteError)
-        .map_err(PacketError::from)
-        .map_err(NetworkError::from)?;
-    for character in chars {
-        write_char(&mut packet, &character)?;
+    for bind in binds {
+        packet
+            .write_byte(bind.bind_type as u8)
+            .map_err(WriteError)
+            .map_err(PacketError::from)
+            .map_err(NetworkError::from)?;
+        packet
+            .write_int(bind.action as i32)
+            .map_err(WriteError)
+            .map_err(PacketError::from)
+            .map_err(NetworkError::from)?;
     }
+    Ok(packet)
+}
+
+pub fn build_char_info(character: &Character, channel_id: i16) -> Result<Packet, NetworkError> {
+    let mut packet = Packet::new_empty();
+    let op = SendOpcode::SetField as i16;
     packet
-        .write_byte(pic_status as u8) // use pic?
+        .write_short(op)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     packet
-        .write_int(char_max) // Number of character slots
+        .write_int(channel_id as i32)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    packet
+        .write_byte(1)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    packet
+        .write_byte(1)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    packet
+        .write_short(0)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    // These are random... No idea what they are though.
+    packet
+        .write_int(1)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    packet
+        .write_int(2)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    packet
+        .write_int(3)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    write_char(&mut packet, &character)?;
+    let time = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis() as i64;
+    packet
+        .write_long(time)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     Ok(packet)
 }
 
-pub fn write_char(packet: &mut Packet, character: &Character) -> Result<(), NetworkError> {
+fn write_char(packet: &mut Packet, character: &Character) -> Result<(), NetworkError> {
     write_char_meta(packet, &character)?;
     write_char_look(packet, &character)?;
     packet

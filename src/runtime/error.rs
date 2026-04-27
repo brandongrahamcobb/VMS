@@ -51,37 +51,3 @@ pub enum RuntimeRelayCreationError {
     #[error("Failed to create world relay: {0}")]
     FailedWorldRelayCreation(String),
 }
-
-#[derive(Debug, Error)]
-pub enum SessionError {
-    #[error("Failed to locate session: {0}")]
-    NotFound(i32),
-
-    #[error("Failed to retrieve account in session")]
-    NoAccount,
-
-    #[error("Failed to retrieve selected channel in session")]
-    NoChannelSelected,
-
-    #[error("Failed to retrieve selected world in session")]
-    NoWorldSelected,
-
-    #[error("Failed to retrieve hardware id in session")]
-    NoHWID,
-
-    #[error("Failed to validate successful authentication in session")]
-    NotAuthenticated,
-}
-
-#[cfg(test)]
-mod tests {
-
-    use super::*;
-    use tracing::error;
-
-    #[test]
-    fn test_session_error() {
-        println!("Fail?: {}", SessionError::NoAccount);
-        assert!(false);
-    }
-}

@@ -1,5 +1,6 @@
 pub mod action;
 pub mod cc;
+pub mod char_select;
 pub mod check_char_name;
 pub mod create_char;
 pub mod credentials;
@@ -7,6 +8,8 @@ pub mod error;
 pub mod handshake;
 pub mod list_chars;
 pub mod list_worlds;
+pub mod login_start;
+pub mod play;
 pub mod result;
 pub mod server_status;
 pub mod tos;

@@ -18,4 +18,7 @@ pub struct Account {
     pub banned: bool,
     pub playing: bool,
     pub updated_at: SystemTime,
+    pub selected_character_id: i32,
+    pub selected_channel_id: i16,
+    pub selected_world_id: i16,
 }

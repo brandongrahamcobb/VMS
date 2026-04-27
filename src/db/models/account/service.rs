@@ -1,11 +1,15 @@
 use crate::db::models::account::core::Account;
 use crate::db::schema::accounts;
-use crate::runtime::relay::RuntimeContext;
+use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl, SaveChangesDsl};
 
-pub fn get_account_by_username(ctx: &RuntimeContext, user: &str) -> QueryResult<Account> {
-    let mut conn = ctx.shared_state.db.get().map_err(|e| {
+pub async fn get_account_by_username(state: SharedState, user: &str) -> QueryResult<Account> {
+    let db = {
+        let state = state.lock().await;
+        state.db.clone()
+    };
+    let mut conn = db.get().map_err(|e| {
         diesel::result::Error::DatabaseError(
             diesel::result::DatabaseErrorKind::UnableToSendCommand,
             Box::new(e.to_string()),
@@ -16,8 +20,12 @@ pub fn get_account_by_username(ctx: &RuntimeContext, user: &str) -> QueryResult<
         .first::<Account>(&mut conn)
 }
 
-pub fn get_account_by_id(ctx: &RuntimeContext, id: i64) -> QueryResult<Account> {
-    let mut conn = ctx.shared_state.db.get().map_err(|e| {
+pub async fn get_account_by_id(state: SharedState, id: i64) -> QueryResult<Account> {
+    let db = {
+        let state = state.lock().await;
+        state.db.clone()
+    };
+    let mut conn = db.get().map_err(|e| {
         diesel::result::Error::DatabaseError(
             diesel::result::DatabaseErrorKind::UnableToSendCommand,
             Box::new(e.to_string()),
@@ -28,8 +36,12 @@ pub fn get_account_by_id(ctx: &RuntimeContext, id: i64) -> QueryResult<Account> 
         .first::<Account>(&mut conn)
 }
 
-pub fn update(ctx: &RuntimeContext, acc: &Account) -> QueryResult<Account> {
-    let mut conn = ctx.shared_state.db.get().map_err(|e| {
+pub async fn update(state: SharedState, acc: &Account) -> QueryResult<Account> {
+    let db = {
+        let state = state.lock().await;
+        state.db.clone()
+    };
+    let mut conn = db.get().map_err(|e| {
         diesel::result::Error::DatabaseError(
             diesel::result::DatabaseErrorKind::UnableToSendCommand,
             Box::new(e.to_string()),

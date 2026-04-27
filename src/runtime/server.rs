@@ -12,44 +12,41 @@ pub enum ServerType {
 pub struct CoreServer;
 
 impl CoreServer {
-    pub async fn run(shared_state: &SharedState) -> Result<(), RuntimeError> {
-        if let Ok(addr) = settings::get_core_server_addr(&shared_state.settings) {
-            let listener = tokio::net::TcpListener::bind(&addr).await?;
-            loop {
-                match listener.accept().await {
-                    Ok((stream, _addr)) => {
-                        let shared_state = shared_state.clone();
-                        tokio::spawn(async move {
-                            match Runtime::<Login>::new(shared_state, stream).await {
-                                Ok(mut core) => {
-                                    if let Err(e) = core.run().await {
-                                        use std::error::Error;
-                                        let mut current: Option<&dyn Error> = Some(&e);
-                                        while let Some(err) = current {
-                                            println!("{}", err);
-                                            current = err.source();
-                                        }
-                                        info!(
-                                            "Expected a successful core relay loop. Received an error. Error: {}",
-                                            e.to_string(),
-                                        );
+    pub async fn run(shared_state: SharedState) -> Result<(), RuntimeError> {
+        let addr = settings::get_core_server_addr()?;
+        let listener = tokio::net::TcpListener::bind(&addr).await?;
+        loop {
+            match listener.accept().await {
+                Ok((stream, _addr)) => {
+                    let clone = shared_state.clone();
+                    tokio::spawn(async move {
+                        match Runtime::<Login>::new(clone, stream).await {
+                            Ok(mut core) => {
+                                if let Err(e) = core.run().await {
+                                    use std::error::Error;
+                                    let mut current: Option<&dyn Error> = Some(&e);
+                                    while let Some(err) = current {
+                                        println!("{}", err);
+                                        current = err.source();
                                     }
+                                    info!(
+                                        "Expected a successful core relay loop. Received an error. Error: {}",
+                                        e.to_string(),
+                                    );
                                 }
-                                Err(e) => info!(
-                                    "Expected valid core relay creation. Received an error. Error: {}",
-                                    e.to_string(),
-                                ),
-                            };
-                        });
-                    }
-                    Err(e) => info!(
-                        "Expected valid connection. Received an error. Error: {}",
-                        e.to_string(),
-                    ),
+                            }
+                            Err(e) => info!(
+                                "Expected valid core relay creation. Received an error. Error: {}",
+                                e.to_string(),
+                            ),
+                        };
+                    });
                 }
+                Err(e) => info!(
+                    "Expected valid connection. Received an error. Error: {}",
+                    e.to_string(),
+                ),
             }
-        } else {
-            Err(RuntimeError::UnexpectedError)
         }
     }
 }
@@ -57,38 +54,41 @@ impl CoreServer {
 pub struct WorldServer;
 
 impl WorldServer {
-    pub async fn run(shared_state: &SharedState) -> Result<(), RuntimeError> {
-        if let Ok(addr) = settings::get_world_server_addr(&shared_state.settings) {
-            let listener = tokio::net::TcpListener::bind(&addr).await?;
-            loop {
-                match listener.accept().await {
-                    Ok((stream, _addr)) => {
-                        let shared_state = shared_state.clone();
-                        tokio::spawn(async move {
-                            match Runtime::<World>::new(shared_state, stream).await {
-                                Ok(mut world) => {
-                                    if let Err(e) = world.run().await {
-                                        info!(
-                                            "Expected a successful world relay loop. Received an error. Error: {}",
-                                            e.to_string(),
-                                        );
+    pub async fn run(shared_state: SharedState) -> Result<(), RuntimeError> {
+        let addr = settings::get_world_server_addr()?;
+        let listener = tokio::net::TcpListener::bind(&addr).await?;
+        loop {
+            match listener.accept().await {
+                Ok((stream, _addr)) => {
+                    let clone = shared_state.clone();
+                    tokio::spawn(async move {
+                        match Runtime::<World>::new(clone, stream).await {
+                            Ok(mut world) => {
+                                if let Err(e) = world.run().await {
+                                    use std::error::Error;
+                                    let mut current: Option<&dyn Error> = Some(&e);
+                                    while let Some(err) = current {
+                                        println!("{}", err);
+                                        current = err.source();
                                     }
+                                    info!(
+                                        "Expected a successful world relay loop. Received an error. Error: {}",
+                                        e.to_string(),
+                                    );
                                 }
-                                Err(e) => info!(
-                                    "Expected valid world relay creation. Received an error. Error: {}",
-                                    e.to_string(),
-                                ),
-                            };
-                        });
-                    }
-                    Err(e) => info!(
-                        "Expected valid connection. Received an error. Error: {}",
-                        e.to_string(),
-                    ),
+                            }
+                            Err(e) => info!(
+                                "Expected valid world relay creation. Received an error. Error: {}",
+                                e.to_string(),
+                            ),
+                        };
+                    });
                 }
+                Err(e) => info!(
+                    "Expected valid connection. Received an error. Error: {}",
+                    e.to_string(),
+                ),
             }
-        } else {
-            Err(RuntimeError::UnexpectedError)
         }
     }
 }

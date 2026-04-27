@@ -12,7 +12,8 @@ pub fn get_settings() -> Result<Config, ConfigError> {
     Ok(settings)
 }
 
-fn get_address(settings: &Config) -> Result<String, ConfigError> {
+pub fn get_address() -> Result<String, ConfigError> {
+    let settings = get_settings()?;
     let key = String::from("ip_address");
     let addr = settings
         .get_string(&key)
@@ -20,7 +21,8 @@ fn get_address(settings: &Config) -> Result<String, ConfigError> {
     Ok(addr)
 }
 
-fn get_core_port(settings: &Config) -> Result<i16, ConfigError> {
+pub fn get_core_port() -> Result<i16, ConfigError> {
+    let settings = get_settings()?;
     let key = String::from("core_port");
     let port = settings
         .get_int(&key)
@@ -28,7 +30,8 @@ fn get_core_port(settings: &Config) -> Result<i16, ConfigError> {
     Ok(port as i16)
 }
 
-pub fn get_world_port(settings: &Config) -> Result<i16, ConfigError> {
+pub fn get_world_port() -> Result<i16, ConfigError> {
+    let settings = get_settings()?;
     let key = String::from("world_port");
     let port = settings
         .get_int(&key)
@@ -36,7 +39,8 @@ pub fn get_world_port(settings: &Config) -> Result<i16, ConfigError> {
     Ok(port as i16)
 }
 
-pub fn get_version(settings: &Config) -> Result<i16, ConfigError> {
+pub fn get_version() -> Result<i16, ConfigError> {
+    let settings = get_settings()?;
     let key = String::from("version");
     let version = settings
         .get_int(&key)
@@ -44,7 +48,8 @@ pub fn get_version(settings: &Config) -> Result<i16, ConfigError> {
     Ok(version as i16)
 }
 
-pub fn get_db_url(settings: &Config) -> Result<String, ConfigError> {
+pub fn get_db_url() -> Result<String, ConfigError> {
+    let settings = get_settings()?;
     let db_key = String::from("postgres_database");
     let ip_key = String::from("postgres_host");
     let port_key = String::from("postgres_port");
@@ -68,9 +73,9 @@ pub fn get_db_url(settings: &Config) -> Result<String, ConfigError> {
     Ok(format!("postgres://{}:{}@{}:{}/{}", user, pw, ip, port, db))
 }
 
-pub fn get_core_server_addr(settings: &Config) -> Result<SocketAddr, ConfigError> {
-    let addr = get_address(settings)?;
-    let port: i16 = get_core_port(settings)?;
+pub fn get_core_server_addr() -> Result<SocketAddr, ConfigError> {
+    let addr = get_address()?;
+    let port: i16 = get_core_port()?;
     let octets = helpers::convert_to_ip_array(addr);
     Ok(SocketAddr::V4(SocketAddrV4::new(
         Ipv4Addr::new(octets[0], octets[1], octets[2], octets[3]),
@@ -78,9 +83,9 @@ pub fn get_core_server_addr(settings: &Config) -> Result<SocketAddr, ConfigError
     )))
 }
 
-pub fn get_world_server_addr(settings: &Config) -> Result<SocketAddr, ConfigError> {
-    let addr = get_address(settings)?;
-    let port: i16 = get_world_port(settings)?;
+pub fn get_world_server_addr() -> Result<SocketAddr, ConfigError> {
+    let addr = get_address()?;
+    let port: i16 = get_world_port()?;
     let octets = helpers::convert_to_ip_array(addr);
     Ok(SocketAddr::V4(SocketAddrV4::new(
         Ipv4Addr::new(octets[0], octets[1], octets[2], octets[3]),
@@ -88,7 +93,8 @@ pub fn get_world_server_addr(settings: &Config) -> Result<SocketAddr, ConfigErro
     )))
 }
 
-pub fn get_pin_required(settings: &Config) -> Result<bool, ConfigError> {
+pub fn get_pin_required() -> Result<bool, ConfigError> {
+    let settings = get_settings()?;
     let key = String::from("pin_required");
     let pin_req = settings
         .get_bool(&key)
@@ -96,7 +102,8 @@ pub fn get_pin_required(settings: &Config) -> Result<bool, ConfigError> {
     Ok(pin_req)
 }
 
-pub fn get_pic_required(settings: &Config) -> Result<bool, ConfigError> {
+pub fn get_pic_required() -> Result<bool, ConfigError> {
+    let settings = get_settings()?;
     let key = String::from("pic_required");
     let pic_req = settings
         .get_bool(&key)
@@ -104,7 +111,8 @@ pub fn get_pic_required(settings: &Config) -> Result<bool, ConfigError> {
     Ok(pic_req)
 }
 
-pub fn get_gender_required(settings: &Config) -> Result<bool, ConfigError> {
+pub fn get_gender_required() -> Result<bool, ConfigError> {
+    let settings = get_settings()?;
     let key = String::from("gender_required");
     let gender_req = settings
         .get_bool(&key)
@@ -112,7 +120,8 @@ pub fn get_gender_required(settings: &Config) -> Result<bool, ConfigError> {
     Ok(gender_req)
 }
 
-pub fn get_channel_world_pairs(settings: &Config) -> Result<Vec<(i16, i16)>, ConfigError> {
+pub fn get_channel_world_pairs() -> Result<Vec<(i16, i16)>, ConfigError> {
+    let settings = get_settings()?;
     let mut list = Vec::new();
     let worlds = [
         ("scania", WorldID::SCANIA),
@@ -137,7 +146,8 @@ pub fn get_channel_world_pairs(settings: &Config) -> Result<Vec<(i16, i16)>, Con
     Ok(list)
 }
 
-pub fn get_channel_capacity(settings: &Config) -> Result<i16, ConfigError> {
+pub fn get_channel_capacity() -> Result<i16, ConfigError> {
+    let settings = get_settings()?;
     let key = String::from("channel_capacity");
     let capacity = settings
         .get_int(&key)
@@ -145,7 +155,8 @@ pub fn get_channel_capacity(settings: &Config) -> Result<i16, ConfigError> {
     Ok(capacity as i16)
 }
 
-pub fn get_world_flag(settings: &Config) -> Result<i8, ConfigError> {
+pub fn get_world_flag() -> Result<i8, ConfigError> {
+    let settings = get_settings()?;
     let key = String::from("world_flag");
     let flag = settings
         .get_int(&key)
@@ -153,7 +164,8 @@ pub fn get_world_flag(settings: &Config) -> Result<i8, ConfigError> {
     Ok(flag as i8)
 }
 
-pub fn get_world_event_message(settings: &Config) -> Result<String, ConfigError> {
+pub fn get_world_event_message() -> Result<String, ConfigError> {
+    let settings = get_settings()?;
     let key = String::from("event_message");
     let msg = settings
         .get_string(&key)
@@ -161,7 +173,8 @@ pub fn get_world_event_message(settings: &Config) -> Result<String, ConfigError>
     Ok(msg)
 }
 
-pub fn get_recommended_worlds(settings: &Config) -> Result<Vec<String>, ConfigError> {
+pub fn get_recommended_worlds() -> Result<Vec<String>, ConfigError> {
+    let settings = get_settings()?;
     let key = String::from("recommended_worlds");
     let worlds: Vec<String> = settings
         .get_string(&key)

@@ -1,4 +1,4 @@
-#[derive(num_derive::FromPrimitive)]
+#[derive(Debug, num_derive::FromPrimitive)]
 pub enum SendOpcode {
     AccountStatus = 0x00,
     // GuestIdLogin = 0x01,
@@ -6,11 +6,11 @@ pub enum SendOpcode {
     // CheckPin = 0x06,
     // UpdatePin = 0x07,
     ServerList = 0x0A,
-    // NewCharacter = 0x0E,
+    NewCharacter = 0x0E,
     // DeleteCharacter = 0x0F,
     ChangeChannel = 0x10,
     CharList = 0x0B,
-    // ServerIp = 0x0C,
+    ServerIp = 0x0C,
     CharNameResponse = 0x0D,
     LastConnectedWorld = 0x1A,
     RecommendedWorlds = 0x1B,
@@ -20,7 +20,7 @@ pub enum SendOpcode {
     // BuddyList = 0x3F,
     // FamilyInfo = 0x5F,
     // FamilyList = 0x64,
-    // SetField = 0x7D,
+    SetField = 0x7D,
     // Whisper = 0x87,
     // SpawnPlayer = 0xA0,
     // RemovePlayerFromMap = 0xA1,
@@ -28,5 +28,5 @@ pub enum SendOpcode {
     // MovePlayer = 0xB9,
     // SpawnNpc = 0x101,
     //
-    // KeyMap = 0x14F,
+    KeyMap = 0x14F,
 }

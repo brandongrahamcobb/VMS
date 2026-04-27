@@ -14,7 +14,10 @@ diesel::table! {
         accepted_tos -> Bool,
         banned -> Bool,
         playing -> Bool,
-        updated_at -> Timestamp
+        updated_at -> Timestamp,
+        selected_character_id -> Int4,
+        selected_channel_id -> Int2,
+        selected_world_id -> Int2,
     }
 }
 

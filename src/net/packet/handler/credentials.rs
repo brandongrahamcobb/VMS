@@ -1,21 +1,20 @@
 use crate::config::settings;
-use crate::db;
 use crate::db::error::DatabaseError;
+use crate::db::models::account;
 use crate::db::models::account::core::Account;
 use crate::inc::helpers;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::action::login::{LoginAction, RejectLoginReason};
+use crate::net::packet::handler::action::Action;
 use crate::net::packet::handler::error::HandlerError;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::{ReadError, WriteError};
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
-use crate::runtime::relay::RuntimeContext;
-use crate::runtime::session::SessionState;
+use crate::runtime::state::SharedState;
 use bcrypt::{DEFAULT_COST, hash, verify};
-use std::io::BufReader;
+use std::io::Cursor;
 use std::time::UNIX_EPOCH;
 
 pub enum StatusCode {
@@ -66,33 +65,32 @@ impl CredentialsHandler {
         return Ok(false);
     }
 
-    fn get_login_action(&self, acc: Account) -> Result<LoginAction, NetworkError> {
+    fn get_action(&self, acc: Account) -> Result<Action, NetworkError> {
         if self.check_if_banned(&acc)? {
-            return Ok(LoginAction::RejectLogin {
-                reason: RejectLoginReason::Banned,
-                acc: Some(acc),
-            });
+            let packet = build_failed_login_packet(StatusCode::Banned as i8)?;
+            let action = Action::SendPacket { packet };
+            return Ok(action);
         }
         if self.check_if_pending_tos(&acc)? {
-            return Ok(LoginAction::RejectLogin {
-                reason: RejectLoginReason::PendingTOS,
-                acc: Some(acc),
-            });
+            let packet = build_failed_login_packet(StatusCode::PendingTOS as i8)?;
+            let action = Action::SendPacket { packet };
+            return Ok(action);
         }
         if self.check_if_playing(&acc)? {
-            return Ok(LoginAction::RejectLogin {
-                reason: RejectLoginReason::Playing,
-                acc: Some(acc),
-            });
+            let packet = build_failed_login_packet(StatusCode::Playing as i8)?;
+            let action = Action::SendPacket { packet };
+            return Ok(action);
         }
-        Ok(LoginAction::AcceptLogin { acc })
+        let packet = build_successful_login_packet(&acc)?;
+        let action = Action::SendPacket { packet };
+        Ok(action)
     }
 
     fn read_credentials(
         self: &Self,
-        packet: &Packet,
+        packet: Packet,
     ) -> Result<(String, String, String), NetworkError> {
-        let mut reader = BufReader::new(&**packet);
+        let mut reader = Cursor::new(packet.bytes);
         reader
             .read_short()
             .map_err(ReadError)
@@ -125,41 +123,30 @@ impl CredentialsHandler {
 
     pub async fn handle(
         self: &Self,
-        ctx: &RuntimeContext,
-        packet: &Packet,
-    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
+        state: SharedState,
+        packet: Packet,
+    ) -> Result<HandlerResult<Action>, NetworkError> {
         let mut result = HandlerResult::new();
         let (user, pw, hwid) = self.read_credentials(packet)?;
-        match db::models::account::service::get_account_by_username(ctx, &user) {
+        match account::service::get_account_by_username(state.clone(), &user).await {
             Err(e) if e == diesel::result::Error::NotFound => {
-                let login_action = LoginAction::RejectLogin {
-                    acc: None,
-                    reason: RejectLoginReason::InvalidCredentials,
-                };
-                result.add_action(login_action)?;
+                let packet = build_failed_login_packet(StatusCode::InvalidCredentials as i8)?;
+                let action = Action::SendPacket { packet };
+                result.add_action(action)?;
                 Ok(result)
             }
             Err(e) => Err(NetworkError::from(DatabaseError::from(e))),
             Ok(acc) => {
-                let login_action = {
+                let action = {
                     if self.authenticate(&acc, &pw)? {
-                        ctx.shared_state
-                            .sessions
-                            .update(ctx.session_id as u32, |session| {
-                                session.account_id = Some(acc.id);
-                                session.authenticated = true;
-                                session.hwid = Some(hwid);
-                                session.session_state = SessionState::Transition;
-                            });
-                        self.get_login_action(acc)?
+                        self.get_action(acc)?
                     } else {
-                        LoginAction::RejectLogin {
-                            acc: None,
-                            reason: RejectLoginReason::InvalidCredentials,
-                        }
+                        let packet =
+                            build_failed_login_packet(StatusCode::InvalidCredentials as i8)?;
+                        Action::SendPacket { packet }
                     }
                 };
-                result.add_action(login_action)?;
+                result.add_action(action)?;
                 Ok(result)
             }
         }
@@ -192,10 +179,8 @@ pub fn build_failed_login_packet(status: i8) -> Result<Packet, NetworkError> {
     Ok(packet)
 }
 
-pub fn build_successful_login_packet(
-    acc: &Account,
-    ctx: &RuntimeContext,
-) -> Result<Packet, NetworkError> {
+pub fn build_successful_login_packet(acc: &Account) -> Result<Packet, NetworkError> {
+    let pin_required = settings::get_pin_required()?;
     let mut packet = Packet::new_empty();
     let opcode = SendOpcode::AccountStatus as i16;
     let account_id = acc.id as i32;
@@ -206,7 +191,6 @@ pub fn build_successful_login_packet(
         .duration_since(UNIX_EPOCH)?
         .as_secs()
         .try_into()?;
-    let pin_required = settings::get_pin_required(&ctx.shared_state.settings)?;
     packet
         .write_short(opcode)
         .map_err(WriteError)
