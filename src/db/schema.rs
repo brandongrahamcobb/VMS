@@ -15,9 +15,9 @@ diesel::table! {
         banned -> Bool,
         playing -> Bool,
         updated_at -> Timestamp,
-        selected_character_id -> Int4,
-        selected_channel_id -> Int2,
-        selected_world_id -> Int2,
+        selected_character_id -> Nullable<Int4>,
+        selected_channel_id -> Nullable<Int2>,
+        selected_world_id -> Nullable<Int2>,
     }
 }
 

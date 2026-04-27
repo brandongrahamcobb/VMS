@@ -57,7 +57,7 @@ impl CharacterSelectHandler {
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
-        acc.selected_character_id = char_id;
+        acc.selected_character_id = Some(char_id);
         account::service::update(state.clone(), &acc)
             .await
             .map_err(DatabaseError::from)

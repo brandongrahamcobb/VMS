@@ -26,19 +26,16 @@ impl CharListHandler {
         packet: Packet,
     ) -> Result<HandlerResult<Action>, NetworkError> {
         let mut reader = Cursor::new(packet.bytes);
-        use tracing::debug;
-        let value = reader
+        reader
             .read_short()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        debug!("CharList: {}", value);
-        let value = reader
+        reader
             .read_byte()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        debug!("CharList: {}", value);
         let world_id = reader
             .read_byte()
             .map_err(ReadError)
@@ -49,7 +46,7 @@ impl CharListHandler {
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let acc_id = 0; //placeholder
+        let acc_id = 1; //placeholder
         let chars = character::service::get_characters_by_account_id(state.clone(), acc_id)
             .await
             .map_err(DatabaseError::from)

@@ -50,6 +50,7 @@ impl PlayerLoggedInHandler {
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
+        let binds = normalize_keybindings(binds, char.id);
         let mut result = HandlerResult::new();
         let mut packets = Vec::new();
         packets.push(build_keymap(&binds)?);
@@ -65,6 +66,8 @@ impl PlayerLoggedInHandler {
 pub fn build_keymap(binds: &Vec<Keybinding>) -> Result<Packet, NetworkError> {
     let mut packet = Packet::new_empty();
     let op = SendOpcode::KeyMap as i16;
+    use tracing::debug;
+    debug!("Bind Length {}", binds.len());
     packet
         .write_short(op)
         .map_err(WriteError)
@@ -88,6 +91,20 @@ pub fn build_keymap(binds: &Vec<Keybinding>) -> Result<Packet, NetworkError> {
             .map_err(NetworkError::from)?;
     }
     Ok(packet)
+}
+
+pub fn normalize_keybindings(bindings: Vec<Keybinding>, character_id: i32) -> Vec<Keybinding> {
+    let mut result: Vec<Keybinding> = Vec::with_capacity(90);
+    for i in 0..90 {
+        result.push(Keybinding::empty(character_id, i as i16));
+    }
+    for bind in bindings {
+        let idx = bind.key as usize;
+        if idx < 90 {
+            result[idx] = bind;
+        }
+    }
+    result
 }
 
 pub fn build_char_info(character: &Character, channel_id: i16) -> Result<Packet, NetworkError> {
@@ -142,23 +159,6 @@ pub fn build_char_info(character: &Character, channel_id: i16) -> Result<Packet,
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     Ok(packet)
-}
-
-fn write_char(packet: &mut Packet, character: &Character) -> Result<(), NetworkError> {
-    write_char_meta(packet, &character)?;
-    write_char_look(packet, &character)?;
-    packet
-        .write_byte(0)
-        .map_err(WriteError)
-        .map_err(PacketError::from)
-        .map_err(NetworkError::from)?;
-    // Disable rank.
-    packet
-        .write_byte(0)
-        .map_err(WriteError)
-        .map_err(PacketError::from)
-        .map_err(NetworkError::from)?;
-    Ok(())
 }
 
 fn write_char_meta(packet: &mut Packet, character: &Character) -> Result<(), NetworkError> {
@@ -312,19 +312,21 @@ fn write_char_meta(packet: &mut Packet, character: &Character) -> Result<(), Net
     Ok(())
 }
 
-fn write_char_look(packet: &mut Packet, character: &Character) -> Result<(), NetworkError> {
+fn write_char(packet: &mut Packet, character: &Character) -> Result<(), NetworkError> {
     packet
-        .write_byte(character.gender as u8)
+        .write_long(-1)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     packet
-        .write_byte(character.skin as u8)
+        .write_byte(0)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
+    write_char_meta(packet, character)?;
+    let bl_capacity = 25;
     packet
-        .write_int(character.face)
+        .write_byte(bl_capacity)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
@@ -334,66 +336,207 @@ fn write_char_look(packet: &mut Packet, character: &Character) -> Result<(), Net
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     packet
-        .write_int(character.hair)
+        .write_int(character.meso.unwrap())
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
-    write_char_equips(packet, character)?;
+    write_inventory(packet, character)?;
+    write_skills(packet, character)?;
+    write_quests(packet, character)?;
+    write_minigames(packet, character)?;
+    write_rings(packet, character)?;
+    write_teleport(packet, character)?;
+    write_codex(packet, character)?;
+    write_new_year_cards(packet, character)?;
+    write_area_info(packet, character)?;
+    packet
+        .write_byte(0)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
     Ok(())
 }
-fn write_char_equips(packet: &mut Packet, _character: &Character) -> Result<(), NetworkError> {
-    // Overall (Top slot)
+
+/// Write the equiped items and the inventory of the player
+fn write_inventory(packet: &mut Packet, _character: &Character) -> Result<(), NetworkError> {
+    // Inventory slot Capacities
     packet
-        .write_byte(5)
+        .write_bytes(&vec![0u8; 5])
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
+    // Time?
     packet
-        .write_int(1052122)
+        .write_long(0)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
-    // Shoes
+    // Equiped items go here
+
+    // Start of equiped cash items
     packet
-        .write_byte(7)
+        .write_short(0)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
+    // Start of equiped inventory
     packet
-        .write_int(1072318)
+        .write_short(0)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
-    packet
-        .write_byte(0xFF)
-        .map_err(WriteError)
-        .map_err(PacketError::from)
-        .map_err(NetworkError::from)?;
-    // Cash shop equips
-    packet
-        .write_byte(0xFF)
-        .map_err(WriteError)
-        .map_err(PacketError::from)
-        .map_err(NetworkError::from)?;
-    // Weapon
-    packet
-        .write_int(1302000)
-        .map_err(WriteError)
-        .map_err(PacketError::from)
-        .map_err(NetworkError::from)?;
-    // Pet stuff...
+    // Start of USE
     packet
         .write_int(0)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
+    // Start of SETUP
     packet
-        .write_int(0)
+        .write_byte(0)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    // Start of ETC
+    packet
+        .write_byte(0)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    // Start of CASH
+    packet
+        .write_byte(0)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    Ok(())
+}
+
+fn write_skills(packet: &mut Packet, _character: &Character) -> Result<(), NetworkError> {
+    // Start of skills
+    packet
+        .write_byte(0)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    // No skills!
+    packet
+        .write_short(0)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    // No no cooldowns!
+    packet
+        .write_short(0)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    Ok(())
+}
+
+fn write_quests(packet: &mut Packet, _character: &Character) -> Result<(), NetworkError> {
+    let started_quests = 0;
+    packet
+        .write_short(started_quests)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    let completed_quests = 0;
+    packet
+        .write_short(completed_quests)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    Ok(())
+}
+
+fn write_minigames(packet: &mut Packet, _character: &Character) -> Result<(), NetworkError> {
+    // This ones required but kinda useless...
+    packet
+        .write_short(0)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    Ok(())
+}
+
+fn write_rings(packet: &mut Packet, _character: &Character) -> Result<(), NetworkError> {
+    let num_crush_rings = 0;
+    let num_friendship_rings = 0;
+    packet
+        .write_short(num_crush_rings)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     packet
-        .write_int(0)
+        .write_short(num_friendship_rings)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    // Not married
+    packet
+        .write_short(0)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    Ok(())
+}
+
+fn write_teleport(packet: &mut Packet, _character: &Character) -> Result<(), NetworkError> {
+    for _ in 0..5 {
+        packet
+            .write_int(0)
+            .map_err(WriteError)
+            .map_err(PacketError::from)
+            .map_err(NetworkError::from)?;
+    }
+    for _ in 0..10 {
+        packet
+            .write_int(0)
+            .map_err(WriteError)
+            .map_err(PacketError::from)
+            .map_err(NetworkError::from)?;
+    }
+    Ok(())
+}
+
+fn write_codex(packet: &mut Packet, _character: &Character) -> Result<(), NetworkError> {
+    let codex_cover = 1;
+    let num_cards = 0;
+    packet
+        .write_int(codex_cover)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    packet
+        .write_byte(0)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+
+    packet
+        .write_short(num_cards)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    Ok(())
+}
+
+// I have literally no idea what these are...
+fn write_new_year_cards(packet: &mut Packet, _character: &Character) -> Result<(), NetworkError> {
+    let num_cards = 0;
+    packet
+        .write_short(num_cards)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(NetworkError::from)?;
+    Ok(())
+}
+
+fn write_area_info(packet: &mut Packet, _character: &Character) -> Result<(), NetworkError> {
+    let num_areas = 0;
+    packet
+        .write_short(num_areas)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;

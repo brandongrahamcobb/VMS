@@ -42,7 +42,7 @@ impl TOSHandler {
                 HandlerError::LoginError,
             )));
         }
-        let acc_id = 0; //placeholder
+        let acc_id = 1; //placeholder
         let mut acc = account::service::get_account_by_id(state.clone(), acc_id)
             .await
             .map_err(DatabaseError::from)

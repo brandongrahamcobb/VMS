@@ -1,7 +1,7 @@
 use crate::db::schema::keybindings;
 use diesel::prelude::*;
 
-#[derive(Identifiable, Queryable, Insertable, AsChangeset)]
+#[derive(Clone, Identifiable, Queryable, Insertable, AsChangeset)]
 #[diesel(table_name = keybindings)]
 pub struct Keybinding {
     pub id: i32,
@@ -31,4 +31,16 @@ pub enum KeybindType {
     Face = 6,
     Macro = 7,
     Text = 8,
+}
+
+impl Keybinding {
+    pub fn empty(character_id: i32, key: i16) -> Self {
+        Self {
+            id: 0,
+            character_id,
+            key,
+            bind_type: KeybindType::Nil as i16,
+            action: 0,
+        }
+    }
 }
