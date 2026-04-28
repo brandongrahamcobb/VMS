@@ -1,25 +1,23 @@
-use crate::config::settings;
 use crate::db::error::DatabaseError;
 use crate::db::models::account;
-use crate::net::channel;
-use crate::net::channel::core::Channel;
+use crate::net::character::error::CharacterError;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
 use crate::net::packet::handler::action::WorldAction;
 use crate::net::packet::handler::result::HandlerResult;
-use crate::net::packet::io::error::IOError::{ReadError, WriteError};
+use crate::net::packet::io::error::IOError::WriteError;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
 use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
-use core::net::IpAddr;
-use std::io::Cursor;
 
-pub struct ChangeChannelHandler;
+const MOVEMENT_HEADER_LEN: usize = 9;
 
-impl ChangeChannelHandler {
+pub struct MovePlayerHandler;
+
+impl MovePlayerHandler {
     pub fn new() -> Self {
         Self
     }
@@ -30,22 +28,6 @@ impl ChangeChannelHandler {
         session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<WorldAction>, NetworkError> {
-        let mut reader = Cursor::new(packet.bytes);
-        let _op = reader
-            .read_short()
-            .map_err(ReadError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
-        let channel_id = reader
-            .read_byte()
-            .map_err(ReadError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
-        let _tick = reader
-            .read_int()
-            .map_err(ReadError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
         let acc_id = session
             .acc_id
             .ok_or(SessionError::NoAccount)
@@ -54,43 +36,51 @@ impl ChangeChannelHandler {
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
-        let channel = channel::core::resolve_channel(
-            channel_id as i16,
-            acc.selected_world_id.ok_or(NetworkError::UnexpectedError)?,
-        )?;
+        let char_id = acc
+            .selected_character_id
+            .ok_or(CharacterError::NotSelected(acc_id))
+            .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
-        let packet = build_channel_change_packet(&channel)?;
-        let action = WorldAction::SendPacket { packet };
-        result.add_action(action)?;
+        if packet.bytes.len() <= 2 + MOVEMENT_HEADER_LEN {
+            let action = WorldAction::Simple;
+            result.add_action(action)?;
+            return Ok(result);
+        }
+        let movement_fragment = &packet.bytes[(2 + MOVEMENT_HEADER_LEN)..];
+        if movement_fragment.is_empty() || movement_fragment[0] == 0 {
+            let action = WorldAction::Simple;
+            result.add_action(action)?;
+            return Ok(result);
+        }
+        let movement_bytes = movement_fragment.to_vec();
+        result.add_action(WorldAction::FieldMove {
+            movement_bytes: movement_bytes.clone(),
+        });
+        let packet = build_player_move(char_id, &movement_bytes)?;
+        result.add_action(WorldAction::SendPacket { packet });
         Ok(result)
     }
 }
 
-pub fn build_channel_change_packet(channel: &Channel) -> Result<Packet, NetworkError> {
+pub fn build_player_move(char_id: i32, movement_bytes: &[u8]) -> Result<Packet, NetworkError> {
     let mut packet = Packet::new_empty();
-    let addr = settings::get_world_server_addr()?;
-    let v4 = match addr.ip() {
-        IpAddr::V4(v4) => v4,
-        IpAddr::V6(_) => return Err(NetworkError::UnexpectedError),
-    };
-    let op = SendOpcode::ChangeChannel as i16;
     packet
-        .write_short(op)
+        .write_short(SendOpcode::MovePlayer as i16)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     packet
-        .write_byte(1)
+        .write_int(char_id)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     packet
-        .write_bytes(&v4.octets())
+        .write_int(0)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     packet
-        .write_short(channel.port)
+        .write_bytes(movement_bytes)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;

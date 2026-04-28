@@ -1,5 +1,3 @@
-use itertools::izip;
-
 use crate::constants::{DEFAULT_ACTION, DEFAULT_KEY, DEFAULT_TYPE};
 use crate::db::error::DatabaseError;
 use crate::db::models::character::core::{Character, NewCharacter};
@@ -8,7 +6,7 @@ use crate::db::models::{account, character, keybinding};
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::action::Action;
+use crate::net::packet::handler::action::LoginAction;
 use crate::net::packet::handler::error::HandlerError;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::{ReadError, WriteError};
@@ -18,6 +16,7 @@ use crate::prelude::*;
 use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
+use itertools::izip;
 use std::io::Cursor;
 pub struct CreateCharacterHandler;
 
@@ -31,9 +30,9 @@ impl CreateCharacterHandler {
         state: SharedState,
         session: Session,
         packet: Packet,
-    ) -> Result<HandlerResult<Action>, NetworkError> {
+    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
         let mut reader = Cursor::new(packet.bytes);
-        let value = reader
+        reader
             .read_short()
             .map_err(ReadError)
             .map_err(PacketError::from)
@@ -94,7 +93,6 @@ impl CreateCharacterHandler {
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)? as i16;
-        let map = get_map_id_for_job(job)?;
         let acc_id = session
             .acc_id
             .ok_or(SessionError::NoAccount)
@@ -108,7 +106,7 @@ impl CreateCharacterHandler {
             ign: ign.clone(),
             world_id: acc
                 .selected_world_id
-                .ok_or(SessionError::NoWorldSelected)
+                .ok_or(WorldError::NotSelected(acc_id))
                 .map_err(NetworkError::from)?,
             level: None,
             exp: None,
@@ -151,7 +149,7 @@ impl CreateCharacterHandler {
             .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
         let packet = build_create_char_packet(character)?;
-        let action = Action::SendPacket { packet };
+        let action = LoginAction::SendPacket { packet };
         result.add_action(action)?;
         Ok(result)
     }

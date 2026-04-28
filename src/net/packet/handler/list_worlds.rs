@@ -3,7 +3,7 @@ use crate::constants::WORLDS;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::action::Action;
+use crate::net::packet::handler::action::LoginAction;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::world;
@@ -25,11 +25,11 @@ impl WorldListHandler {
         _state: SharedState,
         _session: Session,
         _packet: Packet,
-    ) -> Result<HandlerResult<Action>, NetworkError> {
+    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
         let mut result = HandlerResult::new();
         let packets = build_world_packets()?;
         for packet in packets {
-            let action = Action::SendPacket { packet };
+            let action = LoginAction::SendPacket { packet };
             result.add_action(action)?;
         }
         Ok(result)

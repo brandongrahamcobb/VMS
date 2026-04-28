@@ -87,3 +87,22 @@ pub async fn get_account_id_by_character_id(state: SharedState, char_id: i32) ->
         .select(characters::acc_id)
         .first::<i64>(&mut conn)
 }
+
+pub async fn delete_character(state: SharedState, acc_id: i64, char_id: i32) -> QueryResult<usize> {
+    let db = {
+        let state = state.lock().await;
+        state.db.clone()
+    };
+    let mut conn = db.get().map_err(|e| {
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UnableToSendCommand,
+            Box::new(e.to_string()),
+        )
+    })?;
+    diesel::delete(
+        characters::table
+            .filter(characters::id.eq(char_id))
+            .filter(characters::acc_id.eq(acc_id)),
+    )
+    .execute(&mut conn)
+}

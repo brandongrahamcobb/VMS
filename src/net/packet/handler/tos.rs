@@ -3,7 +3,7 @@ use crate::db::models::account;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::action::Action;
+use crate::net::packet::handler::action::LoginAction;
 use crate::net::packet::handler::credentials;
 use crate::net::packet::handler::error::HandlerError;
 use crate::net::packet::handler::result::HandlerResult;
@@ -26,7 +26,7 @@ impl TOSHandler {
         state: SharedState,
         session: Session,
         packet: Packet,
-    ) -> Result<HandlerResult<Action>, NetworkError> {
+    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
         let mut reader = Cursor::new(packet.bytes);
         reader
             .read_short()
@@ -64,7 +64,7 @@ impl TOSHandler {
         }
         let mut result = HandlerResult::new();
         let packet = credentials::build_successful_login_packet(&acc)?;
-        let action = Action::SendPacket { packet };
+        let action = LoginAction::SendPacket { packet };
         result.add_action(action)?;
         Ok(result)
     }

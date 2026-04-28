@@ -1,11 +1,13 @@
 use crate::config::settings;
 use crate::net::packet::core::Packet;
-use crate::net::packet::handler::action::Action;
-use crate::net::packet::handler::core::PacketHandler;
+use crate::net::packet::handler::action::{LoginAction, WorldAction};
+use crate::net::packet::handler::core::LoginHandler;
+use crate::net::packet::handler::core::WorldHandler;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::handler::{
-    cc, char_select, check_char_name, create_char, credentials, handshake, list_chars, list_worlds,
-    login_start, play, server_status, tos,
+    cc, char_select, check_char_name, create_char, credentials, delete_char, handshake, list_chars,
+    list_worlds, login_start, move_player, party_search, play, player_map_transfer, server_status,
+    tos,
 };
 use crate::net::packet::io::{read::PacketReader, write::PacketWriter};
 use crate::op::recv::RecvOpcode;
@@ -81,17 +83,19 @@ impl<T: RuntimeRelay + Default + Send> Runtime<T> {
 
 #[allow(async_fn_in_trait)]
 pub trait RuntimeRelay {
+    type HandlerAction;
+
     async fn handle_packet(
         self: &mut Self,
         state: SharedState,
         session: Session,
         packet: Packet,
-    ) -> Result<HandlerResult<Action>, RuntimeError>;
+    ) -> Result<HandlerResult<Self::HandlerAction>, RuntimeError>;
 
     async fn execute(
         &mut self,
         writer: &mut PacketWriter,
-        result: HandlerResult<Action>,
+        result: HandlerResult<Self::HandlerAction>,
     ) -> Result<(), RuntimeError>;
 }
 
@@ -99,12 +103,14 @@ pub trait RuntimeRelay {
 pub struct Login;
 
 impl RuntimeRelay for Login {
+    type HandlerAction = LoginAction;
+
     async fn handle_packet(
         self: &mut Self,
         state: SharedState,
         session: Session,
         packet: Packet,
-    ) -> Result<HandlerResult<Action>, RuntimeError> {
+    ) -> Result<HandlerResult<LoginAction>, RuntimeError> {
         let opcode = packet.opcode();
         let en = RecvOpcode::from_i16(opcode).ok_or(RuntimeError::UnsupportedOpcodeError(
             opcode,
@@ -116,10 +122,10 @@ impl RuntimeRelay for Login {
         );
         let handler = if !session.authenticated {
             match opcode {
-                x if x == RecvOpcode::RequestLogin as i16 => Ok(PacketHandler::Credentials(
+                x if x == RecvOpcode::RequestLogin as i16 => Ok(LoginHandler::Credentials(
                     credentials::CredentialsHandler::new(),
                 )),
-                x if x == RecvOpcode::LoginStarted as i16 => Ok(PacketHandler::LoginStarted(
+                x if x == RecvOpcode::LoginStarted as i16 => Ok(LoginHandler::LoginStarted(
                     login_start::LoginStartHandler::new(),
                 )),
                 _ => Err(RuntimeError::UnsupportedOpcodeError(
@@ -129,28 +135,31 @@ impl RuntimeRelay for Login {
             }
         } else {
             match opcode {
-                x if x == RecvOpcode::LoginStarted as i16 => Ok(PacketHandler::LoginStarted(
+                x if x == RecvOpcode::LoginStarted as i16 => Ok(LoginHandler::LoginStarted(
                     login_start::LoginStartHandler::new(),
                 )),
                 x if x == RecvOpcode::AcceptTOS as i16 => {
-                    Ok(PacketHandler::TOS(tos::TOSHandler::new()))
+                    Ok(LoginHandler::TOS(tos::TOSHandler::new()))
                 }
-                x if x == RecvOpcode::ServerListRequest as i16 => Ok(PacketHandler::ListWorlds(
+                x if x == RecvOpcode::ServerListRequest as i16 => Ok(LoginHandler::ListWorlds(
                     list_worlds::WorldListHandler::new(),
                 )),
-                x if x == RecvOpcode::ServerStatusRequest as i16 => Ok(
-                    PacketHandler::ServerStatus(server_status::ServerStatusHandler::new()),
-                ),
+                x if x == RecvOpcode::ServerStatusRequest as i16 => Ok(LoginHandler::ServerStatus(
+                    server_status::ServerStatusHandler::new(),
+                )),
                 x if x == RecvOpcode::CharListRequest as i16 => {
-                    Ok(PacketHandler::ListChars(list_chars::CharListHandler::new()))
+                    Ok(LoginHandler::ListChars(list_chars::CharListHandler::new()))
                 }
-                x if x == RecvOpcode::CreateChar as i16 => Ok(PacketHandler::CreateChar(
+                x if x == RecvOpcode::CreateChar as i16 => Ok(LoginHandler::CreateChar(
                     create_char::CreateCharacterHandler::new(),
                 )),
-                x if x == RecvOpcode::CheckCharName as i16 => Ok(PacketHandler::CheckCharName(
+                x if x == RecvOpcode::CheckCharName as i16 => Ok(LoginHandler::CheckCharName(
                     check_char_name::CheckCharNameHandler::new(),
                 )),
-                x if x == RecvOpcode::CharSelect as i16 => Ok(PacketHandler::CharSelect(
+                x if x == RecvOpcode::DeleteChar as i16 => Ok(LoginHandler::DeleteChar(
+                    delete_char::DeleteCharacterHandler::new(),
+                )),
+                x if x == RecvOpcode::CharSelect as i16 => Ok(LoginHandler::CharSelect(
                     char_select::CharacterSelectHandler::new(),
                 )),
                 _ => Err(RuntimeError::UnsupportedOpcodeError(
@@ -168,13 +177,13 @@ impl RuntimeRelay for Login {
     async fn execute(
         self: &mut Self,
         writer: &mut PacketWriter,
-        result: HandlerResult<Action>,
+        result: HandlerResult<LoginAction>,
     ) -> Result<(), RuntimeError> {
         let actions = result.actions;
         for action in actions {
             match action {
-                Action::Simple => (),
-                Action::SendPacket { mut packet } => {
+                LoginAction::Simple => (),
+                LoginAction::SendPacket { mut packet } => {
                     writer.send_encrypted_packet(&mut packet).await?
                 }
             }
@@ -187,12 +196,14 @@ impl RuntimeRelay for Login {
 pub struct World;
 
 impl RuntimeRelay for World {
+    type HandlerAction = WorldAction;
+
     async fn handle_packet(
         self: &mut Self,
         state: SharedState,
         session: Session,
         packet: Packet,
-    ) -> Result<HandlerResult<Action>, RuntimeError> {
+    ) -> Result<HandlerResult<WorldAction>, RuntimeError> {
         let opcode = packet.opcode();
         let en = RecvOpcode::from_i16(opcode).ok_or(RuntimeError::UnsupportedOpcodeError(
             opcode,
@@ -204,10 +215,19 @@ impl RuntimeRelay for World {
         );
         let handler = match opcode {
             x if x == RecvOpcode::ChangeChannel as i16 => {
-                Ok(PacketHandler::ChangeChannel(cc::ChangeChannelHandler::new()))
+                Ok(WorldHandler::ChangeChannel(cc::ChangeChannelHandler::new()))
             }
-            x if x == RecvOpcode::PlayerLoggedIn as i16 => Ok(PacketHandler::PlayerLoggedIn(
+            x if x == RecvOpcode::PlayerLoggedIn as i16 => Ok(WorldHandler::PlayerLoggedIn(
                 play::PlayerLoggedInHandler::new(),
+            )),
+            x if x == RecvOpcode::PartySearch as i16 => Ok(WorldHandler::PartySearch(
+                party_search::PartySearchHandler::new(),
+            )),
+            x if x == RecvOpcode::PlayerMapTransfer as i16 => Ok(WorldHandler::PlayerMapTransfer(
+                player_map_transfer::PlayerMapTransferHandler::new(),
+            )),
+            x if x == RecvOpcode::PlayerMove as i16 => Ok(WorldHandler::MovePlayer(
+                move_player::MovePlayerHandler::new(),
             )),
             _ => Err(RuntimeError::UnsupportedOpcodeError(
                 opcode,
@@ -223,14 +243,17 @@ impl RuntimeRelay for World {
     async fn execute(
         self: &mut Self,
         writer: &mut PacketWriter,
-        result: HandlerResult<Action>,
+        result: HandlerResult<WorldAction>,
     ) -> Result<(), RuntimeError> {
         let actions = result.actions;
         for action in actions {
             match action {
-                Action::Simple => (),
-                Action::SendPacket { mut packet } => {
+                WorldAction::Simple => (),
+                WorldAction::SendPacket { mut packet } => {
                     writer.send_encrypted_packet(&mut packet).await?
+                }
+                WorldAction::FieldMove { movement_bytes } => {
+                    () // not implemented
                 }
             }
         }

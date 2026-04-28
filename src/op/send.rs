@@ -7,7 +7,7 @@ pub enum SendOpcode {
     // UpdatePin = 0x07,
     ServerList = 0x0A,
     NewCharacter = 0x0E,
-    // DeleteCharacter = 0x0F,
+    DeleteCharacter = 0x0F,
     ChangeChannel = 0x10,
     CharList = 0x0B,
     ServerIp = 0x0C,
@@ -25,7 +25,7 @@ pub enum SendOpcode {
     // SpawnPlayer = 0xA0,
     // RemovePlayerFromMap = 0xA1,
     // ChatText = 0xA2,
-    // MovePlayer = 0xB9,
+    MovePlayer = 0xB9,
     // SpawnNpc = 0x101,
     //
     KeyMap = 0x14F,

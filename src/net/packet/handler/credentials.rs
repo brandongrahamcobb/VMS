@@ -6,7 +6,7 @@ use crate::inc::helpers;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::action::Action;
+use crate::net::packet::handler::action::LoginAction;
 use crate::net::packet::handler::error::HandlerError;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::{ReadError, WriteError};
@@ -38,7 +38,7 @@ impl CredentialsHandler {
         state: SharedState,
         session: Session,
         packet: Packet,
-    ) -> Result<HandlerResult<Action>, NetworkError> {
+    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
         let mut result = HandlerResult::new();
         let (user, pw, hwid) = read_credentials(packet)?;
         match account::service::get_account_by_username(state.clone(), &user).await {
@@ -61,17 +61,17 @@ impl CredentialsHandler {
                         }
                         build_successful_login_packet(&acc)?
                     };
-                    Action::SendPacket { packet }
+                    LoginAction::SendPacket { packet }
                 } else {
                     let packet = build_failed_login_packet(StatusCode::InvalidCredentials as i8)?;
-                    Action::SendPacket { packet }
+                    LoginAction::SendPacket { packet }
                 };
                 result.add_action(action)?;
                 Ok(result)
             }
             Err(e) if e == diesel::result::Error::NotFound => {
                 let packet = build_failed_login_packet(StatusCode::InvalidCredentials as i8)?;
-                let action = Action::SendPacket { packet };
+                let action = LoginAction::SendPacket { packet };
                 result.add_action(action)?;
                 Ok(result)
             }

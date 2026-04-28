@@ -1,13 +1,13 @@
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
-use crate::net::packet::handler::action::LoginAction;
+use crate::net::packet::handler::action::WorldAction;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 
-pub struct LoginStartHandler;
+pub struct PartySearchHandler;
 
-impl LoginStartHandler {
+impl PartySearchHandler {
     pub fn new() -> Self {
         Self
     }
@@ -17,9 +17,9 @@ impl LoginStartHandler {
         _state: SharedState,
         _session: Session,
         _packet: Packet,
-    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
+    ) -> Result<HandlerResult<WorldAction>, NetworkError> {
         let mut result = HandlerResult::new();
-        let action = LoginAction::Simple;
+        let action = WorldAction::Simple;
         result.add_action(action)?;
         Ok(result)
     }

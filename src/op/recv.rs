@@ -15,7 +15,7 @@ pub enum RecvOpcode {
     CharSelect = 0x13,
     CheckCharName = 0x15,
     CreateChar = 0x16,
-    // DeleteChar = 0x17,
+    DeleteChar = 0x17,
     // RegisterPic = 0x1D,
     // CharSelectWithPic = 0x1E,
     // ViewAllPicRegister = 0x1F,
@@ -27,14 +27,14 @@ pub enum RecvOpcode {
     //
     // ChangeMap = 0x26,
     //
-    // PlayerMove = 0x29,
+    PlayerMove = 0x29,
     // AllChat = 0x31,
     // Whisper = 0x78,
     //
     // ChangeKeybinds = 0x87,
     //
-    // PlayerMapTransfer = 0xCF,
-    // PartySearch = 0xDF,
+    PlayerMapTransfer = 0xCF,
+    PartySearch = 0xDF,
     //
     // UnusedOpcode = 0xFF,
 }

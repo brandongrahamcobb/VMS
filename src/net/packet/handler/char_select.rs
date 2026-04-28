@@ -1,13 +1,11 @@
 use crate::config::settings;
 use crate::db::error::DatabaseError;
-use crate::db::models::character::core::Character;
-use crate::db::models::{account, character};
+use crate::db::models::account;
 use crate::inc::helpers;
-// use crate::net::channel;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::action::Action;
+use crate::net::packet::handler::action::LoginAction;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::{ReadError, WriteError};
 use crate::op::send::SendOpcode;
@@ -29,7 +27,7 @@ impl CharacterSelectHandler {
         state: SharedState,
         session: Session,
         packet: Packet,
-    ) -> Result<HandlerResult<Action>, NetworkError> {
+    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
         let mut reader = Cursor::new(packet.bytes);
         let _op = reader
             .read_short()
@@ -51,9 +49,6 @@ impl CharacterSelectHandler {
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        // let channel = channel::core::resolve_channel(world_id, channel_id, &ctx.shared_state)
-        // .map_err(NetworkError::from)?;
-        //            .map_err(NetworkError::from)?;
         let acc_id = session
             .acc_id
             .ok_or(SessionError::NoAccount)
@@ -72,7 +67,7 @@ impl CharacterSelectHandler {
         let port = settings::get_world_port()?;
         let mut result = HandlerResult::new();
         let packet = build_channel_redirect(char_id, octets, port)?;
-        let action = Action::SendPacket { packet };
+        let action = LoginAction::SendPacket { packet };
         result.add_action(action)?;
         Ok(result)
     }

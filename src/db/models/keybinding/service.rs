@@ -1,6 +1,5 @@
 use crate::db::models::keybinding::core::{Keybinding, NewKeybinding};
 use crate::db::schema::keybindings;
-use crate::db::schema::keybindings::dsl::*;
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
 use diesel::pg::upsert::*;
@@ -43,6 +42,9 @@ pub async fn update_keybindings(
         .values(bindings)
         .on_conflict(on_constraint("key_is_unique_per_character"))
         .do_update()
-        .set(key.eq(excluded(key)))
+        .set((
+            keybindings::bind_type.eq(excluded(keybindings::bind_type)),
+            keybindings::action.eq(excluded(keybindings::action)),
+        ))
         .get_results(&mut conn)
 }

@@ -1,11 +1,11 @@
 use crate::config::settings;
 use crate::db::error::DatabaseError;
 use crate::db::models::character::core::Character;
-use crate::db::models::{character, world};
+use crate::db::models::{account, character, world};
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::action::Action;
+use crate::net::packet::handler::action::LoginAction;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::{ReadError, WriteError};
 use crate::op::send::SendOpcode;
@@ -27,7 +27,7 @@ impl CharListHandler {
         state: SharedState,
         session: Session,
         packet: Packet,
-    ) -> Result<HandlerResult<Action>, NetworkError> {
+    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
         let mut reader = Cursor::new(packet.bytes);
         reader
             .read_short()
@@ -44,7 +44,7 @@ impl CharListHandler {
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let channel_id = reader
+        let _channel_id = reader
             .read_byte()
             .map_err(ReadError)
             .map_err(PacketError::from)
@@ -52,6 +52,15 @@ impl CharListHandler {
         let acc_id = session
             .acc_id
             .ok_or(SessionError::NoAccount)
+            .map_err(NetworkError::from)?;
+        let mut acc = account::service::get_account_by_id(state.clone(), acc_id)
+            .await
+            .map_err(DatabaseError::from)
+            .map_err(NetworkError::from)?;
+        acc.selected_world_id = Some(world_id as i16);
+        account::service::update(state.clone(), &acc)
+            .await
+            .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
         let chars = character::service::get_characters_by_account_id(state.clone(), acc_id)
             .await
@@ -70,7 +79,7 @@ impl CharListHandler {
         let pic_status = if use_pic { 2 } else { 0 };
         let mut result = HandlerResult::new();
         let packet = build_char_list(chars, char_max, pic_status)?;
-        let action = Action::SendPacket { packet };
+        let action = LoginAction::SendPacket { packet };
         result.add_action(action)?;
         Ok(result)
     }

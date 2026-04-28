@@ -5,7 +5,7 @@ use crate::db::models::{character, keybinding};
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::action::Action;
+use crate::net::packet::handler::action::WorldAction;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::{ReadError, WriteError};
 use crate::op::send::SendOpcode;
@@ -25,9 +25,9 @@ impl PlayerLoggedInHandler {
     pub async fn handle(
         self: &Self,
         state: SharedState,
-        _session: Session,
+        session: Session,
         packet: Packet,
-    ) -> Result<HandlerResult<Action>, NetworkError> {
+    ) -> Result<HandlerResult<WorldAction>, NetworkError> {
         let mut reader = Cursor::new(packet.bytes);
         reader
             .read_short() // prune opcode
@@ -39,6 +39,16 @@ impl PlayerLoggedInHandler {
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
+        let acc_id = character::service::get_account_id_by_character_id(state.clone(), char_id)
+            .await
+            .map_err(DatabaseError::from)
+            .map_err(NetworkError::from)?;
+        {
+            let state = state.lock().await;
+            state.sessions.update(session.id as u32, |session| {
+                session.acc_id = Some(acc_id);
+            });
+        }
         let channel_id = reader
             .read_byte()
             .map_err(ReadError)
@@ -58,7 +68,7 @@ impl PlayerLoggedInHandler {
         packets.push(build_keymap(&binds)?);
         packets.push(build_char_info(&char, channel_id as i16)?);
         for packet in packets {
-            let action = Action::SendPacket { packet };
+            let action = WorldAction::SendPacket { packet };
             result.add_action(action)?;
         }
         Ok(result)
