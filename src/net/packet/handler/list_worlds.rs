@@ -1,13 +1,15 @@
 use crate::config::settings;
 use crate::constants::WORLDS;
+use crate::models::error::ModelError;
+use crate::models::world;
+use crate::models::world::error::WorldError;
+use crate::models::world::model::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
 use crate::net::packet::handler::action::LoginAction;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::WriteError;
-use crate::net::world;
-use crate::net::world::core::World;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
 use crate::runtime::session::Session;
@@ -37,7 +39,10 @@ impl WorldListHandler {
 }
 
 pub fn build_world_packets() -> Result<Vec<Packet>, NetworkError> {
-    let worlds = world::core::load_worlds()?;
+    let worlds = world::service::load_worlds()
+        .map_err(WorldError::from)
+        .map_err(ModelError::from)
+        .map_err(NetworkError::from)?;
     let mut packets: Vec<Packet> = Vec::new();
     packets.push(build_world_list_packet(worlds)?);
     packets.push(build_last_connected_world_packet()?);

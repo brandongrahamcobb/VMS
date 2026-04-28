@@ -1,10 +1,12 @@
+use crate::models::error::ModelError;
+use crate::models::world;
+use crate::models::world::error::WorldError;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
 use crate::net::packet::handler::action::LoginAction;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::WriteError;
-use crate::net::world;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
 use crate::runtime::session::Session;
@@ -23,7 +25,10 @@ impl ServerStatusHandler {
         _session: Session,
         _packet: Packet,
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let worlds = world::core::load_worlds()?;
+        let worlds = world::service::load_worlds()
+            .map_err(WorldError::from)
+            .map_err(ModelError::from)
+            .map_err(NetworkError::from)?;
         let status: i8 = if worlds.iter().any(|world| !world.channels.is_empty()) {
             0
         } else {

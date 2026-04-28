@@ -1,6 +1,7 @@
 use crate::db::error::DatabaseError;
-use crate::db::models::account;
-use crate::net::character::error::CharacterError;
+use crate::models::account;
+use crate::models::character::error::CharacterError;
+use crate::models::error::ModelError;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
@@ -32,13 +33,14 @@ impl MovePlayerHandler {
             .acc_id
             .ok_or(SessionError::NoAccount)
             .map_err(NetworkError::from)?;
-        let acc = account::service::get_account_by_id(state.clone(), acc_id)
+        let acc = account::query::get_account_by_id(state.clone(), acc_id)
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
         let char_id = acc
             .selected_character_id
             .ok_or(CharacterError::NotSelected(acc_id))
+            .map_err(ModelError::from)
             .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
         if packet.bytes.len() <= 2 + MOVEMENT_HEADER_LEN {

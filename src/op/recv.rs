@@ -24,8 +24,9 @@ pub enum RecvOpcode {
     //
     PlayerLoggedIn = 0x14,
     ChangeChannel = 0x27,
+    EnterCashShop = 0x28,
     //
-    // ChangeMap = 0x26,
+    ChangeMap = 0x26,
     //
     PlayerMove = 0x29,
     // AllChat = 0x31,

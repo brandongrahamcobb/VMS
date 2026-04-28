@@ -1,4 +1,4 @@
-use crate::db::models::character;
+use crate::models::character;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
@@ -35,7 +35,7 @@ impl CheckCharNameHandler {
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let exists = character::service::get_character_by_name(state.clone(), &ign)
+        let exists = character::query::get_character_by_name(state.clone(), &ign)
             .await
             .is_ok();
         let mut result = HandlerResult::new();

@@ -1,5 +1,5 @@
 use crate::db::error::DatabaseError;
-use crate::db::models::character;
+use crate::models::character;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
@@ -46,7 +46,7 @@ impl DeleteCharacterHandler {
             .acc_id
             .ok_or(SessionError::NoAccount)
             .map_err(NetworkError::from)?;
-        character::service::delete_character(state.clone(), acc_id, char_id)
+        character::query::delete_character(state.clone(), acc_id, char_id)
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;

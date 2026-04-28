@@ -1,23 +1,10 @@
 use crate::config::settings;
 use crate::constants::WORLDS;
-use crate::net::channel::core::Channel;
-use crate::net::error::NetworkError;
+use crate::models::channel::model::Channel;
+use crate::models::world::error::WorldError;
+use crate::models::world::model::World;
 
-pub struct WorldInfo {
-    pub id: i16,
-    pub name: &'static str,
-}
-
-#[derive(Clone, Debug)]
-pub struct World {
-    pub id: i16,
-    pub name: String,
-    pub flag: i8,
-    pub event_message: String,
-    pub channels: Vec<Channel>,
-}
-
-pub fn load_worlds() -> Result<Vec<World>, NetworkError> {
+pub fn load_worlds() -> Result<Vec<World>, WorldError> {
     let mut worlds: Vec<World> = Vec::new();
     let capacity: i16 = settings::get_channel_capacity()?;
     let flag: i8 = settings::get_world_flag()?;

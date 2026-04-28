@@ -2,6 +2,7 @@ pub mod config;
 pub mod constants;
 pub mod db;
 pub mod inc;
+pub mod models;
 pub mod net;
 pub mod op;
 pub mod prelude;

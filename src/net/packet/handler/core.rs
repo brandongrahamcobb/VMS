@@ -8,6 +8,7 @@ use crate::net::packet::handler::check_char_name;
 use crate::net::packet::handler::create_char;
 use crate::net::packet::handler::credentials;
 use crate::net::packet::handler::delete_char;
+use crate::net::packet::handler::enter_cash_shop;
 use crate::net::packet::handler::list_chars;
 use crate::net::packet::handler::list_worlds;
 use crate::net::packet::handler::login_start;
@@ -69,6 +70,7 @@ impl WorldHandler {
             WorldHandler::PartySearch(h) => h.handle(state, session, packet).await,
             WorldHandler::PlayerMapTransfer(h) => h.handle(state, session, packet).await,
             WorldHandler::MovePlayer(h) => h.handle(state, session, packet).await,
+            WorldHandler::EnterCashShop(h) => h.handle(state, session, packet).await,
         }
     }
 }
@@ -79,4 +81,5 @@ pub enum WorldHandler {
     PartySearch(party_search::PartySearchHandler),
     PlayerMapTransfer(player_map_transfer::PlayerMapTransferHandler),
     MovePlayer(move_player::MovePlayerHandler),
+    EnterCashShop(enter_cash_shop::EnterCashShopHandler),
 }

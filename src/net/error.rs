@@ -1,9 +1,7 @@
 use crate::config::error::ConfigError;
 use crate::db::error::DatabaseError;
-use crate::net::channel::error::ChannelError;
-use crate::net::character::error::CharacterError;
+use crate::models::error::ModelError;
 use crate::net::packet::error::PacketError;
-use crate::net::world::error::WorldError;
 use crate::runtime::error::SessionError;
 use bcrypt::BcryptError;
 use std::time::SystemTimeError;
@@ -23,12 +21,6 @@ pub enum NetworkError {
     #[error("System time error in network layer")]
     SystemTimeError(#[from] SystemTimeError),
 
-    #[error("Channel error in network layer")]
-    ChannelError(#[from] ChannelError),
-
-    #[error("Channel error in network layer")]
-    WorldError(#[from] WorldError),
-
     #[error("Unexpected error in network layer")]
     UnexpectedError,
 
@@ -41,6 +33,6 @@ pub enum NetworkError {
     #[error("Session error in network layer")]
     SessionError(#[from] SessionError),
 
-    #[error("Character error in network layer")]
-    CharacterError(#[from] CharacterError),
+    #[error("Model error in network layer")]
+    ModelError(#[from] ModelError),
 }

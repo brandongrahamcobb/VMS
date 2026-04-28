@@ -1,5 +1,6 @@
 use crate::config::error::ConfigError;
 use crate::db::error::DatabaseError;
+use crate::models::error::ModelError;
 use crate::net::error::NetworkError;
 use thiserror::Error;
 use tokio::task::JoinError;
@@ -38,6 +39,9 @@ pub enum RuntimeError {
 
     #[error("Unsupported opcode error in runtime layer: {0} {1}")]
     UnsupportedOpcodeError(i16, String),
+
+    #[error("Model error in runtime layer")]
+    ModelError(#[from] ModelError),
 }
 
 #[derive(Debug, Error)]

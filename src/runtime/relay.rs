@@ -5,9 +5,9 @@ use crate::net::packet::handler::core::LoginHandler;
 use crate::net::packet::handler::core::WorldHandler;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::handler::{
-    cc, char_select, check_char_name, create_char, credentials, delete_char, handshake, list_chars,
-    list_worlds, login_start, move_player, party_search, play, player_map_transfer, server_status,
-    tos,
+    cc, char_select, check_char_name, create_char, credentials, delete_char, enter_cash_shop,
+    handshake, list_chars, list_worlds, login_start, move_player, party_search, play,
+    player_map_transfer, server_status, tos,
 };
 use crate::net::packet::io::{read::PacketReader, write::PacketWriter};
 use crate::op::recv::RecvOpcode;
@@ -228,6 +228,9 @@ impl RuntimeRelay for World {
             )),
             x if x == RecvOpcode::PlayerMove as i16 => Ok(WorldHandler::MovePlayer(
                 move_player::MovePlayerHandler::new(),
+            )),
+            x if x == RecvOpcode::EnterCashShop as i16 => Ok(WorldHandler::EnterCashShop(
+                enter_cash_shop::EnterCashShopHandler::new(),
             )),
             _ => Err(RuntimeError::UnsupportedOpcodeError(
                 opcode,

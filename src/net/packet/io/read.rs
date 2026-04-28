@@ -18,7 +18,7 @@ pub struct PacketReader {
 }
 
 impl PacketReader {
-     pub fn new(read_half: OwnedReadHalf, recv_iv: &[u8]) -> Result<Self, NetworkError> {
+    pub fn new(read_half: OwnedReadHalf, recv_iv: &[u8]) -> Result<Self, NetworkError> {
         Ok(Self {
             reader: BufReader::new(read_half),
             aes: AES::new(&recv_iv.to_vec(), settings::get_version()?),
@@ -46,13 +46,13 @@ impl PacketReader {
     async fn read_header(&mut self) -> Result<[u8; HEADER_SIZE as usize], NetworkError> {
         let mut buf = [0u8; HEADER_SIZE as usize];
         self.read_buffer(&mut buf).await?;
-        validation::core::check_header(&self.aes, &buf)?;
+        validation::service::check_header(&self.aes, &buf)?;
         Ok(buf)
     }
 
     async fn read_payload(&mut self, header: &[u8]) -> Result<Packet, NetworkError> {
         let length = self.get_packet_length(header);
-        validation::core::check_packet_length(length)?;
+        validation::service::check_packet_length(length)?;
         let mut buf = vec![0u8; length as usize];
         self.read_buffer(&mut buf).await?;
         self.aes.crypt(&mut buf);

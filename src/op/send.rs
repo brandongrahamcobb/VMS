@@ -20,7 +20,6 @@ pub enum SendOpcode {
     // BuddyList = 0x3F,
     // FamilyInfo = 0x5F,
     // FamilyList = 0x64,
-    SetField = 0x7D,
     // Whisper = 0x87,
     // SpawnPlayer = 0xA0,
     // RemovePlayerFromMap = 0xA1,
@@ -28,5 +27,7 @@ pub enum SendOpcode {
     MovePlayer = 0xB9,
     // SpawnNpc = 0x101,
     //
+    SetCashShop = 0x7F,
+    SetField = 0x7D,
     KeyMap = 0x14F,
 }

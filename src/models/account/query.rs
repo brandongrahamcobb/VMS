@@ -1,4 +1,4 @@
-use crate::db::models::account::core::Account;
+use crate::models::account::model::Account;
 use crate::db::schema::accounts;
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;

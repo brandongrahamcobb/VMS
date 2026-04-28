@@ -1,4 +1,4 @@
-use crate::db::models::character::core::{Character, NewCharacter};
+use crate::models::character::model::{Character, NewCharacter};
 use crate::db::schema::characters;
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;

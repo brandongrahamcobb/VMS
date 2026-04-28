@@ -1,7 +1,7 @@
 use crate::config::settings;
 use crate::db::error::DatabaseError;
-use crate::db::models::account;
-use crate::db::models::account::core::Account;
+use crate::models::account;
+use crate::models::account::model::Account;
 use crate::inc::helpers;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
@@ -41,7 +41,7 @@ impl CredentialsHandler {
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
         let mut result = HandlerResult::new();
         let (user, pw, hwid) = read_credentials(packet)?;
-        match account::service::get_account_by_username(state.clone(), &user).await {
+        match account::query::get_account_by_username(state.clone(), &user).await {
             Ok(acc) => {
                 let action = if authenticate(&acc, &pw)? {
                     let status = get_status_code(&acc)?;

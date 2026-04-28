@@ -1,8 +1,12 @@
 use crate::config::settings;
 use crate::db::error::DatabaseError;
-use crate::db::models::account;
-use crate::net::channel;
-use crate::net::channel::core::Channel;
+use crate::models::account;
+use crate::models::channel;
+use crate::models::channel::error::ChannelError;
+use crate::models::channel::model::Channel;
+use crate::models::error::ModelError;
+use crate::models::world;
+use crate::models::world::error::WorldError;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
@@ -50,14 +54,22 @@ impl ChangeChannelHandler {
             .acc_id
             .ok_or(SessionError::NoAccount)
             .map_err(NetworkError::from)?;
-        let acc = account::service::get_account_by_id(state.clone(), acc_id)
+        let acc = account::query::get_account_by_id(state.clone(), acc_id)
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
-        let channel = channel::core::resolve_channel(
+        let worlds = world::service::load_worlds()
+            .map_err(WorldError::from)
+            .map_err(ModelError::from)
+            .map_err(NetworkError::from)?;
+        let channel = channel::service::resolve_channel(
             channel_id as i16,
             acc.selected_world_id.ok_or(NetworkError::UnexpectedError)?,
-        )?;
+            worlds,
+        )
+        .map_err(ChannelError::from)
+        .map_err(ModelError::from)
+        .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
         let packet = build_channel_change_packet(&channel)?;
         let action = WorldAction::SendPacket { packet };

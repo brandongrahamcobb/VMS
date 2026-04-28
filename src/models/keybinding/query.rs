@@ -1,4 +1,4 @@
-use crate::db::models::keybinding::core::{Keybinding, NewKeybinding};
+use crate::models::keybinding::model::{Keybinding, NewKeybinding};
 use crate::db::schema::keybindings;
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;

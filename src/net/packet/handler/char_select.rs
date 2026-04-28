@@ -1,6 +1,6 @@
 use crate::config::settings;
 use crate::db::error::DatabaseError;
-use crate::db::models::account;
+use crate::models::account;
 use crate::inc::helpers;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
@@ -53,12 +53,12 @@ impl CharacterSelectHandler {
             .acc_id
             .ok_or(SessionError::NoAccount)
             .map_err(NetworkError::from)?;
-        let mut acc = account::service::get_account_by_id(state.clone(), acc_id)
+        let mut acc = account::query::get_account_by_id(state.clone(), acc_id)
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
         acc.selected_character_id = Some(char_id);
-        account::service::update(state.clone(), &acc)
+        account::query::update(state.clone(), &acc)
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
