@@ -23,7 +23,7 @@ pub enum RecvOpcode {
     LoginStarted = 0x23,
     //
     PlayerLoggedIn = 0x14,
-    // ChangeChannel = 0x27,
+    ChangeChannel = 0x27,
     //
     // ChangeMap = 0x26,
     //

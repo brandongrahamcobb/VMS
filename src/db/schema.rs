@@ -24,8 +24,8 @@ diesel::table! {
 diesel::table! {
     characters (id) {
         id -> Int4,
-        account -> Int8,
-        world -> Int2,
+        acc_id -> Int8,
+        world_id -> Int2,
         ign -> Text,
         level -> Nullable<Int2>,
         exp -> Nullable<Int4>,

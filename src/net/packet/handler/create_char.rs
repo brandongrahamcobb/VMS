@@ -4,7 +4,7 @@ use crate::constants::{DEFAULT_ACTION, DEFAULT_KEY, DEFAULT_TYPE};
 use crate::db::error::DatabaseError;
 use crate::db::models::character::core::{Character, NewCharacter};
 use crate::db::models::keybinding::core::NewKeybinding;
-use crate::db::models::{character, keybinding};
+use crate::db::models::{account, character, keybinding};
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
@@ -12,8 +12,11 @@ use crate::net::packet::handler::action::Action;
 use crate::net::packet::handler::error::HandlerError;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::{ReadError, WriteError};
+use crate::net::world::error::WorldError;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
+use crate::runtime::error::SessionError;
+use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 use std::io::Cursor;
 pub struct CreateCharacterHandler;
@@ -26,16 +29,15 @@ impl CreateCharacterHandler {
     pub async fn handle(
         self: &Self,
         state: SharedState,
+        session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<Action>, NetworkError> {
         let mut reader = Cursor::new(packet.bytes);
-        use tracing::debug;
         let value = reader
             .read_short()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        debug!("CreateCharacter: {}", value);
         let ign = reader
             .read_str_with_length()
             .map_err(ReadError)
@@ -93,10 +95,21 @@ impl CreateCharacterHandler {
             .map_err(PacketError::from)
             .map_err(NetworkError::from)? as i16;
         let map = get_map_id_for_job(job)?;
+        let acc_id = session
+            .acc_id
+            .ok_or(SessionError::NoAccount)
+            .map_err(NetworkError::from)?;
+        let acc = account::service::get_account_by_id(state.clone(), acc_id)
+            .await
+            .map_err(DatabaseError::from)
+            .map_err(NetworkError::from)?;
         let char = NewCharacter {
-            account: 0, //placeholder
+            acc_id,
             ign: ign.clone(),
-            world: 0, //placeholder
+            world_id: acc
+                .selected_world_id
+                .ok_or(SessionError::NoWorldSelected)
+                .map_err(NetworkError::from)?,
             level: None,
             exp: None,
             strength: None,

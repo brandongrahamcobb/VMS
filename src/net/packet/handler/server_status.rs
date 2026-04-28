@@ -7,6 +7,7 @@ use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::world;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
+use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 
 pub struct ServerStatusHandler;
@@ -19,6 +20,7 @@ impl ServerStatusHandler {
     pub async fn handle(
         self: &Self,
         _state: SharedState,
+        _session: Session,
         _packet: Packet,
     ) -> Result<HandlerResult<Action>, NetworkError> {
         let worlds = world::core::load_worlds()?;

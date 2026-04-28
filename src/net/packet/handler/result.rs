@@ -5,7 +5,7 @@ pub struct HandlerResult<T> {
 }
 
 impl<T> HandlerResult<T> {
-    pub fn new() -> Self {
+     pub fn new() -> Self {
         Self {
             actions: Vec::new(),
         }

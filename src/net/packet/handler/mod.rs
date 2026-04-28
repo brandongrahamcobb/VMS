@@ -2,6 +2,7 @@ pub mod action;
 pub mod cc;
 pub mod char_select;
 pub mod check_char_name;
+pub mod core;
 pub mod create_char;
 pub mod credentials;
 pub mod error;

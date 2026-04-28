@@ -1,5 +1,6 @@
 use crate::config::settings;
 use crate::db::error::DatabaseError;
+use crate::db::models::character::core::Character;
 use crate::db::models::{account, character};
 use crate::inc::helpers;
 // use crate::net::channel;
@@ -11,6 +12,8 @@ use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::{ReadError, WriteError};
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
+use crate::runtime::error::SessionError;
+use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 use std::io::Cursor;
 
@@ -24,6 +27,7 @@ impl CharacterSelectHandler {
     pub async fn handle(
         self: &Self,
         state: SharedState,
+        session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<Action>, NetworkError> {
         let mut reader = Cursor::new(packet.bytes);
@@ -49,9 +53,10 @@ impl CharacterSelectHandler {
             .map_err(NetworkError::from)?;
         // let channel = channel::core::resolve_channel(world_id, channel_id, &ctx.shared_state)
         // .map_err(NetworkError::from)?;
-        let acc_id = character::service::get_account_id_by_character_id(state.clone(), char_id)
-            .await
-            .map_err(DatabaseError::from)
+        //            .map_err(NetworkError::from)?;
+        let acc_id = session
+            .acc_id
+            .ok_or(SessionError::NoAccount)
             .map_err(NetworkError::from)?;
         let mut acc = account::service::get_account_by_id(state.clone(), acc_id)
             .await

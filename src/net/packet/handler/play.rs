@@ -10,6 +10,7 @@ use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::{ReadError, WriteError};
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
+use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 use std::io::Cursor;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -24,6 +25,7 @@ impl PlayerLoggedInHandler {
     pub async fn handle(
         self: &Self,
         state: SharedState,
+        _session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<Action>, NetworkError> {
         let mut reader = Cursor::new(packet.bytes);

@@ -3,6 +3,7 @@ use crate::db::error::DatabaseError;
 use crate::net::channel::error::ChannelError;
 use crate::net::packet::error::PacketError;
 use crate::net::world::error::WorldError;
+use crate::runtime::error::SessionError;
 use bcrypt::BcryptError;
 use std::time::SystemTimeError;
 use thiserror::Error;
@@ -11,9 +12,6 @@ use thiserror::Error;
 pub enum NetworkError {
     #[error("Config error in network layer")]
     ConfigError(#[from] ConfigError),
-
-    #[error("Unsupported opcode error in network layer: {0}")]
-    UnsupportedOpcodeError(i16),
 
     #[error("Packet error in network layer")]
     PacketError(#[from] PacketError),
@@ -38,4 +36,7 @@ pub enum NetworkError {
 
     #[error("Bcrypt error in network layer")]
     CryptError(#[from] BcryptError),
+
+    #[error("Session error in network layer")]
+    SessionError(#[from] SessionError),
 }

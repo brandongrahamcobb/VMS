@@ -11,13 +11,16 @@ CREATE TABLE accounts (
     accepted_tos BOOLEAN NOT NULL DEFAULT FALSE,
     banned BOOLEAN NOT NULL DEFAULT FALSE,
     playing BOOLEAN NOT NULL DEFAULT FALSE,
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    selected_character_id SMALLINT NULL,
+    selected_channel_id SMALLINT NULL,
+    selected_world_id SMALLINT NULL
 );
 
 CREATE TABLE characters (
     id SERIAL PRIMARY KEY,
-    account BIGINT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
-    world SMALLINT NOT NULL,
+    acc_id BIGINT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+    world_id SMALLINT NOT NULL,
     ign TEXT NOT NULL,
     level SMALLINT NOT NULL DEFAULT 1,
     exp INTEGER NOT NULL DEFAULT 0,

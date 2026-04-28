@@ -9,7 +9,7 @@ pub struct AES {
 }
 
 impl AES {
-    pub fn new(iv: &Vec<u8>, version: i16) -> AES {
+     pub fn new(iv: &Vec<u8>, version: i16) -> AES {
         let iv = iv.clone();
         let adjusted_version = (version as u16 >> 8) & 0xFF | (((version as u16) << 8) & 0xFF00);
         AES {

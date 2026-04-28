@@ -1,4 +1,6 @@
 use crate::config::settings;
+use crate::db::error::DatabaseError;
+use crate::db::models::account;
 use crate::net::channel;
 use crate::net::channel::core::Channel;
 use crate::net::error::NetworkError;
@@ -9,6 +11,8 @@ use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::{ReadError, WriteError};
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
+use crate::runtime::error::SessionError;
+use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 use core::net::IpAddr;
 use std::io::Cursor;
@@ -22,7 +26,8 @@ impl ChangeChannelHandler {
 
     pub async fn handle(
         self: &Self,
-        _state: SharedState,
+        state: SharedState,
+        session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<Action>, NetworkError> {
         let mut reader = Cursor::new(packet.bytes);
@@ -41,9 +46,19 @@ impl ChangeChannelHandler {
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
+        let acc_id = session
+            .acc_id
+            .ok_or(SessionError::NoAccount)
+            .map_err(NetworkError::from)?;
+        let acc = account::service::get_account_by_id(state.clone(), acc_id)
+            .await
+            .map_err(DatabaseError::from)
+            .map_err(NetworkError::from)?;
+        let channel = channel::core::resolve_channel(
+            channel_id as i16,
+            acc.selected_world_id.ok_or(NetworkError::UnexpectedError)?,
+        )?;
         let mut result = HandlerResult::new();
-        let world_id = 0; //placeholder
-        let channel = channel::core::resolve_channel(channel_id as i16, world_id)?;
         let packet = build_channel_change_packet(&channel)?;
         let action = Action::SendPacket { packet };
         result.add_action(action)?;

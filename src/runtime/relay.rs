@@ -1,7 +1,7 @@
 use crate::config::settings;
-use crate::net::error::NetworkError::UnsupportedOpcodeError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::handler::action::Action;
+use crate::net::packet::handler::core::PacketHandler;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::handler::{
     cc, char_select, check_char_name, create_char, credentials, handshake, list_chars, list_worlds,
@@ -10,7 +10,8 @@ use crate::net::packet::handler::{
 use crate::net::packet::io::{read::PacketReader, write::PacketWriter};
 use crate::op::recv::RecvOpcode;
 use crate::prelude::*;
-use crate::runtime::error::RuntimeError;
+use crate::runtime::error::{RuntimeError, SessionError};
+use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 use rand::{RngExt, rng};
 use tokio::net::TcpStream;
@@ -21,6 +22,7 @@ pub struct Runtime<T: RuntimeRelay> {
     writer: PacketWriter,
     state: SharedState,
     relay: T,
+    session_id: i32,
 }
 
 impl<T: RuntimeRelay + Default + Send> Runtime<T> {
@@ -39,18 +41,39 @@ impl<T: RuntimeRelay + Default + Send> Runtime<T> {
         let reader = PacketReader::new(read_half, &recv_iv)?;
         let mut writer = PacketWriter::new(write_half, &send_iv).await?;
         writer.send_unencrypted_packet(&mut handshake).await?;
+        let session_id = {
+            let state = state.lock().await;
+            state.sessions.insert(Session {
+                id: 0,
+                acc_id: None,
+                authenticated: false,
+                hwid: None,
+            })
+        };
         Ok(Self {
             reader,
             writer,
             relay: T::default(),
             state: state.clone(),
+            session_id,
         })
     }
 
     pub async fn run(self: &mut Self) -> Result<(), RuntimeError> {
         loop {
+            let session = {
+                let state = self.state.lock().await;
+                state
+                    .sessions
+                    .get(self.session_id as u32)
+                    .ok_or(SessionError::NotFound(self.session_id))
+                    .map_err(RuntimeError::from)?
+            };
             let packet = self.reader.read_packet().await?;
-            let result = self.relay.handle_packet(self.state.clone(), packet).await?;
+            let result = self
+                .relay
+                .handle_packet(self.state.clone(), session, packet)
+                .await?;
             self.relay.execute(&mut self.writer, result).await?;
         }
     }
@@ -61,6 +84,7 @@ pub trait RuntimeRelay {
     async fn handle_packet(
         self: &mut Self,
         state: SharedState,
+        session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<Action>, RuntimeError>;
 
@@ -78,6 +102,7 @@ impl RuntimeRelay for Login {
     async fn handle_packet(
         self: &mut Self,
         state: SharedState,
+        session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<Action>, RuntimeError> {
         let opcode = packet.opcode();
@@ -86,67 +111,55 @@ impl RuntimeRelay for Login {
             "Received opcode in login: {} (0x{:02X}) ({:?}),",
             opcode, opcode, en
         );
-        match opcode {
-            x if x == RecvOpcode::RequestLogin as i16 => {
-                let handler = credentials::CredentialsHandler::new();
-                handler
-                    .handle(state.clone(), packet)
-                    .await
-                    .map_err(RuntimeError::from)
+        let handler = if !session.authenticated {
+            match opcode {
+                x if x == RecvOpcode::RequestLogin as i16 => Ok(PacketHandler::Credentials(
+                    credentials::CredentialsHandler::new(),
+                )),
+                x if x == RecvOpcode::LoginStarted as i16 => Ok(PacketHandler::LoginStarted(
+                    login_start::LoginStartHandler::new(),
+                )),
+                _ => Err(RuntimeError::UnsupportedOpcodeError(
+                    opcode,
+                    String::from("before authentication"),
+                )),
             }
-            x if x == RecvOpcode::AcceptTOS as i16 => {
-                let handler = tos::TOSHandler::new();
-                handler
-                    .handle(state.clone(), packet)
-                    .await
-                    .map_err(RuntimeError::from)
+        } else {
+            match opcode {
+                x if x == RecvOpcode::LoginStarted as i16 => Ok(PacketHandler::LoginStarted(
+                    login_start::LoginStartHandler::new(),
+                )),
+                x if x == RecvOpcode::AcceptTOS as i16 => {
+                    Ok(PacketHandler::TOS(tos::TOSHandler::new()))
+                }
+                x if x == RecvOpcode::ServerListRequest as i16 => Ok(PacketHandler::ListWorlds(
+                    list_worlds::WorldListHandler::new(),
+                )),
+                x if x == RecvOpcode::ServerStatusRequest as i16 => Ok(
+                    PacketHandler::ServerStatus(server_status::ServerStatusHandler::new()),
+                ),
+                x if x == RecvOpcode::CharListRequest as i16 => {
+                    Ok(PacketHandler::ListChars(list_chars::CharListHandler::new()))
+                }
+                x if x == RecvOpcode::CreateChar as i16 => Ok(PacketHandler::CreateChar(
+                    create_char::CreateCharacterHandler::new(),
+                )),
+                x if x == RecvOpcode::CheckCharName as i16 => Ok(PacketHandler::CheckCharName(
+                    check_char_name::CheckCharNameHandler::new(),
+                )),
+                x if x == RecvOpcode::CharSelect as i16 => Ok(PacketHandler::CharSelect(
+                    char_select::CharacterSelectHandler::new(),
+                )),
+                _ => Err(RuntimeError::UnsupportedOpcodeError(
+                    opcode,
+                    String::from("after authentication"),
+                )),
             }
-            x if x == RecvOpcode::LoginStarted as i16
-                || x == RecvOpcode::ServerListRequest as i16 =>
-            {
-                let handler = list_worlds::WorldListHandler::new();
-                handler
-                    .handle(state.clone(), packet)
-                    .await
-                    .map_err(RuntimeError::from)
-            }
-            x if x == RecvOpcode::ServerStatusRequest as i16 => {
-                let handler = server_status::ServerStatusHandler::new();
-                handler
-                    .handle(state.clone(), packet)
-                    .await
-                    .map_err(RuntimeError::from)
-            }
-            x if x == RecvOpcode::CharListRequest as i16 => {
-                let handler = list_chars::CharListHandler::new();
-                handler
-                    .handle(state.clone(), packet)
-                    .await
-                    .map_err(RuntimeError::from)
-            }
-            x if x == RecvOpcode::CreateChar as i16 => {
-                let handler = create_char::CreateCharacterHandler::new();
-                handler
-                    .handle(state.clone(), packet)
-                    .await
-                    .map_err(RuntimeError::from)
-            }
-            x if x == RecvOpcode::CheckCharName as i16 => {
-                let handler = check_char_name::CheckCharNameHandler::new();
-                handler
-                    .handle(state.clone(), packet)
-                    .await
-                    .map_err(RuntimeError::from)
-            }
-            x if x == RecvOpcode::CharSelect as i16 => {
-                let handler = char_select::CharacterSelectHandler::new();
-                handler
-                    .handle(state.clone(), packet)
-                    .await
-                    .map_err(RuntimeError::from)
-            }
-            _ => Err(RuntimeError::NetworkError(UnsupportedOpcodeError(opcode))),
-        }
+        };
+        handler?
+            .handle(state.clone(), session, packet)
+            .await
+            .map_err(RuntimeError::from)
     }
 
     async fn execute(
@@ -157,6 +170,7 @@ impl RuntimeRelay for Login {
         let actions = result.actions;
         for action in actions {
             match action {
+                Action::Simple => (),
                 Action::SendPacket { mut packet } => {
                     writer.send_encrypted_packet(&mut packet).await?
                 }
@@ -173,6 +187,7 @@ impl RuntimeRelay for World {
     async fn handle_packet(
         self: &mut Self,
         state: SharedState,
+        session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<Action>, RuntimeError> {
         let opcode = packet.opcode();
@@ -181,23 +196,22 @@ impl RuntimeRelay for World {
             "Received opcode in world: {} (0x{:02X}) ({:?})",
             opcode, opcode, en
         );
-        match opcode {
-            x if x == RecvOpcode::RequestLogin as i16 => {
-                let handler = cc::ChangeChannelHandler::new();
-                handler
-                    .handle(state.clone(), packet)
-                    .await
-                    .map_err(RuntimeError::from)
+        let handler = match opcode {
+            x if x == RecvOpcode::ChangeChannel as i16 => {
+                Ok(PacketHandler::ChangeChannel(cc::ChangeChannelHandler::new()))
             }
-            x if x == RecvOpcode::PlayerLoggedIn as i16 => {
-                let handler = play::PlayerLoggedInHandler::new();
-                handler
-                    .handle(state.clone(), packet)
-                    .await
-                    .map_err(RuntimeError::from)
-            }
-            _ => Err(RuntimeError::NetworkError(UnsupportedOpcodeError(opcode))),
-        }
+            x if x == RecvOpcode::PlayerLoggedIn as i16 => Ok(PacketHandler::PlayerLoggedIn(
+                play::PlayerLoggedInHandler::new(),
+            )),
+            _ => Err(RuntimeError::UnsupportedOpcodeError(
+                opcode,
+                String::from("in world"),
+            )),
+        };
+        handler?
+            .handle(state.clone(), session, packet)
+            .await
+            .map_err(RuntimeError::from)
     }
 
     async fn execute(
@@ -208,6 +222,7 @@ impl RuntimeRelay for World {
         let actions = result.actions;
         for action in actions {
             match action {
+                Action::Simple => (),
                 Action::SendPacket { mut packet } => {
                     writer.send_encrypted_packet(&mut packet).await?
                 }

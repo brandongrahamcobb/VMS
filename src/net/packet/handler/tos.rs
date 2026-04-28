@@ -9,6 +9,8 @@ use crate::net::packet::handler::error::HandlerError;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError;
 use crate::prelude::*;
+use crate::runtime::error::SessionError;
+use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 use std::io::Cursor;
 
@@ -20,18 +22,17 @@ impl TOSHandler {
     }
 
     pub async fn handle(
-        &self,
+        self: &Self,
         state: SharedState,
+        session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<Action>, NetworkError> {
         let mut reader = Cursor::new(packet.bytes);
-        use tracing::debug;
-        let value = reader
+        reader
             .read_short()
             .map_err(IOError::ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        debug!("TOS: {}", value);
         let confirmed = reader
             .read_byte()
             .map_err(IOError::ReadError)
@@ -42,7 +43,10 @@ impl TOSHandler {
                 HandlerError::LoginError,
             )));
         }
-        let acc_id = 1; //placeholder
+        let acc_id = session
+            .acc_id
+            .ok_or(SessionError::NoAccount)
+            .map_err(NetworkError::from)?;
         let mut acc = account::service::get_account_by_id(state.clone(), acc_id)
             .await
             .map_err(DatabaseError::from)
@@ -52,6 +56,12 @@ impl TOSHandler {
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
+        {
+            let state = state.lock().await;
+            state.sessions.update(session.id as u32, |session| {
+                session.authenticated = true;
+            })
+        }
         let mut result = HandlerResult::new();
         let packet = credentials::build_successful_login_packet(&acc)?;
         let action = Action::SendPacket { packet };

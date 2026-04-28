@@ -10,6 +10,7 @@ use crate::net::world;
 use crate::net::world::core::World;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
+use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 
 pub struct WorldListHandler;
@@ -22,6 +23,7 @@ impl WorldListHandler {
     pub async fn handle(
         self: &Self,
         _state: SharedState,
+        _session: Session,
         _packet: Packet,
     ) -> Result<HandlerResult<Action>, NetworkError> {
         let mut result = HandlerResult::new();

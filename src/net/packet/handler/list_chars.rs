@@ -10,6 +10,8 @@ use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::{ReadError, WriteError};
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
+use crate::runtime::error::SessionError;
+use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 use std::io::Cursor;
 
@@ -23,6 +25,7 @@ impl CharListHandler {
     pub async fn handle(
         self: &Self,
         state: SharedState,
+        session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<Action>, NetworkError> {
         let mut reader = Cursor::new(packet.bytes);
@@ -46,7 +49,10 @@ impl CharListHandler {
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let acc_id = 1; //placeholder
+        let acc_id = session
+            .acc_id
+            .ok_or(SessionError::NoAccount)
+            .map_err(NetworkError::from)?;
         let chars = character::service::get_characters_by_account_id(state.clone(), acc_id)
             .await
             .map_err(DatabaseError::from)

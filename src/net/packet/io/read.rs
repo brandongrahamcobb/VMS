@@ -18,7 +18,7 @@ pub struct PacketReader {
 }
 
 impl PacketReader {
-    pub fn new(read_half: OwnedReadHalf, recv_iv: &[u8]) -> Result<Self, NetworkError> {
+     pub fn new(read_half: OwnedReadHalf, recv_iv: &[u8]) -> Result<Self, NetworkError> {
         Ok(Self {
             reader: BufReader::new(read_half),
             aes: AES::new(&recv_iv.to_vec(), settings::get_version()?),

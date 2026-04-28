@@ -32,6 +32,12 @@ pub enum RuntimeError {
 
     #[error("Environment loading error in runtime layer")]
     DotenvError(#[from] dotenvy::Error),
+
+    #[error("Session error in runtime layer")]
+    SessionError(#[from] SessionError),
+
+    #[error("Unsupported opcode error in runtime layer: {0} {1}")]
+    UnsupportedOpcodeError(i16, String),
 }
 
 #[derive(Debug, Error)]
@@ -50,4 +56,25 @@ pub enum RuntimeRelayCreationError {
 
     #[error("Failed to create world relay: {0}")]
     FailedWorldRelayCreation(String),
+}
+
+#[derive(Debug, Error)]
+pub enum SessionError {
+    #[error("Failed to locate session: {0}")]
+    NotFound(i32),
+
+    #[error("Failed to retrieve account in session")]
+    NoAccount,
+
+    #[error("Failed to retrieve selected channel in session")]
+    NoChannelSelected,
+
+    #[error("Failed to retrieve selected world in session")]
+    NoWorldSelected,
+
+    #[error("Failed to retrieve hardware id in session")]
+    NoHWID,
+
+    #[error("Failed to validate successful authentication in session")]
+    NotAuthenticated,
 }

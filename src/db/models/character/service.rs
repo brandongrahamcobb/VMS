@@ -6,7 +6,7 @@ use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
 pub async fn get_characters_by_account_id(
     state: SharedState,
-    account_id: i64,
+    acc_id: i64,
 ) -> QueryResult<Vec<Character>> {
     let db = {
         let state = state.lock().await;
@@ -19,7 +19,7 @@ pub async fn get_characters_by_account_id(
         )
     })?;
     characters::table
-        .filter(characters::account.eq(account_id))
+        .filter(characters::acc_id.eq(acc_id))
         .load::<Character>(&mut conn)
 }
 
@@ -84,6 +84,6 @@ pub async fn get_account_id_by_character_id(state: SharedState, char_id: i32) ->
     })?;
     characters::table
         .filter(characters::id.eq(char_id))
-        .select(characters::account)
+        .select(characters::acc_id)
         .first::<i64>(&mut conn)
 }
