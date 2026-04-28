@@ -1,3 +1,5 @@
+use core::ops::ControlFlow;
+
 use crate::config::settings;
 use crate::net::packet::core::Packet;
 use crate::net::packet::handler::action::{LoginAction, WorldAction};
@@ -76,7 +78,14 @@ impl<T: RuntimeRelay + Default + Send> Runtime<T> {
                 .relay
                 .handle_packet(self.state.clone(), session, packet)
                 .await?;
-            self.relay.execute(&mut self.writer, result).await?;
+            match self
+                .relay
+                .execute(&self.reader, &mut self.writer, result)
+                .await?
+            {
+                ControlFlow::Break(_) => break Ok(()),
+                _ => continue,
+            }
         }
     }
 }
@@ -94,9 +103,10 @@ pub trait RuntimeRelay {
 
     async fn execute(
         &mut self,
+        reader: &PacketReader,
         writer: &mut PacketWriter,
         result: HandlerResult<Self::HandlerAction>,
-    ) -> Result<(), RuntimeError>;
+    ) -> Result<ControlFlow<()>, RuntimeError>;
 }
 
 #[derive(Default)]
@@ -176,9 +186,10 @@ impl RuntimeRelay for Login {
 
     async fn execute(
         self: &mut Self,
+        reader: &PacketReader,
         writer: &mut PacketWriter,
         result: HandlerResult<LoginAction>,
-    ) -> Result<(), RuntimeError> {
+    ) -> Result<ControlFlow<()>, RuntimeError> {
         let actions = result.actions;
         for action in actions {
             match action {
@@ -186,9 +197,10 @@ impl RuntimeRelay for Login {
                 LoginAction::SendPacket { mut packet } => {
                     writer.send_encrypted_packet(&mut packet).await?
                 }
+                LoginAction::CloseConnection => return Ok(ControlFlow::Break(())),
             }
         }
-        Ok(())
+        return Ok(ControlFlow::Continue(()));
     }
 }
 
@@ -245,9 +257,10 @@ impl RuntimeRelay for World {
 
     async fn execute(
         self: &mut Self,
+        reader: &PacketReader,
         writer: &mut PacketWriter,
         result: HandlerResult<WorldAction>,
-    ) -> Result<(), RuntimeError> {
+    ) -> Result<ControlFlow<()>, RuntimeError> {
         let actions = result.actions;
         for action in actions {
             match action {
@@ -255,12 +268,10 @@ impl RuntimeRelay for World {
                 WorldAction::SendPacket { mut packet } => {
                     writer.send_encrypted_packet(&mut packet).await?
                 }
-                WorldAction::FieldMove { movement_bytes } => {
-                    () // not implemented
-                }
+                WorldAction::FieldMove { movement_bytes } => (), // not implemented
             }
         }
-        Ok(())
+        return Ok(ControlFlow::Continue(()));
     }
 }
 

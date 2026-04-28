@@ -3,6 +3,7 @@ use crate::net::packet::core::Packet;
 pub enum LoginAction {
     Simple,
     SendPacket { packet: Packet },
+    CloseConnection,
 }
 
 pub enum WorldAction {

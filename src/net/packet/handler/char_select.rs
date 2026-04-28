@@ -1,7 +1,7 @@
 use crate::config::settings;
 use crate::db::error::DatabaseError;
-use crate::models::account;
 use crate::inc::helpers;
+use crate::models::account;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
@@ -67,8 +67,8 @@ impl CharacterSelectHandler {
         let port = settings::get_world_port()?;
         let mut result = HandlerResult::new();
         let packet = build_channel_redirect(char_id, octets, port)?;
-        let action = LoginAction::SendPacket { packet };
-        result.add_action(action)?;
+        result.add_action(LoginAction::SendPacket { packet });
+        result.add_action(LoginAction::CloseConnection)?;
         Ok(result)
     }
 }

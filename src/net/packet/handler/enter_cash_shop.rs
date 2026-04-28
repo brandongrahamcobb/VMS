@@ -1,4 +1,5 @@
 use crate::db::error::DatabaseError;
+use crate::models::account::model::Account;
 use crate::models::character::error::CharacterError;
 use crate::models::character::model::Character;
 use crate::models::error::ModelError;
@@ -46,13 +47,17 @@ impl EnterCashShopHandler {
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
-        let packet = build_cash_shop_packet(&char)?;
+        let packet = build_cash_shop_packet(&acc, &char, &session)?;
         let action = WorldAction::SendPacket { packet };
         result.add_action(action)?;
         Ok(result)
     }
 }
-pub fn build_cash_shop_packet(char: &Character) -> Result<Packet, NetworkError> {
+pub fn build_cash_shop_packet(
+    acc: &Account,
+    char: &Character,
+    session: &Session,
+) -> Result<Packet, NetworkError> {
     let mut packet = Packet::new_empty();
     let op = SendOpcode::SetCashShop as i16;
     packet
@@ -62,7 +67,7 @@ pub fn build_cash_shop_packet(char: &Character) -> Result<Packet, NetworkError> 
         .map_err(NetworkError::from)?;
     // Timestamp / Session
     packet
-        .write_long(0)
+        .write_long(session.id as i64)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
@@ -76,11 +81,11 @@ pub fn build_cash_shop_packet(char: &Character) -> Result<Packet, NetworkError> 
         .map_err(CharacterError::from)
         .map_err(ModelError::from)
         .map_err(NetworkError::from)?;
-    write_cash_shop(&mut packet)?;
+    write_cash_shop(&mut packet, acc)?;
     Ok(packet)
 }
 
-fn write_cash_shop(packet: &mut Packet) -> Result<(), NetworkError> {
+fn write_cash_shop(packet: &mut Packet, acc: &Account) -> Result<(), NetworkError> {
     // Not MTS
     packet
         .write_byte(0)
@@ -89,7 +94,7 @@ fn write_cash_shop(packet: &mut Packet) -> Result<(), NetworkError> {
         .map_err(NetworkError::from)?;
     // Account name
     packet
-        .write_short(0)
+        .write_str_with_length(&acc.username)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;

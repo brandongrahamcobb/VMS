@@ -56,6 +56,7 @@ impl PlayerLoggedInHandler {
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
+
         let char = character::query::get_character_by_id(state.clone(), char_id)
             .await
             .map_err(DatabaseError::from)

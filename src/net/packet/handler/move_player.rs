@@ -59,7 +59,7 @@ impl MovePlayerHandler {
             movement_bytes: movement_bytes.clone(),
         });
         let packet = build_player_move(char_id, &movement_bytes)?;
-        result.add_action(WorldAction::SendPacket { packet });
+        result.add_action(WorldAction::SendPacket { packet })?;
         Ok(result)
     }
 }
