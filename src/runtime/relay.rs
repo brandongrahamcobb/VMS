@@ -106,7 +106,10 @@ impl RuntimeRelay for Login {
         packet: Packet,
     ) -> Result<HandlerResult<Action>, RuntimeError> {
         let opcode = packet.opcode();
-        let en = RecvOpcode::from_i16(opcode).unwrap();
+        let en = RecvOpcode::from_i16(opcode).ok_or(RuntimeError::UnsupportedOpcodeError(
+            opcode,
+            String::from("not expected during authentication"),
+        ));
         debug!(
             "Received opcode in login: {} (0x{:02X}) ({:?}),",
             opcode, opcode, en
@@ -121,7 +124,7 @@ impl RuntimeRelay for Login {
                 )),
                 _ => Err(RuntimeError::UnsupportedOpcodeError(
                     opcode,
-                    String::from("before authentication"),
+                    String::from("expected before authentication"),
                 )),
             }
         } else {
@@ -152,7 +155,7 @@ impl RuntimeRelay for Login {
                 )),
                 _ => Err(RuntimeError::UnsupportedOpcodeError(
                     opcode,
-                    String::from("after authentication"),
+                    String::from("expected after authentication"),
                 )),
             }
         };
@@ -191,7 +194,10 @@ impl RuntimeRelay for World {
         packet: Packet,
     ) -> Result<HandlerResult<Action>, RuntimeError> {
         let opcode = packet.opcode();
-        let en = RecvOpcode::from_i16(opcode).unwrap();
+        let en = RecvOpcode::from_i16(opcode).ok_or(RuntimeError::UnsupportedOpcodeError(
+            opcode,
+            String::from("not expected in world"),
+        ));
         debug!(
             "Received opcode in world: {} (0x{:02X}) ({:?})",
             opcode, opcode, en
@@ -205,7 +211,7 @@ impl RuntimeRelay for World {
             )),
             _ => Err(RuntimeError::UnsupportedOpcodeError(
                 opcode,
-                String::from("in world"),
+                String::from("expected in world"),
             )),
         };
         handler?

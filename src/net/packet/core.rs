@@ -8,7 +8,7 @@ pub struct Packet {
 }
 
 impl Packet {
-     pub fn new(buffer: &[u8]) -> Packet {
+    pub fn new(buffer: &[u8]) -> Packet {
         if buffer.len() > MAX_PACKET_LENGTH as usize {
             panic!(
                 "Packet with length {} exceeded max packet length {}",
@@ -20,12 +20,17 @@ impl Packet {
         Packet { bytes }
     }
 
-     pub fn new_empty() -> Packet {
+    pub fn new_empty() -> Packet {
         let bytes = vec![];
         Packet { bytes }
     }
 
     pub fn opcode(&self) -> i16 {
+        use tracing::debug;
+        debug!(
+            "opcode raw bytes: {:02X?}",
+            &self.bytes[0..2.min(self.bytes.len())]
+        );
         if self.bytes.len() > 1 {
             let opcode: i16 = (self.bytes[0] as i16) | ((self.bytes[1] as i16) << 8);
             if opcode >= 0 { opcode } else { INVALID_OPCODE }

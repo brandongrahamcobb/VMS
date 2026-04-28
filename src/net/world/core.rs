@@ -25,7 +25,7 @@ pub fn load_worlds() -> Result<Vec<World>, NetworkError> {
     let pairs: Vec<(i16, i16)> = settings::get_channel_world_pairs()?;
     let world_port = settings::get_world_port()?;
     for (id, count) in pairs {
-        let name: &str = name_for_world_by_id(id).unwrap_or("Unkown");
+        let name: &str = name_for_world_by_id(id).unwrap_or("Unknown");
         let channels: Vec<Channel> = (0..count)
             .map(|channel_id| Channel {
                 capacity: capacity,
