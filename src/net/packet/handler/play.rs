@@ -173,6 +173,9 @@ pub fn build_char_info(char: &Character, channel_id: i16) -> Result<Packet, Netw
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
+    character::service::write_char_meta(&mut packet, &char)
+        .map_err(ModelError::from)
+        .map_err(NetworkError::from)?;
     character::service::write_game_char(&mut packet, &char)
         .map_err(ModelError::from)
         .map_err(NetworkError::from)?;

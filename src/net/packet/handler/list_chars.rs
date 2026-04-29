@@ -64,10 +64,14 @@ impl CharListHandler {
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
-        let chars = character::query::get_characters_by_account_id(state.clone(), acc_id)
-            .await
-            .map_err(DatabaseError::from)
-            .map_err(NetworkError::from)?;
+        let chars = character::query::get_characters_by_account_id_and_world_id(
+            state.clone(),
+            acc_id,
+            world_id as i16,
+        )
+        .await
+        .map_err(DatabaseError::from)
+        .map_err(NetworkError::from)?;
         let char_max = world::query::get_character_max_by_account_and_world_id(
             state.clone(),
             acc_id,

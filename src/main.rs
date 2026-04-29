@@ -3,7 +3,6 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
-use vms::config::settings;
 use vms::models::error::ModelError;
 use vms::models::world;
 use vms::runtime::error::RuntimeError;
@@ -17,7 +16,6 @@ async fn main() -> Result<(), RuntimeError> {
         .init();
     info!("Loading Shared State...");
     let shared_state: SharedState = Arc::new(Mutex::new(State::new()?));
-    let port = settings::get_login_port()?;
     let login_state = shared_state.clone();
     let login_fut = LoginServer::run(login_state);
     let worlds = world::service::load_worlds()

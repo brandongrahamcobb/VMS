@@ -166,7 +166,7 @@ fn get_map_id_for_job(job: i16) -> Result<i32, NetworkError> {
     }
 }
 
-fn build_create_char_packet(character: Character) -> Result<Packet, NetworkError> {
+fn build_create_char_packet(char: Character) -> Result<Packet, NetworkError> {
     let mut packet = Packet::new_empty();
     let op = SendOpcode::NewCharacter as i16;
     packet
@@ -179,7 +179,16 @@ fn build_create_char_packet(character: Character) -> Result<Packet, NetworkError
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
-    character::service::write_game_char(&mut packet, &character)
+    character::service::write_char_meta(&mut packet, &char)
+        .map_err(ModelError::from)
+        .map_err(NetworkError::from)?;
+    character::service::write_char_look(&mut packet, &char)
+        .map_err(ModelError::from)
+        .map_err(NetworkError::from)?;
+    character::service::write_char_equips(&mut packet, &char)
+        .map_err(ModelError::from)
+        .map_err(NetworkError::from)?;
+    character::service::write_game_char(&mut packet, &char)
         .map_err(ModelError::from)
         .map_err(NetworkError::from)?;
     Ok(packet)

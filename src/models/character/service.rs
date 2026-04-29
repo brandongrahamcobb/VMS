@@ -400,7 +400,7 @@ fn write_area_info(packet: &mut Packet, _char: &Character) -> Result<(), ModelEr
     Ok(())
 }
 
-fn write_char_look(packet: &mut Packet, char: &Character) -> Result<(), ModelError> {
+pub fn write_char_look(packet: &mut Packet, char: &Character) -> Result<(), ModelError> {
     packet
         .write_byte(char.gender as u8)
         .map_err(WriteError)
@@ -433,7 +433,7 @@ fn write_char_look(packet: &mut Packet, char: &Character) -> Result<(), ModelErr
         .map_err(ModelError::from)?;
     Ok(())
 }
-fn write_char_equips(packet: &mut Packet, _character: &Character) -> Result<(), ModelError> {
+pub fn write_char_equips(packet: &mut Packet, _character: &Character) -> Result<(), ModelError> {
     // Overall (Top slot)
     packet
         .write_byte(5)
@@ -523,7 +523,6 @@ pub fn write_list_char(packet: &mut Packet, char: &Character) -> Result<(), Mode
 }
 
 pub fn write_game_char(packet: &mut Packet, char: &Character) -> Result<(), ModelError> {
-    write_char_meta(packet, char)?;
     let bl_capacity = 25;
     packet
         .write_byte(bl_capacity)

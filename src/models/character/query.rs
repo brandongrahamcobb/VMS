@@ -6,9 +6,10 @@ use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
-pub async fn get_characters_by_account_id(
+pub async fn get_characters_by_account_id_and_world_id(
     state: SharedState,
     acc_id: i32,
+    world_id: i16,
 ) -> QueryResult<Vec<Character>> {
     let db = {
         let state = state.lock().await;
@@ -22,6 +23,7 @@ pub async fn get_characters_by_account_id(
     })?;
     characters::table
         .filter(characters::acc_id.eq(acc_id))
+        .filter(characters::world_id.eq(world_id))
         .load::<Character>(&mut conn)
 }
 
