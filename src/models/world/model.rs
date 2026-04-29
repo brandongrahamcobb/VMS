@@ -14,7 +14,7 @@ pub struct World {
 #[derive(Queryable, AsChangeset)]
 #[diesel(table_name = character_limits)]
 pub struct CharacterLimit {
-    pub acc_id: i64,
+    pub acc_id: i32,
     pub char_max: i32,
     pub world_id: i16,
     pub created_at: SystemTime,

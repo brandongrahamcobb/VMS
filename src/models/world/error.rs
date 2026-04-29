@@ -7,7 +7,7 @@ pub enum WorldError {
     NotFound(i16),
 
     #[error("No world selected for in world model layer: {0}")]
-    NotSelected(i64),
+    NotSelected(i32),
 
     #[error("Config error in world model layer")]
     ConfigError(#[from] ConfigError),

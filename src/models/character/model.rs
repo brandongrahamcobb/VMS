@@ -8,7 +8,7 @@ use std::time::SystemTime;
 #[diesel(table_name = characters)]
 pub struct Character {
     pub id: i32,
-    pub acc_id: i64,
+    pub acc_id: i32,
     pub world_id: i16,
     pub ign: String,
     pub level: Option<i16>,
@@ -127,7 +127,7 @@ pub struct AndroidEquipment {
 #[derive(Insertable)]
 #[diesel(table_name = characters)]
 pub struct NewCharacter {
-    pub acc_id: i64,
+    pub acc_id: i32,
     pub world_id: i16,
     pub ign: String,
     pub job: i16,

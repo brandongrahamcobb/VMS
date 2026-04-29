@@ -1,5 +1,5 @@
 CREATE TABLE accounts (
-    id BIGSERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     username TEXT NOT NULL,
     password TEXT NOT NULL,
     pin TEXT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE accounts (
 
 CREATE TABLE characters (
     id SERIAL PRIMARY KEY,
-    acc_id BIGINT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+    acc_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
     world_id SMALLINT NOT NULL,
     ign TEXT NOT NULL,
     level SMALLINT NOT NULL DEFAULT 1,
@@ -130,7 +130,7 @@ CREATE TABLE android_equipment (
 );
 
 CREATE TABLE character_limits (
-    acc_id BIGINT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+    acc_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
     world_id SMALLINT NOT NULL,
     char_max INTEGER NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),

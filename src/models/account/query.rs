@@ -20,7 +20,7 @@ pub async fn get_account_by_username(state: SharedState, user: &str) -> QueryRes
         .first::<Account>(&mut conn)
 }
 
-pub async fn get_account_by_id(state: SharedState, id: i64) -> QueryResult<Account> {
+pub async fn get_account_by_id(state: SharedState, id: i32) -> QueryResult<Account> {
     let db = {
         let state = state.lock().await;
         state.db.clone()
@@ -32,7 +32,7 @@ pub async fn get_account_by_id(state: SharedState, id: i64) -> QueryResult<Accou
         )
     })?;
     accounts::table
-        .filter(accounts::id.eq(id as i64))
+        .filter(accounts::id.eq(id as i32))
         .first::<Account>(&mut conn)
 }
 

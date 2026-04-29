@@ -2,7 +2,7 @@
 
 diesel::table! {
     accounts (id) {
-        id -> Int8,
+        id -> Int4,
         username -> Text,
         password -> Text,
         pin -> Nullable<Text>,
@@ -23,7 +23,7 @@ diesel::table! {
 diesel::table! {
     characters (id) {
         id -> Int4,
-        acc_id -> Int8,
+        acc_id -> Int4,
         world_id -> Int2,
         ign -> Text,
         level -> Nullable<Int2>,
@@ -142,7 +142,7 @@ diesel::table! {
 
 diesel::table! {
     character_limits (acc_id, world_id) {
-        acc_id -> Int8,
+        acc_id -> Int4,
         world_id -> Int2,
         char_max -> Int4,
         created_at -> Nullable<Timestamp>,
