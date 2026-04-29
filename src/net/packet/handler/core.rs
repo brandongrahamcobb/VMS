@@ -1,7 +1,7 @@
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::handler::action::LoginAction;
-use crate::net::packet::handler::action::WorldAction;
+use crate::net::packet::handler::action::ChannelAction;
 use crate::net::packet::handler::cc;
 use crate::net::packet::handler::char_select;
 use crate::net::packet::handler::check_char_name;
@@ -57,25 +57,25 @@ pub enum LoginHandler {
     CharSelect(char_select::CharacterSelectHandler),
 }
 
-impl WorldHandler {
+impl ChannelHandler {
     pub async fn handle(
         self: &mut Self,
         state: SharedState,
         session: Session,
         packet: Packet,
-    ) -> Result<HandlerResult<WorldAction>, NetworkError> {
+    ) -> Result<HandlerResult<ChannelAction>, NetworkError> {
         match self {
-            WorldHandler::ChangeChannel(h) => h.handle(state, session, packet).await,
-            WorldHandler::PlayerLoggedIn(h) => h.handle(state, session, packet).await,
-            WorldHandler::PartySearch(h) => h.handle(state, session, packet).await,
-            WorldHandler::PlayerMapTransfer(h) => h.handle(state, session, packet).await,
-            WorldHandler::MovePlayer(h) => h.handle(state, session, packet).await,
-            WorldHandler::EnterCashShop(h) => h.handle(state, session, packet).await,
+            ChannelHandler::ChangeChannel(h) => h.handle(state, session, packet).await,
+            ChannelHandler::PlayerLoggedIn(h) => h.handle(state, session, packet).await,
+            ChannelHandler::PartySearch(h) => h.handle(state, session, packet).await,
+            ChannelHandler::PlayerMapTransfer(h) => h.handle(state, session, packet).await,
+            ChannelHandler::MovePlayer(h) => h.handle(state, session, packet).await,
+            ChannelHandler::EnterCashShop(h) => h.handle(state, session, packet).await,
         }
     }
 }
 
-pub enum WorldHandler {
+pub enum ChannelHandler {
     ChangeChannel(cc::ChangeChannelHandler),
     PlayerLoggedIn(play::PlayerLoggedInHandler),
     PartySearch(party_search::PartySearchHandler),

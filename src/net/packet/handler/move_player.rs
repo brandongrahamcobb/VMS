@@ -5,7 +5,7 @@ use crate::models::error::ModelError;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::action::WorldAction;
+use crate::net::packet::handler::action::ChannelAction;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::op::send::SendOpcode;
@@ -28,7 +28,7 @@ impl MovePlayerHandler {
         state: SharedState,
         session: Session,
         packet: Packet,
-    ) -> Result<HandlerResult<WorldAction>, NetworkError> {
+    ) -> Result<HandlerResult<ChannelAction>, NetworkError> {
         let acc_id = session
             .acc_id
             .ok_or(SessionError::NoAccount)
@@ -38,28 +38,28 @@ impl MovePlayerHandler {
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
         let char_id = acc
-            .selected_character_id
+            .selected_char_id
             .ok_or(CharacterError::NotSelected(acc_id))
             .map_err(ModelError::from)
             .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
         if packet.bytes.len() <= 2 + MOVEMENT_HEADER_LEN {
-            let action = WorldAction::Simple;
+            let action = ChannelAction::Simple;
             result.add_action(action)?;
             return Ok(result);
         }
         let movement_fragment = &packet.bytes[(2 + MOVEMENT_HEADER_LEN)..];
         if movement_fragment.is_empty() || movement_fragment[0] == 0 {
-            let action = WorldAction::Simple;
+            let action = ChannelAction::Simple;
             result.add_action(action)?;
             return Ok(result);
         }
         let movement_bytes = movement_fragment.to_vec();
-        result.add_action(WorldAction::FieldMove {
+        result.add_action(ChannelAction::FieldMove {
             movement_bytes: movement_bytes.clone(),
-        });
+        })?;
         let packet = build_player_move(char_id, &movement_bytes)?;
-        result.add_action(WorldAction::SendPacket { packet })?;
+        result.add_action(ChannelAction::SendPacket { packet })?;
         Ok(result)
     }
 }

@@ -2,7 +2,6 @@ use crate::config::settings;
 use crate::constants::WORLDS;
 use crate::models::error::ModelError;
 use crate::models::world;
-use crate::models::world::error::WorldError;
 use crate::models::world::model::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
@@ -28,8 +27,11 @@ impl WorldListHandler {
         _session: Session,
         _packet: Packet,
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
+        let worlds = world::service::load_worlds()
+            .map_err(ModelError::from)
+            .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
-        let packets = build_world_packets()?;
+        let packets = build_world_packets(worlds)?;
         for packet in packets {
             let action = LoginAction::SendPacket { packet };
             result.add_action(action)?;
@@ -38,11 +40,7 @@ impl WorldListHandler {
     }
 }
 
-pub fn build_world_packets() -> Result<Vec<Packet>, NetworkError> {
-    let worlds = world::service::load_worlds()
-        .map_err(WorldError::from)
-        .map_err(ModelError::from)
-        .map_err(NetworkError::from)?;
+pub fn build_world_packets(worlds: Vec<World>) -> Result<Vec<Packet>, NetworkError> {
     let mut packets: Vec<Packet> = Vec::new();
     packets.push(build_world_list_packet(worlds)?);
     packets.push(build_last_connected_world_packet()?);
@@ -190,7 +188,7 @@ fn build_world_list_packet(worlds: Vec<World>) -> Result<Packet, NetworkError> {
             .map_err(NetworkError::from)?;
         for channel in &world.channels {
             packet
-                .write_str_with_length(channel.name.as_str())
+                .write_str_with_length("Placeholder Channel Name")
                 .map_err(WriteError)
                 .map_err(PacketError::from)
                 .map_err(NetworkError::from)?;
@@ -205,7 +203,7 @@ fn build_world_list_packet(worlds: Vec<World>) -> Result<Packet, NetworkError> {
                 .map_err(PacketError::from)
                 .map_err(NetworkError::from)?;
             packet
-                .write_byte(channel.channel_id as u8)
+                .write_byte(channel.id as u8)
                 .map_err(WriteError)
                 .map_err(PacketError::from)
                 .map_err(NetworkError::from)?;

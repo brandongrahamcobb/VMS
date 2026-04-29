@@ -1,7 +1,6 @@
 use crate::constants::{DEFAULT_ACTION, DEFAULT_KEY, DEFAULT_TYPE};
 use crate::db::error::DatabaseError;
-use crate::models::character::error::CharacterError;
-use crate::models::character::model::{Character, NewCharacter};
+use crate::models::character::model::{Character, NewCharacter, NewCharacterEquipment};
 use crate::models::error::ModelError;
 use crate::models::keybinding::model::NewKeybinding;
 use crate::models::world::error::WorldError;
@@ -70,22 +69,22 @@ impl CreateCharacterHandler {
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let _top = reader
+        let top = reader
             .read_int() // Slot 5
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let _bot = reader
+        let bottom = reader
             .read_int() // Slot 6
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let _shoes = reader
+        let shoes = reader
             .read_int() // Slot 7
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let _weapon = reader
+        let weapon = reader
             .read_int() // Special
             .map_err(ReadError)
             .map_err(PacketError::from)
@@ -103,7 +102,7 @@ impl CreateCharacterHandler {
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
-        let char = NewCharacter {
+        let new_char = NewCharacter {
             acc_id,
             ign: ign.clone(),
             world_id: acc
@@ -111,36 +110,34 @@ impl CreateCharacterHandler {
                 .ok_or(WorldError::NotSelected(acc_id))
                 .map_err(ModelError::from)
                 .map_err(NetworkError::from)?,
-            level: None,
-            exp: None,
-            strength: None,
-            dexterity: None,
-            luck: None,
-            intelligence: None,
-            hp: None,
-            mp: None,
-            max_hp: None,
-            max_mp: None,
-            ap: None,
-            fame: None,
-            meso: None,
             job,
             face,
             hair,
             hair_color,
             skin,
             gender,
-            created_at: None,
-            map: Some(map),
-            updated_at: None,
+            map: map,
         };
-        let character = character::query::create_character(state.clone(), &char)
+        let char = character::query::create_character(state.clone(), &new_char)
+            .await
+            .map_err(DatabaseError::from)
+            .map_err(NetworkError::from)?;
+        let equips = NewCharacterEquipment {
+            char_id: char.id,
+            hat: None, // might exist or not based on class
+            top,
+            bottom: Some(bottom), // might be none
+            shoes,
+            weapon,
+            sub_weapon: None, // might exist or not based on class
+        };
+        character::query::create_equipment(state.clone(), &equips)
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
         let binds: Vec<NewKeybinding> = izip!(DEFAULT_KEY, DEFAULT_TYPE, DEFAULT_ACTION)
             .map(|(key, bind_type, action): (i16, u8, i16)| NewKeybinding {
-                character_id: character.id,
+                char_id: char.id,
                 key,
                 bind_type: bind_type.into(),
                 action,
@@ -151,7 +148,7 @@ impl CreateCharacterHandler {
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
-        let packet = build_create_char_packet(character)?;
+        let packet = build_create_char_packet(char)?;
         let action = LoginAction::SendPacket { packet };
         result.add_action(action)?;
         Ok(result)
@@ -183,7 +180,6 @@ fn build_create_char_packet(character: Character) -> Result<Packet, NetworkError
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     character::service::write_game_char(&mut packet, &character)
-        .map_err(CharacterError::from)
         .map_err(ModelError::from)
         .map_err(NetworkError::from)?;
     Ok(packet)

@@ -1,5 +1,5 @@
-use crate::models::keybinding::model::{Keybinding, NewKeybinding};
 use crate::db::schema::keybindings;
+use crate::models::keybinding::model::{Keybinding, NewKeybinding};
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
 use diesel::pg::upsert::*;
@@ -20,7 +20,7 @@ pub async fn get_keybindings_by_character_id(
         )
     })?;
     keybindings::table
-        .filter(keybindings::character_id.eq(c_id))
+        .filter(keybindings::char_id.eq(c_id))
         .load::<Keybinding>(&mut conn)
 }
 

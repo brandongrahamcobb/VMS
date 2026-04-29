@@ -1,5 +1,7 @@
-use crate::models::character::model::{Character, NewCharacter};
-use crate::db::schema::characters;
+use crate::db::schema::{character_equipment, characters};
+use crate::models::character::model::{
+    Character, CharacterEquipment, NewCharacter, NewCharacterEquipment,
+};
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl};
@@ -37,6 +39,25 @@ pub async fn create_character(state: SharedState, char: &NewCharacter) -> QueryR
     diesel::insert_into(characters::table)
         .values(char)
         .get_result::<Character>(&mut conn)
+}
+
+pub async fn create_equipment(
+    state: SharedState,
+    equips: &NewCharacterEquipment,
+) -> QueryResult<CharacterEquipment> {
+    let db = {
+        let state = state.lock().await;
+        state.db.clone()
+    };
+    let mut conn = db.get().map_err(|e| {
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UnableToSendCommand,
+            Box::new(e.to_string()),
+        )
+    })?;
+    diesel::insert_into(character_equipment::table)
+        .values(equips)
+        .get_result::<CharacterEquipment>(&mut conn)
 }
 
 pub async fn get_character_by_name(state: SharedState, ign: &str) -> QueryResult<Character> {

@@ -1,5 +1,4 @@
 use crate::db::error::DatabaseError;
-use crate::models::character::error::CharacterError;
 use crate::models::character::model::Character;
 use crate::models::error::ModelError;
 use crate::models::keybinding::model::Keybinding;
@@ -7,7 +6,7 @@ use crate::models::{character, keybinding};
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::action::WorldAction;
+use crate::net::packet::handler::action::ChannelAction;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::{ReadError, WriteError};
 use crate::op::send::SendOpcode;
@@ -29,7 +28,7 @@ impl PlayerLoggedInHandler {
         state: SharedState,
         session: Session,
         packet: Packet,
-    ) -> Result<HandlerResult<WorldAction>, NetworkError> {
+    ) -> Result<HandlerResult<ChannelAction>, NetworkError> {
         let mut reader = Cursor::new(packet.bytes);
         reader
             .read_short() // prune opcode
@@ -71,7 +70,7 @@ impl PlayerLoggedInHandler {
         packets.push(build_keymap(&binds)?);
         packets.push(build_char_info(&char, channel_id as i16)?);
         for packet in packets {
-            let action = WorldAction::SendPacket { packet };
+            let action = ChannelAction::SendPacket { packet };
             result.add_action(action)?;
         }
         Ok(result)
@@ -106,10 +105,10 @@ pub fn build_keymap(binds: &Vec<Keybinding>) -> Result<Packet, NetworkError> {
     Ok(packet)
 }
 
-pub fn normalize_keybindings(bindings: Vec<Keybinding>, character_id: i32) -> Vec<Keybinding> {
+pub fn normalize_keybindings(bindings: Vec<Keybinding>, char_id: i32) -> Vec<Keybinding> {
     let mut result: Vec<Keybinding> = Vec::with_capacity(90);
     for i in 0..90 {
-        result.push(Keybinding::empty(character_id, i as i16));
+        result.push(Keybinding::empty(char_id, i as i16));
     }
     for bind in bindings {
         let idx = bind.key as usize;
@@ -120,7 +119,7 @@ pub fn normalize_keybindings(bindings: Vec<Keybinding>, character_id: i32) -> Ve
     result
 }
 
-pub fn build_char_info(character: &Character, channel_id: i16) -> Result<Packet, NetworkError> {
+pub fn build_char_info(char: &Character, channel_id: i16) -> Result<Packet, NetworkError> {
     let mut packet = Packet::new_empty();
     let op = SendOpcode::SetField as i16;
     packet
@@ -174,8 +173,7 @@ pub fn build_char_info(character: &Character, channel_id: i16) -> Result<Packet,
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
-    character::service::write_game_char(&mut packet, &character)
-        .map_err(CharacterError::from)
+    character::service::write_game_char(&mut packet, &char)
         .map_err(ModelError::from)
         .map_err(NetworkError::from)?;
     let time = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis() as i64;

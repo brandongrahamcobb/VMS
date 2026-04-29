@@ -1,5 +1,6 @@
 use thiserror::Error;
 
+use crate::config::error::ConfigError;
 use crate::models::account::error::AccountError;
 use crate::models::channel::error::ChannelError;
 use crate::models::character::error::CharacterError;
@@ -22,4 +23,7 @@ pub enum ModelError {
 
     #[error("World model error in model layer")]
     WorldError(#[from] WorldError),
+
+    #[error("Config error in model layer")]
+    ConfigError(#[from] ConfigError),
 }

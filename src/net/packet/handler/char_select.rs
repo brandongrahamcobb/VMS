@@ -1,7 +1,9 @@
 use crate::config::settings;
 use crate::db::error::DatabaseError;
 use crate::inc::helpers;
-use crate::models::account;
+use crate::models::account::error::AccountError;
+use crate::models::error::ModelError;
+use crate::models::{account, channel, world};
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
@@ -57,24 +59,39 @@ impl CharacterSelectHandler {
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
-        acc.selected_character_id = Some(char_id);
+        acc.selected_char_id = Some(char_id);
         account::query::update(state.clone(), &acc)
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
         let addr = settings::get_address()?;
         let octets = helpers::convert_to_ip_array(addr);
-        let port = settings::get_world_port()?;
+        let worlds = world::service::load_worlds()
+            .map_err(ModelError::from)
+            .map_err(NetworkError::from)?;
+        let channel = channel::service::resolve_channel(
+            acc.selected_channel_id
+                .ok_or(AccountError::MissingField)
+                .map_err(ModelError::from)
+                .map_err(NetworkError::from)?,
+            acc.selected_world_id
+                .ok_or(AccountError::MissingField)
+                .map_err(ModelError::from)
+                .map_err(NetworkError::from)?,
+            worlds,
+        )
+        .map_err(ModelError::from)
+        .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
-        let packet = build_channel_redirect(char_id, octets, port)?;
-        result.add_action(LoginAction::SendPacket { packet });
+        let packet = build_channel_redirect(char_id, octets, channel.port)?;
+        result.add_action(LoginAction::SendPacket { packet })?;
         result.add_action(LoginAction::CloseConnection)?;
         Ok(result)
     }
 }
 
 pub fn build_channel_redirect(
-    cid: i32,
+    char_id: i32,
     octets: [u8; 4],
     port: i16,
 ) -> Result<Packet, NetworkError> {
@@ -101,7 +118,7 @@ pub fn build_channel_redirect(
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     packet
-        .write_int(cid)
+        .write_int(char_id)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;

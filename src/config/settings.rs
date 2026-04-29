@@ -21,18 +21,9 @@ pub fn get_address() -> Result<String, ConfigError> {
     Ok(addr)
 }
 
-pub fn get_core_port() -> Result<i16, ConfigError> {
+pub fn get_login_port() -> Result<i16, ConfigError> {
     let settings = get_settings()?;
     let key = String::from("core_port");
-    let port = settings
-        .get_int(&key)
-        .map_err(|_| ConfigError::InvalidInt(key))?;
-    Ok(port as i16)
-}
-
-pub fn get_world_port() -> Result<i16, ConfigError> {
-    let settings = get_settings()?;
-    let key = String::from("world_port");
     let port = settings
         .get_int(&key)
         .map_err(|_| ConfigError::InvalidInt(key))?;
@@ -73,23 +64,12 @@ pub fn get_db_url() -> Result<String, ConfigError> {
     Ok(format!("postgres://{}:{}@{}:{}/{}", user, pw, ip, port, db))
 }
 
-pub fn get_core_server_addr() -> Result<SocketAddr, ConfigError> {
+pub fn build_server_addr(port: &i16) -> Result<SocketAddr, ConfigError> {
     let addr = get_address()?;
-    let port: i16 = get_core_port()?;
     let octets = helpers::convert_to_ip_array(addr);
     Ok(SocketAddr::V4(SocketAddrV4::new(
         Ipv4Addr::new(octets[0], octets[1], octets[2], octets[3]),
-        port as u16,
-    )))
-}
-
-pub fn get_world_server_addr() -> Result<SocketAddr, ConfigError> {
-    let addr = get_address()?;
-    let port: i16 = get_world_port()?;
-    let octets = helpers::convert_to_ip_array(addr);
-    Ok(SocketAddr::V4(SocketAddrV4::new(
-        Ipv4Addr::new(octets[0], octets[1], octets[2], octets[3]),
-        port as u16,
+        *port as u16,
     )))
 }
 
@@ -126,8 +106,8 @@ pub fn get_channel_world_pairs() -> Result<Vec<(i16, i16)>, ConfigError> {
     let worlds = [
         ("scania", WorldID::SCANIA),
         ("bera", WorldID::BERA),
-        ("windia", WorldID::WINDIA),
         ("broa", WorldID::BROA),
+        ("windia", WorldID::WINDIA),
         ("khaini", WorldID::KHAINI),
         ("mardia", WorldID::MARDIA),
         ("yellonde", WorldID::YELLONDE),

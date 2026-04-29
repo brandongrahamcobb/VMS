@@ -1,6 +1,5 @@
 use crate::models::error::ModelError;
 use crate::models::world;
-use crate::models::world::error::WorldError;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
@@ -26,7 +25,6 @@ impl ServerStatusHandler {
         _packet: Packet,
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
         let worlds = world::service::load_worlds()
-            .map_err(WorldError::from)
             .map_err(ModelError::from)
             .map_err(NetworkError::from)?;
         let status: i8 = if worlds.iter().any(|world| !world.channels.is_empty()) {

@@ -1,28 +1,30 @@
 use crate::config::settings;
 use crate::runtime::error::RuntimeError;
-use crate::runtime::relay::{Login, Runtime, World};
+use crate::runtime::relay::{ChannelRelay, LoginRelay, Runtime};
 use crate::runtime::state::SharedState;
 use tracing::info;
 
 pub enum ServerType {
-    CoreServer,
-    WorldServer,
+    LoginServer,
+    ChannelServer,
 }
 
-pub struct CoreServer;
+pub struct LoginServer;
 
-impl CoreServer {
+impl LoginServer {
     pub async fn run(shared_state: SharedState) -> Result<(), RuntimeError> {
-        let addr = settings::get_core_server_addr()?;
+        let port = settings::get_login_port()?;
+        let addr = settings::build_server_addr(&port)?;
         let listener = tokio::net::TcpListener::bind(&addr).await?;
         loop {
             match listener.accept().await {
                 Ok((stream, _addr)) => {
                     let clone = shared_state.clone();
                     tokio::spawn(async move {
-                        match Runtime::<Login>::new(clone, stream).await {
-                            Ok(mut core) => {
-                                if let Err(e) = core.run().await {
+                        match Runtime::<LoginRelay>::new(clone, stream).await {
+                            Ok(mut relay) => {
+                                info!("Listening on port {}...", port);
+                                if let Err(e) = relay.run().await {
                                     use std::error::Error;
                                     let mut current: Option<&dyn Error> = Some(&e);
                                     while let Some(err) = current {
@@ -51,20 +53,21 @@ impl CoreServer {
     }
 }
 
-pub struct WorldServer;
+pub struct ChannelServer;
 
-impl WorldServer {
-    pub async fn run(shared_state: SharedState) -> Result<(), RuntimeError> {
-        let addr = settings::get_world_server_addr()?;
+impl ChannelServer {
+    pub async fn run(shared_state: SharedState, port: i16) -> Result<(), RuntimeError> {
+        let addr = settings::build_server_addr(&port)?;
         let listener = tokio::net::TcpListener::bind(&addr).await?;
         loop {
             match listener.accept().await {
                 Ok((stream, _addr)) => {
                     let clone = shared_state.clone();
                     tokio::spawn(async move {
-                        match Runtime::<World>::new(clone, stream).await {
-                            Ok(mut world) => {
-                                if let Err(e) = world.run().await {
+                        match Runtime::<ChannelRelay>::new(clone, stream).await {
+                            Ok(mut relay) => {
+                                info!("Listening on port {}...", port);
+                                if let Err(e) = relay.run().await {
                                     use std::error::Error;
                                     let mut current: Option<&dyn Error> = Some(&e);
                                     while let Some(err) = current {
@@ -72,20 +75,23 @@ impl WorldServer {
                                         current = err.source();
                                     }
                                     info!(
-                                        "Expected a successful world relay loop. Received an error. Error: {}",
+                                        "Expected a successful channel relay loop on port {}. Received an error. Error: {}",
+                                        port,
                                         e.to_string(),
                                     );
                                 }
                             }
                             Err(e) => info!(
-                                "Expected valid world relay creation. Received an error. Error: {}",
+                                "Expected valid world relay creation on port {}. Received an error. Error: {}",
+                                port,
                                 e.to_string(),
                             ),
                         };
                     });
                 }
                 Err(e) => info!(
-                    "Expected valid connection. Received an error. Error: {}",
+                    "Expected valid connection on port {}. Received an error. Error: {}",
+                    port,
                     e.to_string(),
                 ),
             }

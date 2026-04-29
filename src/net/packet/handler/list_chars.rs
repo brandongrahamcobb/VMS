@@ -1,6 +1,5 @@
 use crate::config::settings;
 use crate::db::error::DatabaseError;
-use crate::models::character::error::CharacterError;
 use crate::models::character::model::Character;
 use crate::models::error::ModelError;
 use crate::models::{account, character, world};
@@ -46,7 +45,7 @@ impl CharListHandler {
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let _channel_id = reader
+        let channel_id = reader
             .read_byte()
             .map_err(ReadError)
             .map_err(PacketError::from)
@@ -60,6 +59,7 @@ impl CharListHandler {
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
         acc.selected_world_id = Some(world_id as i16);
+        acc.selected_channel_id = Some(channel_id as i16);
         account::query::update(state.clone(), &acc)
             .await
             .map_err(DatabaseError::from)
@@ -111,7 +111,6 @@ pub fn build_char_list(
         .map_err(NetworkError::from)?;
     for character in chars {
         character::service::write_list_char(&mut packet, &character)
-            .map_err(CharacterError::from)
             .map_err(ModelError::from)
             .map_err(NetworkError::from)?;
     }

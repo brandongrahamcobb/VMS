@@ -1,8 +1,8 @@
 #[derive(Clone, Debug)]
 pub struct Channel {
-    pub world_id: i16,
-    pub channel_id: i16,
-    pub name: String,
+    pub id: i16,
     pub capacity: i16,
+    pub flag: i8,
     pub port: i16,
+    pub world_id: i16,
 }

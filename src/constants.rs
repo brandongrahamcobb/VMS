@@ -66,33 +66,41 @@ pub const WORLDS: &[WorldInfo] = &[
     WorldInfo {
         id: 0,
         name: "Scania",
+        port: 8585,
     },
     WorldInfo {
         id: 1,
         name: "Bera",
+        port: 8686,
     },
     WorldInfo {
         id: 2,
-        name: "Windia",
+        name: "Broa",
+        port: 8787,
     },
     WorldInfo {
         id: 3,
-        name: "Broa",
+        name: "Windia",
+        port: 8888,
     },
     WorldInfo {
         id: 4,
         name: "Khaini",
+        port: 8989,
     },
     WorldInfo {
         id: 5,
         name: "Mardia",
+        port: 9090,
     },
     WorldInfo {
         id: 6,
         name: "Yellonde",
+        port: 9191,
     },
     WorldInfo {
         id: 7,
         name: "Bellocan",
+        port: 9292,
     },
 ];

@@ -8,16 +8,15 @@ diesel::table! {
         pin -> Nullable<Text>,
         pic -> Nullable<Text>,
         last_login_at -> Nullable<Timestamp>,
-        created_at -> Timestamp,
-        character_slots -> Int2,
         gender -> Int2,
         accepted_tos -> Bool,
         banned -> Bool,
         playing -> Bool,
-        updated_at -> Timestamp,
-        selected_character_id -> Nullable<Int4>,
+        selected_char_id -> Nullable<Int4>,
         selected_channel_id -> Nullable<Int2>,
         selected_world_id -> Nullable<Int2>,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
     }
 }
 
@@ -46,35 +45,129 @@ diesel::table! {
         hair_color -> Int4,
         skin -> Int4,
         gender -> Int2,
+        map -> Int4,
         created_at -> Nullable<Timestamp>,
-        map -> Nullable<Int4>,
         updated_at -> Nullable<Timestamp>
     }
 }
 
 diesel::table! {
-    worlds (id) {
-        id -> Int2,
+    character_equipment (char_id) {
+        char_id -> Int4,
+        hat -> Nullable<Int4>,
+        face_acc -> Nullable<Int4>,
+        eye_acc -> Nullable<Int4>,
+        ear_acc -> Nullable<Int4>,
+        top -> Nullable<Int4>,
+        bottom -> Nullable<Int4>,
+        shoes -> Nullable<Int4>,
+        gloves -> Nullable<Int4>,
+        cape -> Nullable<Int4>,
+        weapon -> Nullable<Int4>,
+        sub_weapon -> Nullable<Int4>,
+        belt -> Nullable<Int4>,
+        pendant_one -> Nullable<Int4>,
+        pendant_two -> Nullable<Int4>,
+        ring_one -> Nullable<Int4>,
+        ring_two -> Nullable<Int4>,
+        ring_three -> Nullable<Int4>,
+        ring_four -> Nullable<Int4>,
+        shoulder -> Nullable<Int4>,
+        emblem -> Nullable<Int4>,
+        medal -> Nullable<Int4>,
+        badge -> Nullable<Int4>,
+        android -> Nullable<Int4>,
+        heart -> Nullable<Int4>,
+        book -> Nullable<Int4>,
+        pocket -> Nullable<Int4>,
+        totem_one -> Nullable<Int4>,
+        totem_two -> Nullable<Int4>,
+        totem_three -> Nullable<Int4>,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>
     }
 }
 
 diesel::table! {
-    character_limits (account_id, world_id) {
-        account_id -> Int8,
+    cash_equipment (char_id) {
+        char_id -> Int4,
+        cash_ring_one -> Nullable<Int4>,
+        cash_ring_two -> Nullable<Int4>,
+        cash_ring_three -> Nullable<Int4>,
+        cash_ring_four -> Nullable<Int4>,
+        cash_hat -> Nullable<Int4>,
+        cash_face -> Nullable<Int4>,
+        cash_hair -> Nullable<Int4>,
+        cash_pendant -> Nullable<Int4>,
+        cash_weapon -> Nullable<Int4>,
+        cash_belt -> Nullable<Int4>,
+        cash_top -> Nullable<Int4>,
+        cash_bottom -> Nullable<Int4>,
+        cash_shoes -> Nullable<Int4>,
+        cash_ear_acc -> Nullable<Int4>,
+        cash_shoulder -> Nullable<Int4>,
+        cash_sub_weapon -> Nullable<Int4>,
+        cash_cape -> Nullable<Int4>,
+        cash_gloves -> Nullable<Int4>,
+        cash_eye_acc -> Nullable<Int4>,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>
+    }
+}
+
+diesel::table! {
+    pet_equipment (char_id) {
+        char_id -> Int4,
+        pet_one_acc -> Nullable<Int4>,
+        pet_two_acc -> Nullable<Int4>,
+        pet_three_acc -> Nullable<Int4>,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>
+    }
+}
+
+diesel::table! {
+    android_equipment (char_id) {
+        char_id -> Int4,
+        android_hat -> Nullable<Int4>,
+        android_face -> Nullable<Int4>,
+        android_top -> Nullable<Int4>,
+        android_bottom -> Nullable<Int4>,
+        android_gloves -> Nullable<Int4>,
+        android_cape -> Nullable<Int4>,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>
+    }
+}
+
+diesel::table! {
+    character_limits (acc_id, world_id) {
+        acc_id -> Int8,
         world_id -> Int2,
         char_max -> Int4,
+        created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
     }
 }
 
 diesel::table! {
-
     keybindings (id) {
         id -> Int4,
-        character_id -> Int4,
+        char_id -> Int4,
         key -> Int2,
         bind_type -> Int2,
         action -> Int2,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
+
     }
 }
-diesel::allow_tables_to_appear_in_same_query!(accounts, character_limits, characters, worlds);
+diesel::allow_tables_to_appear_in_same_query!(
+    accounts,
+    android_equipment,
+    cash_equipment,
+    character_equipment,
+    character_limits,
+    characters,
+    pet_equipment,
+);

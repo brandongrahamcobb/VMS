@@ -2,9 +2,9 @@ use core::ops::ControlFlow;
 
 use crate::config::settings;
 use crate::net::packet::core::Packet;
-use crate::net::packet::handler::action::{LoginAction, WorldAction};
+use crate::net::packet::handler::action::{ChannelAction, LoginAction};
+use crate::net::packet::handler::core::ChannelHandler;
 use crate::net::packet::handler::core::LoginHandler;
-use crate::net::packet::handler::core::WorldHandler;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::handler::{
     cc, char_select, check_char_name, create_char, credentials, delete_char, enter_cash_shop,
@@ -78,11 +78,7 @@ impl<T: RuntimeRelay + Default + Send> Runtime<T> {
                 .relay
                 .handle_packet(self.state.clone(), session, packet)
                 .await?;
-            match self
-                .relay
-                .execute(&self.reader, &mut self.writer, result)
-                .await?
-            {
+            match self.relay.execute(&mut self.writer, result).await? {
                 ControlFlow::Break(_) => break Ok(()),
                 _ => continue,
             }
@@ -103,16 +99,15 @@ pub trait RuntimeRelay {
 
     async fn execute(
         &mut self,
-        reader: &PacketReader,
         writer: &mut PacketWriter,
         result: HandlerResult<Self::HandlerAction>,
     ) -> Result<ControlFlow<()>, RuntimeError>;
 }
 
 #[derive(Default)]
-pub struct Login;
+pub struct LoginRelay;
 
-impl RuntimeRelay for Login {
+impl RuntimeRelay for LoginRelay {
     type HandlerAction = LoginAction;
 
     async fn handle_packet(
@@ -186,7 +181,6 @@ impl RuntimeRelay for Login {
 
     async fn execute(
         self: &mut Self,
-        reader: &PacketReader,
         writer: &mut PacketWriter,
         result: HandlerResult<LoginAction>,
     ) -> Result<ControlFlow<()>, RuntimeError> {
@@ -205,48 +199,50 @@ impl RuntimeRelay for Login {
 }
 
 #[derive(Default)]
-pub struct World;
+pub struct ChannelRelay;
 
-impl RuntimeRelay for World {
-    type HandlerAction = WorldAction;
+impl RuntimeRelay for ChannelRelay {
+    type HandlerAction = ChannelAction;
 
     async fn handle_packet(
         self: &mut Self,
         state: SharedState,
         session: Session,
         packet: Packet,
-    ) -> Result<HandlerResult<WorldAction>, RuntimeError> {
+    ) -> Result<HandlerResult<ChannelAction>, RuntimeError> {
         let opcode = packet.opcode();
         let en = RecvOpcode::from_i16(opcode).ok_or(RuntimeError::UnsupportedOpcodeError(
             opcode,
-            String::from("not expected in world"),
+            String::from("not expected in channel"),
         ));
         debug!(
-            "Received opcode in world: {} (0x{:02X}) ({:?})",
+            "Received opcode in channel: {} (0x{:02X}) ({:?})",
             opcode, opcode, en
         );
         let handler = match opcode {
-            x if x == RecvOpcode::ChangeChannel as i16 => {
-                Ok(WorldHandler::ChangeChannel(cc::ChangeChannelHandler::new()))
-            }
-            x if x == RecvOpcode::PlayerLoggedIn as i16 => Ok(WorldHandler::PlayerLoggedIn(
+            x if x == RecvOpcode::ChangeChannel as i16 => Ok(ChannelHandler::ChangeChannel(
+                cc::ChangeChannelHandler::new(),
+            )),
+            x if x == RecvOpcode::PlayerLoggedIn as i16 => Ok(ChannelHandler::PlayerLoggedIn(
                 play::PlayerLoggedInHandler::new(),
             )),
-            x if x == RecvOpcode::PartySearch as i16 => Ok(WorldHandler::PartySearch(
+            x if x == RecvOpcode::PartySearch as i16 => Ok(ChannelHandler::PartySearch(
                 party_search::PartySearchHandler::new(),
             )),
-            x if x == RecvOpcode::PlayerMapTransfer as i16 => Ok(WorldHandler::PlayerMapTransfer(
-                player_map_transfer::PlayerMapTransferHandler::new(),
-            )),
-            x if x == RecvOpcode::PlayerMove as i16 => Ok(WorldHandler::MovePlayer(
+            x if x == RecvOpcode::PlayerMapTransfer as i16 => {
+                Ok(ChannelHandler::PlayerMapTransfer(
+                    player_map_transfer::PlayerMapTransferHandler::new(),
+                ))
+            }
+            x if x == RecvOpcode::PlayerMove as i16 => Ok(ChannelHandler::MovePlayer(
                 move_player::MovePlayerHandler::new(),
             )),
-            x if x == RecvOpcode::EnterCashShop as i16 => Ok(WorldHandler::EnterCashShop(
+            x if x == RecvOpcode::EnterCashShop as i16 => Ok(ChannelHandler::EnterCashShop(
                 enter_cash_shop::EnterCashShopHandler::new(),
             )),
             _ => Err(RuntimeError::UnsupportedOpcodeError(
                 opcode,
-                String::from("expected in world"),
+                String::from("expected in channel"),
             )),
         };
         handler?
@@ -257,18 +253,17 @@ impl RuntimeRelay for World {
 
     async fn execute(
         self: &mut Self,
-        reader: &PacketReader,
         writer: &mut PacketWriter,
-        result: HandlerResult<WorldAction>,
+        result: HandlerResult<ChannelAction>,
     ) -> Result<ControlFlow<()>, RuntimeError> {
         let actions = result.actions;
         for action in actions {
             match action {
-                WorldAction::Simple => (),
-                WorldAction::SendPacket { mut packet } => {
+                ChannelAction::Simple => (),
+                ChannelAction::SendPacket { mut packet } => {
                     writer.send_encrypted_packet(&mut packet).await?
                 }
-                WorldAction::FieldMove { movement_bytes } => (), // not implemented
+                ChannelAction::FieldMove { movement_bytes } => (), // not implemented
             }
         }
         return Ok(ControlFlow::Continue(()));

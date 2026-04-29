@@ -6,7 +6,7 @@ pub enum LoginAction {
     CloseConnection,
 }
 
-pub enum WorldAction {
+pub enum ChannelAction {
     FieldMove { movement_bytes: Vec<u8> },
     Simple,
     SendPacket { packet: Packet },

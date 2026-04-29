@@ -53,7 +53,7 @@ impl DeleteCharacterHandler {
         let mut result = HandlerResult::new();
         let packet = build_char_delete(char_id, 0x00)?;
         let action = LoginAction::SendPacket { packet };
-        result.add_action(action);
+        result.add_action(action)?;
         Ok(result)
     }
 }

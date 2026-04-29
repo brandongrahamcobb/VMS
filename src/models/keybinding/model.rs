@@ -1,3 +1,5 @@
+use std::time::SystemTime;
+
 use crate::db::schema::keybindings;
 use diesel::prelude::*;
 
@@ -5,16 +7,18 @@ use diesel::prelude::*;
 #[diesel(table_name = keybindings)]
 pub struct Keybinding {
     pub id: i32,
-    pub character_id: i32,
+    pub char_id: i32,
     pub key: i16,
     pub bind_type: i16,
     pub action: i16,
+    pub created_at: Option<SystemTime>,
+    pub updated_at: Option<SystemTime>,
 }
 
 #[derive(Clone, Insertable, AsChangeset)]
 #[diesel(table_name = keybindings)]
 pub struct NewKeybinding {
-    pub character_id: i32,
+    pub char_id: i32,
     pub key: i16,
     pub bind_type: i16,
     pub action: i16,
@@ -34,13 +38,15 @@ pub enum KeybindType {
 }
 
 impl Keybinding {
-    pub fn empty(character_id: i32, key: i16) -> Self {
+    pub fn empty(char_id: i32, key: i16) -> Self {
         Self {
             id: 0,
-            character_id,
+            char_id,
             key,
             bind_type: KeybindType::Nil as i16,
             action: 0,
+            created_at: None,
+            updated_at: None,
         }
     }
 }

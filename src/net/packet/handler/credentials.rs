@@ -1,8 +1,10 @@
 use crate::config::settings;
 use crate::db::error::DatabaseError;
-use crate::models::account;
-use crate::models::account::model::Account;
 use crate::inc::helpers;
+use crate::models::account;
+use crate::models::account::error::AccountError;
+use crate::models::account::model::Account;
+use crate::models::error::ModelError;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
@@ -189,11 +191,14 @@ pub fn build_successful_login_packet(acc: &Account) -> Result<Packet, NetworkErr
     let pin_required = settings::get_pin_required()?;
     let mut packet = Packet::new_empty();
     let opcode = SendOpcode::AccountStatus as i16;
-    let account_id = acc.id as i32;
+    let acc_id = acc.id as i32;
     let gender = acc.gender;
     let account_name = &acc.username;
     let created_at: i64 = acc
         .created_at
+        .ok_or(AccountError::MissingField)
+        .map_err(ModelError::from)
+        .map_err(NetworkError::from)?
         .duration_since(UNIX_EPOCH)?
         .as_secs()
         .try_into()?;
@@ -213,7 +218,7 @@ pub fn build_successful_login_packet(acc: &Account) -> Result<Packet, NetworkErr
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     packet
-        .write_int(account_id)
+        .write_int(acc_id)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;

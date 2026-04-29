@@ -1,16 +1,15 @@
 use crate::config::settings;
 use crate::db::error::DatabaseError;
+use crate::inc::helpers;
 use crate::models::account;
 use crate::models::channel;
-use crate::models::channel::error::ChannelError;
 use crate::models::channel::model::Channel;
 use crate::models::error::ModelError;
 use crate::models::world;
-use crate::models::world::error::WorldError;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::action::WorldAction;
+use crate::net::packet::handler::action::ChannelAction;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::{ReadError, WriteError};
 use crate::op::send::SendOpcode;
@@ -18,7 +17,6 @@ use crate::prelude::*;
 use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
-use core::net::IpAddr;
 use std::io::Cursor;
 
 pub struct ChangeChannelHandler;
@@ -33,7 +31,7 @@ impl ChangeChannelHandler {
         state: SharedState,
         session: Session,
         packet: Packet,
-    ) -> Result<HandlerResult<WorldAction>, NetworkError> {
+    ) -> Result<HandlerResult<ChannelAction>, NetworkError> {
         let mut reader = Cursor::new(packet.bytes);
         let _op = reader
             .read_short()
@@ -59,7 +57,6 @@ impl ChangeChannelHandler {
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
         let worlds = world::service::load_worlds()
-            .map_err(WorldError::from)
             .map_err(ModelError::from)
             .map_err(NetworkError::from)?;
         let channel = channel::service::resolve_channel(
@@ -67,12 +64,11 @@ impl ChangeChannelHandler {
             acc.selected_world_id.ok_or(NetworkError::UnexpectedError)?,
             worlds,
         )
-        .map_err(ChannelError::from)
         .map_err(ModelError::from)
         .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
         let packet = build_channel_change_packet(&channel)?;
-        let action = WorldAction::SendPacket { packet };
+        let action = ChannelAction::SendPacket { packet };
         result.add_action(action)?;
         Ok(result)
     }
@@ -80,12 +76,8 @@ impl ChangeChannelHandler {
 
 pub fn build_channel_change_packet(channel: &Channel) -> Result<Packet, NetworkError> {
     let mut packet = Packet::new_empty();
-    let addr = settings::get_world_server_addr()?;
-    let port = settings::get_world_port()?;
-    let v4 = match addr.ip() {
-        IpAddr::V4(v4) => v4,
-        IpAddr::V6(_) => return Err(NetworkError::UnexpectedError),
-    };
+    let addr = settings::get_address()?;
+    let octets = helpers::convert_to_ip_array(addr);
     let op = SendOpcode::ChangeChannel as i16;
     packet
         .write_short(op)
@@ -98,13 +90,12 @@ pub fn build_channel_change_packet(channel: &Channel) -> Result<Packet, NetworkE
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     packet
-        .write_bytes(&v4.octets())
+        .write_bytes(&octets)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     packet
-        // .write_short(channel.port)
-        .write_short(port)
+        .write_short(channel.port)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;

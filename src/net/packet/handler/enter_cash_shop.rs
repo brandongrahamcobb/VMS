@@ -7,7 +7,7 @@ use crate::models::{account, character};
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::action::WorldAction;
+use crate::net::packet::handler::action::ChannelAction;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::op::send::SendOpcode;
@@ -28,7 +28,7 @@ impl EnterCashShopHandler {
         state: SharedState,
         session: Session,
         _packet: Packet,
-    ) -> Result<HandlerResult<WorldAction>, NetworkError> {
+    ) -> Result<HandlerResult<ChannelAction>, NetworkError> {
         let acc_id = session
             .acc_id
             .ok_or(SessionError::NoAccount)
@@ -38,7 +38,7 @@ impl EnterCashShopHandler {
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
         let char_id = acc
-            .selected_character_id
+            .selected_char_id
             .ok_or(CharacterError::NotSelected(acc_id))
             .map_err(ModelError::from)
             .map_err(NetworkError::from)?;
@@ -48,7 +48,7 @@ impl EnterCashShopHandler {
             .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
         let packet = build_cash_shop_packet(&acc, &char, &session)?;
-        let action = WorldAction::SendPacket { packet };
+        let action = ChannelAction::SendPacket { packet };
         result.add_action(action)?;
         Ok(result)
     }
@@ -78,7 +78,6 @@ pub fn build_cash_shop_packet(
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     character::service::write_game_char(&mut packet, char)
-        .map_err(CharacterError::from)
         .map_err(ModelError::from)
         .map_err(NetworkError::from)?;
     write_cash_shop(&mut packet, acc)?;

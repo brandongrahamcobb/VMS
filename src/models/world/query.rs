@@ -5,7 +5,7 @@ use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
 pub async fn get_character_max_by_account_and_world_id(
     state: SharedState,
-    account_id: i64,
+    acc_id: i64,
     world_id: i16,
 ) -> QueryResult<i32> {
     let db = {
@@ -19,7 +19,7 @@ pub async fn get_character_max_by_account_and_world_id(
         )
     })?;
     character_limits::table
-        .filter(character_limits::account_id.eq(account_id))
+        .filter(character_limits::acc_id.eq(acc_id))
         .filter(character_limits::world_id.eq(world_id))
         .select(character_limits::char_max)
         .first(&mut conn)
