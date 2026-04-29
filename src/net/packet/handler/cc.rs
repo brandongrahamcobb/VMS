@@ -81,6 +81,7 @@ impl ChangeChannelHandler {
 pub fn build_channel_change_packet(channel: &Channel) -> Result<Packet, NetworkError> {
     let mut packet = Packet::new_empty();
     let addr = settings::get_world_server_addr()?;
+    let port = settings::get_world_port()?;
     let v4 = match addr.ip() {
         IpAddr::V4(v4) => v4,
         IpAddr::V6(_) => return Err(NetworkError::UnexpectedError),
@@ -102,7 +103,8 @@ pub fn build_channel_change_packet(channel: &Channel) -> Result<Packet, NetworkE
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     packet
-        .write_short(channel.port)
+        // .write_short(channel.port)
+        .write_short(port)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
