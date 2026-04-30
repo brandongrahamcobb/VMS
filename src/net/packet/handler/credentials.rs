@@ -46,6 +46,14 @@ impl CredentialsHandler {
         match account::query::get_account_by_username(state.clone(), &user).await {
             Ok(acc) => {
                 let action = if authenticate(&acc, &pw)? {
+                    {
+                        let state = state.lock().await;
+                        state.sessions.update(session.id as u32, |session| {
+                            session.acc_id = Some(acc.id);
+                            session.authenticated = true;
+                            session.hwid = Some(hwid);
+                        });
+                    }
                     let status = get_status_code(&acc)?;
                     let packet = if matches!(
                         status,
@@ -53,14 +61,6 @@ impl CredentialsHandler {
                     ) {
                         build_failed_login_packet(status as i8)?
                     } else {
-                        {
-                            let state = state.lock().await;
-                            state.sessions.update(session.id as u32, |session| {
-                                session.acc_id = Some(acc.id);
-                                session.authenticated = true;
-                                session.hwid = Some(hwid);
-                            });
-                        }
                         build_successful_login_packet(&acc)?
                     };
                     LoginAction::SendPacket { packet }

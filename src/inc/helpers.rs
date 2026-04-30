@@ -16,3 +16,11 @@ pub fn convert_to_ip_array(addr: String) -> [u8; 4] {
     }
     octets
 }
+
+pub fn print_packet_bytes(buf: &[u8]) {
+    let mut hex = String::new();
+    for b in buf {
+        hex.push_str(&format!("{:02X} ", b));
+    }
+    println!("{}", hex);
+}

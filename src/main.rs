@@ -3,6 +3,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
+use vms::config::settings;
 use vms::models::error::ModelError;
 use vms::models::world;
 use vms::runtime::error::RuntimeError;

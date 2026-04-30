@@ -16,6 +16,7 @@ pub struct Session {
     pub acc_id: Option<i32>,
     pub authenticated: bool,
     pub hwid: Option<String>,
+    pub valid_pic: bool,
 }
 
 pub struct SessionStore {

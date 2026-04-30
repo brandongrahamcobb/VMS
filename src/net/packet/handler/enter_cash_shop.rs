@@ -1,7 +1,7 @@
 use crate::db::error::DatabaseError;
 use crate::models::account::model::Account;
 use crate::models::character::error::CharacterError;
-use crate::models::character::model::Character;
+use crate::models::character::model::{CashEquipment, Character, CharacterEquipment};
 use crate::models::error::ModelError;
 use crate::models::{account, character};
 use crate::net::error::NetworkError;
@@ -46,17 +46,29 @@ impl EnterCashShopHandler {
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
+        let char_equips =
+            character::query::get_character_equipment_by_character_id(state.clone(), char_id)
+                .await
+                .map_err(DatabaseError::from)
+                .map_err(NetworkError::from)?;
+        let cash_equips =
+            character::query::get_cash_equipment_by_character_id(state.clone(), char_id)
+                .await
+                .map_err(DatabaseError::from)
+                .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
-        let packet = build_cash_shop_packet(&acc, &char, &session)?;
+        let packet = build_cash_shop_packet(&session, &acc, &char, &char_equips, &cash_equips)?;
         let action = ChannelAction::SendPacket { packet };
         result.add_action(action)?;
         Ok(result)
     }
 }
 pub fn build_cash_shop_packet(
+    session: &Session,
     acc: &Account,
     char: &Character,
-    session: &Session,
+    char_equips: &CharacterEquipment,
+    cash_equips: &CashEquipment,
 ) -> Result<Packet, NetworkError> {
     let mut packet = Packet::new_empty();
     let op = SendOpcode::SetCashShop as i16;
@@ -77,7 +89,7 @@ pub fn build_cash_shop_packet(
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
-    character::service::write_game_char(&mut packet, char)
+    character::play_service::write_game_char(&mut packet, char, char_equips, cash_equips)
         .map_err(ModelError::from)
         .map_err(NetworkError::from)?;
     write_cash_shop(&mut packet, acc)?;

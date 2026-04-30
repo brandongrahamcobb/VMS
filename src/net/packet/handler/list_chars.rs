@@ -1,5 +1,6 @@
 use crate::config::settings;
 use crate::db::error::DatabaseError;
+use crate::inc::helpers;
 use crate::models::character::model::Character;
 use crate::models::error::ModelError;
 use crate::models::{account, character, world};
@@ -84,14 +85,15 @@ impl CharListHandler {
         let use_pic = settings::get_pic_required()?;
         let pic_status = if use_pic { 2 } else { 0 };
         let mut result = HandlerResult::new();
-        let packet = build_char_list(chars, char_max, pic_status)?;
+        let packet = build_char_list(state.clone(), chars, char_max, pic_status).await?;
         let action = LoginAction::SendPacket { packet };
         result.add_action(action)?;
         Ok(result)
     }
 }
 
-pub fn build_char_list(
+pub async fn build_char_list(
+    state: SharedState,
     chars: Vec<Character>,
     char_max: i32,
     pic_status: i8,
@@ -113,8 +115,18 @@ pub fn build_char_list(
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
-    for character in chars {
-        character::service::write_list_char(&mut packet, &character)
+    for char in chars {
+        let char_equips =
+            character::query::get_character_equipment_by_character_id(state.clone(), char.id)
+                .await
+                .map_err(DatabaseError::from)
+                .map_err(NetworkError::from)?;
+        let cash_equips =
+            character::query::get_cash_equipment_by_character_id(state.clone(), char.id)
+                .await
+                .map_err(DatabaseError::from)
+                .map_err(NetworkError::from)?;
+        character::list_service::write_list_char(&mut packet, &char, &char_equips, &cash_equips)
             .map_err(ModelError::from)
             .map_err(NetworkError::from)?;
     }

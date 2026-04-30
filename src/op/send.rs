@@ -11,6 +11,7 @@ pub enum SendOpcode {
     ChangeChannel = 0x10,
     CharList = 0x0B,
     ServerIp = 0x0C,
+    CheckSpwResult = 0x1C,
     CharNameResponse = 0x0D,
     LastConnectedWorld = 0x1A,
     RecommendedWorlds = 0x1B,

@@ -1,6 +1,9 @@
 use crate::constants::{DEFAULT_ACTION, DEFAULT_KEY, DEFAULT_TYPE};
 use crate::db::error::DatabaseError;
-use crate::models::character::model::{Character, NewCharacter, NewCharacterEquipment};
+use crate::models::character::model::{
+    CashEquipment, Character, CharacterEquipment, NewCashEquipment, NewCharacter,
+    NewCharacterEquipment,
+};
 use crate::models::error::ModelError;
 use crate::models::keybinding::model::NewKeybinding;
 use crate::models::world::error::WorldError;
@@ -122,16 +125,21 @@ impl CreateCharacterHandler {
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
-        let equips = NewCharacterEquipment {
+        let char_equips = NewCharacterEquipment {
             char_id: char.id,
             hat: None, // might exist or not based on class
             top,
             bottom: Some(bottom), // might be none
             shoes,
             weapon,
-            sub_weapon: None, // might exist or not based on class
+            shield: None, // might exist or not based on class
         };
-        character::query::create_equipment(state.clone(), &equips)
+        let char_equips = character::query::create_character_equipment(state.clone(), &char_equips)
+            .await
+            .map_err(DatabaseError::from)
+            .map_err(NetworkError::from)?;
+        let cash_equips = NewCashEquipment { char_id: char.id };
+        let cash_equips = character::query::create_cash_equipment(state.clone(), &cash_equips)
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
@@ -148,7 +156,7 @@ impl CreateCharacterHandler {
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
-        let packet = build_create_char_packet(char)?;
+        let packet = build_create_char_packet(&char, &char_equips, &cash_equips)?;
         let action = LoginAction::SendPacket { packet };
         result.add_action(action)?;
         Ok(result)
@@ -166,7 +174,11 @@ fn get_map_id_for_job(job: i16) -> Result<i32, NetworkError> {
     }
 }
 
-fn build_create_char_packet(char: Character) -> Result<Packet, NetworkError> {
+fn build_create_char_packet(
+    char: &Character,
+    char_equips: &CharacterEquipment,
+    cash_equips: &CashEquipment,
+) -> Result<Packet, NetworkError> {
     let mut packet = Packet::new_empty();
     let op = SendOpcode::NewCharacter as i16;
     packet
@@ -182,13 +194,16 @@ fn build_create_char_packet(char: Character) -> Result<Packet, NetworkError> {
     character::service::write_char_meta(&mut packet, &char)
         .map_err(ModelError::from)
         .map_err(NetworkError::from)?;
-    character::service::write_char_look(&mut packet, &char)
+    character::list_service::write_char_look(&mut packet, &char)
         .map_err(ModelError::from)
         .map_err(NetworkError::from)?;
-    character::service::write_char_equips(&mut packet, &char)
+    character::list_service::write_char_equips(&mut packet, &char, &char_equips)
         .map_err(ModelError::from)
         .map_err(NetworkError::from)?;
-    character::service::write_game_char(&mut packet, &char)
+    character::list_service::finish_equips(&mut packet)
+        .map_err(ModelError::from)
+        .map_err(NetworkError::from)?;
+    character::play_service::write_game_char(&mut packet, &char, char_equips, cash_equips)
         .map_err(ModelError::from)
         .map_err(NetworkError::from)?;
     Ok(packet)

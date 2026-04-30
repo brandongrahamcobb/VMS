@@ -11,6 +11,7 @@ require("telescope").setup({
 			".git/",
 			"README.md",
 			"LICENSE",
+			"GM_Book/",
 		},
 	},
 })

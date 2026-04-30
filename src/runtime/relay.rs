@@ -8,8 +8,8 @@ use crate::net::packet::handler::core::LoginHandler;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::handler::{
     cc, char_select, check_char_name, create_char, credentials, delete_char, enter_cash_shop,
-    handshake, list_chars, list_worlds, login_start, move_player, party_search, play,
-    player_map_transfer, server_status, tos,
+    handshake, list_chars, list_worlds, login_start, move_player, party_search, pic, play,
+    player_map_transfer, server_status, spw, tos,
 };
 use crate::net::packet::io::{read::PacketReader, write::PacketWriter};
 use crate::op::recv::RecvOpcode;
@@ -52,6 +52,7 @@ impl<T: RuntimeRelay + Default + Send> Runtime<T> {
                 acc_id: None,
                 authenticated: false,
                 hwid: None,
+                valid_pic: false,
             })
         };
         Ok(Self {
@@ -167,6 +168,12 @@ impl RuntimeRelay for LoginRelay {
                 x if x == RecvOpcode::CharSelect as i16 => Ok(LoginHandler::CharSelect(
                     char_select::CharacterSelectHandler::new(),
                 )),
+                x if x == RecvOpcode::RegisterPic as i16 => {
+                    Ok(LoginHandler::RegisterPic(spw::SpwHandler::new()))
+                }
+                x if x == RecvOpcode::CharSelectWithPic as i16 => {
+                    Ok(LoginHandler::CharSelectWithPic(pic::PicHandler::new()))
+                }
                 _ => Err(RuntimeError::UnsupportedOpcodeError(
                     opcode,
                     String::from("expected after authentication"),
