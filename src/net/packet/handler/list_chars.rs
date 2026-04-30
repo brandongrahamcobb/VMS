@@ -82,10 +82,14 @@ impl CharListHandler {
         .map_err(DatabaseError::from)
         .map_err(NetworkError::from)
         .unwrap_or(8);
+        let mut pic_status = 0;
         let use_pic = settings::get_pic_required()?;
-        let pic_status = if use_pic { 2 } else { 0 };
+        if Some(pic) == acc.pic {
+            pic_status = if use_pic { 1 } else { 2 };
+        }
         let mut result = HandlerResult::new();
-        let packet = build_char_list(state.clone(), chars, char_max, pic_status).await?;
+        let packet =
+            build_char_list(state.clone(), channel_id, chars, char_max, pic_status).await?;
         let action = LoginAction::SendPacket { packet };
         result.add_action(action)?;
         Ok(result)
@@ -94,6 +98,7 @@ impl CharListHandler {
 
 pub async fn build_char_list(
     state: SharedState,
+    channel_id: i8,
     chars: Vec<Character>,
     char_max: i32,
     pic_status: i8,
@@ -106,7 +111,7 @@ pub async fn build_char_list(
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     packet
-        .write_byte(0) // account status
+        .write_byte(channel_id as u8)
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;

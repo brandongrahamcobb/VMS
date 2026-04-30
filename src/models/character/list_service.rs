@@ -10,7 +10,7 @@ use crate::prelude::*;
 
 pub fn finish_equips(packet: &mut Packet) -> Result<(), ModelError> {
     packet
-        .write_int(0) // not sure what this does, weapon... again?
+        .write_int(0) //maskedequips -111
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(CharacterError::from)
@@ -44,22 +44,7 @@ pub fn write_list_char(
     cash_equips: &CashEquipment,
 ) -> Result<(), ModelError> {
     write_char_meta(packet, char)?;
-    write_char_look(packet, char)?;
-    write_char_equips(packet, char, char_equips)?;
-    packet
-        .write_byte(0xFF)
-        .map_err(WriteError)
-        .map_err(PacketError::from)
-        .map_err(CharacterError::from)
-        .map_err(ModelError::from)?;
-    write_cash_equips(packet, char, cash_equips)?;
-    packet
-        .write_byte(0xFF)
-        .map_err(WriteError)
-        .map_err(PacketError::from)
-        .map_err(CharacterError::from)
-        .map_err(ModelError::from)?;
-    finish_equips(packet)?;
+    write_char_look(packet, char, char_equips, cash_equips)?;
     packet
         .write_byte(0)
         .map_err(WriteError)
@@ -76,7 +61,12 @@ pub fn write_list_char(
     Ok(())
 }
 
-pub fn write_char_look(packet: &mut Packet, char: &Character) -> Result<(), ModelError> {
+pub fn write_char_look(
+    packet: &mut Packet,
+    char: &Character,
+    char_equips: &CharacterEquipment,
+    cash_equips: &CashEquipment,
+) -> Result<(), ModelError> {
     packet
         .write_byte(char.gender as u8)
         .map_err(WriteError)
@@ -96,7 +86,7 @@ pub fn write_char_look(packet: &mut Packet, char: &Character) -> Result<(), Mode
         .map_err(CharacterError::from)
         .map_err(ModelError::from)?;
     packet
-        .write_byte(0)
+        .write_byte(0) // megaphone
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(CharacterError::from)
@@ -107,6 +97,21 @@ pub fn write_char_look(packet: &mut Packet, char: &Character) -> Result<(), Mode
         .map_err(PacketError::from)
         .map_err(CharacterError::from)
         .map_err(ModelError::from)?;
+    write_char_equips(packet, char, char_equips)?;
+    packet
+        .write_byte(0xFF)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(CharacterError::from)
+        .map_err(ModelError::from)?;
+    write_cash_equips(packet, char, cash_equips)?;
+    packet
+        .write_byte(0xFF)
+        .map_err(WriteError)
+        .map_err(PacketError::from)
+        .map_err(CharacterError::from)
+        .map_err(ModelError::from)?;
+    finish_equips(packet)?;
     Ok(())
 }
 
@@ -197,7 +202,7 @@ pub fn write_char_equips(
             .map_err(CharacterError::from)
             .map_err(ModelError::from)?;
         packet
-            .write_int(char_equips.eye_acc.unwrap())
+            .write_int(char_equips.ear_acc.unwrap())
             .map_err(WriteError)
             .map_err(PacketError::from)
             .map_err(CharacterError::from)
@@ -471,7 +476,7 @@ pub fn write_char_equips(
     }
     if char_equips.badge.is_some() {
         packet
-            .write_byte(8)
+            .write_byte(57)
             .map_err(WriteError)
             .map_err(PacketError::from)
             .map_err(CharacterError::from)
@@ -569,7 +574,7 @@ pub fn write_cash_equips(
             .map_err(CharacterError::from)
             .map_err(ModelError::from)?;
         packet
-            .write_int(cash_equips.eye_acc.unwrap())
+            .write_int(cash_equips.ear_acc.unwrap())
             .map_err(WriteError)
             .map_err(PacketError::from)
             .map_err(CharacterError::from)
