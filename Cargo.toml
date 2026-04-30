@@ -22,3 +22,4 @@ num-derive = "0.4.2"
 dotenvy = "0.15.7"
 itertools = "0.14.0"
 futures = "0.3.32"
+shroom-wz = { git = "https://github.com/jon-zu/shroom-lib.git", package = "shroom-wz" }

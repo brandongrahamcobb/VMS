@@ -191,19 +191,7 @@ fn build_create_char_packet(
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
-    character::service::write_char_meta(&mut packet, &char)
-        .map_err(ModelError::from)
-        .map_err(NetworkError::from)?;
-    character::list_service::write_char_look(&mut packet, &char)
-        .map_err(ModelError::from)
-        .map_err(NetworkError::from)?;
-    character::list_service::write_char_equips(&mut packet, &char, &char_equips)
-        .map_err(ModelError::from)
-        .map_err(NetworkError::from)?;
-    character::list_service::finish_equips(&mut packet)
-        .map_err(ModelError::from)
-        .map_err(NetworkError::from)?;
-    character::play_service::write_game_char(&mut packet, &char, char_equips, cash_equips)
+    character::list_service::write_list_char(&mut packet, &char, &char_equips, &cash_equips)
         .map_err(ModelError::from)
         .map_err(NetworkError::from)?;
     Ok(packet)
