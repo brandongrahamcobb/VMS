@@ -32,18 +32,18 @@ impl ChangeChannelHandler {
         session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<ChannelAction>, NetworkError> {
-        let mut reader = Cursor::new(packet.bytes);
-        let _op = reader
+        let mut pkt_reader = Cursor::new(packet.bytes);
+        let _op = pkt_reader
             .read_short()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let channel_id = reader
+        let channel_id = pkt_reader
             .read_byte()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let _tick = reader
+        let _tick = pkt_reader
             .read_int()
             .map_err(ReadError)
             .map_err(PacketError::from)

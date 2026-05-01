@@ -14,3 +14,4 @@ HeavenClient/*.aps
 HeavenClient/*.log
 HeavenClient/*.tlog
 HeavenClient/includes/
+data/

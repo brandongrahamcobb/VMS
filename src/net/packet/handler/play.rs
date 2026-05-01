@@ -14,7 +14,6 @@ use crate::prelude::*;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 use std::io::Cursor;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 pub struct PlayerLoggedInHandler;
 
@@ -29,13 +28,13 @@ impl PlayerLoggedInHandler {
         session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<ChannelAction>, NetworkError> {
-        let mut reader = Cursor::new(packet.bytes);
-        reader
+        let mut pkt_reader = Cursor::new(packet.bytes);
+        pkt_reader
             .read_short() // prune opcode
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let char_id = reader
+        let char_id = pkt_reader
             .read_int()
             .map_err(ReadError)
             .map_err(PacketError::from)
@@ -50,7 +49,7 @@ impl PlayerLoggedInHandler {
                 session.acc_id = Some(acc_id);
             });
         }
-        let channel_id = reader
+        let channel_id = pkt_reader
             .read_byte()
             .map_err(ReadError)
             .map_err(PacketError::from)
@@ -78,6 +77,7 @@ impl PlayerLoggedInHandler {
         let mut packets = Vec::new();
         packets.push(build_keymap(&binds)?);
         packets.push(build_char_info(
+            state.clone(),
             &char,
             channel_id as i16,
             &char_equips,
@@ -134,6 +134,7 @@ pub fn normalize_keybindings(bindings: Vec<Keybinding>, char_id: i32) -> Vec<Key
 }
 
 pub fn build_char_info(
+    state: SharedState,
     char: &Character,
     channel_id: i16,
     char_equips: &CharacterEquipment,
@@ -190,8 +191,14 @@ pub fn build_char_info(
     character::service::write_char_meta(&mut packet, char)
         .map_err(ModelError::from)
         .map_err(NetworkError::from)?;
-    character::play_service::write_game_char(&mut packet, char, char_equips, cash_equips)
-        .map_err(ModelError::from)
-        .map_err(NetworkError::from)?;
+    character::play_service::write_game_char(
+        state.clone(),
+        &mut packet,
+        char,
+        char_equips,
+        cash_equips,
+    )
+    .map_err(ModelError::from)
+    .map_err(NetworkError::from)?;
     Ok(packet)
 }

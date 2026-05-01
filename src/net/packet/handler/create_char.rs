@@ -35,64 +35,65 @@ impl CreateCharacterHandler {
         session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let mut reader = Cursor::new(packet.bytes);
-        reader
+        let mut pkt_reader = Cursor::new(packet.bytes);
+        pkt_reader
             .read_short()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let ign = reader
+        let ign = pkt_reader
             .read_str_with_length()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let job = reader
+        let job = pkt_reader
             .read_int()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)? as i16;
         let map = get_map_id_for_job(job)?;
-        let face = reader
+        let face = pkt_reader
             .read_int()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let hair = reader
+        let hair = pkt_reader
             .read_int()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let hair_color = reader
+        let hair_color = pkt_reader
             .read_int()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let skin = reader
+        let skin = pkt_reader
             .read_int()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let top = reader
+        let top = pkt_reader
             .read_int() // Slot 5
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let bottom = reader
+        // let top = item::query::create_item(state.clone(), top)
+        let bottom = pkt_reader
             .read_int() // Slot 6
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let shoes = reader
+        let shoes = pkt_reader
             .read_int() // Slot 7
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let weapon = reader
+        let weapon = pkt_reader
             .read_int() // Special
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let gender = reader
+        let gender = pkt_reader
             .read_byte()
             .map_err(ReadError)
             .map_err(PacketError::from)
@@ -125,6 +126,7 @@ impl CreateCharacterHandler {
             .await
             .map_err(DatabaseError::from)
             .map_err(NetworkError::from)?;
+        // item::query::create_item(state.clone(), item)
         let char_equips = NewCharacterEquipment {
             char_id: char.id,
             hat: None, // might exist or not based on class

@@ -21,6 +21,15 @@ pub fn get_address() -> Result<String, ConfigError> {
     Ok(addr)
 }
 
+pub fn get_wz_path() -> Result<String, ConfigError> {
+    let settings = get_settings()?;
+    let key = String::from("wz_directory");
+    let addr = settings
+        .get_string(&key)
+        .map_err(|_| ConfigError::InvalidString(key))?;
+    Ok(addr)
+}
+
 pub fn get_login_port() -> Result<i16, ConfigError> {
     let settings = get_settings()?;
     let key = String::from("core_port");

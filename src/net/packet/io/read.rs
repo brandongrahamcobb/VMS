@@ -13,14 +13,14 @@ use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
 
 pub struct PacketReader {
-    reader: BufReader<OwnedReadHalf>,
+    pkt_reader: BufReader<OwnedReadHalf>,
     aes: AES,
 }
 
 impl PacketReader {
     pub fn new(read_half: OwnedReadHalf, recv_iv: &[u8]) -> Result<Self, NetworkError> {
         Ok(Self {
-            reader: BufReader::new(read_half),
+            pkt_reader: BufReader::new(read_half),
             aes: AES::new(&recv_iv.to_vec(), settings::get_version()?),
         })
     }
@@ -33,7 +33,7 @@ impl PacketReader {
 
     // 2nd Level
     async fn read_buffer(&mut self, buf: &mut [u8]) -> Result<(), NetworkError> {
-        self.reader
+        self.pkt_reader
             .read_exact(buf)
             .await
             .map_err(ReadError)

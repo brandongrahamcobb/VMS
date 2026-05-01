@@ -14,14 +14,14 @@ use tokio::net::tcp::OwnedWriteHalf;
 use tracing::debug;
 
 pub struct PacketWriter {
-    writer: BufWriter<OwnedWriteHalf>,
+    pkt_writer: BufWriter<OwnedWriteHalf>,
     aes: AES,
 }
 
 impl PacketWriter {
     pub async fn new(write_half: OwnedWriteHalf, send_iv: &[u8]) -> Result<Self, NetworkError> {
         Ok(Self {
-            writer: BufWriter::new(write_half),
+            pkt_writer: BufWriter::new(write_half),
             aes: AES::new(&send_iv.to_vec(), settings::get_version()?),
         })
     }
@@ -30,13 +30,13 @@ impl PacketWriter {
         &mut self,
         packet: &mut Packet,
     ) -> Result<(), NetworkError> {
-        self.writer
+        self.pkt_writer
             .write_all(&packet.bytes)
             .await
             .map_err(WriteError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        self.writer
+        self.pkt_writer
             .flush()
             .await
             .map_err(WriteError)
@@ -52,19 +52,19 @@ impl PacketWriter {
         let header = self.aes.gen_packet_header(packet.len() + 2);
         custom::encrypt(&mut packet.bytes);
         self.aes.crypt(&mut packet.bytes);
-        self.writer
+        self.pkt_writer
             .write_all(&header)
             .await
             .map_err(WriteError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        self.writer
+        self.pkt_writer
             .write_all(&packet.bytes)
             .await
             .map_err(WriteError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        self.writer
+        self.pkt_writer
             .flush()
             .await
             .map_err(WriteError)

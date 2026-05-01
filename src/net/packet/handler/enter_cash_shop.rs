@@ -57,13 +57,21 @@ impl EnterCashShopHandler {
                 .map_err(DatabaseError::from)
                 .map_err(NetworkError::from)?;
         let mut result = HandlerResult::new();
-        let packet = build_cash_shop_packet(&session, &acc, &char, &char_equips, &cash_equips)?;
+        let packet = build_cash_shop_packet(
+            state.clone(),
+            &session,
+            &acc,
+            &char,
+            &char_equips,
+            &cash_equips,
+        )?;
         let action = ChannelAction::SendPacket { packet };
         result.add_action(action)?;
         Ok(result)
     }
 }
 pub fn build_cash_shop_packet(
+    state: SharedState,
     session: &Session,
     acc: &Account,
     char: &Character,
@@ -89,9 +97,15 @@ pub fn build_cash_shop_packet(
         .map_err(WriteError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
-    character::play_service::write_game_char(&mut packet, char, char_equips, cash_equips)
-        .map_err(ModelError::from)
-        .map_err(NetworkError::from)?;
+    character::play_service::write_game_char(
+        state.clone(),
+        &mut packet,
+        char,
+        char_equips,
+        cash_equips,
+    )
+    .map_err(ModelError::from)
+    .map_err(NetworkError::from)?;
     write_cash_shop(&mut packet, acc)?;
     Ok(packet)
 }

@@ -24,13 +24,13 @@ impl CheckCharNameHandler {
         _session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let mut reader = Cursor::new(packet.bytes);
-        reader
+        let mut pkt_reader = Cursor::new(packet.bytes);
+        pkt_reader
             .read_short()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let ign = reader
+        let ign = pkt_reader
             .read_str_with_length()
             .map_err(ReadError)
             .map_err(PacketError::from)

@@ -1,6 +1,5 @@
-use crate::inc::helpers;
 use crate::models::character::error::CharacterError;
-use crate::models::character::model::{CashEquipment, Character, CharacterEquipment};
+use crate::models::character::model::Character;
 use crate::models::error::ModelError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;

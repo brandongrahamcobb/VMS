@@ -6,6 +6,7 @@ use crate::models::channel::error::ChannelError;
 use crate::models::character::error::CharacterError;
 use crate::models::keybinding::error::KeybindingError;
 use crate::models::world::error::WorldError;
+use crate::models::wz::error::WzError;
 
 #[derive(Debug, Error)]
 pub enum ModelError {
@@ -26,4 +27,7 @@ pub enum ModelError {
 
     #[error("Config error in model layer")]
     ConfigError(#[from] ConfigError),
+
+    #[error("Wz error in model layer")]
+    WzError(#[from] WzError),
 }

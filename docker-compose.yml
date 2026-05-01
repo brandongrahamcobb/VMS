@@ -23,6 +23,7 @@ services:
       - .env
     volumes:
       - vms-backups:/app/backups
+      - ./data:/app/data
     healthcheck:
       test: "healthcheck.sh || kill 1"
       interval: 10s
@@ -179,3 +180,4 @@ services:
       
 volumes:
   vms-backups:
+  data:

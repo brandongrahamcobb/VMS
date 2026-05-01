@@ -1,6 +1,5 @@
 use crate::config::settings;
 use crate::db::error::DatabaseError;
-use crate::inc::helpers;
 use crate::models::character::model::Character;
 use crate::models::error::ModelError;
 use crate::models::{account, character, world};
@@ -30,23 +29,23 @@ impl CharListHandler {
         session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let mut reader = Cursor::new(packet.bytes);
-        reader
+        let mut pkt_reader = Cursor::new(packet.bytes);
+        pkt_reader
             .read_short()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        reader
+        pkt_reader
             .read_byte()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let world_id = reader
+        let world_id = pkt_reader
             .read_byte()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let channel_id = reader
+        let channel_id = pkt_reader
             .read_byte()
             .map_err(ReadError)
             .map_err(PacketError::from)
@@ -84,7 +83,7 @@ impl CharListHandler {
         .unwrap_or(8);
         let mut pic_status = 0;
         let use_pic = settings::get_pic_required()?;
-        if Some(pic) == acc.pic {
+        if let Some(_pic) = acc.pic {
             pic_status = if use_pic { 1 } else { 2 };
         }
         let mut result = HandlerResult::new();

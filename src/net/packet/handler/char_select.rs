@@ -30,23 +30,23 @@ impl CharacterSelectHandler {
         session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let mut reader = Cursor::new(packet.bytes);
-        let _op = reader
+        let mut pkt_reader = Cursor::new(packet.bytes);
+        let _op = pkt_reader
             .read_short()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let char_id = reader
+        let char_id = pkt_reader
             .read_int()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let _mac = reader
+        let _mac = pkt_reader
             .read_str_with_length()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let _hwid = reader
+        let _hwid = pkt_reader
             .read_str_with_length()
             .map_err(ReadError)
             .map_err(PacketError::from)

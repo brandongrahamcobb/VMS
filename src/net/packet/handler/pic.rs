@@ -1,5 +1,4 @@
 use crate::db::error::DatabaseError;
-use crate::inc::helpers;
 use crate::models::account;
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
@@ -28,33 +27,33 @@ impl PicHandler {
         session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let mut reader = Cursor::new(packet.bytes);
-        reader
+        let mut pkt_reader = Cursor::new(packet.bytes);
+        pkt_reader
             .read_short()
             .map_err(IOError::ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        reader
+        pkt_reader
             .read_byte()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let char_id = reader
+        let _char_id = pkt_reader
             .read_int()
             .map_err(IOError::ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let _macs = reader
+        let _macs = pkt_reader
             .read_str_with_length()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let _hwid = reader
+        let _hwid = pkt_reader
             .read_str_with_length()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let pic = reader
+        let pic = pkt_reader
             .read_str_with_length()
             .map_err(IOError::ReadError)
             .map_err(PacketError::from)

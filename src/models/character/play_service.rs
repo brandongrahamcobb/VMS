@@ -1,4 +1,3 @@
-use crate::inc::helpers;
 use crate::models::character::error::CharacterError;
 use crate::models::character::model::{CashEquipment, Character, CharacterEquipment};
 use crate::models::error::ModelError;
@@ -6,6 +5,7 @@ use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::prelude::*;
+use crate::runtime::state::SharedState;
 
 fn begin_inventory(packet: &mut Packet, char: &Character) -> Result<(), ModelError> {
     packet
@@ -1256,6 +1256,7 @@ pub fn write_cash_equips(
 }
 
 pub fn write_game_char(
+    _state: SharedState,
     packet: &mut Packet,
     char: &Character,
     char_equips: &CharacterEquipment,

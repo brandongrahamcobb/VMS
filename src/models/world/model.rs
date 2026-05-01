@@ -17,8 +17,8 @@ pub struct CharacterLimit {
     pub acc_id: i32,
     pub char_max: i32,
     pub world_id: i16,
-    pub created_at: SystemTime,
-    pub updated_at: SystemTime,
+    pub created_at: Option<SystemTime>,
+    pub updated_at: Option<SystemTime>,
 }
 
 pub struct WorldInfo {

@@ -116,6 +116,30 @@ diesel::table! {
 }
 
 diesel::table! {
+    equip_items (id) {
+        id -> Int4,
+        wz_id -> Int4,
+        strength -> Nullable<Int4>,
+        dexterity -> Nullable<Int4>,
+        intelligence -> Nullable<Int4>,
+        luck -> Nullable<Int4>,
+        attack -> Nullable<Int4>,
+        weapon_defense -> Nullable<Int4>,
+        magic -> Nullable<Int4>,
+        magic_defense -> Nullable<Int4>,
+        hp -> Nullable<Int4>,
+        mp -> Nullable<Int4>,
+        accuracy -> Nullable<Int4>,
+        avoid -> Nullable<Int4>,
+        hands -> Nullable<Int4>,
+        speed -> Nullable<Int4>,
+        jump -> Nullable<Int4>,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>
+    }
+}
+
+diesel::table! {
     pet_equipment (char_id) {
         char_id -> Int4,
         pet_one_acc -> Nullable<Int4>,

@@ -27,13 +27,13 @@ impl TOSHandler {
         session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let mut reader = Cursor::new(packet.bytes);
-        reader
+        let mut pkt_reader = Cursor::new(packet.bytes);
+        pkt_reader
             .read_short()
             .map_err(IOError::ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let confirmed = reader
+        let confirmed = pkt_reader
             .read_byte()
             .map_err(IOError::ReadError)
             .map_err(PacketError::from)

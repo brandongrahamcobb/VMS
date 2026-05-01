@@ -2,15 +2,12 @@ use crate::config::settings;
 use crate::db::error::DatabaseError;
 use crate::inc::helpers;
 use crate::models::account::error::AccountError;
-use crate::models::character::model::{CashEquipment, Character, CharacterEquipment};
 use crate::models::error::ModelError;
-use crate::models::keybinding::model::Keybinding;
 use crate::models::{account, channel, world};
-use crate::models::{character, keybinding};
 use crate::net::error::NetworkError;
 use crate::net::packet::core::Packet;
 use crate::net::packet::error::PacketError;
-use crate::net::packet::handler::action::{ChannelAction, LoginAction};
+use crate::net::packet::handler::action::LoginAction;
 use crate::net::packet::handler::char_select;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::error::IOError;
@@ -21,7 +18,6 @@ use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 use std::io::Cursor;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 pub struct SpwHandler;
 
@@ -36,33 +32,33 @@ impl SpwHandler {
         session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let mut reader = Cursor::new(packet.bytes);
-        reader
+        let mut pkt_reader = Cursor::new(packet.bytes);
+        pkt_reader
             .read_short()
             .map_err(IOError::ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        reader
+        pkt_reader
             .read_byte()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let char_id = reader
+        let char_id = pkt_reader
             .read_int()
             .map_err(IOError::ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let _macs = reader
+        let _macs = pkt_reader
             .read_str_with_length()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let _hwid = reader
+        let _hwid = pkt_reader
             .read_str_with_length()
             .map_err(ReadError)
             .map_err(PacketError::from)
             .map_err(NetworkError::from)?;
-        let pic = reader
+        let pic = pkt_reader
             .read_str_with_length()
             .map_err(IOError::ReadError)
             .map_err(PacketError::from)

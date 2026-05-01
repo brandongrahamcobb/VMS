@@ -1,5 +1,3 @@
-use core::ops::ControlFlow;
-
 use crate::config::settings;
 use crate::net::packet::core::Packet;
 use crate::net::packet::handler::action::{ChannelAction, LoginAction};
@@ -17,13 +15,14 @@ use crate::prelude::*;
 use crate::runtime::error::{RuntimeError, SessionError};
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
+use core::ops::ControlFlow;
 use rand::{RngExt, rng};
 use tokio::net::TcpStream;
 use tracing::debug;
 
 pub struct Runtime<T: RuntimeRelay> {
-    reader: PacketReader,
-    writer: PacketWriter,
+    pkt_reader: PacketReader,
+    pkt_writer: PacketWriter,
     state: SharedState,
     relay: T,
     session_id: i32,
@@ -42,9 +41,9 @@ impl<T: RuntimeRelay + Default + Send> Runtime<T> {
         let version = settings::get_version()?;
         let mut handshake = handshake::build_handshake_packet(&recv_iv, &send_iv, version).await?;
         let (read_half, write_half) = stream.into_split();
-        let reader = PacketReader::new(read_half, &recv_iv)?;
-        let mut writer = PacketWriter::new(write_half, &send_iv).await?;
-        writer.send_unencrypted_packet(&mut handshake).await?;
+        let pkt_reader = PacketReader::new(read_half, &recv_iv)?;
+        let mut pkt_writer = PacketWriter::new(write_half, &send_iv).await?;
+        pkt_writer.send_unencrypted_packet(&mut handshake).await?;
         let session_id = {
             let state = state.lock().await;
             state.sessions.insert(Session {
@@ -56,8 +55,8 @@ impl<T: RuntimeRelay + Default + Send> Runtime<T> {
             })
         };
         Ok(Self {
-            reader,
-            writer,
+            pkt_reader,
+            pkt_writer,
             relay: T::default(),
             state: state.clone(),
             session_id,
@@ -74,12 +73,12 @@ impl<T: RuntimeRelay + Default + Send> Runtime<T> {
                     .ok_or(SessionError::NotFound(self.session_id))
                     .map_err(RuntimeError::from)?
             };
-            let packet = self.reader.read_packet().await?;
+            let packet = self.pkt_reader.read_packet().await?;
             let result = self
                 .relay
                 .handle_packet(self.state.clone(), session, packet)
                 .await?;
-            match self.relay.execute(&mut self.writer, result).await? {
+            match self.relay.execute(&mut self.pkt_writer, result).await? {
                 ControlFlow::Break(_) => break Ok(()),
                 _ => continue,
             }
@@ -100,7 +99,7 @@ pub trait RuntimeRelay {
 
     async fn execute(
         &mut self,
-        writer: &mut PacketWriter,
+        pkt_writer: &mut PacketWriter,
         result: HandlerResult<Self::HandlerAction>,
     ) -> Result<ControlFlow<()>, RuntimeError>;
 }
@@ -188,7 +187,7 @@ impl RuntimeRelay for LoginRelay {
 
     async fn execute(
         self: &mut Self,
-        writer: &mut PacketWriter,
+        pkt_writer: &mut PacketWriter,
         result: HandlerResult<LoginAction>,
     ) -> Result<ControlFlow<()>, RuntimeError> {
         let actions = result.actions;
@@ -196,7 +195,7 @@ impl RuntimeRelay for LoginRelay {
             match action {
                 LoginAction::Simple => (),
                 LoginAction::SendPacket { mut packet } => {
-                    writer.send_encrypted_packet(&mut packet).await?
+                    pkt_writer.send_encrypted_packet(&mut packet).await?
                 }
                 LoginAction::CloseConnection => return Ok(ControlFlow::Break(())),
             }
@@ -260,7 +259,7 @@ impl RuntimeRelay for ChannelRelay {
 
     async fn execute(
         self: &mut Self,
-        writer: &mut PacketWriter,
+        pkt_writer: &mut PacketWriter,
         result: HandlerResult<ChannelAction>,
     ) -> Result<ControlFlow<()>, RuntimeError> {
         let actions = result.actions;
@@ -268,9 +267,12 @@ impl RuntimeRelay for ChannelRelay {
             match action {
                 ChannelAction::Simple => (),
                 ChannelAction::SendPacket { mut packet } => {
-                    writer.send_encrypted_packet(&mut packet).await?
+                    pkt_writer.send_encrypted_packet(&mut packet).await?
                 }
-                ChannelAction::FieldMove { movement_bytes } => (), // not implemented
+                ChannelAction::FieldMove { movement_bytes } => {
+                    debug!("{:?}", movement_bytes);
+                    () // not implemented
+                }
             }
         }
         return Ok(ControlFlow::Continue(()));

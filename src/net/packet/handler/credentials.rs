@@ -130,29 +130,29 @@ fn get_status_code(acc: &Account) -> Result<StatusCode, NetworkError> {
 }
 
 fn read_credentials(packet: Packet) -> Result<(String, String, String), NetworkError> {
-    let mut reader = Cursor::new(packet.bytes);
-    reader
+    let mut pkt_reader = Cursor::new(packet.bytes);
+    pkt_reader
         .read_short()
         .map_err(ReadError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
-    let user = reader
+    let user = pkt_reader
         .read_str_with_length()
         .map_err(ReadError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
-    let pw = reader
+    let pw = pkt_reader
         .read_str_with_length()
         .map_err(ReadError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
-    reader
+    pkt_reader
         .read_bytes(6)
         .map_err(ReadError)
         .map_err(PacketError::from)
         .map_err(NetworkError::from)?;
     let hwid = helpers::to_hex_string(
-        &reader
+        &pkt_reader
             .read_bytes(4)
             .map_err(ReadError)
             .map_err(PacketError::from)
