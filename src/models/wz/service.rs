@@ -20,7 +20,7 @@ pub fn load_wz_reader(filename: String) -> Result<WzReader<BufReader<File>>, Mod
         .ok_or(WzError::NoVersion)
         .map_err(ModelError::from)?;
     let wz_ctx = WzContext::global(version).shared();
-    let mut reader = WzReader::open(file, wz_ctx).map_err(WzError::AnyHowError)?;
+    let reader = WzReader::open(file, wz_ctx).map_err(WzError::AnyHowError)?;
     Ok(reader)
 }
 

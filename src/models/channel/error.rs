@@ -7,4 +7,7 @@ pub enum ChannelError {
 
     #[error("Unexpected error in channel model layer")]
     UnexpectedError,
+
+    #[error("Channel not selected in channel model layer: {0}")]
+    NotSelected(i32),
 }

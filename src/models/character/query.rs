@@ -1,8 +1,5 @@
-use crate::db::schema::{cash_equipment, character_equipment, characters};
-use crate::models::character::model::{
-    CashEquipment, Character, CharacterEquipment, NewCashEquipment, NewCharacter,
-    NewCharacterEquipment,
-};
+use crate::db::schema::characters;
+use crate::models::character::model::{Character, NewCharacter};
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl};
@@ -42,44 +39,6 @@ pub async fn create_character(state: SharedState, char: &NewCharacter) -> QueryR
     diesel::insert_into(characters::table)
         .values(char)
         .get_result::<Character>(&mut conn)
-}
-
-pub async fn create_character_equipment(
-    state: SharedState,
-    equips: &NewCharacterEquipment,
-) -> QueryResult<CharacterEquipment> {
-    let db = {
-        let state = state.lock().await;
-        state.db.clone()
-    };
-    let mut conn = db.get().map_err(|e| {
-        diesel::result::Error::DatabaseError(
-            diesel::result::DatabaseErrorKind::UnableToSendCommand,
-            Box::new(e.to_string()),
-        )
-    })?;
-    diesel::insert_into(character_equipment::table)
-        .values(equips)
-        .get_result::<CharacterEquipment>(&mut conn)
-}
-
-pub async fn create_cash_equipment(
-    state: SharedState,
-    equips: &NewCashEquipment,
-) -> QueryResult<CashEquipment> {
-    let db = {
-        let state = state.lock().await;
-        state.db.clone()
-    };
-    let mut conn = db.get().map_err(|e| {
-        diesel::result::Error::DatabaseError(
-            diesel::result::DatabaseErrorKind::UnableToSendCommand,
-            Box::new(e.to_string()),
-        )
-    })?;
-    diesel::insert_into(cash_equipment::table)
-        .values(equips)
-        .get_result::<CashEquipment>(&mut conn)
 }
 
 pub async fn get_character_by_name(state: SharedState, ign: &str) -> QueryResult<Character> {
@@ -131,43 +90,6 @@ pub async fn get_account_id_by_character_id(state: SharedState, char_id: i32) ->
         .first::<i32>(&mut conn)
 }
 
-pub async fn get_character_equipment_by_character_id(
-    state: SharedState,
-    char_id: i32,
-) -> QueryResult<CharacterEquipment> {
-    let db = {
-        let state = state.lock().await;
-        state.db.clone()
-    };
-    let mut conn = db.get().map_err(|e| {
-        diesel::result::Error::DatabaseError(
-            diesel::result::DatabaseErrorKind::UnableToSendCommand,
-            Box::new(e.to_string()),
-        )
-    })?;
-    character_equipment::table
-        .filter(character_equipment::char_id.eq(char_id))
-        .first::<CharacterEquipment>(&mut conn)
-}
-
-pub async fn get_cash_equipment_by_character_id(
-    state: SharedState,
-    char_id: i32,
-) -> QueryResult<CashEquipment> {
-    let db = {
-        let state = state.lock().await;
-        state.db.clone()
-    };
-    let mut conn = db.get().map_err(|e| {
-        diesel::result::Error::DatabaseError(
-            diesel::result::DatabaseErrorKind::UnableToSendCommand,
-            Box::new(e.to_string()),
-        )
-    })?;
-    cash_equipment::table
-        .filter(cash_equipment::char_id.eq(char_id))
-        .first::<CashEquipment>(&mut conn)
-}
 pub async fn delete_character(state: SharedState, acc_id: i32, char_id: i32) -> QueryResult<usize> {
     let db = {
         let state = state.lock().await;

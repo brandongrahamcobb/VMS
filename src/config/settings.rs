@@ -32,7 +32,7 @@ pub fn get_wz_path() -> Result<String, ConfigError> {
 
 pub fn get_login_port() -> Result<i16, ConfigError> {
     let settings = get_settings()?;
-    let key = String::from("core_port");
+    let key = String::from("login_port");
     let port = settings
         .get_int(&key)
         .map_err(|_| ConfigError::InvalidInt(key))?;

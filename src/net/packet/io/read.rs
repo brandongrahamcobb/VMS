@@ -1,10 +1,10 @@
 use crate::config::settings;
 use crate::constants::HEADER_SIZE;
 use crate::net::error::NetworkError;
-use crate::net::packet::core::Packet;
+use crate::net::packet;
 use crate::net::packet::error::PacketError;
 use crate::net::packet::io::error::IOError::ReadError;
-use crate::net::packet::validation;
+use crate::net::packet::packet::Packet;
 use crate::sec::aes::AES;
 use crate::sec::custom;
 use byteorder::{LittleEndian, ReadBytesExt};
@@ -46,13 +46,13 @@ impl PacketReader {
     async fn read_header(&mut self) -> Result<[u8; HEADER_SIZE as usize], NetworkError> {
         let mut buf = [0u8; HEADER_SIZE as usize];
         self.read_buffer(&mut buf).await?;
-        validation::service::check_header(&self.aes, &buf)?;
+        packet::service::check_header(&self.aes, &buf)?;
         Ok(buf)
     }
 
     async fn read_payload(&mut self, header: &[u8]) -> Result<Packet, NetworkError> {
         let length = self.get_packet_length(header);
-        validation::service::check_packet_length(length)?;
+        packet::service::check_packet_length(length)?;
         let mut buf = vec![0u8; length as usize];
         self.read_buffer(&mut buf).await?;
         self.aes.crypt(&mut buf);

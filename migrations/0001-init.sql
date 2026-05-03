@@ -46,43 +46,43 @@ CREATE TABLE characters (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE character_equipment (
+CREATE TABLE regular_equipment_set (
     char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
-    hat INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    pants INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    face_acc INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    eye_acc INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    ear_acc INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    top INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    bottom INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    shoes INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    gloves INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    cape INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    weapon INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    shield INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    saddle INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    tamed_mob INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    sub_weapon INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    belt INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    pendant_one INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    pendant_two INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    ring_one INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    ring_two INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    ring_three INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    ring_four INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    shoulder INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    emblem INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    medal INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    badge INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    android INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    heart INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    book INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
-    pocket INTEGER NULL REFERENCES equip_stats(id) ON DELETE CASCADE,
+    hat INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    pants INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    face_acc INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    eye_acc INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    ear_acc INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    top INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    bottom INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    shoes INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    gloves INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    cape INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    weapon INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    shield INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    saddle INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    tamed_mob INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    subweapon INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    belt INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    pendant_one INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    pendant_two INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    ring_one INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    ring_two INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    ring_three INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    ring_four INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    shoulder INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    emblem INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    medal INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    badge INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    android INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    heart INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    book INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
+    pocket INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE cash_equipment (
+CREATE TABLE cash_equipment_set (
     char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
     ring_one INTEGER NULL,
     ring_two INTEGER NULL,
@@ -99,7 +99,7 @@ CREATE TABLE cash_equipment (
     shoes INTEGER NULL,
     ear_acc INTEGER NULL,
     shoulder INTEGER NULL,
-    sub_weapon INTEGER NULL,
+    subweapon INTEGER NULL,
     cape INTEGER NULL,
     gloves INTEGER NULL,
     eye_acc INTEGER NULL,
@@ -107,7 +107,7 @@ CREATE TABLE cash_equipment (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE pet_equipement (
+CREATE TABLE pet_equipment_set (
     char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
     pet_one_acc INTEGER NULL,
     pet_two_acc INTEGER NULL,
@@ -116,13 +116,13 @@ CREATE TABLE pet_equipement (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE android_equipment (
+CREATE TABLE android_equipment_set (
     char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
     android_hat INTEGER NULL,
     android_face INTEGER NULL,
     android_top INTEGER NULL,
     android_bottom INTEGER NULL,
-    android_cloves INTEGER NULL,
+    android_gloves INTEGER NULL,
     android_cape INTEGER NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
@@ -151,8 +151,8 @@ CREATE TABLE keybindings (
 ALTER TABLE keybindings
 ADD CONSTRAINT key_is_unique_per_character UNIQUE (char_id, key);
 
-CREATE TABLE equip_stats (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE equips (
+    id SERIAL PRIMARY KEY,
     wz_id INTEGER NOT NULL,
     strength INTEGER DEFAULT 0,
     dexterity INTEGER DEFAULT 0,

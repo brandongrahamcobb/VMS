@@ -1,5 +1,7 @@
+use crate::db::error::DatabaseError;
+
 #[derive(Debug, thiserror::Error)]
-pub enum EquipError {
+pub enum WzEquipError {
     #[error("Requested equip resource was not found in equip model layer: {0}")]
     NotFound(i32),
 
@@ -14,4 +16,7 @@ pub enum EquipError {
 
     #[error("Wz Base.wz read error in wz model layer")]
     FileNotFound(#[from] std::io::Error),
+
+    #[error("Database error in equip model layer")]
+    DatabaseError(#[from] DatabaseError),
 }

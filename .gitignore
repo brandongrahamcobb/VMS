@@ -1,4 +1,5 @@
 migrations/0000*
+.DS_Store
 migrations/.keep
 target/
 Cargo.lock

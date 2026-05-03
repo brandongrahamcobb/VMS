@@ -1,9 +1,9 @@
-use crate::db::schema::equip_items;
+use crate::db::schema::equips;
 use diesel::prelude::*;
 use std::time::SystemTime;
 
 #[derive(Identifiable, Queryable, AsChangeset, Selectable)]
-#[diesel(table_name = equip_items)]
+#[diesel(table_name = equips)]
 pub struct Equip {
     pub id: i32,
     pub wz_id: i32,
@@ -26,8 +26,8 @@ pub struct Equip {
     pub updated_at: Option<SystemTime>,
 }
 
-#[derive(Queryable, AsChangeset, Selectable)]
-#[diesel(table_name = equip_items)]
+#[derive(Insertable, AsChangeset, Selectable)]
+#[diesel(table_name = equips)]
 pub struct NewEquip {
     pub wz_id: i32,
     pub strength: Option<i32>,

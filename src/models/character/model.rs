@@ -1,6 +1,4 @@
-use crate::db::schema::{
-    android_equipment, cash_equipment, character_equipment, characters, pet_equipment,
-};
+use crate::db::schema::characters;
 use diesel::prelude::*;
 use std::time::SystemTime;
 
@@ -35,101 +33,6 @@ pub struct Character {
     pub updated_at: Option<SystemTime>,
 }
 
-#[derive(Queryable, AsChangeset, Selectable)]
-#[diesel(table_name = character_equipment)]
-pub struct CharacterEquipment {
-    pub char_id: i32,
-    pub hat: Option<i32>,
-    pub face_acc: Option<i32>,
-    pub eye_acc: Option<i32>,
-    pub ear_acc: Option<i32>,
-    pub top: Option<i32>,
-    pub bottom: Option<i32>,
-    pub shoes: Option<i32>,
-    pub gloves: Option<i32>,
-    pub cape: Option<i32>,
-    pub shield: Option<i32>,
-    pub weapon: Option<i32>,
-    pub ring_one: Option<i32>,
-    pub ring_two: Option<i32>,
-    pub ring_three: Option<i32>,
-    pub ring_four: Option<i32>,
-    pub pendant_one: Option<i32>,
-    pub tamed_mob: Option<i32>,
-    pub saddle: Option<i32>,
-    pub medal: Option<i32>,
-    pub belt: Option<i32>,
-    pub pocket: Option<i32>,
-    pub book: Option<i32>,
-    pub pendant_two: Option<i32>,
-    pub shoulder: Option<i32>,
-    pub android: Option<i32>,
-    pub emblem: Option<i32>,
-    pub badge: Option<i32>,
-    pub sub_weapon: Option<i32>,
-    pub heart: Option<i32>,
-    pub created_at: Option<SystemTime>,
-    pub updated_at: Option<SystemTime>,
-}
-
-#[derive(Queryable, AsChangeset, Selectable)]
-#[diesel(table_name = cash_equipment)]
-pub struct CashEquipment {
-    pub char_id: i32,
-    pub hat: Option<i32>,
-    pub face_acc: Option<i32>,
-    pub eye_acc: Option<i32>,
-    pub ear_acc: Option<i32>,
-    pub top: Option<i32>,
-    pub bottom: Option<i32>,
-    pub shoes: Option<i32>,
-    pub gloves: Option<i32>,
-    pub cape: Option<i32>,
-    pub weapon: Option<i32>,
-    pub ring_one: Option<i32>,
-    pub ring_two: Option<i32>,
-    pub ring_three: Option<i32>,
-    pub ring_four: Option<i32>,
-    pub pendant: Option<i32>,
-    pub belt: Option<i32>,
-    pub shoulder: Option<i32>,
-    pub sub_weapon: Option<i32>,
-    pub hair: Option<i32>,
-    pub created_at: Option<SystemTime>,
-    pub updated_at: Option<SystemTime>,
-}
-
-#[derive(Queryable, AsChangeset, Selectable)]
-#[diesel(table_name = pet_equipment)]
-pub struct PetEquipment {
-    pub char_id: i32,
-    pub pet_one_acc: Option<i32>,
-    pub pet_two_acc: Option<i32>,
-    pub pet_three_acc: Option<i32>,
-    pub created_at: Option<SystemTime>,
-    pub updated_at: Option<SystemTime>,
-}
-
-#[derive(Queryable, AsChangeset, Selectable)]
-#[diesel(table_name = android_equipment)]
-pub struct AndroidEquipment {
-    pub char_id: i32,
-    pub android_hat: Option<i32>,
-    pub android_face: Option<i32>,
-    pub android_top: Option<i32>,
-    pub android_bottom: Option<i32>,
-    pub android_gloves: Option<i32>,
-    pub android_cape: Option<i32>,
-    pub created_at: Option<SystemTime>,
-    pub updated_at: Option<SystemTime>,
-}
-
-#[derive(Insertable)]
-#[diesel(table_name = cash_equipment)]
-pub struct NewCashEquipment {
-    pub char_id: i32,
-}
-
 #[derive(Insertable)]
 #[diesel(table_name = characters)]
 pub struct NewCharacter {
@@ -143,16 +46,4 @@ pub struct NewCharacter {
     pub skin: i32,
     pub gender: i16,
     pub map: i32,
-}
-
-#[derive(Insertable)]
-#[diesel(table_name = character_equipment)]
-pub struct NewCharacterEquipment {
-    pub char_id: i32,
-    pub hat: Option<i32>,
-    pub top: i32,
-    pub bottom: Option<i32>,
-    pub shoes: i32,
-    pub shield: Option<i32>,
-    pub weapon: i32,
 }

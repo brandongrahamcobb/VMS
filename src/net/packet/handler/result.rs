@@ -11,7 +11,7 @@ impl<T> HandlerResult<T> {
         }
     }
 
-    pub fn add_action(self: &mut Self, action: T) -> Result<(), NetworkError> {
+    pub fn add_action(&mut self, action: T) -> Result<(), NetworkError> {
         self.actions.push(action);
         Ok(())
     }

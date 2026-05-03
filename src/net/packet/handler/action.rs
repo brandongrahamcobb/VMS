@@ -1,4 +1,4 @@
-use crate::net::packet::core::Packet;
+use crate::net::packet::packet::Packet;
 
 pub enum LoginAction {
     Simple,

@@ -1,15 +1,13 @@
 use crate::config::settings;
-use crate::net::packet::core::Packet;
 use crate::net::packet::handler::action::{ChannelAction, LoginAction};
-use crate::net::packet::handler::core::ChannelHandler;
-use crate::net::packet::handler::core::LoginHandler;
+use crate::net::packet::handler::handlers::ChannelHandler;
+use crate::net::packet::handler::handlers::LoginHandler;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::handler::{
-    cc, char_select, check_char_name, create_char, credentials, delete_char, enter_cash_shop,
-    handshake, list_chars, list_worlds, login_start, move_player, party_search, pic, play,
-    player_map_transfer, server_status, spw, tos,
+    cc, check_char_name, create_char, credentials, delete_char, enter_cash_shop, handshake, list_chars, list_worlds, login_start, move_player, party_search, play, player_map_transfer, register_pic, select_char, select_char_with_pic, server_status, tos
 };
 use crate::net::packet::io::{read::PacketReader, write::PacketWriter};
+use crate::net::packet::packet::Packet;
 use crate::op::recv::RecvOpcode;
 use crate::prelude::*;
 use crate::runtime::error::{RuntimeError, SessionError};
@@ -63,7 +61,7 @@ impl<T: RuntimeRelay + Default + Send> Runtime<T> {
         })
     }
 
-    pub async fn run(self: &mut Self) -> Result<(), RuntimeError> {
+    pub async fn run(&mut self) -> Result<(), RuntimeError> {
         loop {
             let session = {
                 let state = self.state.lock().await;
@@ -91,7 +89,7 @@ pub trait RuntimeRelay {
     type HandlerAction;
 
     async fn handle_packet(
-        self: &mut Self,
+        &mut self,
         state: SharedState,
         session: Session,
         packet: Packet,
@@ -111,7 +109,7 @@ impl RuntimeRelay for LoginRelay {
     type HandlerAction = LoginAction;
 
     async fn handle_packet(
-        self: &mut Self,
+        &mut self,
         state: SharedState,
         session: Session,
         packet: Packet,
@@ -128,10 +126,10 @@ impl RuntimeRelay for LoginRelay {
         let handler = if !session.authenticated {
             match opcode {
                 x if x == RecvOpcode::RequestLogin as i16 => Ok(LoginHandler::Credentials(
-                    credentials::CredentialsHandler::new(),
+                    credentials::handler::CredentialsHandler::new(),
                 )),
                 x if x == RecvOpcode::LoginStarted as i16 => Ok(LoginHandler::LoginStarted(
-                    login_start::LoginStartHandler::new(),
+                    login_start::handler::LoginStartHandler::new(),
                 )),
                 _ => Err(RuntimeError::UnsupportedOpcodeError(
                     opcode,
@@ -141,38 +139,38 @@ impl RuntimeRelay for LoginRelay {
         } else {
             match opcode {
                 x if x == RecvOpcode::LoginStarted as i16 => Ok(LoginHandler::LoginStarted(
-                    login_start::LoginStartHandler::new(),
+                    login_start::handler::LoginStartHandler::new(),
                 )),
                 x if x == RecvOpcode::AcceptTOS as i16 => {
-                    Ok(LoginHandler::TOS(tos::TOSHandler::new()))
+                    Ok(LoginHandler::TOS(tos::handler::TOSHandler::new()))
                 }
                 x if x == RecvOpcode::ServerListRequest as i16 => Ok(LoginHandler::ListWorlds(
-                    list_worlds::WorldListHandler::new(),
+                    list_worlds::handler::WorldListHandler::new(),
                 )),
                 x if x == RecvOpcode::ServerStatusRequest as i16 => Ok(LoginHandler::ServerStatus(
-                    server_status::ServerStatusHandler::new(),
+                    server_status::handler::ServerStatusHandler::new(),
                 )),
-                x if x == RecvOpcode::CharListRequest as i16 => {
-                    Ok(LoginHandler::ListChars(list_chars::CharListHandler::new()))
-                }
+                x if x == RecvOpcode::CharListRequest as i16 => Ok(LoginHandler::ListChars(
+                    list_chars::handler::CharListHandler::new(),
+                )),
                 x if x == RecvOpcode::CreateChar as i16 => Ok(LoginHandler::CreateChar(
-                    create_char::CreateCharacterHandler::new(),
+                    create_char::handler::CreateCharacterHandler::new(),
                 )),
                 x if x == RecvOpcode::CheckCharName as i16 => Ok(LoginHandler::CheckCharName(
-                    check_char_name::CheckCharNameHandler::new(),
+                    check_char_name::handler::CheckCharNameHandler::new(),
                 )),
                 x if x == RecvOpcode::DeleteChar as i16 => Ok(LoginHandler::DeleteChar(
-                    delete_char::DeleteCharacterHandler::new(),
+                    delete_char::handler::DeleteCharacterHandler::new(),
                 )),
                 x if x == RecvOpcode::CharSelect as i16 => Ok(LoginHandler::CharSelect(
-                    char_select::CharacterSelectHandler::new(),
+                    select_char::handler::CharacterSelectHandler::new(),
                 )),
                 x if x == RecvOpcode::RegisterPic as i16 => {
-                    Ok(LoginHandler::RegisterPic(spw::SpwHandler::new()))
+                    Ok(LoginHandler::RegisterPic(register_pic::handler::RegisterPicHandler::new()))
                 }
-                x if x == RecvOpcode::CharSelectWithPic as i16 => {
-                    Ok(LoginHandler::CharSelectWithPic(pic::PicHandler::new()))
-                }
+                x if x == RecvOpcode::CharSelectWithPic as i16 => Ok(
+                    LoginHandler::CharSelectWithPic(select_char_with_pic::handler::SelectCharWithPicHandler::new()),
+                ),
                 _ => Err(RuntimeError::UnsupportedOpcodeError(
                     opcode,
                     String::from("expected after authentication"),
@@ -186,7 +184,7 @@ impl RuntimeRelay for LoginRelay {
     }
 
     async fn execute(
-        self: &mut Self,
+        &mut self,
         pkt_writer: &mut PacketWriter,
         result: HandlerResult<LoginAction>,
     ) -> Result<ControlFlow<()>, RuntimeError> {
@@ -211,7 +209,7 @@ impl RuntimeRelay for ChannelRelay {
     type HandlerAction = ChannelAction;
 
     async fn handle_packet(
-        self: &mut Self,
+        &mut self,
         state: SharedState,
         session: Session,
         packet: Packet,
@@ -227,24 +225,24 @@ impl RuntimeRelay for ChannelRelay {
         );
         let handler = match opcode {
             x if x == RecvOpcode::ChangeChannel as i16 => Ok(ChannelHandler::ChangeChannel(
-                cc::ChangeChannelHandler::new(),
+                cc::handler::ChangeChannelHandler::new(),
             )),
             x if x == RecvOpcode::PlayerLoggedIn as i16 => Ok(ChannelHandler::PlayerLoggedIn(
-                play::PlayerLoggedInHandler::new(),
+                play::handler::PlayerLoggedInHandler::new(),
             )),
             x if x == RecvOpcode::PartySearch as i16 => Ok(ChannelHandler::PartySearch(
-                party_search::PartySearchHandler::new(),
+                party_search::handler::PartySearchHandler::new(),
             )),
             x if x == RecvOpcode::PlayerMapTransfer as i16 => {
                 Ok(ChannelHandler::PlayerMapTransfer(
-                    player_map_transfer::PlayerMapTransferHandler::new(),
+                    player_map_transfer::handler::PlayerMapTransferHandler::new(),
                 ))
             }
             x if x == RecvOpcode::PlayerMove as i16 => Ok(ChannelHandler::MovePlayer(
-                move_player::MovePlayerHandler::new(),
+                move_player::handler::MovePlayerHandler::new(),
             )),
             x if x == RecvOpcode::EnterCashShop as i16 => Ok(ChannelHandler::EnterCashShop(
-                enter_cash_shop::EnterCashShopHandler::new(),
+                enter_cash_shop::handler::EnterCashShopHandler::new(),
             )),
             _ => Err(RuntimeError::UnsupportedOpcodeError(
                 opcode,
@@ -258,7 +256,7 @@ impl RuntimeRelay for ChannelRelay {
     }
 
     async fn execute(
-        self: &mut Self,
+        &mut self,
         pkt_writer: &mut PacketWriter,
         result: HandlerResult<ChannelAction>,
     ) -> Result<ControlFlow<()>, RuntimeError> {

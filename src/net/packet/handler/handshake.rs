@@ -1,5 +1,5 @@
 use crate::net::error::NetworkError;
-use crate::net::packet::core::Packet;
+use crate::net::packet::packet::Packet;
 use crate::net::packet::error::PacketError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::prelude::*;

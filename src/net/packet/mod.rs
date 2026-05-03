@@ -1,5 +1,5 @@
-pub mod core;
 pub mod error;
 pub mod handler;
 pub mod io;
-pub mod validation;
+pub mod packet;
+pub mod service;

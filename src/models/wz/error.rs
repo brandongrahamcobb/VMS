@@ -1,4 +1,4 @@
-use crate::models::wz::equip::error::EquipError;
+use crate::models::wz::equip::error::WzEquipError;
 
 #[derive(Debug, thiserror::Error)]
 pub enum WzError {
@@ -18,7 +18,7 @@ pub enum WzError {
     IOError(#[from] std::io::Error),
 
     #[error("Equip error in wz model layer")]
-    EquipError(#[from] EquipError),
+    EquipError(#[from] WzEquipError),
 
     #[error("WzDirEntry error in wz model layer")]
     EntryError,

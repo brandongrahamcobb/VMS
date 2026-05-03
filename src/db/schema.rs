@@ -52,7 +52,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    character_equipment (char_id) {
+    regular_equipment_set (char_id) {
         char_id -> Int4,
         hat -> Nullable<Int4>,
         face_acc -> Nullable<Int4>,
@@ -81,7 +81,7 @@ diesel::table! {
         android -> Nullable<Int4>,
         emblem -> Nullable<Int4>,
         badge -> Nullable<Int4>,
-        sub_weapon -> Nullable<Int4>,
+        subweapon -> Nullable<Int4>,
         heart -> Nullable<Int4>,
         created_at -> Nullable<Timestamp>,
         updated_at -> Nullable<Timestamp>,
@@ -89,7 +89,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    cash_equipment (char_id) {
+    cash_equipment_set (char_id) {
         char_id -> Int4,
         hat -> Nullable<Int4>,
         face_acc -> Nullable<Int4>,
@@ -108,7 +108,7 @@ diesel::table! {
         pendant -> Nullable<Int4>,
         belt -> Nullable<Int4>,
         shoulder -> Nullable<Int4>,
-        sub_weapon -> Nullable<Int4>,
+        subweapon -> Nullable<Int4>,
         hair -> Nullable<Int4>,
         created_at -> Nullable<Timestamp>,
         updated_at -> Nullable<Timestamp>,
@@ -116,7 +116,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    equip_items (id) {
+    equips (id) {
         id -> Int4,
         wz_id -> Int4,
         strength -> Nullable<Int4>,
@@ -140,7 +140,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    pet_equipment (char_id) {
+    pet_equipment_set (char_id) {
         char_id -> Int4,
         pet_one_acc -> Nullable<Int4>,
         pet_two_acc -> Nullable<Int4>,
@@ -151,7 +151,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    android_equipment (char_id) {
+    android_equipment_set (char_id) {
         char_id -> Int4,
         android_hat -> Nullable<Int4>,
         android_face -> Nullable<Int4>,
@@ -160,7 +160,7 @@ diesel::table! {
         android_gloves -> Nullable<Int4>,
         android_cape -> Nullable<Int4>,
         created_at -> Nullable<Timestamp>,
-        updated_at -> Nullable<Timestamp>
+        updated_at -> Nullable<Timestamp>,
     }
 }
 
@@ -183,15 +183,15 @@ diesel::table! {
         action -> Int2,
         created_at -> Nullable<Timestamp>,
         updated_at -> Nullable<Timestamp>,
-
     }
 }
 diesel::allow_tables_to_appear_in_same_query!(
     accounts,
-    android_equipment,
-    cash_equipment,
-    character_equipment,
+    android_equipment_set,
+    cash_equipment_set,
     character_limits,
     characters,
-    pet_equipment,
+    regular_equipment_set,
+    equips,
+    pet_equipment_set,
 );
