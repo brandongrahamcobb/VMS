@@ -43,7 +43,7 @@ impl MovePlayerHandler {
         let packet: Packet = Packet::new_empty()
             .build_player_move_handler_packet(char_id, &movement_bytes)?
             .finish();
-        result.add_action(ChannelAction::SendPacket { packet });
+        result.add_action(ChannelAction::SendPacket { packet: packet.clone() });
         Ok(result)
     }
 }

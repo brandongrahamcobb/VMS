@@ -35,7 +35,7 @@ use rand::{RngExt, rng};
 use tokio::net::TcpStream;
 use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::sync::mpsc::UnboundedSender;
-use tracing::debug;
+use tracing::{debug, info};
 
 pub struct Runtime<T: RuntimeRelay> {
     pkt_reader: PacketReader,
@@ -91,6 +91,7 @@ impl<T: RuntimeRelay + Default + Send> Runtime<T> {
                     }
                 }
                 packet = self.rx.recv() => {
+                    info!("TEST SESSION");
                     match packet {
                         Some(mut packet) => {
                             self.pkt_writer.send_encrypted_packet(&mut packet).await?;
@@ -171,7 +172,7 @@ impl RuntimeRelay for LoginRelay {
             let state = state.lock().await;
             state
                 .sessions
-                .get(session_id)
+                .get(&session_id)
                 .ok_or(SessionError::NotFound(session_id))
                 .map_err(RuntimeError::from)?
         };
@@ -346,7 +347,7 @@ impl RuntimeRelay for ChannelRelay {
             let state = state.lock().await;
             state
                 .sessions
-                .get(session_id)
+                .get(&session_id)
                 .ok_or(SessionError::NotFound(session_id))
                 .map_err(RuntimeError::from)?
         };
@@ -412,7 +413,7 @@ impl RuntimeRelay for ChannelRelay {
         state: SharedState,
         pkt_writer: &mut PacketWriter,
         result: HandlerResult<ChannelAction>,
-        _tx: UnboundedSender<Packet>,
+        tx: UnboundedSender<Packet>,
     ) -> Result<ControlFlow<()>, RuntimeError> {
         let actions = result.actions;
         for action in actions {
@@ -421,30 +422,33 @@ impl RuntimeRelay for ChannelRelay {
                 ChannelAction::SendPacket { mut packet } => {
                     pkt_writer.send_encrypted_packet(&mut packet).await?
                 }
-                ChannelAction::FieldMove { movement_bytes } => {
-                    debug!("{:?}", movement_bytes);
+                ChannelAction::FieldMove {
+                    movement_bytes: _movement_bytes,
+                } => {
                     () // not implemented
                 }
                 ChannelAction::BroadcastPacket { session, packet } => {
-                    let world = session
+                    let world_id = session
                         .world_id
                         .ok_or(SessionError::MissingField(session.id))
                         .map_err(RuntimeError::from)?;
-                    let channel = session
+                    let channel_id = session
                         .channel_id
                         .ok_or(SessionError::MissingField(session.id))
                         .map_err(RuntimeError::from)?;
-                    let map = session
+                    let map_id = session
                         .map_id
                         .ok_or(SessionError::MissingField(session.id))
                         .map_err(RuntimeError::from)?;
-                    let state = state.lock().await;
-                    if let Some(session_ids) = state.map_index.get(&(world, channel, map)) {
+                    let mut state = state.lock().await;
+                    state.set_location(&session.id, &world_id, &channel_id, &map_id);
+                    if let Some(session_ids) = state.map_index.get(&(world_id, channel_id, map_id))
+                    {
                         for id in session_ids {
                             if *id == session.id {
                                 continue;
                             }
-                            if let Some(target) = state.sessions.get(*id) {
+                            if let Some(target) = state.sessions.get(&id) {
                                 let _ = target.tx.send(packet.clone());
                             }
                         }
@@ -452,6 +456,10 @@ impl RuntimeRelay for ChannelRelay {
                 }
                 ChannelAction::Connect { session_id } => {
                     self.session_id = Some(session_id);
+                    {
+                        let state = state.lock().await;
+                        state.sessions.update(session_id, |s| s.tx = tx.clone());
+                    }
                 }
             }
         }

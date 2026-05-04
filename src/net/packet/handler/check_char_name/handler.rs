@@ -37,6 +37,6 @@ fn complete_check_char_name_handler(
     let packet: Packet = Packet::new_empty()
         .build_check_char_name_handler_packet(exists, ign)?
         .finish();
-    result.add_action(LoginAction::SendPacket { packet });
+    result.add_action(LoginAction::SendPacket { packet: packet.clone() });
     Ok(result)
 }

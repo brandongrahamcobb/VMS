@@ -24,17 +24,17 @@ impl ListWorldsHandler {
         let packet: Packet = Packet::new_empty()
             .build_list_worlds_handler_servers_packet(worlds)?
             .finish();
-        let action = LoginAction::SendPacket { packet };
+        let action = LoginAction::SendPacket { packet: packet.clone() };
         result.add_action(action);
         let packet: Packet = Packet::new_empty()
             .build_list_worlds_handler_last_connected_world_packet()?
             .finish();
-        let action = LoginAction::SendPacket { packet };
+        let action = LoginAction::SendPacket { packet: packet.clone() };
         result.add_action(action);
         let packet: Packet = Packet::new_empty()
             .build_list_worlds_handler_recommended_worlds_packet()?
             .finish();
-        let action = LoginAction::SendPacket { packet };
+        let action = LoginAction::SendPacket { packet: packet.clone() };
         result.add_action(action);
         Ok(result)
     }

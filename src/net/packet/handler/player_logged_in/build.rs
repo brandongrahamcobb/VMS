@@ -1059,4 +1059,109 @@ impl Packet {
         self.write_short(num_areas).map_err(WriteError)?;
         Ok(self)
     }
+
+    pub async fn build_spawn_char_packet(
+        &mut self,
+        state: SharedState,
+        char: &Character,
+        regular_equips: &RegularEquipmentSet,
+        cash_equips: &CashEquipmentSet,
+    ) -> Result<&mut Self, NetworkError> {
+        let op = SendOpcode::SpawnPlayer as i16;
+        self.write_short(op).map_err(WriteError)?;
+        self.write_int(char.id).map_err(WriteError)?;
+        self.write_byte(char.level.ok_or(CharacterError::MissingField(char.id))? as u8)
+            .map_err(WriteError)?;
+        self.write_str_with_length(&char.ign).map_err(WriteError)?;
+        self.write_str_with_length("Guild Name")
+            .map_err(WriteError)?;
+        let skip = 0 as u8;
+        self.write_short(skip as i16).map_err(WriteError)?; // guildlogobg
+        self.write_byte(skip).map_err(WriteError)?; //guildlogobgcolor
+        self.write_short(skip as i16).map_err(WriteError)?; //guildlogo
+        self.write_byte(skip).map_err(WriteError)?; //guildlogocolor
+        let skip = [0; 8];
+        self.write_bytes(&skip).map_err(WriteError)?;
+        let morphed = 0; // 2 if morphed
+        self.write_int(morphed).map_err(WriteError)?;
+        let buff_mask_one = 0;
+        self.write_int(buff_mask_one).map_err(WriteError)?;
+        if buff_mask_one != 0 {
+            if morphed == 2 {
+                let buff_value = 0; // changes if morphed
+                self.write_short(buff_value).map_err(WriteError)?;
+            } else {
+                let buff_value = 0; // changes if not morphed
+                self.write_byte(buff_value).map_err(WriteError)?;
+            }
+        }
+        let buff_mask_two = 0; // 0 not sure
+        self.write_int(buff_mask_two).map_err(WriteError)?;
+        let skip = [0; 43];
+        self.write_bytes(&skip).map_err(WriteError)?;
+        let mount = 0; // 0 not sure
+        self.write_int(mount).map_err(WriteError)?;
+        let skip = [0; 61];
+        self.write_bytes(&skip).map_err(WriteError)?;
+        self.write_short(char.job_id).map_err(WriteError)?;
+        self.build_look_meta_part_packet(state.clone(), &char, &regular_equips, &cash_equips)
+            .await?;
+        let count = 5110000;
+        self.write_int(count).map_err(WriteError)?;
+        let item_effect = 0; // 0 not sure
+        self.write_int(item_effect).map_err(WriteError)?;
+        let chair = 0; // 0 not sure
+        self.write_int(chair).map_err(WriteError)?;
+        let position_x = 0; // 0 this is a point so it might be wrong
+        let position_y = 0; // 0 this is a point so it might be wrong
+        self.write_short(position_x).map_err(WriteError)?;
+        self.write_short(position_y).map_err(WriteError)?;
+        let stance = 0; // 0 not sure
+        self.write_byte(stance as u8).map_err(WriteError)?;
+        let skip = [0; 3];
+        self.write_bytes(&skip).map_err(WriteError)?;
+        for i in 0..3 {
+            let available = 0; // 0 not sure
+            self.write_byte(available).map_err(WriteError)?;
+            if available == 1 {
+                let byte_two = 0; // 0 not sure
+                self.write_byte(byte_two as u8).map_err(WriteError)?;
+                let pet_id = 0; // 0 is definitely not right
+                self.write_int(pet_id).map_err(WriteError)?;
+                let pet_name = "George";
+                self.write_str_with_length(&pet_name).map_err(WriteError)?;
+                let unique_id = 0; // 0 not sure
+                self.write_int(unique_id).map_err(WriteError)?;
+                let skip = 0;
+                self.write_int(skip).map_err(WriteError)?;
+                self.write_short(position_x).map_err(WriteError)?;
+                self.write_short(position_y).map_err(WriteError)?;
+                self.write_byte(stance).map_err(WriteError)?;
+                let fhid = 0; // 0 not sure
+                self.write_int(fhid).map_err(WriteError)?;
+            } else {
+                break;
+            }
+        }
+        let mount_level = 0; // 0 not sure
+        self.write_int(mount_level).map_err(WriteError)?;
+        let mount_exp = 0; // 0 not sure
+        self.write_int(mount_exp).map_err(WriteError)?;
+        let mount_tiredness = 0; // 0 not sure
+        self.write_int(mount_tiredness).map_err(WriteError)?;
+        let skip = 0;
+        self.write_byte(skip as u8).map_err(WriteError)?; // shop stuff
+        let chalkboard: bool = false; // false not sure
+        self.write_byte(chalkboard as u8).map_err(WriteError)?;
+        if chalkboard {
+            self.write_str_with_length("Placeholder")
+                .map_err(WriteError)?;
+        }
+        let skip = [0; 3];
+        self.write_bytes(&skip).map_err(WriteError)?;
+        let team = 0; // 0 not sure
+        self.write_byte(team as u8).map_err(WriteError)?;
+        println!("{}", &self.bytes.len());
+        Ok(self)
+    }
 }

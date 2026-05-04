@@ -39,6 +39,6 @@ fn complete_change_channel_handler(
     let packet: Packet = Packet::new_empty()
         .build_channel_change_handler_packet(channel)?
         .finish();
-    result.add_action(ChannelAction::SendPacket { packet });
+    result.add_action(ChannelAction::SendPacket { packet: packet.clone() });
     Ok(result)
 }

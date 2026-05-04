@@ -116,6 +116,6 @@ async fn complete_create_char_handler(
         .build_create_char_handler_packet(state.clone(), char, &regular_equips, &cash_equips)
         .await?
         .finish();
-    result.add_action(LoginAction::SendPacket { packet });
+    result.add_action(LoginAction::SendPacket { packet: packet.clone() });
     Ok(result)
 }

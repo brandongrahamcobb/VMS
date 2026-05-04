@@ -54,7 +54,7 @@ fn complete_select_char_handler(
     let packet: Packet = Packet::new_empty()
         .build_select_char_handler_packet(char_id, octets, &channel.port)?
         .finish();
-    result.add_action(LoginAction::SendPacket { packet });
+    result.add_action(LoginAction::SendPacket { packet: packet.clone() });
     result.add_action(LoginAction::CloseConnection);
     Ok(result)
 }

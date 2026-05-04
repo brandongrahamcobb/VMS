@@ -34,8 +34,8 @@ impl State {
         Ok(shared_state)
     }
 
-    pub fn set_location(&mut self, id: i32, world: i8, channel: i8, map: i32) {
-        let key = (world, channel, map);
-        self.map_index.entry(key).or_default().insert(id);
+    pub fn set_location(&mut self, session_id: &i32, world_id: &i8, channel_id: &i8, map_id: &i32) {
+        let key = (*world_id, *channel_id, *map_id);
+        self.map_index.entry(key).or_default().insert(*session_id);
     }
 }

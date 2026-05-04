@@ -41,6 +41,6 @@ async fn complete_delete_char_handler(
     let packet = Packet::new_empty()
         .build_delete_char_handler_packet(char_id, status)?
         .finish();
-    result.add_action(LoginAction::SendPacket { packet });
+    result.add_action(LoginAction::SendPacket { packet: packet.clone() });
     Ok(result)
 }

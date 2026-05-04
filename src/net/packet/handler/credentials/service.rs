@@ -39,7 +39,7 @@ async fn check_if_playing(state: SharedState, acc: &Account) -> Result<bool, Net
     let playing = match session_id {
         Some(id) => {
             let state = state.lock().await;
-            match state.sessions.get(id) {
+            match state.sessions.get(&id) {
                 Some(session) => session.playing,
                 None => false,
             }

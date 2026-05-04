@@ -51,11 +51,11 @@ impl SessionStore {
         id
     }
 
-    pub fn get(&self, id: i32) -> Option<Session> {
+    pub fn get(&self, id: &i32) -> Option<Session> {
         self.sessions
             .read()
             .expect("session store read lock poisoned")
-            .get(&id)
+            .get(id)
             .cloned()
     }
 

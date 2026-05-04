@@ -62,6 +62,6 @@ async fn complete_enter_cash_shop_handler(
         .build_enter_cash_shop_handler_packet(state.clone(), acc, char, regular_equips, cash_equips)
         .await?
         .finish();
-    result.add_action(ChannelAction::SendPacket { packet });
+    result.add_action(ChannelAction::SendPacket { packet: packet.clone() });
     Ok(result)
 }

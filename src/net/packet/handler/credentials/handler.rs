@@ -39,7 +39,7 @@ impl CredentialsHandler {
                             .build_credentials_handler_successful_login_packet(&acc)?
                             .finish()
                     };
-                    result.add_action(LoginAction::SendPacket { packet });
+                    result.add_action(LoginAction::SendPacket { packet: packet.clone() });
                     result.add_action(LoginAction::CreateSession {
                         acc,
                         hwid: read.hwid,
@@ -49,7 +49,7 @@ impl CredentialsHandler {
                     let packet: Packet = Packet::new_empty()
                         .build_credentials_handler_failed_login_packet(&status)?
                         .finish();
-                    result.add_action(LoginAction::SendPacket { packet })
+                    result.add_action(LoginAction::SendPacket { packet: packet.clone() })
                 };
                 Ok(result)
             }
@@ -58,7 +58,7 @@ impl CredentialsHandler {
                 let packet: Packet = Packet::new_empty()
                     .build_credentials_handler_failed_login_packet(&status)?
                     .finish();
-                result.add_action(LoginAction::SendPacket { packet });
+                result.add_action(LoginAction::SendPacket { packet: packet.clone() });
                 Ok(result)
             }
             Err(_) => Err(NetworkError::UnexpectedError),

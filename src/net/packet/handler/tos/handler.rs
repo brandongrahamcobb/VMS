@@ -41,7 +41,7 @@ fn complete_tos_handler(acc: &Account) -> Result<HandlerResult<LoginAction>, Net
     let packet: Packet = Packet::new_empty()
         .build_credentials_handler_successful_login_packet(&acc)?
         .finish();
-    let action = LoginAction::SendPacket { packet };
+    let action = LoginAction::SendPacket { packet: packet.clone() };
     result.add_action(action);
     Ok(result)
 }

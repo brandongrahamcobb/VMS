@@ -38,7 +38,7 @@ fn complete_server_status(status: &i8) -> Result<HandlerResult<LoginAction>, Net
     let packet: Packet = Packet::new_empty()
         .build_server_status_handler_packet(&status)?
         .finish();
-    let action = LoginAction::SendPacket { packet };
+    let action = LoginAction::SendPacket { packet: packet.clone() };
     result.add_action(action);
     Ok(result)
 }

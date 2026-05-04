@@ -1,6 +1,7 @@
 use crate::config::error::ConfigError;
 use crate::db::error::DatabaseError;
 use crate::models::account::error::AccountError;
+use crate::models::character::error::CharacterError;
 use crate::models::error::ModelError;
 use crate::net::packet::error::PacketError;
 use crate::net::packet::io::error::IOError;
@@ -46,4 +47,7 @@ pub enum NetworkError {
 
     #[error("Account error in network layer")]
     AccountError(#[from] AccountError),
+
+    #[error("Character error in network layer")]
+    CharacterError(#[from] CharacterError),
 }

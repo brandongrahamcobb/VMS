@@ -39,7 +39,7 @@ impl PlayerLoggedInHandler {
                 .update(session_id, |s| s.map_id = Some(char.map_id));
             state
                 .sessions
-                .get(session_id)
+                .get(&session_id)
                 .ok_or(SessionError::NotFound(session_id))?
         };
         let channel_id = session
@@ -76,7 +76,9 @@ async fn complete_play_handler(
     let packet: Packet = Packet::new_empty()
         .build_player_logged_in_handler_keymap_packet(&binds)?
         .finish();
-    result.add_action(ChannelAction::SendPacket { packet });
+    result.add_action(ChannelAction::SendPacket {
+        packet: packet.clone(),
+    });
     let packet: Packet = Packet::new_empty()
         .build_player_logged_in_handler_char_packet(
             state.clone(),
@@ -87,9 +89,26 @@ async fn complete_play_handler(
         )
         .await?
         .finish();
-    result.add_action(ChannelAction::SendPacket { packet });
+    result.add_action(ChannelAction::SendPacket {
+        packet: packet.clone(),
+    });
     result.add_action(ChannelAction::Connect {
         session_id: *session_id,
+    });
+    let session = {
+        let state = state.lock().await;
+        state
+            .sessions
+            .get(session_id)
+            .ok_or(SessionError::NotFound(*session_id))?
+    };
+    let packet: Packet = Packet::new_empty()
+        .build_spawn_char_packet(state.clone(), &char, &regular_equips, &cash_equips)
+        .await?
+        .finish();
+    result.add_action(ChannelAction::BroadcastPacket {
+        session: session.clone(),
+        packet: packet.clone(),
     });
     Ok(result)
 }

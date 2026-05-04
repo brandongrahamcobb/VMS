@@ -62,7 +62,7 @@ impl ListCharsHandler {
             )
             .await?
             .finish();
-        let action = LoginAction::SendPacket { packet };
+        let action = LoginAction::SendPacket { packet: packet.clone() };
         result.add_action(action);
         Ok(result)
     }
@@ -86,7 +86,7 @@ async fn complete_list_chars_handler(
         )
         .await?
         .finish();
-    let action = LoginAction::SendPacket { packet };
+    let action = LoginAction::SendPacket { packet: packet.clone() };
     result.add_action(action);
     Ok(result)
 }
