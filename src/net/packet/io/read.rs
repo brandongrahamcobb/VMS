@@ -2,7 +2,7 @@ use crate::config::settings;
 use crate::constants::HEADER_SIZE;
 use crate::net::error::NetworkError;
 use crate::net::packet;
-use crate::net::packet::error::PacketError;
+
 use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::packet::Packet;
 use crate::sec::aes::AES;
@@ -33,12 +33,7 @@ impl PacketReader {
 
     // 2nd Level
     async fn read_buffer(&mut self, buf: &mut [u8]) -> Result<(), NetworkError> {
-        self.pkt_reader
-            .read_exact(buf)
-            .await
-            .map_err(ReadError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
+        self.pkt_reader.read_exact(buf).await.map_err(ReadError)?;
         Ok(())
     }
 

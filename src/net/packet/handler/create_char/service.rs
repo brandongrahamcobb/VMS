@@ -1,4 +1,5 @@
 use crate::net::error::NetworkError;
+
 use crate::net::packet::error::PacketError;
 use crate::net::packet::handler::error::HandlerError;
 

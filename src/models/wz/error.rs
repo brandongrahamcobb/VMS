@@ -14,9 +14,6 @@ pub enum WzError {
     #[error("Wz version error in wz model layer")]
     NoVersion,
 
-    #[error("Wz io error in wz model layer")]
-    IOError(#[from] std::io::Error),
-
     #[error("Equip error in wz model layer")]
     EquipError(#[from] WzEquipError),
 

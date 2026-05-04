@@ -8,6 +8,6 @@ pub enum CharacterError {
     #[error("No character is selected for account in character model layer: {0}")]
     NotSelected(i32),
 
-    #[error("Missing field in character model layer")]
-    MissingField,
+    #[error("Missing field in character model layer: {0}")]
+    MissingField(i32),
 }

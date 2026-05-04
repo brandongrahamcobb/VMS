@@ -8,13 +8,10 @@ diesel::table! {
         pin -> Nullable<Text>,
         pic -> Nullable<Text>,
         last_login_at -> Nullable<Timestamp>,
-        gender -> Int2,
+        gender_id -> Int2,
         accepted_tos -> Bool,
         banned -> Bool,
-        playing -> Bool,
-        selected_char_id -> Nullable<Int4>,
-        selected_channel_id -> Nullable<Int2>,
-        selected_world_id -> Nullable<Int2>,
+        session_id -> Nullable<Int4>,
         created_at -> Nullable<Timestamp>,
         updated_at -> Nullable<Timestamp>,
     }
@@ -39,13 +36,13 @@ diesel::table! {
         ap -> Nullable<Int2>,
         fame -> Nullable<Int2>,
         meso -> Nullable<Int4>,
-        job -> Int2,
-        face -> Int4,
-        hair -> Int4,
-        hair_color -> Int4,
-        skin -> Int4,
-        gender -> Int2,
-        map -> Int4,
+        job_id -> Int2,
+        face_id -> Int4,
+        hair_id -> Int4,
+        hair_color_id -> Int4,
+        skin_id -> Int4,
+        gender_id -> Int2,
+        map_id -> Int4,
         created_at -> Nullable<Timestamp>,
         updated_at -> Nullable<Timestamp>
     }
@@ -168,7 +165,7 @@ diesel::table! {
     character_limits (acc_id, world_id) {
         acc_id -> Int4,
         world_id -> Int2,
-        char_max -> Int4,
+        char_max -> Int2,
         created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
     }
@@ -178,13 +175,24 @@ diesel::table! {
     keybindings (id) {
         id -> Int4,
         char_id -> Int4,
-        key -> Int2,
+        key -> Int4,
         bind_type -> Int2,
-        action -> Int2,
+        action -> Int4,
         created_at -> Nullable<Timestamp>,
         updated_at -> Nullable<Timestamp>,
     }
 }
+
+diesel::table! {
+    skills (char_id) {
+        char_id -> Int4,
+        level -> Int2,
+        skill_id -> Int4,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
+    }
+}
+
 diesel::allow_tables_to_appear_in_same_query!(
     accounts,
     android_equipment_set,
@@ -192,6 +200,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     character_limits,
     characters,
     regular_equipment_set,
+    skills,
     equips,
     pet_equipment_set,
 );

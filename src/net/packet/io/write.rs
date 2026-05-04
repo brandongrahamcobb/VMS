@@ -1,8 +1,8 @@
 use crate::config::settings;
 use crate::net::error::NetworkError;
-use crate::net::packet::packet::Packet;
-use crate::net::packet::error::PacketError;
+
 use crate::net::packet::io::error::IOError::WriteError;
+use crate::net::packet::packet::Packet;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
 use crate::sec::aes::AES;
@@ -26,22 +26,12 @@ impl PacketWriter {
         })
     }
 
-    pub async fn send_unencrypted_packet(
-        &mut self,
-        packet: &mut Packet,
-    ) -> Result<(), NetworkError> {
+    pub async fn send_unencrypted_packet(&mut self, packet: &Packet) -> Result<(), NetworkError> {
         self.pkt_writer
             .write_all(&packet.bytes)
             .await
-            .map_err(WriteError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
-        self.pkt_writer
-            .flush()
-            .await
-            .map_err(WriteError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
+            .map_err(WriteError)?;
+        self.pkt_writer.flush().await.map_err(WriteError)?;
         Ok(())
     }
 
@@ -55,21 +45,12 @@ impl PacketWriter {
         self.pkt_writer
             .write_all(&header)
             .await
-            .map_err(WriteError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
+            .map_err(WriteError)?;
         self.pkt_writer
             .write_all(&packet.bytes)
             .await
-            .map_err(WriteError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
-        self.pkt_writer
-            .flush()
-            .await
-            .map_err(WriteError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
+            .map_err(WriteError)?;
+        self.pkt_writer.flush().await.map_err(WriteError)?;
         Ok(())
     }
 }

@@ -30,6 +30,15 @@ pub fn get_wz_path() -> Result<String, ConfigError> {
     Ok(addr)
 }
 
+pub fn get_release_mode() -> Result<bool, ConfigError> {
+    let settings = get_settings()?;
+    let key = String::from("release_mode");
+    let mode = settings
+        .get_bool(&key)
+        .map_err(|_| ConfigError::InvalidString(key))?;
+    Ok(mode)
+}
+
 pub fn get_login_port() -> Result<i16, ConfigError> {
     let settings = get_settings()?;
     let key = String::from("login_port");
@@ -109,7 +118,7 @@ pub fn get_gender_required() -> Result<bool, ConfigError> {
     Ok(gender_req)
 }
 
-pub fn get_channel_world_pairs() -> Result<Vec<(i16, i16)>, ConfigError> {
+pub fn get_channel_world_pairs() -> Result<Vec<(i8, i16)>, ConfigError> {
     let settings = get_settings()?;
     let mut list = Vec::new();
     let worlds = [
@@ -129,7 +138,7 @@ pub fn get_channel_world_pairs() -> Result<Vec<(i16, i16)>, ConfigError> {
                 .get_int(&key)?
                 .try_into()
                 .map_err(|e| ConfigError::IntConversion(e))?;
-            list.push((id as i16, count));
+            list.push((id as i8, count));
         }
     }
     Ok(list)
@@ -172,4 +181,13 @@ pub fn get_recommended_worlds() -> Result<Vec<String>, ConfigError> {
         .map(|s| s.trim().to_string())
         .collect::<Vec<String>>();
     Ok(worlds)
+}
+
+pub fn get_char_max() -> Result<i8, ConfigError> {
+    let settings = get_settings()?;
+    let key = String::from("char_max");
+    let char_max = settings
+        .get_int(&key)
+        .map_err(|_| ConfigError::InvalidInt(key))?;
+    Ok(char_max as i8)
 }

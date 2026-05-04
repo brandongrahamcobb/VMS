@@ -32,10 +32,11 @@ pub enum RecvOpcode {
     // AllChat = 0x31,
     // Whisper = 0x78,
     //
-    // ChangeKeybinds = 0x87,
+    ChangeKeymap = 0x87,
     //
     PlayerMapTransfer = 0xCF,
     PartySearch = 0xDF,
     //
     // UnusedOpcode = 0xFF,
+    CloseAttack = 0x2C,
 }

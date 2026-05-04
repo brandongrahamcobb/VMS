@@ -9,7 +9,7 @@ pub fn load_worlds() -> Result<Vec<World>, ModelError> {
     let mut worlds: Vec<World> = Vec::new();
     let flag: i8 = settings::get_world_flag()?;
     let event_message: String = settings::get_world_event_message()?;
-    let pairs: Vec<(i16, i16)> = settings::get_channel_world_pairs()?;
+    let pairs: Vec<(i8, i16)> = settings::get_channel_world_pairs()?;
     for (id, count) in pairs {
         let world_name = name_for_world_by_id(&id)
             .ok_or(WorldError::NotFound(id))
@@ -18,7 +18,7 @@ pub fn load_worlds() -> Result<Vec<World>, ModelError> {
             .ok_or(WorldError::NotFound(id))
             .map_err(ModelError::from)?;
         let channels =
-            channel::service::load_channels(count, id, world_port).map_err(ModelError::from)?;
+            channel::service::load_channels(&count, &id, &world_port).map_err(ModelError::from)?;
         worlds.push(World {
             id,
             channels,
@@ -30,10 +30,10 @@ pub fn load_worlds() -> Result<Vec<World>, ModelError> {
     Ok(worlds)
 }
 
-pub fn get_world_port_by_id(id: &i16) -> Option<i16> {
+pub fn get_world_port_by_id(id: &i8) -> Option<i16> {
     WORLDS.get(*id as usize).map(|w| w.port)
 }
 
-pub fn name_for_world_by_id(id: &i16) -> Option<&'static str> {
+pub fn name_for_world_by_id(id: &i8) -> Option<&'static str> {
     WORLDS.get(*id as usize).map(|w| w.name)
 }

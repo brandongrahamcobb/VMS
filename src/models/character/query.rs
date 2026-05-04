@@ -6,8 +6,8 @@ use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
 pub async fn get_characters_by_account_id_and_world_id(
     state: SharedState,
-    acc_id: i32,
-    world_id: i16,
+    acc_id: &i32,
+    world_id: &i8,
 ) -> QueryResult<Vec<Character>> {
     let db = {
         let state = state.lock().await;
@@ -21,7 +21,7 @@ pub async fn get_characters_by_account_id_and_world_id(
     })?;
     characters::table
         .filter(characters::acc_id.eq(acc_id))
-        .filter(characters::world_id.eq(world_id))
+        .filter(characters::world_id.eq(*world_id as i16))
         .load::<Character>(&mut conn)
 }
 
@@ -57,7 +57,7 @@ pub async fn get_character_by_name(state: SharedState, ign: &str) -> QueryResult
         .first::<Character>(&mut conn)
 }
 
-pub async fn get_character_by_id(state: SharedState, char_id: i32) -> QueryResult<Character> {
+pub async fn get_character_by_id(state: SharedState, char_id: &i32) -> QueryResult<Character> {
     let db = {
         let state = state.lock().await;
         state.db.clone()
@@ -73,7 +73,7 @@ pub async fn get_character_by_id(state: SharedState, char_id: i32) -> QueryResul
         .first::<Character>(&mut conn)
 }
 
-pub async fn get_account_id_by_character_id(state: SharedState, char_id: i32) -> QueryResult<i32> {
+pub async fn get_account_id_by_character_id(state: SharedState, char_id: &i32) -> QueryResult<i32> {
     let db = {
         let state = state.lock().await;
         state.db.clone()
@@ -90,7 +90,11 @@ pub async fn get_account_id_by_character_id(state: SharedState, char_id: i32) ->
         .first::<i32>(&mut conn)
 }
 
-pub async fn delete_character(state: SharedState, acc_id: i32, char_id: i32) -> QueryResult<usize> {
+pub async fn delete_character(
+    state: SharedState,
+    acc_id: &i32,
+    char_id: &i32,
+) -> QueryResult<usize> {
     let db = {
         let state = state.lock().await;
         state.db.clone()

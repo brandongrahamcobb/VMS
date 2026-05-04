@@ -15,7 +15,7 @@ impl LoginServer {
     pub async fn run(shared_state: SharedState) -> Result<(), RuntimeError> {
         let port = settings::get_login_port()?;
         let addr = settings::build_server_addr(&port)?;
-        let listener = tokio::net::TcpListener::bind(&addr).await?;
+        let listener = tokio::net::TcpListener::bind(addr.clone()).await?;
         loop {
             match listener.accept().await {
                 Ok((stream, _addr)) => {
@@ -23,7 +23,7 @@ impl LoginServer {
                     tokio::spawn(async move {
                         match Runtime::<LoginRelay>::new(clone, stream).await {
                             Ok(mut relay) => {
-                                info!("Listening on port {}...", port);
+                                info!("Listening on port {}...", &port);
                                 if let Err(e) = relay.run().await {
                                     use std::error::Error;
                                     let mut current: Option<&dyn Error> = Some(&e);
@@ -58,7 +58,7 @@ pub struct ChannelServer;
 impl ChannelServer {
     pub async fn run(shared_state: SharedState, port: i16) -> Result<(), RuntimeError> {
         let addr = settings::build_server_addr(&port)?;
-        let listener = tokio::net::TcpListener::bind(&addr).await?;
+        let listener = tokio::net::TcpListener::bind(addr.clone()).await?;
         loop {
             match listener.accept().await {
                 Ok((stream, _addr)) => {
@@ -66,7 +66,7 @@ impl ChannelServer {
                     tokio::spawn(async move {
                         match Runtime::<ChannelRelay>::new(clone, stream).await {
                             Ok(mut relay) => {
-                                info!("Listening on port {}...", port);
+                                info!("Listening on port {}...", &port);
                                 if let Err(e) = relay.run().await {
                                     use std::error::Error;
                                     let mut current: Option<&dyn Error> = Some(&e);

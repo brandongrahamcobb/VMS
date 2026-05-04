@@ -30,15 +30,15 @@ pub const SHUFFLE_BYTES: [u8; 256] = [
     0x84, 0x7F, 0x61, 0x1E, 0xCF, 0xC5, 0xD1, 0x56, 0x3D, 0xCA, 0xF4, 0x05, 0xC6, 0xE5, 0x08, 0x49,
 ];
 
-pub const DEFAULT_KEY: [i16; 23] = [
+pub const DEFAULT_KEY: [i32; 23] = [
     59, 60, 61, 62, 63, 64, 65, 56, 87, 18, 23, 31, 37, 19, 17, 46, 50, 16, 43, 40, 21, 4, 84,
 ];
 
-pub const DEFAULT_TYPE: [u8; 23] = [
+pub const DEFAULT_TYPE: [i16; 23] = [
     6, 6, 6, 6, 6, 6, 6, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
 ];
 
-pub const DEFAULT_ACTION: [i16; 23] = [
+pub const DEFAULT_ACTION: [i32; 23] = [
     100, 101, 102, 103, 104, 105, 106, 54, 54, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15,
 ];
 

@@ -1,20 +1,15 @@
-use crate::db::error::DatabaseError;
-use crate::models::character;
+use crate::models::{account, character};
 use crate::net::error::NetworkError;
-use crate::net::packet::error::PacketError;
 use crate::net::packet::handler::action::LoginAction;
+use crate::net::packet::handler::delete_char;
 use crate::net::packet::handler::result::HandlerResult;
-use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::packet::Packet;
-use crate::prelude::*;
-use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
-use std::io::Cursor;
 
-pub struct DeleteCharacterHandler;
+pub struct DeleteCharHandler;
 
-impl DeleteCharacterHandler {
+impl DeleteCharHandler {
     pub fn new() -> Self {
         Self
     }
@@ -25,36 +20,27 @@ impl DeleteCharacterHandler {
         session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let mut pkt_reader = Cursor::new(packet.bytes);
-        pkt_reader
-            .read_short()
-            .map_err(ReadError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
-        let _pic = pkt_reader
-            .read_str_with_length()
-            .map_err(ReadError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
-        let char_id = pkt_reader
-            .read_int()
-            .map_err(ReadError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
-        let acc_id = session
-            .acc_id
-            .ok_or(SessionError::NoAccount)
-            .map_err(NetworkError::from)?;
-        character::query::delete_character(state.clone(), acc_id, char_id)
-            .await
-            .map_err(DatabaseError::from)
-            .map_err(NetworkError::from)?;
-        let mut result: HandlerResult<LoginAction> = HandlerResult::new();
-        let packet: Packet = Packet::new_empty()
-            .build_delete_char_handler_packet(char_id, 0x00)?
-            .finish();
-        let action = LoginAction::SendPacket { packet };
-        result.add_action(action)?;
+        let read = delete_char::read::read_delete_char_packet(packet)?;
+        let acc_id = session.acc_id;
+        let acc = account::query::get_account_by_id(state.clone(), &acc_id).await?;
+        let status = delete_char::service::check_pic(&acc, read.pic.clone())?;
+        let result =
+            complete_delete_char_handler(state.clone(), &acc_id, &read.char_id, &status).await?;
         Ok(result)
     }
+}
+
+async fn complete_delete_char_handler(
+    state: SharedState,
+    acc_id: &i32,
+    char_id: &i32,
+    status: &bool,
+) -> Result<HandlerResult<LoginAction>, NetworkError> {
+    let mut result: HandlerResult<LoginAction> = HandlerResult::new();
+    character::query::delete_character(state.clone(), acc_id, char_id).await?;
+    let packet = Packet::new_empty()
+        .build_delete_char_handler_packet(char_id, status)?
+        .finish();
+    result.add_action(LoginAction::SendPacket { packet });
+    Ok(result)
 }

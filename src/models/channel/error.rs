@@ -3,11 +3,8 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum ChannelError {
     #[error("Requested channel was not found in channel model layer: {0}")]
-    NotFound(i16),
+    NotFound(i8),
 
     #[error("Unexpected error in channel model layer")]
     UnexpectedError,
-
-    #[error("Channel not selected in channel model layer: {0}")]
-    NotSelected(i32),
 }

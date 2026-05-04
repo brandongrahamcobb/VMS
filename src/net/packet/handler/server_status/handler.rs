@@ -28,12 +28,17 @@ impl ServerStatusHandler {
         } else {
             2
         };
-        let mut result: HandlerResult<LoginAction> = HandlerResult::new();
-        let packet: Packet = Packet::new_empty()
-            .build_server_status_handler_packet(status)?
-            .finish();
-        let action = LoginAction::SendPacket { packet };
-        result.add_action(action)?;
+        let result = complete_server_status(&status)?;
         Ok(result)
     }
+}
+
+fn complete_server_status(status: &i8) -> Result<HandlerResult<LoginAction>, NetworkError> {
+    let mut result: HandlerResult<LoginAction> = HandlerResult::new();
+    let packet: Packet = Packet::new_empty()
+        .build_server_status_handler_packet(&status)?
+        .finish();
+    let action = LoginAction::SendPacket { packet };
+    result.add_action(action);
+    Ok(result)
 }

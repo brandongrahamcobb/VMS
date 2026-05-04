@@ -7,7 +7,7 @@ use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
 pub async fn get_keybindings_by_character_id(
     state: SharedState,
-    c_id: i32,
+    char_id: &i32,
 ) -> QueryResult<Vec<Keybinding>> {
     let db = {
         let state = state.lock().await;
@@ -20,7 +20,7 @@ pub async fn get_keybindings_by_character_id(
         )
     })?;
     keybindings::table
-        .filter(keybindings::char_id.eq(c_id))
+        .filter(keybindings::char_id.eq(char_id))
         .load::<Keybinding>(&mut conn)
 }
 
@@ -39,7 +39,7 @@ pub async fn update_keybindings(
         )
     })?;
     diesel::insert_into(keybindings::table)
-        .values(bindings)
+        .values(bindings.clone())
         .on_conflict(on_constraint("key_is_unique_per_character"))
         .do_update()
         .set((

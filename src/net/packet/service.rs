@@ -1,5 +1,6 @@
 use crate::constants::MAX_PACKET_LENGTH;
 use crate::net::error::NetworkError;
+
 use crate::net::packet::error::PacketError;
 use crate::sec::aes::AES;
 

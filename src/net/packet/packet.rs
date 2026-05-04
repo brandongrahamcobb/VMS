@@ -2,7 +2,7 @@ use crate::constants::{INVALID_OPCODE, MAX_PACKET_LENGTH};
 use std::io::Result;
 use std::io::Write;
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct Packet {
     pub bytes: Vec<u8>,
 }

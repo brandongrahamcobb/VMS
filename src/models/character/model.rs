@@ -2,7 +2,7 @@ use crate::db::schema::characters;
 use diesel::prelude::*;
 use std::time::SystemTime;
 
-#[derive(Identifiable, Queryable, AsChangeset, Selectable)]
+#[derive(Clone, Identifiable, Queryable, AsChangeset, Selectable)]
 #[diesel(table_name = characters)]
 pub struct Character {
     pub id: i32,
@@ -22,13 +22,13 @@ pub struct Character {
     pub ap: Option<i16>,
     pub fame: Option<i16>,
     pub meso: Option<i32>,
-    pub job: i16,
-    pub face: i32,
-    pub hair: i32,
-    pub hair_color: i32,
-    pub skin: i32,
-    pub gender: i16,
-    pub map: i32,
+    pub job_id: i16,
+    pub face_id: i32,
+    pub hair_id: i32,
+    pub hair_color_id: i32,
+    pub skin_id: i32,
+    pub gender_id: i16,
+    pub map_id: i32,
     pub created_at: Option<SystemTime>,
     pub updated_at: Option<SystemTime>,
 }
@@ -39,11 +39,11 @@ pub struct NewCharacter {
     pub acc_id: i32,
     pub world_id: i16,
     pub ign: String,
-    pub job: i16,
-    pub face: i32,
-    pub hair: i32,
-    pub hair_color: i32,
-    pub skin: i32,
-    pub gender: i16,
-    pub map: i32,
+    pub job_id: i16,
+    pub face_id: i32,
+    pub hair_id: i32,
+    pub hair_color_id: i32,
+    pub skin_id: i32,
+    pub gender_id: i16,
+    pub map_id: i32,
 }

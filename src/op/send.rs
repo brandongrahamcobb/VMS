@@ -31,4 +31,5 @@ pub enum SendOpcode {
     SetCashShop = 0x7F,
     SetField = 0x7D,
     KeyMap = 0x14F,
+    AttackedClose = 0xBA,
 }

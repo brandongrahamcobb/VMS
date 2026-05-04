@@ -5,16 +5,13 @@ CREATE TABLE accounts (
     pin TEXT NULL,
     pic TEXT NULL,
     last_login_at TIMESTAMP NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     character_slots SMALLINT NOT NULL DEFAULT 8,
-    gender SMALLINT NOT NULL,
+    gender_id SMALLINT NOT NULL,
     accepted_tos BOOLEAN NOT NULL DEFAULT FALSE,
     banned BOOLEAN NOT NULL DEFAULT FALSE,
-    playing BOOLEAN NOT NULL DEFAULT FALSE,
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    selected_char_id INTEGER NULL,
-    selected_channel_id SMALLINT NULL,
-    selected_world_id SMALLINT NULL
+    session_id INTEGER NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE characters (
@@ -35,15 +32,37 @@ CREATE TABLE characters (
     ap SMALLINT NOT NULL DEFAULT 0,
     fame SMALLINT NOT NULL DEFAULT 0,
     meso INTEGER NOT NULL DEFAULT 0,
-    job SMALLINT NOT NULL,
-    face INTEGER NOT NULL,
-    hair INTEGER NOT NULL,
-    hair_color INTEGER NOT NULL,
-    skin INTEGER NOT NULL,
-    gender SMALLINT NOT NULL,
-    map INTEGER NOT NULL,
+    job_id SMALLINT NOT NULL,
+    face_id INTEGER NOT NULL,
+    hair_id INTEGER NOT NULL,
+    hair_color_id INTEGER NOT NULL,
+    skin_id INTEGER NOT NULL,
+    gender_id SMALLINT NOT NULL,
+    map_id INTEGER NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE equips (
+    id SERIAL PRIMARY KEY,
+    wz_id INTEGER NOT NULL,
+    strength INTEGER DEFAULT 0,
+    dexterity INTEGER DEFAULT 0,
+    intelligence INTEGER DEFAULT 0,
+    luck INTEGER DEFAULT 0,
+    attack INTEGER DEFAULT 0,
+    weapon_defense INTEGER DEFAULT 0,
+    magic INTEGER DEFAULT 0,
+    magic_defense INTEGER DEFAULT 0,
+    hp INTEGER DEFAULT 0,
+    mp INTEGER DEFAULT 0,
+    accuracy INTEGER DEFAULT 0,
+    avoid INTEGER DEFAULT 0,
+    hands INTEGER DEFAULT 0,
+    speed INTEGER DEFAULT 0,
+    jump INTEGER DEFAULT 0,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL
 );
 
 CREATE TABLE regular_equipment_set (
@@ -126,13 +145,12 @@ CREATE TABLE android_equipment_set (
     android_cape INTEGER NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
-
 );
 
 CREATE TABLE character_limits (
     acc_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
     world_id SMALLINT NOT NULL,
-    char_max INTEGER NOT NULL,
+    char_max SMALLINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY (acc_id, world_id)
@@ -141,9 +159,9 @@ CREATE TABLE character_limits (
 CREATE TABLE keybindings (
     id SERIAL PRIMARY KEY,
     char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
-    key SMALLINT NOT NULL,
+    key INTEGER NOT NULL,
     bind_type SMALLINT NOT NULL,
-    action SMALLINT NOT NULL,
+    action INTEGER NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -151,24 +169,13 @@ CREATE TABLE keybindings (
 ALTER TABLE keybindings
 ADD CONSTRAINT key_is_unique_per_character UNIQUE (char_id, key);
 
-CREATE TABLE equips (
-    id SERIAL PRIMARY KEY,
-    wz_id INTEGER NOT NULL,
-    strength INTEGER DEFAULT 0,
-    dexterity INTEGER DEFAULT 0,
-    intelligence INTEGER DEFAULT 0,
-    luck INTEGER DEFAULT 0,
-    attack INTEGER DEFAULT 0,
-    weapon_defense INTEGER DEFAULT 0,
-    magic INTEGER DEFAULT 0,
-    magic_defense INTEGER DEFAULT 0,
-    hp INTEGER DEFAULT 0,
-    mp INTEGER DEFAULT 0,
-    accuracy INTEGER DEFAULT 0,
-    avoid INTEGER DEFAULT 0,
-    hands INTEGER DEFAULT 0,
-    speed INTEGER DEFAULT 0,
-    jump INTEGER DEFAULT 0,
-    created_at TIMESTAMP NULL,
-    updated_at TIMESTAMP NULL
+CREATE TABLE skills (
+    char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+    skill_id INTEGER NOT NULL,
+    level SMALLINT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+
+

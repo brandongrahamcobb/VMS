@@ -1,6 +1,9 @@
-use crate::db::schema::{android_equipment_set, cash_equipment_set, pet_equipment_set, regular_equipment_set};
+use crate::db::schema::{
+    android_equipment_set, cash_equipment_set, pet_equipment_set, regular_equipment_set,
+};
 use crate::models::character::equipment_set::model::{
-    AndroidEquipmentSet, CashEquipmentSet, NewAndroidEquipmentSet, NewCashEquipmentSet, NewPetEquipmentSet, NewRegularEquipmentSet, PetEquipmentSet, RegularEquipmentSet
+    AndroidEquipmentSet, CashEquipmentSet, NewAndroidEquipmentSet, NewCashEquipmentSet,
+    NewPetEquipmentSet, NewRegularEquipmentSet, PetEquipmentSet, RegularEquipmentSet,
 };
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
@@ -84,7 +87,7 @@ pub async fn create_pet_equipment_set_for_new_character(
 
 pub async fn get_regular_equipment_set_by_character_id(
     state: SharedState,
-    char_id: i32,
+    char_id: &i32,
 ) -> QueryResult<RegularEquipmentSet> {
     let db = {
         let state = state.lock().await;
@@ -103,7 +106,7 @@ pub async fn get_regular_equipment_set_by_character_id(
 
 pub async fn get_cash_equipment_set_by_character_id(
     state: SharedState,
-    char_id: i32,
+    char_id: &i32,
 ) -> QueryResult<CashEquipmentSet> {
     let db = {
         let state = state.lock().await;

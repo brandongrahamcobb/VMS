@@ -20,7 +20,7 @@ pub async fn create_equip(state: SharedState, equip: NewEquip) -> QueryResult<Eq
         .get_result::<Equip>(&mut conn)
 }
 
-pub async fn get_equip_by_id(state: SharedState, id: i32) -> QueryResult<Equip> {
+pub async fn get_equip_by_id(state: SharedState, id: &i32) -> QueryResult<Equip> {
     let db = {
         let state = state.lock().await;
         state.db.clone()

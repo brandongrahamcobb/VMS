@@ -1,7 +1,9 @@
 use crate::config::error::ConfigError;
 use crate::db::error::DatabaseError;
+use crate::models::account::error::AccountError;
 use crate::models::error::ModelError;
 use crate::net::packet::error::PacketError;
+use crate::net::packet::io::error::IOError;
 use crate::runtime::error::SessionError;
 use bcrypt::BcryptError;
 use std::time::SystemTimeError;
@@ -35,4 +37,13 @@ pub enum NetworkError {
 
     #[error("Model error in network layer")]
     ModelError(#[from] ModelError),
+
+    #[error("Entry in database not found in network layer")]
+    DieselError(#[from] diesel::result::Error),
+
+    #[error("IO error in network layer")]
+    IOError(#[from] IOError),
+
+    #[error("Account error in network layer")]
+    AccountError(#[from] AccountError),
 }

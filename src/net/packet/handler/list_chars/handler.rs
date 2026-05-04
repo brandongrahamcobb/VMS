@@ -1,21 +1,17 @@
 use crate::config::settings;
-use crate::db::error::DatabaseError;
+use crate::models::character::model::Character;
 use crate::models::{account, character, world};
 use crate::net::error::NetworkError;
-use crate::net::packet::error::PacketError;
 use crate::net::packet::handler::action::LoginAction;
+use crate::net::packet::handler::list_chars;
 use crate::net::packet::handler::result::HandlerResult;
-use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::packet::Packet;
-use crate::prelude::*;
-use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
-use std::io::Cursor;
 
-pub struct CharListHandler;
+pub struct ListCharsHandler;
 
-impl CharListHandler {
+impl ListCharsHandler {
     pub fn new() -> Self {
         Self
     }
@@ -26,70 +22,71 @@ impl CharListHandler {
         session: Session,
         packet: Packet,
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let mut pkt_reader = Cursor::new(packet.bytes);
-        pkt_reader
-            .read_short()
-            .map_err(ReadError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
-        pkt_reader
-            .read_byte()
-            .map_err(ReadError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
-        let world_id = pkt_reader
-            .read_byte()
-            .map_err(ReadError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
-        let channel_id = pkt_reader
-            .read_byte()
-            .map_err(ReadError)
-            .map_err(PacketError::from)
-            .map_err(NetworkError::from)?;
-        let acc_id = session
-            .acc_id
-            .ok_or(SessionError::NoAccount)
-            .map_err(NetworkError::from)?;
-        let mut acc = account::query::get_account_by_id(state.clone(), acc_id)
-            .await
-            .map_err(DatabaseError::from)
-            .map_err(NetworkError::from)?;
-        acc.selected_world_id = Some(world_id as i16);
-        acc.selected_channel_id = Some(channel_id as i16);
-        account::query::update(state.clone(), &acc)
-            .await
-            .map_err(DatabaseError::from)
-            .map_err(NetworkError::from)?;
+        let read = list_chars::read::read_list_chars_packet(packet)?;
+        {
+            let state = state.lock().await;
+            state.sessions.update(session.id, |s| {
+                s.channel_id = Some(read.channel_id);
+                s.world_id = Some(read.world_id);
+            });
+        }
+        let acc_id = session.acc_id;
+        let acc = account::query::get_account_by_id(state.clone(), &acc_id).await?;
         let chars = character::query::get_characters_by_account_id_and_world_id(
             state.clone(),
-            acc_id,
-            world_id as i16,
+            &acc_id,
+            &read.world_id,
         )
-        .await
-        .map_err(DatabaseError::from)
-        .map_err(NetworkError::from)?;
+        .await?;
+        let default_char_max = settings::get_char_max()?;
         let char_max = world::query::get_character_max_by_account_and_world_id(
             state.clone(),
-            acc_id,
-            world_id as i16,
+            &acc_id,
+            &read.world_id,
         )
         .await
-        .map_err(DatabaseError::from)
-        .map_err(NetworkError::from)
-        .unwrap_or(8);
-        let mut pic_status = 0;
+        .unwrap_or(default_char_max as i16);
+        let mut pic_status: i8 = 0;
         let use_pic = settings::get_pic_required()?;
         if let Some(_pic) = acc.pic {
             pic_status = if use_pic { 1 } else { 2 };
         }
         let mut result: HandlerResult<LoginAction> = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
-            .build_list_chars_handler_packet(state.clone(), channel_id, chars, char_max, pic_status)
+            .build_list_chars_handler_packet(
+                state.clone(),
+                &read.channel_id,
+                chars.clone(),
+                &char_max,
+                &pic_status,
+            )
             .await?
             .finish();
         let action = LoginAction::SendPacket { packet };
-        result.add_action(action)?;
+        result.add_action(action);
         Ok(result)
     }
+}
+
+async fn complete_list_chars_handler(
+    state: SharedState,
+    channel_id: &i8,
+    chars: Vec<Character>,
+    char_max: &i16,
+    pic_status: &i8,
+) -> Result<HandlerResult<LoginAction>, NetworkError> {
+    let mut result: HandlerResult<LoginAction> = HandlerResult::new();
+    let packet: Packet = Packet::new_empty()
+        .build_list_chars_handler_packet(
+            state.clone(),
+            channel_id,
+            chars.clone(),
+            char_max,
+            pic_status,
+        )
+        .await?
+        .finish();
+    let action = LoginAction::SendPacket { packet };
+    result.add_action(action);
+    Ok(result)
 }

@@ -1,7 +1,7 @@
-use crate::db::error::DatabaseError;
-use crate::models::channel::error::ChannelError;
-use crate::models::character::error::CharacterError;
-use crate::models::error::ModelError;
+use crate::models::account::model::Account;
+use crate::models::character::equipment_set;
+use crate::models::character::equipment_set::model::{CashEquipmentSet, RegularEquipmentSet};
+use crate::models::character::model::Character;
 use crate::models::{account, character};
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::action::ChannelAction;
@@ -24,57 +24,44 @@ impl EnterCashShopHandler {
         session: Session,
         _packet: Packet,
     ) -> Result<HandlerResult<ChannelAction>, NetworkError> {
-        let acc_id = session
-            .acc_id
-            .ok_or(SessionError::NoAccount)
-            .map_err(NetworkError::from)?;
-        let acc = account::query::get_account_by_id(state.clone(), acc_id)
-            .await
-            .map_err(DatabaseError::from)
-            .map_err(NetworkError::from)?;
-        let char_id = acc
-            .selected_char_id
-            .ok_or(CharacterError::NotSelected(acc_id))
-            .map_err(ModelError::from)
-            .map_err(NetworkError::from)?;
-        let channel_id = acc
-            .selected_channel_id
-            .ok_or(ChannelError::NotSelected(acc_id))
-            .map_err(ModelError::from)
-            .map_err(NetworkError::from)?;
-        let char = character::query::get_character_by_id(state.clone(), char_id)
-            .await
-            .map_err(DatabaseError::from)
-            .map_err(NetworkError::from)?;
-        let regular_equips =
-            character::equipment_set::query::get_regular_equipment_set_by_character_id(
-                state.clone(),
-                char_id,
-            )
-            .await
-            .map_err(DatabaseError::from)
-            .map_err(NetworkError::from)?;
-        let cash_equips = character::equipment_set::query::get_cash_equipment_set_by_character_id(
+        let acc_id = session.acc_id;
+        let acc = account::query::get_account_by_id(state.clone(), &acc_id).await?;
+        let char_id = session
+            .char_id
+            .ok_or(SessionError::NoCharacterSelected(session.id))?;
+        let char = character::query::get_character_by_id(state.clone(), &char_id).await?;
+        let regular_equips = equipment_set::query::get_regular_equipment_set_by_character_id(
             state.clone(),
-            char_id,
+            &char_id,
         )
-        .await
-        .map_err(DatabaseError::from)
-        .map_err(NetworkError::from)?;
-        let mut result: HandlerResult<ChannelAction> = HandlerResult::new();
-        let packet: Packet = Packet::new_empty()
-            .build_enter_cash_shop_handler_packet(
-                state.clone(),
-                channel_id,
-                &acc,
-                &char,
-                &regular_equips,
-                &cash_equips,
-            )
-            .await?
-            .finish();
-        let action = ChannelAction::SendPacket { packet };
-        result.add_action(action)?;
+        .await?;
+        let cash_equips =
+            equipment_set::query::get_cash_equipment_set_by_character_id(state.clone(), &char_id)
+                .await?;
+        let result = complete_enter_cash_shop_handler(
+            state.clone(),
+            &acc,
+            &char,
+            &regular_equips,
+            &cash_equips,
+        )
+        .await?;
         Ok(result)
     }
+}
+
+async fn complete_enter_cash_shop_handler(
+    state: SharedState,
+    acc: &Account,
+    char: &Character,
+    regular_equips: &RegularEquipmentSet,
+    cash_equips: &CashEquipmentSet,
+) -> Result<HandlerResult<ChannelAction>, NetworkError> {
+    let mut result: HandlerResult<ChannelAction> = HandlerResult::new();
+    let packet: Packet = Packet::new_empty()
+        .build_enter_cash_shop_handler_packet(state.clone(), acc, char, regular_equips, cash_equips)
+        .await?
+        .finish();
+    result.add_action(ChannelAction::SendPacket { packet });
+    Ok(result)
 }
