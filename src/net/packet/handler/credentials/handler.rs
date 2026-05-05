@@ -1,9 +1,9 @@
 use crate::models::account;
+use crate::net::action::model::LoginAction;
 use crate::net::error::NetworkError;
-use crate::net::packet::handler::action::LoginAction;
 use crate::net::packet::handler::credentials;
 use crate::net::packet::handler::result::HandlerResult;
-use crate::net::packet::packet::Packet;
+use crate::net::packet::model::Packet;
 use crate::runtime::state::SharedState;
 
 pub struct CredentialsHandler;
@@ -15,15 +15,15 @@ impl CredentialsHandler {
 
     pub async fn handle(
         &self,
-        state: SharedState,
-        packet: Packet,
+        state: &SharedState,
+        packet: &Packet,
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
         let read = credentials::read::read_credentials_packet(packet)?;
         let mut result: HandlerResult<LoginAction> = HandlerResult::new();
-        match account::query::get_account_by_username(state.clone(), &read.user).await {
+        match account::query::get_account_by_username(state, &read.user).await {
             Ok(acc) => {
                 if credentials::service::authenticate(&acc, &read.pw)? {
-                    let status = credentials::service::get_status_code(state.clone(), &acc).await?;
+                    let status = credentials::service::get_status_code(state, &acc).await?;
                     let packet = if matches!(
                         status,
                         credentials::service::StatusCode::Banned
@@ -39,17 +39,21 @@ impl CredentialsHandler {
                             .build_credentials_handler_successful_login_packet(&acc)?
                             .finish()
                     };
-                    result.add_action(LoginAction::SendPacket { packet: packet.clone() });
+                    result.add_action(LoginAction::SendLocalPacket {
+                        packet: packet.clone(),
+                    });
                     result.add_action(LoginAction::CreateSession {
-                        acc,
-                        hwid: read.hwid,
+                        acc_id: acc.id.clone(),
+                        hwid: read.hwid.clone(),
                     });
                 } else {
                     let status = credentials::service::StatusCode::InvalidCredentials as i8;
                     let packet: Packet = Packet::new_empty()
                         .build_credentials_handler_failed_login_packet(&status)?
                         .finish();
-                    result.add_action(LoginAction::SendPacket { packet: packet.clone() })
+                    result.add_action(LoginAction::SendLocalPacket {
+                        packet: packet.clone(),
+                    })
                 };
                 Ok(result)
             }
@@ -58,7 +62,9 @@ impl CredentialsHandler {
                 let packet: Packet = Packet::new_empty()
                     .build_credentials_handler_failed_login_packet(&status)?
                     .finish();
-                result.add_action(LoginAction::SendPacket { packet: packet.clone() });
+                result.add_action(LoginAction::SendLocalPacket {
+                    packet: packet.clone(),
+                });
                 Ok(result)
             }
             Err(_) => Err(NetworkError::UnexpectedError),

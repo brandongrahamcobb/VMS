@@ -1,15 +1,15 @@
 pub struct HandlerResult<T> {
-    pub actions: Vec<T>,
+    pub model: Vec<T>,
 }
 
 impl<T> HandlerResult<T> {
     pub fn new() -> Self {
         Self {
-            actions: Vec::new(),
+            model: Vec::new(),
         }
     }
 
     pub fn add_action(&mut self, action: T) -> () {
-        self.actions.push(action);
+        self.model.push(action);
     }
 }

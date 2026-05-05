@@ -3,13 +3,14 @@ use crate::models::character::equipment_set::model::{CashEquipmentSet, RegularEq
 use crate::models::character::keybinding::model::Keybinding;
 use crate::models::character::model::Character;
 use crate::models::{account, character};
+use crate::net::action::model::PlayerAction;
 use crate::net::error::NetworkError;
-use crate::net::packet::handler::action::ChannelAction;
 use crate::net::packet::handler::player_logged_in;
 use crate::net::packet::handler::player_logged_in::read::PlayerLoggedInRead;
 use crate::net::packet::handler::result::HandlerResult;
-use crate::net::packet::packet::Packet;
+use crate::net::packet::model::Packet;
 use crate::runtime::error::SessionError;
+use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 
 pub struct PlayerLoggedInHandler;
@@ -21,22 +22,20 @@ impl PlayerLoggedInHandler {
 
     pub async fn handle(
         &self,
-        state: SharedState,
-        packet: Packet,
-    ) -> Result<HandlerResult<ChannelAction>, NetworkError> {
+        state: &SharedState,
+        packet: &Packet,
+    ) -> Result<HandlerResult<PlayerAction>, NetworkError> {
         let read: PlayerLoggedInRead = player_logged_in::read::read_play_packet(packet)?;
-        let acc: Account =
-            account::query::get_account_by_char_id(state.clone(), &read.char_id).await?;
-        let session_id: i32 = account::query::get_session_id_by_acc_id(state.clone(), &acc.id)
+        let acc: Account = account::query::get_account_by_char_id(state, &read.char_id).await?;
+        let session_id: i32 = account::query::get_session_id_by_acc_id(state, &acc.id)
             .await?
             .unwrap();
-        let char: Character =
-            character::query::get_character_by_id(state.clone(), &read.char_id).await?;
+        let char: Character = character::query::get_character_by_id(state, &read.char_id).await?;
         let session = {
             let state = state.lock().await;
             state
                 .sessions
-                .update(session_id, |s| s.map_id = Some(char.map_id));
+                .update(session_id, |s| s.map_id = Some(char.map_id.clone()));
             state
                 .sessions
                 .get(&session_id)
@@ -46,17 +45,17 @@ impl PlayerLoggedInHandler {
             .channel_id
             .ok_or(SessionError::NoChannelSelected(session_id))?;
         let (regular_equips, cash_equips): (RegularEquipmentSet, CashEquipmentSet) =
-            player_logged_in::service::create_equips_on_join(state.clone(), &char).await?;
+            player_logged_in::service::create_equips_on_join(state, &char).await?;
         let binds: Vec<Keybinding> =
-            player_logged_in::service::create_keybindings_on_join(state.clone(), &char).await?;
+            player_logged_in::service::create_keybindings_on_join(state, &char).await?;
         let result = complete_play_handler(
-            state.clone(),
-            &session_id,
+            state,
+            session,
             &char,
             &channel_id,
             &regular_equips,
             &cash_equips,
-            binds.clone(),
+            &binds,
         )
         .await?;
         Ok(result)
@@ -64,24 +63,24 @@ impl PlayerLoggedInHandler {
 }
 
 async fn complete_play_handler(
-    state: SharedState,
-    session_id: &i32,
+    state: &SharedState,
+    session: Session,
     char: &Character,
     channel_id: &i8,
     regular_equips: &RegularEquipmentSet,
     cash_equips: &CashEquipmentSet,
-    binds: Vec<Keybinding>,
-) -> Result<HandlerResult<ChannelAction>, NetworkError> {
-    let mut result: HandlerResult<ChannelAction> = HandlerResult::new();
+    binds: &Vec<Keybinding>,
+) -> Result<HandlerResult<PlayerAction>, NetworkError> {
+    let mut result: HandlerResult<PlayerAction> = HandlerResult::new();
     let packet: Packet = Packet::new_empty()
-        .build_player_logged_in_handler_keymap_packet(&binds)?
+        .build_player_logged_in_handler_keymap_packet(binds)?
         .finish();
-    result.add_action(ChannelAction::SendPacket {
+    result.add_action(PlayerAction::SendLocalPacket {
         packet: packet.clone(),
     });
     let packet: Packet = Packet::new_empty()
         .build_player_logged_in_handler_char_packet(
-            state.clone(),
+            state,
             char,
             channel_id,
             regular_equips,
@@ -89,24 +88,24 @@ async fn complete_play_handler(
         )
         .await?
         .finish();
-    result.add_action(ChannelAction::SendPacket {
+    result.add_action(PlayerAction::SendLocalPacket {
         packet: packet.clone(),
     });
-    result.add_action(ChannelAction::Connect {
-        session_id: *session_id,
+    result.add_action(PlayerAction::Connect {
+        session_id: session.id.clone(),
     });
     let session = {
         let state = state.lock().await;
         state
             .sessions
-            .get(session_id)
-            .ok_or(SessionError::NotFound(*session_id))?
+            .get(&session.id)
+            .ok_or(SessionError::NotFound(session.id))?
     };
     let packet: Packet = Packet::new_empty()
-        .build_spawn_char_packet(state.clone(), &char, &regular_equips, &cash_equips)
+        .build_spawn_player_packet(state, char, regular_equips, cash_equips)
         .await?
         .finish();
-    result.add_action(ChannelAction::BroadcastPacket {
+    result.add_action(PlayerAction::EnterMap {
         session: session.clone(),
         packet: packet.clone(),
     });

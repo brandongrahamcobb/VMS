@@ -1,6 +1,6 @@
 use crate::config::settings;
 use crate::runtime::error::RuntimeError;
-use crate::runtime::relay::{ChannelRelay, LoginRelay, Runtime};
+use crate::runtime::relay::{LoginRelay, PlayerRelay, Runtime};
 use crate::runtime::state::SharedState;
 use tracing::info;
 
@@ -53,9 +53,9 @@ impl LoginServer {
     }
 }
 
-pub struct ChannelServer;
+pub struct PlayerServer;
 
-impl ChannelServer {
+impl PlayerServer {
     pub async fn run(shared_state: SharedState, port: i16) -> Result<(), RuntimeError> {
         let addr = settings::build_server_addr(&port)?;
         let listener = tokio::net::TcpListener::bind(addr.clone()).await?;
@@ -64,7 +64,7 @@ impl ChannelServer {
                 Ok((stream, _addr)) => {
                     let clone = shared_state.clone();
                     tokio::spawn(async move {
-                        match Runtime::<ChannelRelay>::new(clone, stream).await {
+                        match Runtime::<PlayerRelay>::new(clone, stream).await {
                             Ok(mut relay) => {
                                 info!("Listening on port {}...", &port);
                                 if let Err(e) = relay.run().await {

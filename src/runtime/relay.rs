@@ -1,7 +1,7 @@
 use crate::config::settings;
-use crate::db::error::DatabaseError;
 use crate::models::account;
-use crate::net::packet::handler::action::{ChannelAction, LoginAction};
+use crate::net::action;
+use crate::net::action::model::{LoginAction, PlayerAction};
 use crate::net::packet::handler::cc::handler::ChangeChannelHandler;
 use crate::net::packet::handler::change_keymap::handler::ChangeKeymapHandler;
 use crate::net::packet::handler::check_char_name::handler::CheckCharNameHandler;
@@ -24,7 +24,7 @@ use crate::net::packet::handler::select_char_with_pic::handler::SelectCharWithPi
 use crate::net::packet::handler::server_status::handler::ServerStatusHandler;
 use crate::net::packet::handler::tos::handler::TOSHandler;
 use crate::net::packet::io::{read::PacketReader, write::PacketWriter};
-use crate::net::packet::packet::Packet;
+use crate::net::packet::model::Packet;
 use crate::op::recv::RecvOpcode;
 use crate::prelude::*;
 use crate::runtime::error::{RuntimeError, SessionError};
@@ -35,7 +35,7 @@ use rand::{RngExt, rng};
 use tokio::net::TcpStream;
 use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::sync::mpsc::UnboundedSender;
-use tracing::{debug, info};
+use tracing::debug;
 
 pub struct Runtime<T: RuntimeRelay> {
     pkt_reader: PacketReader,
@@ -49,16 +49,15 @@ pub struct Runtime<T: RuntimeRelay> {
 impl<T: RuntimeRelay + Default + Send> Runtime<T> {
     pub async fn new(state: SharedState, stream: TcpStream) -> Result<Self, RuntimeError> {
         let (recv_iv, send_iv) = {
-            let mut recv_iv = vec![0u8; 4];
-            let mut send_iv = vec![0u8; 4];
+            let mut recv_iv = [0u8; 4];
+            let mut send_iv = [0u8; 4];
             let mut rng = rng();
             rng.fill(&mut recv_iv[..]);
             rng.fill(&mut send_iv[..]);
             (recv_iv, send_iv)
         };
         let version = settings::get_version()?;
-        let mut packet = Packet::new_empty();
-        let packet = packet
+        let packet: Packet = Packet::new_empty()
             .build_handshake_packet(&recv_iv, &send_iv, &version)
             .await?
             .finish();
@@ -72,7 +71,7 @@ impl<T: RuntimeRelay + Default + Send> Runtime<T> {
             pkt_writer,
             rx,
             relay: T::default(),
-            state: state.clone(),
+            state,
             tx,
         })
     }
@@ -83,15 +82,14 @@ impl<T: RuntimeRelay + Default + Send> Runtime<T> {
                 packet = self.pkt_reader.read_packet() => {
                     let packet = packet?;
                     let result = self.relay
-                        .handle_packet(self.state.clone(), packet)
+                        .handle_packet(&self.state, &packet)
                         .await?;
-                    match self.relay.execute(self.state.clone(), &mut self.pkt_writer, result, self.tx.clone()).await? {
+                    match self.relay.execute(&self.state, &result, &self.tx).await? {
                         ControlFlow::Break(_) => break Ok(()),
                         _ => {}
                     }
                 }
                 packet = self.rx.recv() => {
-                    info!("TEST SESSION");
                     match packet {
                         Some(mut packet) => {
                             self.pkt_writer.send_encrypted_packet(&mut packet).await?;
@@ -110,16 +108,15 @@ pub trait RuntimeRelay {
 
     async fn handle_packet(
         &mut self,
-        state: SharedState,
-        packet: Packet,
+        state: &SharedState,
+        packet: &Packet,
     ) -> Result<HandlerResult<Self::HandlerAction>, RuntimeError>;
 
     async fn execute(
         &mut self,
-        state: SharedState,
-        pkt_writer: &mut PacketWriter,
-        result: HandlerResult<Self::HandlerAction>,
-        tx: UnboundedSender<Packet>,
+        state: &SharedState,
+        result: &HandlerResult<Self::HandlerAction>,
+        tx: &UnboundedSender<Packet>,
     ) -> Result<ControlFlow<()>, RuntimeError>;
 }
 
@@ -133,36 +130,36 @@ impl RuntimeRelay for LoginRelay {
 
     async fn handle_packet(
         &mut self,
-        state: SharedState,
-        packet: Packet,
+        state: &SharedState,
+        packet: &Packet,
     ) -> Result<HandlerResult<LoginAction>, RuntimeError> {
-        let opcode = packet.opcode();
-        let en = RecvOpcode::from_i16(opcode).ok_or(RuntimeError::UnsupportedOpcodeError(
-            opcode,
+        let op = packet.opcode();
+        let en = RecvOpcode::from_i16(op).ok_or(RuntimeError::UnsupportedOpcodeError(
+            op,
             String::from("not expected during authentication"),
         ));
         debug!(
             "Received opcode in login: {} (0x{:02X}) ({:?}),",
-            opcode, opcode, en
+            op, op, en
         );
         if self.session_id.is_none() {
-            return match opcode {
+            return match op {
                 x if x == RecvOpcode::RequestLogin as i16 => {
                     let handler = CredentialsHandler::new();
                     handler
-                        .handle(state.clone(), packet)
+                        .handle(state, packet)
                         .await
                         .map_err(RuntimeError::from)
                 }
                 x if x == RecvOpcode::LoginStarted as i16 => {
                     let handler = LoginStartHandler::new();
                     handler
-                        .handle(state.clone(), packet)
+                        .handle(state, packet)
                         .await
                         .map_err(RuntimeError::from)
                 }
                 _ => Err(RuntimeError::UnsupportedOpcodeError(
-                    opcode,
+                    op,
                     String::from("expected before authentication"),
                 )),
             };
@@ -176,86 +173,79 @@ impl RuntimeRelay for LoginRelay {
                 .ok_or(SessionError::NotFound(session_id))
                 .map_err(RuntimeError::from)?
         };
-        match opcode {
-            x if x == RecvOpcode::LoginStarted as i16 => {
-                let handler = LoginStartHandler::new();
-                handler
-                    .handle(state.clone(), packet)
-                    .await
-                    .map_err(RuntimeError::from)
-            }
+        match op {
             x if x == RecvOpcode::AcceptTOS as i16 => {
                 let handler = TOSHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             x if x == RecvOpcode::ServerListRequest as i16 => {
                 let handler = ListWorldsHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             x if x == RecvOpcode::ServerStatusRequest as i16 => {
                 let handler = ServerStatusHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             x if x == RecvOpcode::CharListRequest as i16 => {
                 let handler = ListCharsHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             x if x == RecvOpcode::CreateChar as i16 => {
                 let handler = CreateCharHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             x if x == RecvOpcode::CheckCharName as i16 => {
                 let handler = CheckCharNameHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             x if x == RecvOpcode::DeleteChar as i16 => {
                 let handler = DeleteCharHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             x if x == RecvOpcode::CharSelect as i16 => {
                 let handler = SelectCharHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             x if x == RecvOpcode::RegisterPic as i16 => {
                 let handler = RegisterPicHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             x if x == RecvOpcode::CharSelectWithPic as i16 => {
                 let handler = SelectCharWithPicHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             _ => Err(RuntimeError::UnsupportedOpcodeError(
-                opcode,
+                op,
                 String::from("expected after authentication"),
             )),
         }
@@ -263,22 +253,21 @@ impl RuntimeRelay for LoginRelay {
 
     async fn execute(
         &mut self,
-        state: SharedState,
-        pkt_writer: &mut PacketWriter,
-        result: HandlerResult<LoginAction>,
-        tx: UnboundedSender<Packet>,
+        state: &SharedState,
+        result: &HandlerResult<LoginAction>,
+        tx: &UnboundedSender<Packet>,
     ) -> Result<ControlFlow<()>, RuntimeError> {
-        let actions = result.actions;
-        for action in actions {
+        let model = &result.model;
+        for action in model {
             match action {
-                LoginAction::CreateSession { mut acc, hwid } => {
+                LoginAction::CreateSession { acc_id, hwid } => {
                     let session_id = {
                         let state = state.lock().await;
                         state.sessions.insert(Session {
                             id: 0,
-                            acc_id: acc.id,
+                            acc_id: acc_id.clone(),
                             authenticated: true,
-                            hwid: hwid,
+                            hwid: hwid.clone(),
                             world_id: None,
                             channel_id: None,
                             map_id: None,
@@ -287,18 +276,15 @@ impl RuntimeRelay for LoginRelay {
                             playing: true,
                         })
                     };
-                    acc.session_id = Some(session_id as i32);
-                    account::query::update(state.clone(), &acc)
-                        .await
-                        .map_err(DatabaseError::from)
-                        .map_err(RuntimeError::from)?;
+                    let mut acc = account::query::get_account_by_id(state, &acc_id).await?;
+                    acc.session_id = Some(session_id);
+                    account::query::update(state, &acc).await?;
                     self.session_id = Some(session_id);
                 }
                 LoginAction::Simple => (),
-                LoginAction::SendPacket { mut packet } => {
-                    pkt_writer.send_encrypted_packet(&mut packet).await?
+                LoginAction::SendLocalPacket { packet } => {
+                    tx.send(packet.clone())?;
                 }
-                LoginAction::CloseConnection => return Ok(ControlFlow::Break(())),
             }
         }
         return Ok(ControlFlow::Continue(()));
@@ -306,38 +292,38 @@ impl RuntimeRelay for LoginRelay {
 }
 
 #[derive(Default)]
-pub struct ChannelRelay {
+pub struct PlayerRelay {
     session_id: Option<i32>,
 }
 
-impl RuntimeRelay for ChannelRelay {
-    type HandlerAction = ChannelAction;
+impl RuntimeRelay for PlayerRelay {
+    type HandlerAction = PlayerAction;
 
     async fn handle_packet(
         &mut self,
-        state: SharedState,
-        packet: Packet,
-    ) -> Result<HandlerResult<ChannelAction>, RuntimeError> {
-        let opcode = packet.opcode();
-        let en = RecvOpcode::from_i16(opcode).ok_or(RuntimeError::UnsupportedOpcodeError(
-            opcode,
+        state: &SharedState,
+        packet: &Packet,
+    ) -> Result<HandlerResult<PlayerAction>, RuntimeError> {
+        let op = packet.opcode();
+        let en = RecvOpcode::from_i16(op).ok_or(RuntimeError::UnsupportedOpcodeError(
+            op,
             String::from("not expected in channel"),
         ));
         debug!(
             "Received opcode in channel: {} (0x{:02X}) ({:?})",
-            opcode, opcode, en
+            op, op, en
         );
         if self.session_id.is_none() {
-            return match opcode {
+            return match op {
                 x if x == RecvOpcode::PlayerLoggedIn as i16 => {
                     let handler = PlayerLoggedInHandler::new();
                     handler
-                        .handle(state.clone(), packet)
+                        .handle(state, packet)
                         .await
                         .map_err(RuntimeError::from)
                 }
                 _ => Err(RuntimeError::UnsupportedOpcodeError(
-                    opcode,
+                    op,
                     String::from("expected in channel"),
                 )),
             };
@@ -351,58 +337,58 @@ impl RuntimeRelay for ChannelRelay {
                 .ok_or(SessionError::NotFound(session_id))
                 .map_err(RuntimeError::from)?
         };
-        match opcode {
+        match op {
             x if x == RecvOpcode::ChangeChannel as i16 => {
                 let handler = ChangeChannelHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             x if x == RecvOpcode::PartySearch as i16 => {
                 let handler = PartySearchHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             x if x == RecvOpcode::PlayerMapTransfer as i16 => {
                 let handler = PlayerMapTransferHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             x if x == RecvOpcode::PlayerMove as i16 => {
                 let handler = MovePlayerHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             x if x == RecvOpcode::EnterCashShop as i16 => {
                 let handler = EnterCashShopHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             x if x == RecvOpcode::ChangeKeymap as i16 => {
                 let handler = ChangeKeymapHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             x if x == RecvOpcode::CloseAttack as i16 => {
                 let handler = CloseAttackHandler::new();
                 handler
-                    .handle(state.clone(), session, packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(RuntimeError::from)
             }
             _ => Err(RuntimeError::UnsupportedOpcodeError(
-                opcode,
+                op,
                 String::from("expected in channel"),
             )),
         }
@@ -410,68 +396,50 @@ impl RuntimeRelay for ChannelRelay {
 
     async fn execute(
         &mut self,
-        state: SharedState,
-        pkt_writer: &mut PacketWriter,
-        result: HandlerResult<ChannelAction>,
-        tx: UnboundedSender<Packet>,
+        state: &SharedState,
+        result: &HandlerResult<PlayerAction>,
+        tx: &UnboundedSender<Packet>,
     ) -> Result<ControlFlow<()>, RuntimeError> {
-        let actions = result.actions;
-        for action in actions {
+        let model = &result.model;
+        for action in model {
             match action {
-                ChannelAction::Simple => (),
-                ChannelAction::SendPacket { mut packet } => {
-                    pkt_writer.send_encrypted_packet(&mut packet).await?
-                }
-                ChannelAction::FieldMove {
-                    movement_bytes: _movement_bytes,
-                } => {
-                    () // not implemented
-                }
-                ChannelAction::BroadcastPacket { session, packet } => {
-                    let world_id = session
-                        .world_id
-                        .ok_or(SessionError::MissingField(session.id))
-                        .map_err(RuntimeError::from)?;
-                    let channel_id = session
-                        .channel_id
-                        .ok_or(SessionError::MissingField(session.id))
-                        .map_err(RuntimeError::from)?;
-                    let map_id = session
-                        .map_id
-                        .ok_or(SessionError::MissingField(session.id))
-                        .map_err(RuntimeError::from)?;
-                    let mut state = state.lock().await;
-                    state.set_location(&session.id, &world_id, &channel_id, &map_id);
-                    if let Some(session_ids) = state.map_index.get(&(world_id, channel_id, map_id))
-                    {
-                        for id in session_ids {
-                            if *id == session.id {
-                                continue;
-                            }
-                            if let Some(target) = state.sessions.get(&id) {
-                                let _ = target.tx.send(packet.clone());
-                            }
-                        }
-                    }
-                }
-                ChannelAction::Connect { session_id } => {
-                    self.session_id = Some(session_id);
+                PlayerAction::Simple => (),
+                PlayerAction::Connect { session_id } => {
+                    self.session_id = Some(*session_id);
                     {
                         let state = state.lock().await;
-                        state.sessions.update(session_id, |s| s.tx = tx.clone());
+                        state.sessions.update(*session_id, |s| s.tx = tx.clone());
                     }
+                }
+                PlayerAction::SendLocalPacket { packet } => {
+                    tx.send(packet.clone())?;
+                }
+                PlayerAction::FieldMove { session, packet } => {
+                    action::broadcast::transmit_action(state, &session, &packet).await?;
+                }
+                PlayerAction::EnterMap { session, packet } => {
+                    let world_id = session
+                        .world_id
+                        .ok_or(SessionError::MissingField(session.id))?;
+                    let channel_id = session
+                        .channel_id
+                        .ok_or(SessionError::MissingField(session.id))?;
+                    let map_id = session
+                        .map_id
+                        .ok_or(SessionError::MissingField(session.id))?;
+                    {
+                        let mut state = state.lock().await;
+                        state.set_location(&session.id, &world_id, &channel_id, &map_id);
+                    }
+                    action::broadcast::transmit_action(state, &session, &packet).await?;
+                    action::enter_map::transmit_action(state, &session, &tx).await?;
+                }
+                PlayerAction::ExitMap { session, packet } => {
+                    action::broadcast::transmit_action(state, &session, &packet).await?;
+                    action::exit_map::transmit_action(state, &session, &tx).await?;
                 }
             }
         }
         return Ok(ControlFlow::Continue(()));
-    }
-}
-
-#[cfg(test)]
-mod tests {
-
-    #[test]
-    fn test_credentials_relay() {
-        println!("Relay test is not implemented");
     }
 }

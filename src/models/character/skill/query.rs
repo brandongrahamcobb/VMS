@@ -4,9 +4,9 @@ use diesel::expression_methods::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
 pub async fn get_skill_level_by_character_id_and_skill_id(
-    state: SharedState,
-    char_id: i32,
-    skill_id: i32,
+    state: &SharedState,
+    char_id: &i32,
+    skill_id: &i32,
 ) -> QueryResult<i16> {
     let db = {
         let state = state.lock().await;

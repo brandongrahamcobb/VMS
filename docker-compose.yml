@@ -14,7 +14,8 @@ services:
       retries: 3
 
   vms:
-    build: .
+    build:
+      context: .
     restart: always
     depends_on:
       db:

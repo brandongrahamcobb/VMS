@@ -1,5 +1,3 @@
-use thiserror::Error;
-
 use crate::config::error::ConfigError;
 use crate::models::account::error::AccountError;
 use crate::models::channel::error::ChannelError;
@@ -7,6 +5,8 @@ use crate::models::character::error::CharacterError;
 use crate::models::character::keybinding::error::KeybindingError;
 use crate::models::world::error::WorldError;
 use crate::models::wz::error::WzError;
+use diesel;
+use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum ModelError {
@@ -30,4 +30,7 @@ pub enum ModelError {
 
     #[error("Wz error in model layer")]
     WzError(#[from] WzError),
+
+    #[error("Diesel error in model layer")]
+    DieselError(#[from] diesel::result::Error),
 }

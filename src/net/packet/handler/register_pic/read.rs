@@ -1,7 +1,7 @@
 use crate::net::error::NetworkError;
 
 use crate::net::packet::io::error::IOError::ReadError;
-use crate::net::packet::packet::Packet;
+use crate::net::packet::model::Packet;
 use crate::prelude::*;
 use std::io::Cursor;
 
@@ -12,8 +12,8 @@ pub struct RegisterPicRead {
     pub pic: String,
 }
 
-pub fn read_register_pic_packet(packet: Packet) -> Result<RegisterPicRead, NetworkError> {
-    let mut pkt_reader = Cursor::new(packet.bytes);
+pub fn read_register_pic_packet(packet: &Packet) -> Result<RegisterPicRead, NetworkError> {
+    let mut pkt_reader = Cursor::new(&packet.bytes);
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let skip = 1;
     pkt_reader.read_bytes(skip).map_err(ReadError)?;

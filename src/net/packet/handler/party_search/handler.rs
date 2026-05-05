@@ -1,7 +1,7 @@
+use crate::net::action::model::PlayerAction;
 use crate::net::error::NetworkError;
-use crate::net::packet::handler::action::ChannelAction;
 use crate::net::packet::handler::result::HandlerResult;
-use crate::net::packet::packet::Packet;
+use crate::net::packet::model::Packet;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 
@@ -14,12 +14,12 @@ impl PartySearchHandler {
 
     pub async fn handle(
         &self,
-        _state: SharedState,
-        _session: Session,
-        _packet: Packet,
-    ) -> Result<HandlerResult<ChannelAction>, NetworkError> {
-        let mut result: HandlerResult<ChannelAction> = HandlerResult::new();
-        let action = ChannelAction::Simple;
+        _state: &SharedState,
+        _session: &Session,
+        _packet: &Packet,
+    ) -> Result<HandlerResult<PlayerAction>, NetworkError> {
+        let mut result: HandlerResult<PlayerAction> = HandlerResult::new();
+        let action = PlayerAction::Simple;
         result.add_action(action);
         Ok(result)
     }

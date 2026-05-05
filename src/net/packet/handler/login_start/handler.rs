@@ -1,7 +1,7 @@
+use crate::net::action::model::LoginAction;
 use crate::net::error::NetworkError;
-use crate::net::packet::handler::action::LoginAction;
 use crate::net::packet::handler::result::HandlerResult;
-use crate::net::packet::packet::Packet;
+use crate::net::packet::model::Packet;
 use crate::runtime::state::SharedState;
 
 pub struct LoginStartHandler;
@@ -13,8 +13,8 @@ impl LoginStartHandler {
 
     pub async fn handle(
         &self,
-        _state: SharedState,
-        _packet: Packet,
+        _state: &SharedState,
+        _packet: &Packet,
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
         let mut result: HandlerResult<LoginAction> = HandlerResult::new();
         let action = LoginAction::Simple;

@@ -84,7 +84,7 @@ pub fn get_db_url() -> Result<String, ConfigError> {
 
 pub fn build_server_addr(port: &i16) -> Result<SocketAddr, ConfigError> {
     let addr = get_address()?;
-    let octets = helpers::convert_to_ip_array(addr);
+    let octets = helpers::convert_to_ip_array(&addr);
     Ok(SocketAddr::V4(SocketAddrV4::new(
         Ipv4Addr::new(octets[0], octets[1], octets[2], octets[3]),
         *port as u16,

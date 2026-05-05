@@ -2,11 +2,11 @@ use crate::config::settings;
 use crate::inc::helpers;
 use crate::models::channel;
 use crate::models::channel::model::Channel;
+use crate::net::action::model::LoginAction;
 use crate::net::error::NetworkError;
-use crate::net::packet::handler::action::LoginAction;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::handler::select_char;
-use crate::net::packet::packet::Packet;
+use crate::net::packet::model::Packet;
 use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
@@ -20,19 +20,19 @@ impl SelectCharHandler {
 
     pub async fn handle(
         &self,
-        state: SharedState,
-        session: Session,
-        packet: Packet,
+        state: &SharedState,
+        session: &Session,
+        packet: &Packet,
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
         let read = select_char::read::read_select_char_packet(packet)?;
         {
             let state = state.lock().await;
             state
                 .sessions
-                .update(session.id, |s| s.char_id = Some(read.char_id));
+                .update(session.id, |s| s.char_id = Some(read.char_id.clone()));
         }
         let addr = settings::get_address()?;
-        let octets = helpers::convert_to_ip_array(addr);
+        let octets = helpers::convert_to_ip_array(&addr);
         let channel_id = session
             .channel_id
             .ok_or(SessionError::NoChannelSelected(session.id))?;
@@ -54,7 +54,8 @@ fn complete_select_char_handler(
     let packet: Packet = Packet::new_empty()
         .build_select_char_handler_packet(char_id, octets, &channel.port)?
         .finish();
-    result.add_action(LoginAction::SendPacket { packet: packet.clone() });
-    result.add_action(LoginAction::CloseConnection);
+    result.add_action(LoginAction::SendLocalPacket {
+        packet: packet.clone(),
+    });
     Ok(result)
 }

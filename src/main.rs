@@ -6,7 +6,7 @@ use tracing_subscriber::EnvFilter;
 use vms::models::error::ModelError;
 use vms::models::world;
 use vms::runtime::error::RuntimeError;
-use vms::runtime::server::{ChannelServer, LoginServer};
+use vms::runtime::server::{LoginServer, PlayerServer};
 use vms::runtime::state::{SharedState, State};
 
 #[tokio::main]
@@ -26,7 +26,7 @@ async fn main() -> Result<(), RuntimeError> {
         for channel in world.channels {
             info!("Loading {}:{}...", world.name, channel.id);
             let channel_state = shared_state.clone();
-            channel_futs.push(ChannelServer::run(channel_state, channel.port));
+            channel_futs.push(PlayerServer::run(channel_state, channel.port));
         }
     }
     let joined_channel_futs = try_join_all(channel_futs);

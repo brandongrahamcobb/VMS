@@ -1,8 +1,7 @@
 use crate::config::settings;
 use crate::net::error::NetworkError;
-
 use crate::net::packet::io::error::IOError::WriteError;
-use crate::net::packet::packet::Packet;
+use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
 use crate::sec::aes::AES;
@@ -56,24 +55,24 @@ impl PacketWriter {
 }
 
 pub trait PktWrite: WriteBytesExt {
-    fn write_byte(&mut self, byte: u8) -> std::io::Result<usize> {
-        self.write(&[byte])
+    fn write_byte(&mut self, byte: &u8) -> std::io::Result<usize> {
+        self.write(&[*byte])
     }
 
-    fn write_bytes(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+    fn write_bytes(&mut self, bytes: &Vec<u8>) -> std::io::Result<usize> {
         self.write(bytes)
     }
 
-    fn write_short(&mut self, short: i16) -> std::io::Result<()> {
-        self.write_u16::<LittleEndian>(short as u16)
+    fn write_short(&mut self, short: &i16) -> std::io::Result<()> {
+        self.write_u16::<LittleEndian>(*short as u16)
     }
 
-    fn write_int(&mut self, int: i32) -> std::io::Result<()> {
-        self.write_u32::<LittleEndian>(int as u32)
+    fn write_int(&mut self, int: &i32) -> std::io::Result<()> {
+        self.write_u32::<LittleEndian>(*int as u32)
     }
 
-    fn write_long(&mut self, long: i64) -> std::io::Result<()> {
-        self.write_u64::<LittleEndian>(long as u64)
+    fn write_long(&mut self, long: &i64) -> std::io::Result<()> {
+        self.write_u64::<LittleEndian>(*long as u64)
     }
 
     fn write_str(&mut self, string: &str) -> std::io::Result<usize> {
@@ -81,7 +80,7 @@ pub trait PktWrite: WriteBytesExt {
     }
 
     fn write_str_with_length(&mut self, string: &str) -> std::io::Result<usize> {
-        match self.write_short(string.len() as i16) {
+        match self.write_short(&(string.len() as i16)) {
             Ok(_) => self.write_str(string),
             Err(e) => Err(e),
         }

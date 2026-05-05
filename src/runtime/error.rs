@@ -2,7 +2,9 @@ use crate::config::error::ConfigError;
 use crate::db::error::DatabaseError;
 use crate::models::error::ModelError;
 use crate::net::error::NetworkError;
+use crate::net::packet::model::Packet;
 use thiserror::Error;
+use tokio::sync::mpsc::error::SendError;
 use tokio::task::JoinError;
 
 #[derive(Debug, Error)]
@@ -25,9 +27,6 @@ pub enum RuntimeError {
     #[error("Failed to create relay in runtime layer")]
     FailedRelayCreation(#[from] RuntimeRelayCreationError),
 
-    #[error("Failed database in runtime layer")]
-    DatabaseError(#[from] DatabaseError),
-
     #[error("Unexpected error in runtime layer")]
     UnexpectedError,
 
@@ -42,6 +41,15 @@ pub enum RuntimeError {
 
     #[error("Model error in runtime layer")]
     ModelError(#[from] ModelError),
+
+    #[error("Database error in runtime layer")]
+    DieselError(#[from] diesel::result::Error),
+
+    #[error("Failed database in runtime layer")]
+    DatabaseError(#[from] DatabaseError),
+
+    #[error("Failed UnboundedSender error in runtime layer")]
+    UnboundedSenderError(#[from] SendError<Packet>),
 }
 
 #[derive(Debug, Error)]
@@ -66,6 +74,9 @@ pub enum RuntimeRelayCreationError {
 pub enum SessionError {
     #[error("Failed to locate session: {0}")]
     NotFound(i32),
+
+    #[error("Failed to locate the session HashSet")]
+    NoSessions,
 
     #[error("Failed to retrieve account in session: {0}")]
     NoAccount(i32),

@@ -3,6 +3,7 @@ use crate::models::channel::model::Channel;
 use diesel::prelude::*;
 use std::time::SystemTime;
 
+#[derive(Clone)]
 pub struct World {
     pub id: i8,
     pub name: String,

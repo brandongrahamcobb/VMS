@@ -10,7 +10,7 @@ use diesel::expression_methods::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
 pub async fn create_regular_equipment_set_for_new_character(
-    state: SharedState,
+    state: &SharedState,
     regular_equips: &NewRegularEquipmentSet,
 ) -> QueryResult<RegularEquipmentSet> {
     let db = {
@@ -29,7 +29,7 @@ pub async fn create_regular_equipment_set_for_new_character(
 }
 
 pub async fn create_cash_equipment_set_for_new_character(
-    state: SharedState,
+    state: &SharedState,
     cash_equips: &NewCashEquipmentSet,
 ) -> QueryResult<CashEquipmentSet> {
     let db = {
@@ -48,7 +48,7 @@ pub async fn create_cash_equipment_set_for_new_character(
 }
 
 pub async fn create_android_equipment_set_for_new_character(
-    state: SharedState,
+    state: &SharedState,
     android_equips: &NewAndroidEquipmentSet,
 ) -> QueryResult<AndroidEquipmentSet> {
     let db = {
@@ -67,7 +67,7 @@ pub async fn create_android_equipment_set_for_new_character(
 }
 
 pub async fn create_pet_equipment_set_for_new_character(
-    state: SharedState,
+    state: &SharedState,
     pet_equips: &NewPetEquipmentSet,
 ) -> QueryResult<PetEquipmentSet> {
     let db = {
@@ -86,7 +86,7 @@ pub async fn create_pet_equipment_set_for_new_character(
 }
 
 pub async fn get_regular_equipment_set_by_character_id(
-    state: SharedState,
+    state: &SharedState,
     char_id: &i32,
 ) -> QueryResult<RegularEquipmentSet> {
     let db = {
@@ -100,12 +100,12 @@ pub async fn get_regular_equipment_set_by_character_id(
         )
     })?;
     regular_equipment_set::table
-        .filter(regular_equipment_set::char_id.eq(char_id))
+        .filter(regular_equipment_set::char_id.eq(&char_id))
         .first::<RegularEquipmentSet>(&mut conn)
 }
 
 pub async fn get_cash_equipment_set_by_character_id(
-    state: SharedState,
+    state: &SharedState,
     char_id: &i32,
 ) -> QueryResult<CashEquipmentSet> {
     let db = {
@@ -119,6 +119,6 @@ pub async fn get_cash_equipment_set_by_character_id(
         )
     })?;
     cash_equipment_set::table
-        .filter(cash_equipment_set::char_id.eq(char_id))
+        .filter(cash_equipment_set::char_id.eq(&char_id))
         .first::<CashEquipmentSet>(&mut conn)
 }

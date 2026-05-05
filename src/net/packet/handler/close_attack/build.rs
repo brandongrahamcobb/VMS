@@ -1,7 +1,7 @@
 use crate::net::error::NetworkError;
 
 use crate::net::packet::io::error::IOError::WriteError;
-use crate::net::packet::packet::Packet;
+use crate::net::packet::model::Packet;
 use crate::prelude::*;
 use std::collections::HashMap;
 
@@ -16,20 +16,20 @@ impl Packet {
         toleft: &u8,
         stance: &u8,
         speed: &u8,
-        mob_damages: HashMap<i32, Vec<i32>>,
+        mob_damages: &HashMap<i32, Vec<i32>>,
     ) -> Result<&mut Self, NetworkError> {
-        self.write_int(*char_id).map_err(WriteError)?;
-        self.write_byte(*count).map_err(WriteError)?;
-        self.write_byte(*skill_level).map_err(WriteError)?;
-        self.write_int(*skill_id).map_err(WriteError)?;
-        self.write_byte(*display).map_err(WriteError)?;
-        self.write_byte(*toleft).map_err(WriteError)?;
-        self.write_byte(*stance).map_err(WriteError)?;
-        self.write_byte(*speed).map_err(WriteError)?;
+        self.write_int(char_id).map_err(WriteError)?;
+        self.write_byte(count).map_err(WriteError)?;
+        self.write_byte(skill_level).map_err(WriteError)?;
+        self.write_int(skill_id).map_err(WriteError)?;
+        self.write_byte(display).map_err(WriteError)?;
+        self.write_byte(toleft).map_err(WriteError)?;
+        self.write_byte(stance).map_err(WriteError)?;
+        self.write_byte(speed).map_err(WriteError)?;
         for (mob_id, damages) in mob_damages {
-            self.write_int(mob_id).map_err(WriteError)?;
+            self.write_int(&mob_id).map_err(WriteError)?;
             for dmg in damages {
-                self.write_int(dmg).map_err(WriteError)?;
+                self.write_int(&dmg).map_err(WriteError)?;
             }
         }
         Ok(self)

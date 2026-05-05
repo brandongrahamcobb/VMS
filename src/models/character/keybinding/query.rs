@@ -6,7 +6,7 @@ use diesel::pg::upsert::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
 pub async fn get_keybindings_by_character_id(
-    state: SharedState,
+    state: &SharedState,
     char_id: &i32,
 ) -> QueryResult<Vec<Keybinding>> {
     let db = {
@@ -20,13 +20,13 @@ pub async fn get_keybindings_by_character_id(
         )
     })?;
     keybindings::table
-        .filter(keybindings::char_id.eq(char_id))
+        .filter(keybindings::char_id.eq(*char_id))
         .load::<Keybinding>(&mut conn)
 }
 
 pub async fn update_keybindings(
-    state: SharedState,
-    bindings: Vec<NewKeybinding>,
+    state: &SharedState,
+    bindings: &Vec<NewKeybinding>,
 ) -> QueryResult<Vec<Keybinding>> {
     let db = {
         let state = state.lock().await;
@@ -39,7 +39,7 @@ pub async fn update_keybindings(
         )
     })?;
     diesel::insert_into(keybindings::table)
-        .values(bindings.clone())
+        .values(bindings)
         .on_conflict(on_constraint("key_is_unique_per_character"))
         .do_update()
         .set((

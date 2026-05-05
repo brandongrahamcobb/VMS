@@ -1,9 +1,8 @@
-use crate::models::error::ModelError;
 use crate::models::world;
+use crate::net::action::model::LoginAction;
 use crate::net::error::NetworkError;
-use crate::net::packet::handler::action::LoginAction;
 use crate::net::packet::handler::result::HandlerResult;
-use crate::net::packet::packet::Packet;
+use crate::net::packet::model::Packet;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 
@@ -16,13 +15,11 @@ impl ServerStatusHandler {
 
     pub async fn handle(
         &self,
-        _state: SharedState,
-        _session: Session,
-        _packet: Packet,
+        _state: &SharedState,
+        _session: &Session,
+        _packet: &Packet,
     ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let worlds = world::service::load_worlds()
-            .map_err(ModelError::from)
-            .map_err(NetworkError::from)?;
+        let worlds = world::service::load_worlds()?;
         let status: i8 = if worlds.iter().any(|world| !world.channels.is_empty()) {
             0
         } else {
@@ -36,9 +33,11 @@ impl ServerStatusHandler {
 fn complete_server_status(status: &i8) -> Result<HandlerResult<LoginAction>, NetworkError> {
     let mut result: HandlerResult<LoginAction> = HandlerResult::new();
     let packet: Packet = Packet::new_empty()
-        .build_server_status_handler_packet(&status)?
+        .build_server_status_handler_packet(status)?
         .finish();
-    let action = LoginAction::SendPacket { packet: packet.clone() };
+    let action = LoginAction::SendLocalPacket {
+        packet: packet.clone(),
+    };
     result.add_action(action);
     Ok(result)
 }

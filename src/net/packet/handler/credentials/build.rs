@@ -1,11 +1,9 @@
 use crate::config::settings;
 use crate::models::account::error::AccountError;
 use crate::models::account::model::Account;
-use crate::models::error::ModelError;
 use crate::net::error::NetworkError;
-
 use crate::net::packet::io::error::IOError::WriteError;
-use crate::net::packet::packet::Packet;
+use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
 use std::time::UNIX_EPOCH;
@@ -15,11 +13,12 @@ impl Packet {
         &mut self,
         status: &i8,
     ) -> Result<&mut Self, NetworkError> {
-        let opcode = SendOpcode::AccountStatus as i16;
-        self.write_short(opcode).map_err(WriteError)?;
-        self.write_byte(*status as u8).map_err(WriteError)?;
-        self.write_byte(0).map_err(WriteError)?;
-        self.write_int(0).map_err(WriteError)?;
+        let op = SendOpcode::AccountStatus as i16;
+        self.write_short(&op).map_err(WriteError)?;
+        let status = *status as u8;
+        self.write_byte(&status).map_err(WriteError)?;
+        self.write_byte(&0).map_err(WriteError)?;
+        self.write_int(&0).map_err(WriteError)?;
         Ok(self)
     }
 
@@ -27,36 +26,34 @@ impl Packet {
         &mut self,
         acc: &Account,
     ) -> Result<&mut Self, NetworkError> {
-        let pin_required = settings::get_pin_required()?;
+        let pin_required = settings::get_pin_required()? as u8;
         let opcode = SendOpcode::AccountStatus as i16;
         let acc_id = acc.id as i32;
-        let gender_id = acc.gender_id;
+        let gender_id = acc.gender_id as u8;
         let account_name = &acc.username;
         let created_at: i64 = acc
             .created_at
-            .ok_or(AccountError::MissingField(acc.id))
-            .map_err(ModelError::from)
-            .map_err(NetworkError::from)?
+            .ok_or(AccountError::MissingField(acc.id))?
             .duration_since(UNIX_EPOCH)?
             .as_secs()
             .try_into()?;
-        self.write_short(opcode).map_err(WriteError)?;
-        self.write_int(0).map_err(WriteError)?;
-        self.write_short(0).map_err(WriteError)?;
-        self.write_int(acc_id).map_err(WriteError)?;
-        self.write_byte(gender_id as u8).map_err(WriteError)?;
-        self.write_byte(0).map_err(WriteError)?;
-        self.write_byte(0).map_err(WriteError)?;
-        self.write_byte(0).map_err(WriteError)?;
+        self.write_short(&opcode).map_err(WriteError)?;
+        self.write_int(&0).map_err(WriteError)?;
+        self.write_short(&0).map_err(WriteError)?;
+        self.write_int(&acc_id).map_err(WriteError)?;
+        self.write_byte(&gender_id).map_err(WriteError)?;
+        self.write_byte(&0).map_err(WriteError)?;
+        self.write_byte(&0).map_err(WriteError)?;
+        self.write_byte(&0).map_err(WriteError)?;
         self.write_str_with_length(account_name)
             .map_err(WriteError)?;
-        self.write_byte(0).map_err(WriteError)?;
-        self.write_byte(0).map_err(WriteError)?;
-        self.write_long(0).map_err(WriteError)?;
-        self.write_long(created_at).map_err(WriteError)?;
-        self.write_int(1).map_err(WriteError)?;
-        self.write_byte(pin_required as u8).map_err(WriteError)?;
-        self.write_byte(1).map_err(WriteError)?;
+        self.write_byte(&0).map_err(WriteError)?;
+        self.write_byte(&0).map_err(WriteError)?;
+        self.write_long(&0).map_err(WriteError)?;
+        self.write_long(&created_at).map_err(WriteError)?;
+        self.write_int(&1).map_err(WriteError)?;
+        self.write_byte(&pin_required).map_err(WriteError)?;
+        self.write_byte(&1).map_err(WriteError)?;
         Ok(self)
     }
 }

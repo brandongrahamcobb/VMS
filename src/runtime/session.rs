@@ -4,15 +4,7 @@ use std::sync::RwLock;
 use std::sync::atomic::Ordering;
 use tokio::sync::mpsc::UnboundedSender;
 
-use crate::net::packet::packet::Packet;
-
-#[derive(Clone)]
-pub enum SessionState {
-    BeforeLogin,
-    AfterLogin,
-    Transition,
-    InGame,
-}
+use crate::net::packet::model::Packet;
 
 #[derive(Clone)]
 pub struct Session {

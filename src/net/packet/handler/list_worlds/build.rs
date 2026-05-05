@@ -2,9 +2,8 @@ use crate::config::settings;
 use crate::constants::WORLDS;
 use crate::models::world::model::World;
 use crate::net::error::NetworkError;
-
 use crate::net::packet::io::error::IOError::WriteError;
-use crate::net::packet::packet::Packet;
+use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
 
@@ -13,8 +12,8 @@ impl Packet {
         &mut self,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::LastConnectedWorld as i16;
-        self.write_short(op).map_err(WriteError)?;
-        self.write_int(0).map_err(WriteError)?;
+        self.write_short(&op).map_err(WriteError)?;
+        self.write_int(&0).map_err(WriteError)?;
         Ok(self)
     }
 
@@ -23,61 +22,65 @@ impl Packet {
     ) -> Result<&mut Self, NetworkError> {
         let recommended_world_names = settings::get_recommended_worlds()?;
         let op = SendOpcode::RecommendedWorlds as i16;
-        self.write_short(op).map_err(WriteError)?;
-        let count: i8 = recommended_world_names.len().try_into().unwrap();
+        self.write_short(&op).map_err(WriteError)?;
+        let count: u8 = recommended_world_names.len() as u8;
         if count != 0 {
-            self.write_byte(0).map_err(WriteError)?;
-            self.write_byte(count as u8).map_err(WriteError)?;
+            self.write_byte(&0).map_err(WriteError)?;
+            self.write_byte(&count).map_err(WriteError)?;
             for world in WORLDS {
                 for world_name in &recommended_world_names {
                     if world_name == &world.name {
-                        let id = world.id;
-                        self.write_int(id as i32).map_err(WriteError)?;
+                        let id = world.id as i32;
+                        self.write_int(&id).map_err(WriteError)?;
                         self.write_str(world.name).map_err(WriteError)?;
-                        self.write_int(0).map_err(WriteError)?;
+                        self.write_int(&0).map_err(WriteError)?;
                     }
                 }
             }
         } else {
-            self.write_byte(1).map_err(WriteError)?;
+            self.write_byte(&1).map_err(WriteError)?;
         }
-        self.write_int(0).map_err(WriteError)?;
-        self.write_int(0).map_err(WriteError)?;
+        self.write_int(&0).map_err(WriteError)?;
+        self.write_int(&0).map_err(WriteError)?;
         Ok(self)
     }
 
     pub fn build_list_worlds_handler_servers_packet(
         &mut self,
-        worlds: Vec<World>,
+        worlds: &Vec<World>,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::ServerList as i16;
-        self.write_short(op).map_err(WriteError)?;
-        for world in worlds {
-            self.write_byte(world.id as u8).map_err(WriteError)?;
+        self.write_short(&op).map_err(WriteError)?;
+        for world in worlds.clone() {
+            let world_id = world.id as u8;
+            self.write_byte(&world_id).map_err(WriteError)?;
             self.write_str_with_length(world.name.as_str())
                 .map_err(WriteError)?;
-            self.write_byte(world.flag as u8).map_err(WriteError)?;
+            let world_flag = world.flag as u8;
+            self.write_byte(&world_flag).map_err(WriteError)?;
             self.write_str_with_length(world.event_message.as_str())
                 .map_err(WriteError)?;
-            self.write_byte(100).map_err(WriteError)?;
-            self.write_byte(0).map_err(WriteError)?;
-            self.write_byte(100).map_err(WriteError)?;
-            self.write_byte(0).map_err(WriteError)?;
-            self.write_byte(0).map_err(WriteError)?;
-            self.write_byte(world.channels.len() as u8)
-                .map_err(WriteError)?;
+            self.write_byte(&100).map_err(WriteError)?;
+            self.write_byte(&0).map_err(WriteError)?;
+            self.write_byte(&100).map_err(WriteError)?;
+            self.write_byte(&0).map_err(WriteError)?;
+            self.write_byte(&0).map_err(WriteError)?;
+            let channels_length = world.channels.len() as u8;
+            self.write_byte(&channels_length).map_err(WriteError)?;
             for channel in &world.channels {
                 self.write_str_with_length("Placeholder Channel Name")
                     .map_err(WriteError)?;
-                self.write_int(channel.capacity as i32)
-                    .map_err(WriteError)?;
-                self.write_byte(1).map_err(WriteError)?;
-                self.write_byte(channel.id as u8).map_err(WriteError)?;
-                self.write_byte(world.id as u8).map_err(WriteError)?;
+                let channel_capacity = channel.capacity as i32;
+                self.write_int(&channel_capacity).map_err(WriteError)?;
+                self.write_byte(&1).map_err(WriteError)?;
+                let channel_id = channel.id as u8;
+                self.write_byte(&channel_id).map_err(WriteError)?;
+                let world_id = world.id as u8;
+                self.write_byte(&world_id).map_err(WriteError)?;
             }
-            self.write_short(0).map_err(WriteError)?;
+            self.write_short(&0).map_err(WriteError)?;
         }
-        self.write_byte(0xFF).map_err(WriteError)?;
+        self.write_byte(&0xFF).map_err(WriteError)?;
         Ok(self)
     }
 }

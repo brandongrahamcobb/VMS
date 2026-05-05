@@ -23,6 +23,7 @@ pub enum SendOpcode {
     // FamilyList = 0x64,
     // Whisper = 0x87,
     SpawnPlayer = 0xA0,
+    DespawnPlayer = 0xA1,
     // RemovePlayerFromMap = 0xA1,
     // ChatText = 0xA2,
     MovePlayer = 0xB9,

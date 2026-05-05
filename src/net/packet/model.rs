@@ -8,7 +8,7 @@ pub struct Packet {
 }
 
 impl Packet {
-    pub fn new(buffer: &[u8]) -> Packet {
+    pub fn new(buffer: &Vec<u8>) -> Packet {
         if buffer.len() > MAX_PACKET_LENGTH as usize {
             panic!(
                 "Packet with length {} exceeded max packet length {}",
@@ -16,8 +16,9 @@ impl Packet {
                 MAX_PACKET_LENGTH
             );
         }
-        let bytes = buffer.to_vec();
-        Packet { bytes }
+        Packet {
+            bytes: buffer.clone(),
+        }
     }
 
     pub fn new_empty() -> Packet {

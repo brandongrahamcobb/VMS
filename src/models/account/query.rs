@@ -4,7 +4,7 @@ use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl, SaveChangesDsl};
 
-pub async fn get_account_by_username(state: SharedState, user: &str) -> QueryResult<Account> {
+pub async fn get_account_by_username(state: &SharedState, user: &str) -> QueryResult<Account> {
     let db = {
         let state = state.lock().await;
         state.db.clone()
@@ -20,7 +20,7 @@ pub async fn get_account_by_username(state: SharedState, user: &str) -> QueryRes
         .first::<Account>(&mut conn)
 }
 
-pub async fn get_account_by_id(state: SharedState, id: &i32) -> QueryResult<Account> {
+pub async fn get_account_by_id(state: &SharedState, id: &i32) -> QueryResult<Account> {
     let db = {
         let state = state.lock().await;
         state.db.clone()
@@ -36,7 +36,7 @@ pub async fn get_account_by_id(state: SharedState, id: &i32) -> QueryResult<Acco
         .first::<Account>(&mut conn)
 }
 
-pub async fn get_account_by_char_id(state: SharedState, char_id: &i32) -> QueryResult<Account> {
+pub async fn get_account_by_char_id(state: &SharedState, char_id: &i32) -> QueryResult<Account> {
     let db = {
         let state = state.lock().await;
         state.db.clone()
@@ -48,15 +48,15 @@ pub async fn get_account_by_char_id(state: SharedState, char_id: &i32) -> QueryR
         )
     })?;
     let acc_id = characters::table
-        .filter(characters::id.eq(char_id))
-        .select(characters::acc_id)
+        .filter(&characters::id.eq(&char_id))
+        .select(&characters::acc_id)
         .first::<i32>(&mut conn)?;
     accounts::table
         .filter(accounts::id.eq(acc_id))
         .first::<Account>(&mut conn)
 }
 
-pub async fn update(state: SharedState, acc: &Account) -> QueryResult<Account> {
+pub async fn update(state: &SharedState, acc: &Account) -> QueryResult<Account> {
     let db = {
         let state = state.lock().await;
         state.db.clone()
@@ -71,7 +71,7 @@ pub async fn update(state: SharedState, acc: &Account) -> QueryResult<Account> {
 }
 
 pub async fn get_session_id_by_acc_id(
-    state: SharedState,
+    state: &SharedState,
     acc_id: &i32,
 ) -> QueryResult<Option<i32>> {
     let db = {

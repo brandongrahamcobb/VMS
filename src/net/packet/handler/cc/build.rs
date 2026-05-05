@@ -4,7 +4,7 @@ use crate::models::channel::model::Channel;
 use crate::net::error::NetworkError;
 
 use crate::net::packet::io::error::IOError::WriteError;
-use crate::net::packet::packet::Packet;
+use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
 
@@ -14,12 +14,12 @@ impl Packet {
         channel: &Channel,
     ) -> Result<&mut Self, NetworkError> {
         let addr = settings::get_address()?;
-        let octets = helpers::convert_to_ip_array(addr);
+        let octets = helpers::convert_to_ip_array(&addr);
         let op = SendOpcode::ChangeChannel as i16;
-        self.write_short(op).map_err(WriteError)?;
-        self.write_byte(1).map_err(WriteError)?;
-        self.write_bytes(&octets).map_err(WriteError)?;
-        self.write_short(channel.port).map_err(WriteError)?;
+        self.write_short(&op).map_err(WriteError)?;
+        self.write_byte(&1).map_err(WriteError)?;
+        self.write_bytes(&octets.to_vec()).map_err(WriteError)?;
+        self.write_short(&channel.port).map_err(WriteError)?;
         Ok(self)
     }
 }

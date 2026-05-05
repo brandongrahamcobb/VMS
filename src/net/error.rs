@@ -5,10 +5,12 @@ use crate::models::character::error::CharacterError;
 use crate::models::error::ModelError;
 use crate::net::packet::error::PacketError;
 use crate::net::packet::io::error::IOError;
+use crate::net::packet::model::Packet;
 use crate::runtime::error::SessionError;
 use bcrypt::BcryptError;
 use std::time::SystemTimeError;
 use thiserror::Error;
+use tokio::sync::mpsc::error::SendError;
 
 #[derive(Debug, Error)]
 pub enum NetworkError {
@@ -50,4 +52,7 @@ pub enum NetworkError {
 
     #[error("Character error in network layer")]
     CharacterError(#[from] CharacterError),
+
+    #[error("Failed UnboundedSender error in runtime layer")]
+    UnboundedSenderError(#[from] SendError<Packet>),
 }

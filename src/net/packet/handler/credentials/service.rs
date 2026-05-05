@@ -16,7 +16,7 @@ pub enum StatusCode {
 
 pub fn authenticate(acc: &Account, pw: &str) -> Result<bool, NetworkError> {
     let hash = hash(&acc.password, DEFAULT_COST)?;
-    Ok(verify(pw, &hash)?)
+    Ok(verify(&pw, &hash)?)
 }
 
 fn check_if_banned(acc: &Account) -> Result<bool, NetworkError> {
@@ -33,9 +33,8 @@ fn check_if_pending_tos(acc: &Account) -> Result<bool, NetworkError> {
     return Ok(false);
 }
 
-async fn check_if_playing(state: SharedState, acc: &Account) -> Result<bool, NetworkError> {
-    let session_id: Option<i32> =
-        account::query::get_session_id_by_acc_id(state.clone(), &acc.id).await?;
+async fn check_if_playing(state: &SharedState, acc: &Account) -> Result<bool, NetworkError> {
+    let session_id: Option<i32> = account::query::get_session_id_by_acc_id(&state, &acc.id).await?;
     let playing = match session_id {
         Some(id) => {
             let state = state.lock().await;
@@ -50,17 +49,17 @@ async fn check_if_playing(state: SharedState, acc: &Account) -> Result<bool, Net
 }
 
 pub async fn get_status_code(
-    state: SharedState,
+    state: &SharedState,
     acc: &Account,
 ) -> Result<StatusCode, NetworkError> {
-    if check_if_banned(&acc)? {
+    if check_if_banned(acc)? {
         return Ok(StatusCode::Banned);
     }
-    if check_if_pending_tos(&acc)? {
+    if check_if_pending_tos(acc)? {
         return Ok(StatusCode::PendingTOS);
     }
     let mode = settings::get_release_mode()?;
-    if check_if_playing(state.clone(), &acc).await? && mode {
+    if check_if_playing(state, acc).await? & mode {
         return Ok(StatusCode::Playing);
     }
     return Ok(StatusCode::Success);

@@ -6,24 +6,21 @@ use crate::net::error::NetworkError;
 use crate::runtime::state::SharedState;
 
 pub async fn create_equips_on_join(
-    state: SharedState,
+    state: &SharedState,
     char: &Character,
 ) -> Result<(RegularEquipmentSet, CashEquipmentSet), NetworkError> {
     let regular_equips =
-        equipment_set::query::get_regular_equipment_set_by_character_id(state.clone(), &char.id)
-            .await?;
+        equipment_set::query::get_regular_equipment_set_by_character_id(state, &char.id).await?;
     let cash_equips =
-        equipment_set::query::get_cash_equipment_set_by_character_id(state.clone(), &char.id)
-            .await?;
+        equipment_set::query::get_cash_equipment_set_by_character_id(state, &char.id).await?;
     Ok((regular_equips, cash_equips))
 }
 
 pub async fn create_keybindings_on_join(
-    state: SharedState,
+    state: &SharedState,
     char: &Character,
 ) -> Result<Vec<Keybinding>, NetworkError> {
-    let binds = keybinding::query::get_keybindings_by_character_id(state.clone(), &char.id).await?;
-    let binds: Vec<Keybinding> =
-        keybinding::service::normalize_keybindings(binds.clone(), &char.id);
+    let binds = keybinding::query::get_keybindings_by_character_id(state, &char.id).await?;
+    let binds: Vec<Keybinding> = keybinding::service::normalize_keybindings(&binds, &char.id);
     Ok(binds)
 }

@@ -2,9 +2,8 @@ use crate::config::settings;
 use crate::constants::HEADER_SIZE;
 use crate::net::error::NetworkError;
 use crate::net::packet;
-
 use crate::net::packet::io::error::IOError::ReadError;
-use crate::net::packet::packet::Packet;
+use crate::net::packet::model::Packet;
 use crate::sec::aes::AES;
 use crate::sec::custom;
 use byteorder::{LittleEndian, ReadBytesExt};

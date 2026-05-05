@@ -5,8 +5,8 @@ use crate::net::packet::error::PacketError;
 use crate::sec::aes::AES;
 
 pub fn check_header(aes: &AES, header: &[u8]) -> Result<(), NetworkError> {
-    if !((header[0] ^ aes.iv[2]) & 0xFF) == ((aes.version >> 8) as u8 & 0xFF)
-        && ((header[1] ^ aes.iv[3]) & 0xFF) == (aes.version & 0xFF) as u8
+    if !(((header[0] ^ aes.iv[2]) & 0xFF) == ((aes.version >> 8) as u8 & 0xFF)
+        && ((header[1] ^ aes.iv[3]) & 0xFF) == (aes.version & 0xFF) as u8)
     {
         return Err(NetworkError::from(PacketError::InvalidHeader));
     }

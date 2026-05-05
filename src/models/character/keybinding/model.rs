@@ -37,11 +37,11 @@ pub enum KeybindType {
 }
 
 impl Keybinding {
-    pub fn empty(char_id: i32, key: i32) -> Self {
+    pub fn empty(char_id: &i32, key: &i32) -> Self {
         Self {
             id: 0,
-            char_id,
-            key,
+            char_id: char_id.clone(),
+            key: key.clone(),
             bind_type: KeybindType::Nil as i16,
             action: 0,
             created_at: None,

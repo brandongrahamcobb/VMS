@@ -1,7 +1,7 @@
 use crate::net::error::NetworkError;
 
 use crate::net::packet::io::error::IOError::ReadError;
-use crate::net::packet::packet::Packet;
+use crate::net::packet::model::Packet;
 use crate::prelude::*;
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -17,8 +17,8 @@ pub struct CloseAttackRead {
     pub mob_damages: HashMap<i32, Vec<i32>>,
 }
 
-pub fn read_close_attack_packet(packet: Packet) -> Result<CloseAttackRead, NetworkError> {
-    let mut pkt_reader = Cursor::new(packet.bytes);
+pub fn read_close_attack_packet(packet: &Packet) -> Result<CloseAttackRead, NetworkError> {
+    let mut pkt_reader = Cursor::new(&packet.bytes);
     let skip = 1;
     pkt_reader.read_bytes(skip).map_err(ReadError)?;
     let count = pkt_reader.read_byte().map_err(ReadError)? as u8;
