@@ -63,22 +63,17 @@ fn complete_select_char_with_pic_handler(
     channel: &Channel,
 ) -> Result<HandlerResult<LoginAction>, NetworkError> {
     let mut result: HandlerResult<LoginAction> = HandlerResult::new();
-    let mut result = if read_pic == acc_pic {
-        let packet: Packet = Packet::new_empty()
+    let packet: Packet = if read_pic == acc_pic {
+        Packet::new_empty()
             .build_select_char_handler_packet(char_id, octets, &channel.port)?
-            .finish();
-        result.add_action(LoginAction::SendLocalPacket {
-            packet: packet.clone(),
-        });
-        result
+            .finish()
     } else {
-        let packet: Packet = Packet::new_empty()
+        Packet::new_empty()
             .build_select_char_handler_failed_pic_packet()?
-            .finish();
-        result.add_action(LoginAction::SendLocalPacket {
-            packet: packet.clone(),
-        });
-        result
+            .finish()
     };
+    result.add_action(LoginAction::SendLocalPacket {
+        packet: packet.clone(),
+    });
     Ok(result)
 }

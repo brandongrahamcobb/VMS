@@ -35,15 +35,22 @@ impl EnterCashShopHandler {
                 .await?;
         let cash_equips =
             equipment_set::query::get_cash_equipment_set_by_character_id(state, &char_id).await?;
-        let result =
-            complete_enter_cash_shop_handler(state, &acc, &char, &regular_equips, &cash_equips)
-                .await?;
+        let result = complete_enter_cash_shop_handler(
+            state,
+            session,
+            &acc,
+            &char,
+            &regular_equips,
+            &cash_equips,
+        )
+        .await?;
         Ok(result)
     }
 }
 
 async fn complete_enter_cash_shop_handler(
     state: &SharedState,
+    session: &Session,
     acc: &Account,
     char: &Character,
     regular_equips: &RegularEquipmentSet,
@@ -54,6 +61,15 @@ async fn complete_enter_cash_shop_handler(
         .build_enter_cash_shop_handler_packet(state, acc, char, regular_equips, cash_equips)
         .await?
         .finish();
-    result.add_action(PlayerAction::SendLocalPacket {packet: packet.clone()});
+    result.add_action(PlayerAction::SendLocalPacket {
+        packet: packet.clone(),
+    });
+    let packet: Packet = Packet::new_empty()
+        .build_despawn_player_handler_packet(&char.id)?
+        .finish();
+    result.add_action(PlayerAction::ExitMap {
+        session: session.clone(),
+        packet: packet.clone(),
+    });
     Ok(result)
 }
