@@ -1,7 +1,7 @@
 use crate::models::character::keybinding::model::NewKeybinding;
 use crate::models::character::model::Character;
 use crate::models::character::{self, keybinding};
-use crate::net::packet::handler::change_keymap::read::ChangeKeymapRead;
+use crate::net::packet::handler::change_keymap::reader::ChangeKeymapReader;
 use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
@@ -21,7 +21,7 @@ impl ChangeKeymapStore {
         &self,
         state: &SharedState,
         session: &Session,
-        read: &ChangeKeymapRead,
+        reader: &ChangeKeymapReader,
     ) -> Result<Self, NetworkError> {
         let char_id = session
             .char_id

@@ -1,10 +1,13 @@
 use crate::models::character;
-use crate::net::action::model::Action;
+use crate::net::action::Action;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::check_char_name;
+use crate::net::packet::handler::check_char_name::read::CheckCharNameReader;
+use crate::net::packet::handler::check_char_name::reader::CheckCharNameReader;
 use crate::net::packet::handler::check_char_name::store::CheckCharNameStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
+use crate::runtime::scope::Scope;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 
@@ -21,28 +24,27 @@ impl CheckCharNameHandler {
         session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, NetworkError> {
-        let read = CheckCharNameRead::new().read_check_char_name_packet(packet)?;
-        let store = CheckCharNameStore::new()
-            .store_check_char_name(state, session, &read)
+        let reader: CheckCharNameReader =
+            CheckCharNameReader::new().read_check_char_name_packet(packet)?;
+        let store: CheckCharNameStore = CheckCharNameStore::new()
+            .store_check_char_name(state, session, &reader)
             .await?;
-        let result = build_check_char_name_result(state, session, &store)?;
+        let result = self.build_check_char_name_result(&store)?;
         Ok(result)
     }
 
     fn build_check_char_name_result(
         &self,
-        _state: &SharedState,
-        session: &Session,
         store: &CheckCharNameStore,
     ) -> Result<HandlerResult, NetworkError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_check_char_name_handler_packet(&store.exists, &store.ign)?
             .finish();
-        result.add_action(Action::Local {
-            session: session.clone(),
+        result.add_action(Action::Send {
             packet: packet.clone(),
-        });
+            scope: Scope::Local,
+        })?;
         Ok(result)
     }
 }

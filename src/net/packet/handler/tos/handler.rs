@@ -1,16 +1,15 @@
-use crate::models::account;
-use crate::models::account::model::Account;
-use crate::net::action::model::LoginAction;
+use crate::net::action::Action;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::result::HandlerResult;
-use crate::net::packet::handler::tos;
+use crate::net::packet::handler::tos::reader::TosReader;
 use crate::net::packet::model::Packet;
+use crate::runtime::scope::Scope;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 
-pub struct TOSHandler;
+pub struct TosHandler;
 
-impl TOSHandler {
+impl TosHandler {
     pub fn new() -> Self {
         Self
     }
@@ -20,30 +19,24 @@ impl TOSHandler {
         state: &SharedState,
         session: &Session,
         packet: &Packet,
-    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let read = tos::read::read_tos_packet(packet)?;
-        if read.confirmed != 0x01 {
-            let mut result: HandlerResult<LoginAction> = HandlerResult::new();
-            result.add_action(LoginAction::Simple);
-            return Ok(result);
-        }
-        let acc_id = session.acc_id;
-        let mut acc = account::query::get_account_by_id(&state, &acc_id).await?;
-        acc.accepted_tos = true;
-        account::query::update(&state, &acc).await?;
-        let result = complete_tos_handler(&acc)?;
+    ) -> Result<HandlerResult, NetworkError> {
+        let read: TosReader = TosReader::new().read_tos_packet(packet)?;
+        let store: TosStore = TosStore::new().store_tos(state, session, &reader).await?;
+        let result: HandlerResult = self.build_tos_result(&store)?;
         Ok(result)
     }
-}
 
-fn complete_tos_handler(acc: &Account) -> Result<HandlerResult<LoginAction>, NetworkError> {
-    let mut result: HandlerResult<LoginAction> = HandlerResult::new();
-    let packet: Packet = Packet::new_empty()
-        .build_credentials_handler_successful_login_packet(acc)?
-        .finish();
-    let action = LoginAction::SendLocalPacket {
-        packet: packet.clone(),
-    };
-    result.add_action(action);
-    Ok(result)
+    fn build_tos_result(&self, store: &TosStore) -> Result<HandlerResult, NetworkError> {
+        let mut result: HandlerResult = HandlerResult::new();
+        if store.accepted {
+            let packet: Packet = Packet::new_empty()
+                .build_credentials_handler_successful_login_packet(&store.acc)?
+                .finish();
+            result.add_action(Action::Send {
+                packet: packet.clone(),
+                scope: Scope::Local,
+            })?;
+        }
+        Ok(result)
+    }
 }

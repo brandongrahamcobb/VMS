@@ -1,8 +1,10 @@
-use crate::net::action::model::Action;
+use crate::net::action::Action;
 use crate::net::error::NetworkError;
+use crate::net::packet::handler::delete_char::reader::DeleteCharReader;
 use crate::net::packet::handler::delete_char::store::DeleteCharStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
+use crate::runtime::scope::Scope;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 
@@ -19,26 +21,26 @@ impl DeleteCharHandler {
         session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, NetworkError> {
-        let read = DeleteCharRead::new().read_delete_char_packet(packet)?;
-        let store = DeleteCharStore::new()
-            .store_delete_char(state, session, &read)
+        let reader: DeleteCharReader = DeleteCharReader::new().read_delete_char_packet(packet)?;
+        let store: DeleteCharStore = DeleteCharStore::new()
+            .store_delete_char(state, session, &reader)
             .await?;
-        let result = self.build_delete_char_result(state, &store)?;
+        let result: HandlerResult = self.build_delete_char_result(&store)?;
         Ok(result)
     }
 
     fn build_delete_char_result(
         &self,
-        state: &SharedState,
         store: &DeleteCharStore,
     ) -> Result<HandlerResult, NetworkError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet = Packet::new_empty()
             .build_delete_char_handler_packet(&store.char.id, &store.status)?
             .finish();
-        result.add_action(Action::Local {
+        result.add_action(Action::Send {
             packet: packet.clone(),
-        });
+            scope: Scope::Local,
+        })?;
         Ok(result)
     }
 }

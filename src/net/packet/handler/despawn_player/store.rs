@@ -2,6 +2,7 @@ use crate::models::channel::model::Channel;
 use crate::models::map::model::Map;
 use crate::models::world::model::World;
 use crate::models::{channel, character, map, world};
+use crate::net::packet::handler::despawn_player::reader::DespawnPlayerReader;
 use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
@@ -22,7 +23,7 @@ impl DespawnPlayerStore {
         &self,
         state: &SharedState,
         session: &Session,
-        read: &DespawnPlayerRead,
+        reader: &DespawnPlayerReader,
     ) -> Result<Self, NetworkError> {
         let world_id = session
             .world_id
@@ -34,7 +35,7 @@ impl DespawnPlayerStore {
         let channel = channel::service::get_channel_by_ids(&channel_id, &world_id)?;
         let map_id = session.map_id.ok_or(SessionError::NoMap(*session.id))?;
         let map = map::service::get_map_by_id(&map_id)?;
-        let char = character::query::get_character_by_id(state, &read.char_id).await?;
+        let char = character::query::get_character_by_id(state, &reader.char_id).await?;
         Ok(Self {
             char: char.clone(),
             world: world.clone(),

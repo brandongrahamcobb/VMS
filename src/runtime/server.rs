@@ -33,7 +33,7 @@ impl LoginServer {
                     info!("Listening on port {}...", &port);
                     let state = state.clone();
                     tokio::spawn(async move {
-                        match Runtime::<LoginRelay>::new(state, stream, tx, rx).await {
+                        match Runtime::<LoginRelay>::new(state, stream, session_id, rx).await {
                             Ok(mut runtime) => match runtime.run().await {
                                 Ok(Some(id)) => {
                                     let port = {
@@ -102,7 +102,7 @@ impl PlayerServer {
                 }
                 info!("Listening on port {}...", &port);
                 tokio::spawn(async move {
-                    match Runtime::<PlayerRelay>::new(state.clone(), stream, tx, rx).await {
+                    match Runtime::<PlayerRelay>::new(state.clone(), stream, session_id, rx).await {
                         Ok(mut runtime) => match runtime.run().await {
                             Ok(Some(id)) => {
                                 let port = {

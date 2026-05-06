@@ -1,8 +1,10 @@
 use crate::models::world;
-use crate::net::action::model::LoginAction;
+use crate::net::action::{Action, LoginAction};
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::result::HandlerResult;
+use crate::net::packet::handler::server_status::reader::ServerStatusReader;
 use crate::net::packet::model::Packet;
+use crate::runtime::scope::Scope;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 
@@ -15,29 +17,30 @@ impl ServerStatusHandler {
 
     pub async fn handle(
         &self,
-        _state: &SharedState,
-        _session: &Session,
-        _packet: &Packet,
-    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let worlds = world::service::load_worlds()?;
-        let status: i8 = if worlds.iter().any(|world| !world.channels.is_empty()) {
-            0
-        } else {
-            2
-        };
-        let result = complete_server_status(&status)?;
+        state: &SharedState,
+        session: &Session,
+        packet: &Packet,
+    ) -> Result<HandlerResult, NetworkError> {
+        let reader: ServerStatusReader =
+            ServerStatusReader::new().read_server_status_packet(packet)?;
+        let store: ServerStatusStore =
+            ServerStatusStore::new().store_server_status(state, session, &reader)?;
+        let result: HandlerResult = self.build_server_status_result(&store)?;
         Ok(result)
     }
-}
 
-fn complete_server_status(status: &i8) -> Result<HandlerResult<LoginAction>, NetworkError> {
-    let mut result: HandlerResult<LoginAction> = HandlerResult::new();
-    let packet: Packet = Packet::new_empty()
-        .build_server_status_handler_packet(status)?
-        .finish();
-    let action = LoginAction::SendLocalPacket {
-        packet: packet.clone(),
-    };
-    result.add_action(action);
-    Ok(result)
+    fn build_server_status_result(
+        &self,
+        store: &ServerStatusStore,
+    ) -> Result<HandlerResult, NetworkError> {
+        let mut result: HandlerResult = HandlerResult::new();
+        let packet: Packet = Packet::new_empty()
+            .build_server_status_handler_packet(&store.status)?
+            .finish();
+        result.add_action(Action::Send {
+            packet: packet.clone(),
+            scope: Scope::Local,
+        })?;
+        Ok(result)
+    }
 }

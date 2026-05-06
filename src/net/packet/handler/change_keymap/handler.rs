@@ -1,6 +1,6 @@
 use crate::models::character::keybinding;
 use crate::models::character::keybinding::model::NewKeybinding;
-use crate::net::action::model::Action;
+use crate::net::action::Action;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::change_keymap;
 use crate::net::packet::handler::change_keymap::store::ChangeKeymapStore;
@@ -24,22 +24,22 @@ impl ChangeKeymapHandler {
         session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, NetworkError> {
-        let read = ChangeKeymapRead::new().read_change_keymap_packet(packet)?;
-        let store = ChangeKeymapStore::new()
-            .close_change_keymap(state, session, &read)
+        let reader: ChangeKeymapReader =
+            ChangeKeymapReader::new().read_change_keymap_packet(packet)?;
+        let store: ChangeKeymapStore = ChangeKeymapStore::new()
+            .close_change_keymap(state, session, &reader)
             .await?;
-        let result = self.build_change_keymap_result(state, session, &store)?;
+        let result: HandlerResult = self.build_change_keymap_result(&store)?;
         Ok(result)
     }
 
     fn build_change_keymap_actions(
         &self,
-        _state: &SharedState,
-        _session: &Session,
-        _store: &ChangeKeymapStore,
+        store: &ChangeKeymapStore,
     ) -> Result<HandlerResult, NetworkError> {
+        // not implemented
+        debug!("{:?}", store);
         let mut result: HandlerResult = HandlerResult::new();
-        result.add_action(Action::Simple)?;
         Ok(result)
     }
 }

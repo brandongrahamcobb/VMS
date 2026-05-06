@@ -1,6 +1,7 @@
 use crate::models::character;
 use crate::models::character::model::Character;
 use crate::models::character::skill::model::Skill;
+use crate::net::packet::handler::close_attack::reader::CloseAttackReader;
 use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
@@ -26,13 +27,13 @@ impl CloseAttackStore {
         &self,
         state: &SharedState,
         session: &Session,
-        read: &CloseAttackRead,
+        reader: &CloseAttackReader,
     ) -> Result<Self, NetworkError> {
         let char_id = session
             .char_id
             .ok_or(SessionError::NoCharacterSelected(session.id))?;
         let char = character::query::get_character_by_id(state, &char_id)?;
-        let skill: u8 = character::skill::query::get_skill_ids(state, &char_id, &read.skill_id)
+        let skill: u8 = character::skill::query::get_skill_ids(state, &char_id, &reader.skill_id)
             .await
             .unwrap_or(0) as u8;
         Ok(Self {

@@ -1,5 +1,5 @@
 use crate::models::character;
-use crate::net::packet::handler::check_char_name::read::CheckCharNameRead;
+use crate::net::packet::handler::check_char_name::reader::CheckCharNameReader;
 use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
@@ -19,9 +19,9 @@ impl CheckCharNameStore {
         &self,
         state: &SharedState,
         session: &Session,
-        read: &CheckCharNameRead,
+        reader: &CheckCharNameReader,
     ) -> Result<Self, NetworkError> {
-        let exists = character::query::get_character_by_name(state, &read.ign)
+        let exists = character::query::get_character_by_name(state, &reader.ign)
             .await
             .is_ok();
         Ok(Self {

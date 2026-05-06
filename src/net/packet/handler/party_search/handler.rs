@@ -1,5 +1,6 @@
-use crate::net::action::model::PlayerAction;
+use crate::net::action::PlayerAction;
 use crate::net::error::NetworkError;
+use crate::net::packet::handler::party_search::reader::PartySearchReader;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::session::Session;
@@ -14,13 +15,24 @@ impl PartySearchHandler {
 
     pub async fn handle(
         &self,
-        _state: &SharedState,
-        _session: &Session,
-        _packet: &Packet,
+        state: &SharedState,
+        session: &Session,
+        packet: &Packet,
     ) -> Result<HandlerResult<PlayerAction>, NetworkError> {
-        let mut result: HandlerResult<PlayerAction> = HandlerResult::new();
-        let action = PlayerAction::Simple;
-        result.add_action(action);
+        let reader: PartySearchReader =
+            PartySearchReader::new().read_party_search_packet(packet)?;
+        let store: PartySearchStore =
+            PartySearchStore::new().store_party_search(state, session, &read)?;
+        let result: HandlerResult = self.build_party_search_result(&store)?;
+        Ok(result)
+    }
+
+    fn build_party_search_result(
+        &self,
+        store: &PartySearchStore,
+    ) -> Result<HandlerResult, NetworkError> {
+        // Not implemented
+        let mut result: HandlerResult = HandlerResult::new();
         Ok(result)
     }
 }

@@ -1,5 +1,5 @@
 use crate::net::packet::handler::credentials;
-use crate::net::packet::handler::credentials::read::CredentialsRead;
+use crate::net::packet::handler::credentials::reader::CredentialsReader;
 use crate::net::packet::handler::credentials::service::StatusCode;
 use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
@@ -18,22 +18,15 @@ impl CredentialsStore {
         &self,
         state: &SharedState,
         session: &Session,
-        read: &CredentialsRead,
+        reader: &CredentialsReader,
     ) -> Result<Self, NetworkError> {
-        match account::query::get_account_by_username(state, &read.user).await {
+        match account::query::get_account_by_username(state, &reader.user).await {
             Ok(acc) => {
-                let status = if credentials::service::authenticate(&acc, &read.pw)? {
+                let status = if credentials::service::authenticate(&acc, &reader.pw)? {
                     credentials::service::get_status_code(state, &acc).await?;
                 } else {
                     StatusCode::InvalidCredentials as i8;
                 };
-                if status == StatusCode::Success {
-                    let state = state.lock().await;
-                    state.sessions.update(&session.id, |s| {
-                        s.authenticated = true;
-                        s.playing = true;
-                    });
-                }
                 Ok(Self {
                     status: status.clone(),
                 })

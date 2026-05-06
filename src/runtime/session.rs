@@ -54,15 +54,6 @@ impl SessionStore {
             .cloned()
     }
 
-    pub fn get_by_acc_id(&self, acc_id: &i32) -> Option<Session> {
-        self.sessions
-            .read()
-            .expect("session store read lock poisoned")
-            .values()
-            .find(|s| s.acc_id == *acc_id)
-            .cloned()
-    }
-
     pub fn update(&self, id: &i32, f: impl FnOnce(&mut Session)) {
         let mut guard = self
             .sessions

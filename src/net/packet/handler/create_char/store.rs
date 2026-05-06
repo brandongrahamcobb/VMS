@@ -7,7 +7,7 @@ use crate::models::character::keybinding::model::NewKeybinding;
 use crate::models::character::model::{Character, NewCharacter};
 use crate::models::character::{equipment_set, keybinding};
 use crate::models::wz;
-use crate::net::packet::handler::create_char::read::CreateCharacterRead;
+use crate::net::packet::handler::create_char::reader::CreateCharReader;
 use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
@@ -30,9 +30,9 @@ impl CreateCharStore {
         &self,
         state: &SharedState,
         session: &Session,
-        read: &CreateCharacterRead,
+        reader: &CreateCharReader,
     ) -> Result<Self, NetworkError> {
-        let map_id = create_char::service::get_map_id_for_job(&read.job_id)?;
+        let map_id = create_char::service::get_map_id_for_job(&reader.job_id)?;
         let world_id = session
             .world_id
             .ok_or(SessionError::NoWorldSelected(session.id))?;
@@ -59,10 +59,10 @@ impl CreateCharStore {
             })
             .collect();
         let binds = keybinding::query::update_keybindings(state, &binds).await?;
-        let top = wz::equip::service::generate_new_equip(state, &read.top_id).await?;
-        let bottom = wz::equip::service::generate_new_equip(state, &read.bottom_id).await?;
-        let shoes = wz::equip::service::generate_new_equip(state, &read.shoes_id).await?;
-        let weapon = wz::equip::service::generate_new_equip(state, &read.weapon_id).await?;
+        let top = wz::equip::service::generate_new_equip(state, &reader.top_id).await?;
+        let bottom = wz::equip::service::generate_new_equip(state, &reader.bottom_id).await?;
+        let shoes = wz::equip::service::generate_new_equip(state, &reader.shoes_id).await?;
+        let weapon = wz::equip::service::generate_new_equip(state, &reader.weapon_id).await?;
         let new_regular_equips = NewRegularEquipmentSet {
             char_id: char.id.clone(),
             top: top.id.clone()

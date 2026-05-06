@@ -1,11 +1,8 @@
-use crate::config::settings;
-use crate::inc::helpers;
-use crate::models::channel;
-use crate::models::channel::model::Channel;
-use crate::net::action::model::LoginAction;
+use crate::net::action::Action;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::result::HandlerResult;
-use crate::net::packet::handler::select_char;
+use crate::net::packet::handler::select_char::reader::SelectCharReader;
+use crate::net::packet::handler::select_char::store::SelectCharStore;
 use crate::net::packet::model::Packet;
 use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
@@ -23,38 +20,28 @@ impl SelectCharHandler {
         state: &SharedState,
         session: &Session,
         packet: &Packet,
-    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let read = select_char::read::read_select_char_packet(packet)?;
-        {
-            let state = state.lock().await;
-            state
-                .sessions
-                .update(&session.id, |s| s.char_id = Some(read.char_id.clone()));
-        }
-        let addr = settings::get_address()?;
-        let octets = helpers::convert_to_ip_array(&addr);
-        let channel_id = session
-            .channel_id
-            .ok_or(SessionError::NoChannelSelected(session.id))?;
-        let world_id = session
-            .world_id
-            .ok_or(SessionError::NoWorldSelected(session.id))?;
-        let channel = channel::service::resolve_channel(&channel_id, &world_id)?;
-        let packet: Packet = Packet::new_empty()
-            .build_select_char_handler_packet(char_id, &octets, &channel.port)?
-            .finish();
-        let mut result: HandlerResult<LoginAction> = HandlerResult::new();
-        self.build_actions(&result, &packet)?;
+    ) -> Result<HandlerResult, NetworkError> {
+        let reader: SelectCharReader = SelectCharReader::new().read_select_char_packet(packet)?;
+        let store: SelectCharStore SelectCharStore::new().store_select_char(state, session, &reader)?;
+        let result: HandlerResult self.build_select_char_result(&store)?;
         Ok(result)
     }
 
-    fn build_first_action(
-        result: &HandlerResult<LoginAction>,
-        packet: &Packet,
-    ) -> Result<(), NetworkError> {
-        result.add_action(LoginAction::SendLocalPacket {
+    fn build_select_char_result(
+        &self,
+        store: &SelectCharStore,
+    ) -> Result<HandlerResult, NetworkError> {
+        let mut result: HandlerResult = HandlerResult::new();
+        let packet: Packet = Packet::new_empty()
+            .build_select_char_handler_packet(&store.char.id, &store.ip.addr, &store.ip.port)?
+            .finish();
+        result.add_action(Action::SetChar {
+            char: store.char.clone(),
+        })?;
+        result.add_action(Action::Send {
             packet: packet.clone(),
-        });
-        Ok(())
+            scope: Scope::Local,
+        })?;
+        Ok(result)
     }
 }

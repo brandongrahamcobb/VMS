@@ -3,7 +3,7 @@ use crate::config::settings;
 use crate::models::account::model::Account;
 use crate::models::channel::model::Channel;
 use crate::models::{account, channel, character, world};
-use crate::net::packet::handler::list_chars::read::ListCharsRead;
+use crate::net::packet::handler::list_chars::reader::ListCharsRead;
 use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
@@ -31,19 +31,19 @@ impl ListCharsStore {
         &self,
         state: &SharedState,
         session: &Session,
-        read: &ListCharsRead
+        reader: &ListCharsRead
     ) -> Result<Self, NetworkError> {
-        let world = world::service::get_world_by_id(&read.world_id)?;
-        let channel = channel::service::get_channel_by_ids(&read.channel_id, &read.world_id)?;
+        let world = world::service::get_world_by_id(&reader.world_id)?;
+        let channel = channel::service::get_channel_by_ids(&reader.channel_id, &reader.world_id)?;
         let chars = character::query::get_characters_by_account_id_and_world_id(
             state,
             &session.acc.id,
-            &read.world_id,
+            &reader.world_id,
         )
         .await?;
         let default_char_max = settings::get_char_max()?;
         let char_max =
-            world::query::get_character_max_by_account_and_world_id(state, &session.acc.id, &read.world_id)
+            world::query::get_character_max_by_account_and_world_id(state, &session.acc.id, &reader.world_id)
                 .await
                 .unwrap_or(default_char_max as i16);
         let mut pic_status: u8 = PicStatus::Disabled as u8;

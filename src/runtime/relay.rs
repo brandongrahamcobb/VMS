@@ -1,7 +1,4 @@
-use crate::config::settings;
-use crate::models::account;
-use crate::net::action;
-use crate::net::action::model::{Action, LoginAction, PlayerAction};
+use crate::net::action::{Action, SetAction};
 use crate::net::packet::handler::cc::handler::ChangeChannelHandler;
 use crate::net::packet::handler::change_keymap::handler::ChangeKeymapHandler;
 use crate::net::packet::handler::check_char_name::handler::CheckCharNameHandler;
@@ -28,6 +25,7 @@ use crate::net::packet::model::Packet;
 use crate::op::recv::RecvOpcode;
 use crate::prelude::*;
 use crate::runtime::error::{RuntimeError, SessionError};
+use crate::runtime::scope::Scope;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 use core::ops::ControlFlow;
@@ -50,7 +48,6 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
         state: SharedState,
         stream: TcpStream,
         session_id: i32,
-        tx: UnboundedSender<Packet>,
         rx: UnboundedReceiver<Packet>,
     ) -> Result<Self, RuntimeError> {
         let (recv_iv, send_iv) = {
@@ -73,7 +70,7 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
             pkt_reader,
             pkt_writer,
             rx,
-            relay: T::new(&state, session_id, tx).await?,
+            relay: T::new(session_id).await?,
             state,
         })
     }
@@ -106,11 +103,7 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
 
 #[allow(async_fn_in_trait)]
 pub trait RuntimeRelay {
-    async fn new(
-        state: &SharedState,
-        session_id: i32,
-        tx: UnboundedSender<Packet>,
-    ) -> Result<Self, RuntimeError>;
+    async fn new(session_id: i32) -> Result<Self, RuntimeError>;
 
     fn session_id(&self) -> i32;
 
@@ -142,21 +135,25 @@ pub trait RuntimeRelay {
                         let state = state.lock().await;
                         state.sessions.for_each(|s| match scope {
                             Scope::Map => {
-                                if s.map == session.map {
+                                if s.map == session.map && s.id != session.id {
                                     s.tx.send(packet.clone());
                                 }
                             }
                             Scope::Channel => {
-                                if s.channel == session.channel {
+                                if s.channel == session.channel && s.id != session.id {
                                     s.tx.send(packet.clone());
                                 }
                             }
                             Scope::World => {
-                                if s.world == session.world {
+                                if s.world == session.world && s.id != session.id {
                                     s.tx.send(packet.clone());
                                 }
                             }
-                            Scope::Global => s.tx.send(packet.clone()),
+                            Scope::Global => {
+                                if s.id != session.id {
+                                    s.tx.send(packet.clone());
+                                }
+                            }
                         });
                     }
                 },
@@ -172,10 +169,12 @@ pub trait RuntimeRelay {
                             let ids: Vec<i32> = {
                                 let state = state.lock().await;
                                 state.sessions.collect_ids(|s| match scope {
-                                    Scope::Map => s.map == session.map,
-                                    Scope::Channel => s.channel == session.channel,
-                                    Scope::World => s.world == session.world,
-                                    Scope::Global => true,
+                                    Scope::Map => s.map == session.map && s.id != session.id,
+                                    Scope::Channel => {
+                                        s.channel == session.channel && s.id != session.id
+                                    }
+                                    Scope::World => s.world == session.world && s.id != session.id,
+                                    Scope::Global => s.id != session.id,
                                     Scope::Local => unreachable!(),
                                 })
                             };
@@ -198,10 +197,12 @@ pub trait RuntimeRelay {
                             let ids: Vec<i32> = {
                                 let state = state.lock().await;
                                 state.sessions.collect_ids(|s| match scope {
-                                    Scope::Map => s.map == session.map,
-                                    Scope::Channel => s.channel == session.channel,
-                                    Scope::World => s.world == session.world,
-                                    Scope::Global => true,
+                                    Scope::Map => s.map == session.map && s.id != session.id,
+                                    Scope::Channel => {
+                                        s.channel == session.channel && s.id != session.id
+                                    }
+                                    Scope::World => s.world == session.world && s.id != session.id,
+                                    Scope::Global => s.id != session.id,
                                     Scope::Local => unreachable!(),
                                 })
                             };
@@ -224,10 +225,12 @@ pub trait RuntimeRelay {
                             let ids: Vec<i32> = {
                                 let state = state.lock().await;
                                 state.sessions.collect_ids(|s| match scope {
-                                    Scope::Map => s.map == session.map,
-                                    Scope::Channel => s.channel == session.channel,
-                                    Scope::World => s.world == session.world,
-                                    Scope::Global => true,
+                                    Scope::Map => s.map == session.map && s.id != session.id,
+                                    Scope::Channel => {
+                                        s.channel == session.channel && s.id != session.id
+                                    }
+                                    Scope::World => s.world == session.world && s.id != session.id,
+                                    Scope::Global => s.id != session.id,
                                     Scope::Local => unreachable!(),
                                 })
                             };
@@ -263,6 +266,12 @@ pub trait RuntimeRelay {
                             s.char = Some(char);
                         });
                     }
+                    SetAction::SetHwid { hwid } => {
+                        let state = state.lock().await;
+                        state.sessions.update(&session.id, |s| {
+                            s.hwid = Some(hwid);
+                        });
+                    }
                 },
             }
         }
@@ -275,11 +284,7 @@ pub struct LoginRelay {
 }
 
 impl RuntimeRelay for LoginRelay {
-    async fn new(
-        state: &SharedState,
-        session_id: i32,
-        tx: UnboundedSender<Packet>,
-    ) -> Result<Self, RuntimeError> {
+    async fn new(session_id: i32) -> Result<Self, RuntimeError> {
         Ok(Self { session_id })
     }
 
@@ -370,11 +375,7 @@ pub struct PlayerRelay {
 }
 
 impl RuntimeRelay for PlayerRelay {
-    async fn new(
-        state: &SharedState,
-        session_id: i32,
-        tx: UnboundedSender<Packet>,
-    ) -> Result<Self, RuntimeError> {
+    async fn new(session_id: i32) -> Result<Self, RuntimeError> {
         Ok(Self { session_id })
     }
 

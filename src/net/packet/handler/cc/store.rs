@@ -7,7 +7,7 @@ use crate::models::character::model::Character;
 use crate::models::map::model::Map;
 use crate::models::world::model::World;
 use crate::net::error::NetworkError;
-use crate::net::packet::handler::cc::read::ChangeChannelRead;
+use crate::net::packet::handler::cc::reader::ChangeChannelReader;
 use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
@@ -15,8 +15,7 @@ use crate::runtime::state::SharedState;
 pub struct ChangeChannelStore {
     pub char: Character,
     pub world: World,
-    pub source_channel: Channel,
-    pub target_channel: Channel,
+    pub channel: Channel,
     pub map: Map,
     pub regular_equips: RegularEquipmentSet,
     pub cash_equips: CashEquipmentSet,
@@ -33,14 +32,13 @@ impl ChangeChannelStore {
         &self,
         state: &SharedState,
         session: &Session,
-        read: &ChangeChannelRead,
+        reader: &ChangeChannelReader,
     ) -> Result<Self, NetworkError> {
         let world_id = session
             .world_id
             .ok_or(SessionError::NoWorldSelected(*session.id))?;
         let world = world::service::get_world_by_id(&world_id)?;
-        let source_channel = session.channel.ok_or(SessionError::NoChannel(*session.id));
-        let target_channel = channel::service::get_channel_by_ids(&read.channel_id, &world_id)?;
+        let channel = channel::service::get_channel_by_ids(&reader.channel_id, &world_id)?;
         let map_id = session
             .map_id
             .ok_or(SessionError::NoMapSelected(*session.id))?;
@@ -56,15 +54,14 @@ impl ChangeChannelStore {
         let pet_equips =
             equipment_set::query::get_pet_equipment_set_by_character_id(state, &char_id)?;
         Ok(Self {
-            char: char.clone(),
-            world: world.clone(),
-            source_channel: source_channel.clone(),
-            target_channel: target_channel.clone(),
-            map: map.clone(),
-            regular_equips: regular_equips.clone(),
-            cash_equips: cash_equips.clone(),
-            android_equips: android_equips.clone(),
-            pet_equips: pet_equips.clone(),
+            char,
+            world,
+            channel,
+            map,
+            regular_equips,
+            cash_equips,
+            android_equips,
+            pet_equips,
         })
     }
 }

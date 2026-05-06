@@ -1,12 +1,13 @@
-use crate::net::action::model::PlayerAction;
+use crate::net::action::Action;
 use crate::net::error::NetworkError;
+use crate::net::packet::handler::move_player::reader::MovePlayerReader;
+use crate::net::packet::handler::move_player::store::MovePlayerStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::error::SessionError;
+use crate::runtime::scope::Scope;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
-
-const MOVEMENT_HEADER_LEN: usize = 9;
 
 pub struct MovePlayerHandler;
 
@@ -17,36 +18,35 @@ impl MovePlayerHandler {
 
     pub async fn handle(
         &self,
-        _state: &SharedState,
+        state: &SharedState,
         session: &Session,
         packet: &Packet,
-    ) -> Result<HandlerResult<PlayerAction>, NetworkError> {
-        let char_id = session
-            .char_id
-            .ok_or(SessionError::NoCharacterSelected(session.id))?;
-        let mut result: HandlerResult<PlayerAction> = HandlerResult::new();
-        if packet.bytes.len() <= 2 + MOVEMENT_HEADER_LEN {
-            let action = PlayerAction::Simple;
-            result.add_action(action);
-            return Ok(result);
+    ) -> Result<HandlerResult, NetworkError> {
+        let reader: MovePlayerReader = MovePlayerReader::new().read_move_player_packet(packet)?;
+        let store: MovePlayerStore =
+            MovePlayerStore::new().store_move_player(state, session, &reader)?;
+        let result: HandlerResult = self.build_move_player_result(&store)?;
+        Ok(result)
+    }
+
+    fn build_move_player_result(
+        &self,
+        store: &MovePlayerStore,
+    ) -> Result<HandlerResult, NetworkError> {
+        let mut result = HandlerResult::new();
+        if !read.too_short && !read.empty {
+            let packet: Packet = Packet::new_empty()
+                .build_player_move_handler_packet(&store.char.id, &store.movement_bytes)?
+                .finish();
+            result.add_action(Action::Send {
+                packet: packet.clone(),
+                scope: Scope::Local,
+            });
+            result.add_action(Action::Send {
+                packet: packet.clone(),
+                scope: Scope::Map,
+            });
         }
-        let movement_fragment = &packet.bytes[(2 + MOVEMENT_HEADER_LEN)..];
-        if movement_fragment.is_empty() || movement_fragment[0] == 0 {
-            let action = PlayerAction::Simple;
-            result.add_action(action);
-            return Ok(result);
-        }
-        let movement_bytes = movement_fragment.to_vec();
-        let packet: Packet = Packet::new_empty()
-            .build_player_move_handler_packet(&char_id, &movement_bytes)?
-            .finish();
-        result.add_action(PlayerAction::SendLocalPacket {
-            packet: packet.clone(),
-        });
-        result.add_action(PlayerAction::FieldMove {
-            session: session.clone(),
-            packet: packet.clone(),
-        });
         Ok(result)
     }
 }
