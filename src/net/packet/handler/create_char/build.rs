@@ -1,4 +1,6 @@
-use crate::models::character::equipment_set::model::{CashEquipmentSet, RegularEquipmentSet};
+use crate::models::character::equipment_set::model::{
+    AndroidEquipmentSet, CashEquipmentSet, PetEquipmentSet, RegularEquipmentSet,
+};
 use crate::models::character::model::Character;
 use crate::net::error::NetworkError;
 
@@ -15,6 +17,8 @@ impl Packet {
         char: &Character,
         regular_equips: &RegularEquipmentSet,
         cash_equips: &CashEquipmentSet,
+        _android_equips: &AndroidEquipmentSet,
+        _pet_equips: &PetEquipmentSet,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::NewCharacter as i16;
         self.write_short(&op).map_err(WriteError)?;

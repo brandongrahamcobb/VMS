@@ -2,6 +2,7 @@ use crate::net::error::NetworkError;
 
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
+use crate::op::send::SendOpcode;
 use crate::prelude::*;
 use std::collections::HashMap;
 
@@ -18,6 +19,8 @@ impl Packet {
         speed: &u8,
         mob_damages: &HashMap<i32, Vec<i32>>,
     ) -> Result<&mut Self, NetworkError> {
+        let op = SendOpcode::AttackedClose as i16;
+        self.write_short(&op).map_err(WriteError)?;
         self.write_int(char_id).map_err(WriteError)?;
         self.write_byte(count).map_err(WriteError)?;
         self.write_byte(skill_level).map_err(WriteError)?;

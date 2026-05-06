@@ -1,10 +1,12 @@
+use crate::constants::CASH_SHOP_MAP_ID;
 use crate::models::account::model::Account;
 use crate::models::character::equipment_set;
 use crate::models::character::equipment_set::model::{CashEquipmentSet, RegularEquipmentSet};
 use crate::models::character::model::Character;
 use crate::models::{account, character};
-use crate::net::action::model::PlayerAction;
+use crate::net::action::model::{Action, PlayerAction};
 use crate::net::error::NetworkError;
+use crate::net::packet::handler::enter_cash_shop::store::EnterCashShopStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::error::SessionError;
@@ -24,52 +26,44 @@ impl EnterCashShopHandler {
         session: &Session,
         _packet: &Packet,
     ) -> Result<HandlerResult<PlayerAction>, NetworkError> {
-        let acc_id = session.acc_id;
-        let acc = account::query::get_account_by_id(state, &acc_id).await?;
-        let char_id = session
-            .char_id
-            .ok_or(SessionError::NoCharacterSelected(session.id))?;
-        let char = character::query::get_character_by_id(state, &char_id).await?;
-        let regular_equips =
-            equipment_set::query::get_regular_equipment_set_by_character_id(state, &char_id)
-                .await?;
-        let cash_equips =
-            equipment_set::query::get_cash_equipment_set_by_character_id(state, &char_id).await?;
-        let result = complete_enter_cash_shop_handler(
-            state,
-            session,
-            &acc,
-            &char,
-            &regular_equips,
-            &cash_equips,
-        )
-        .await?;
+        let store = EnterCashShopStore::new()
+            .store_enter_cash_shop(state, session)
+            .await?;
+        let result = self
+            .build_enter_cash_shop_result(state, session, &store)
+            .await?;
         Ok(result)
     }
-}
 
-async fn complete_enter_cash_shop_handler(
-    state: &SharedState,
-    session: &Session,
-    acc: &Account,
-    char: &Character,
-    regular_equips: &RegularEquipmentSet,
-    cash_equips: &CashEquipmentSet,
-) -> Result<HandlerResult<PlayerAction>, NetworkError> {
-    let mut result: HandlerResult<PlayerAction> = HandlerResult::new();
-    let packet: Packet = Packet::new_empty()
-        .build_enter_cash_shop_handler_packet(state, acc, char, regular_equips, cash_equips)
-        .await?
-        .finish();
-    result.add_action(PlayerAction::SendLocalPacket {
-        packet: packet.clone(),
-    });
-    let packet: Packet = Packet::new_empty()
-        .build_despawn_player_handler_packet(&char.id)?
-        .finish();
-    result.add_action(PlayerAction::ExitMap {
-        session: session.clone(),
-        packet: packet.clone(),
-    });
-    Ok(result)
+    async fn build_enter_cash_shop_result(
+        state: &SharedState,
+        session: &Session,
+        store: &EnterCashShopStore,
+    ) -> Result<HandlerResult, NetworkError> {
+        let mut result: HandlerResult<PlayerAction> = HandlerResult::new();
+        let packet: Packet = Packet::new_empty()
+            .build_enter_cash_shop_handler_packet(
+                state,
+                &store.acc,
+                &store.char,
+                &store.regular_equips,
+                &store.cash_equips,
+            )
+            .await?
+            .finish();
+        result.add_action(Action::Local {
+            packet: packet.clone(),
+        });
+        let packet: Packet = Packet::new_empty()
+            .build_despawn_player_handler_packet(&store.char.id)?
+            .finish();
+        result.add_action(Action::Player(PlayerAction::ExitMap {
+            session: session.clone(),
+            packet: packet.clone(),
+            source_world_id: Some(store.world.id),
+            source_channel_id: Some(store.channel.id),
+            source_map_id: Some(store.map.id),
+        }));
+        Ok(result)
+    }
 }

@@ -1,7 +1,8 @@
 use crate::models::account;
-use crate::net::action::model::LoginAction;
+use crate::net::action::model::{Action, LoginAction};
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::credentials;
+use crate::net::packet::handler::credentials::store::CredentialsStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::state::SharedState;
@@ -16,58 +17,44 @@ impl CredentialsHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
+        session: &Session,
         packet: &Packet,
-    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let read = credentials::read::read_credentials_packet(packet)?;
-        let mut result: HandlerResult<LoginAction> = HandlerResult::new();
-        match account::query::get_account_by_username(state, &read.user).await {
-            Ok(acc) => {
-                if credentials::service::authenticate(&acc, &read.pw)? {
-                    let status = credentials::service::get_status_code(state, &acc).await?;
-                    let packet = if matches!(
-                        status,
-                        credentials::service::StatusCode::Banned
-                            | credentials::service::StatusCode::PendingTOS
-                            | credentials::service::StatusCode::Playing
-                    ) {
-                        let status = status as i8;
-                        Packet::new_empty()
-                            .build_credentials_handler_failed_login_packet(&status)?
-                            .finish()
-                    } else {
-                        Packet::new_empty()
-                            .build_credentials_handler_successful_login_packet(&acc)?
-                            .finish()
-                    };
-                    result.add_action(LoginAction::SendLocalPacket {
-                        packet: packet.clone(),
-                    });
-                    result.add_action(LoginAction::CreateSession {
-                        acc_id: acc.id.clone(),
-                        hwid: read.hwid.clone(),
-                    });
-                } else {
-                    let status = credentials::service::StatusCode::InvalidCredentials as i8;
-                    let packet: Packet = Packet::new_empty()
-                        .build_credentials_handler_failed_login_packet(&status)?
-                        .finish();
-                    result.add_action(LoginAction::SendLocalPacket {
-                        packet: packet.clone(),
-                    })
-                };
-                Ok(result)
-            }
-            Err(e) if e == diesel::result::Error::NotFound => {
-                let status = credentials::service::StatusCode::UnknownCredentials as i8;
+    ) -> Result<HandlerResult, NetworkError> {
+        let read = CredentialsRead::new().read_credentials_packet(packet)?;
+        let store = CredentialsStore::new().store_credentials(state, session, &read)?;
+        let result = self.build_credentials_result(state, &store)?;
+        Ok(result)
+    }
+
+    fn build_credentials_result(
+        &self,
+        _state: &SharedState,
+        store: &CredentialsStore,
+    ) -> Result<HandlerResult, NetworkError> {
+        let mut result: HandlerResult = HandlerResult::new();
+        let status = *store.status as i8;
+        match &store.status {
+            StatusCode::Failed => {
                 let packet: Packet = Packet::new_empty()
                     .build_credentials_handler_failed_login_packet(&status)?
                     .finish();
-                result.add_action(LoginAction::SendLocalPacket {
+                result.add_action(Action::Local {
                     packet: packet.clone(),
                 });
-                Ok(result)
             }
-            Err(_) => Err(NetworkError::UnexpectedError),
+            StatusCode::Success => {
+                let packet: Packet = Packet::new_empty()
+                    .build_credentials_handler_successful_login_packet(&store.acc)?
+                    .finish();
+                result.add_action(Action::Local {
+                    packet: packet.clone(),
+                });
+                result.add_action(Action::Login(LoginAction::CreateSession {
+                    acc_id: store.acc.id.clone(),
+                    hwid: store.hwid.clone(),
+                }));
+            }
         }
+        Ok(result)
     }
 }

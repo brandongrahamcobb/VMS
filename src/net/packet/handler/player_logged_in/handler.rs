@@ -23,6 +23,7 @@ impl PlayerLoggedInHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult<PlayerAction>, NetworkError> {
         let read: PlayerLoggedInRead = player_logged_in::read::read_play_packet(packet)?;
@@ -35,38 +36,35 @@ impl PlayerLoggedInHandler {
             let state = state.lock().await;
             state
                 .sessions
-                .update(session_id, |s| s.map_id = Some(char.map_id.clone()));
-            state
-                .sessions
                 .get(&session_id)
                 .ok_or(SessionError::NotFound(session_id))?
         };
-        let channel_id = session
+        let world_id: i8 = session
             .channel_id
-            .ok_or(SessionError::NoChannelSelected(session_id))?;
+            .ok_or(SessionError::NoWorld(session.id))?;
+        let channel_id: i8 = session
+            .channel_id
+            .ok_or(SessionError::NoChannel(session.id))?;
+        let map_id = char.map_id;
+        {
+            let state = state.lock().await;
+            state.create_location(&session, world_id, channel_id, map_id)?;
+        }
         let (regular_equips, cash_equips): (RegularEquipmentSet, CashEquipmentSet) =
             player_logged_in::service::create_equips_on_join(state, &char).await?;
         let binds: Vec<Keybinding> =
             player_logged_in::service::create_keybindings_on_join(state, &char).await?;
-        let result = complete_play_handler(
-            state,
-            session,
-            &char,
-            &channel_id,
-            &regular_equips,
-            &cash_equips,
-            &binds,
-        )
-        .await?;
+        let result =
+            complete_play_handler(state, &acc, &char, &regular_equips, &cash_equips, &binds)
+                .await?;
         Ok(result)
     }
 }
 
 async fn complete_play_handler(
     state: &SharedState,
-    session: Session,
+    acc: &Account,
     char: &Character,
-    channel_id: &i8,
     regular_equips: &RegularEquipmentSet,
     cash_equips: &CashEquipmentSet,
     binds: &Vec<Keybinding>,
@@ -82,7 +80,7 @@ async fn complete_play_handler(
         .build_player_logged_in_handler_char_packet(
             state,
             char,
-            channel_id,
+            &channel_id,
             regular_equips,
             cash_equips,
         )
@@ -92,22 +90,18 @@ async fn complete_play_handler(
         packet: packet.clone(),
     });
     result.add_action(PlayerAction::Connect {
-        session_id: session.id.clone(),
+        session: session.clone(),
     });
-    let session = {
-        let state = state.lock().await;
-        state
-            .sessions
-            .get(&session.id)
-            .ok_or(SessionError::NotFound(session.id))?
-    };
     let packet: Packet = Packet::new_empty()
         .build_spawn_player_packet(state, char, regular_equips, cash_equips)
         .await?
         .finish();
-    result.add_action(PlayerAction::EnterMap {
+    result.add_action(PlayerAction::OnJoin {
         session: session.clone(),
         packet: packet.clone(),
+        target_world_id: session.world_id.clone(),
+        target_channel_id: session.channel_id.clone(),
+        target_map_id: Some(char.map_id),
     });
     Ok(result)
 }

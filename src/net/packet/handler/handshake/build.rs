@@ -9,8 +9,8 @@ impl Packet {
         &mut self,
         recv_iv: &[u8; 4],
         send_iv: &[u8; 4],
-        version: &i16,
     ) -> Result<&mut Self, NetworkError> {
+        let version = settings::get_version()?;
         self.write_short(&0x0E).map_err(WriteError)?;
         self.write_short(version).map_err(WriteError)?;
         // Not sure what this part is meant to represent...

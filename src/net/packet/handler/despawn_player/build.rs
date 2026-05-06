@@ -7,11 +7,11 @@ use crate::prelude::*;
 impl Packet {
     pub fn build_despawn_player_handler_packet(
         &mut self,
-        char_id: &i32,
+        char: &Character,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::DespawnPlayer as i16;
         self.write_short(&op).map_err(WriteError)?;
-        self.write_int(char_id).map_err(WriteError)?;
+        self.write_int(&char.id).map_err(WriteError)?;
         Ok(self)
     }
 }

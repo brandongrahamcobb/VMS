@@ -6,7 +6,15 @@ use crate::runtime::state::SharedState;
 use bcrypt::{DEFAULT_COST, hash, verify};
 
 pub enum StatusCode {
+    Failed(FailedCode),
+    Success(SuccessCode),
+}
+
+pub enum SuccesCode {
     Success = 0,
+}
+
+pub enum FailedCode {
     Banned = 2,
     InvalidCredentials = 4,
     UnknownCredentials = 5,
@@ -53,14 +61,14 @@ pub async fn get_status_code(
     acc: &Account,
 ) -> Result<StatusCode, NetworkError> {
     if check_if_banned(acc)? {
-        return Ok(StatusCode::Banned);
+        return Ok(StatusCode::Failed(Banned));
     }
     if check_if_pending_tos(acc)? {
-        return Ok(StatusCode::PendingTOS);
+        return Ok(StatusCode::Failed(PendingTOS));
     }
     let mode = settings::get_release_mode()?;
     if check_if_playing(state, acc).await? & mode {
-        return Ok(StatusCode::Playing);
+        return Ok(StatusCode::Failed(Playing));
     }
-    return Ok(StatusCode::Success);
+    return Ok(StatusCode::Success(SuccessCode));
 }

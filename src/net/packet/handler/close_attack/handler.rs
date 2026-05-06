@@ -1,7 +1,9 @@
 use crate::models::character;
-use crate::net::action::model::PlayerAction;
+use crate::net::action::model::{Action, PlayerAction};
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::close_attack;
+use crate::net::packet::handler::close_attack::read::CloseAttackRead;
+use crate::net::packet::handler::close_attack::store::CloseAttackStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::error::SessionError;
@@ -21,60 +23,43 @@ impl CloseAttackHandler {
         state: &SharedState,
         session: &Session,
         packet: &Packet,
-    ) -> Result<HandlerResult<PlayerAction>, NetworkError> {
-        let read = close_attack::read::read_close_attack_packet(packet)?;
-        let char_id = session
-            .char_id
-            .ok_or(SessionError::NoCharacterSelected(session.id))?;
-        let skill_level: u8 = character::skill::query::get_skill_level_by_character_id_and_skill_id(
-            state,
-            &char_id,
-            &read.skill_id,
-        )
-        .await
-        .unwrap_or(0) as u8;
-        let result = complete_close_attack(
-            session,
-            &char_id,
-            &read.count,
-            &skill_level,
-            &read.skill_id,
-            &read.display,
-            &read.toleft,
-            &read.stance,
-            &read.speed,
-            &read.mob_damages,
-        )?;
+    ) -> Result<HandlerResult, NetworkError> {
+        let read = CloseAttackRead::new().read_close_attack_packet(packet)?;
+        let store = CloseAttackStore::new()
+            .store_close_attack(state, &session, &read)
+            .await?;
+        let result = self.build_close_attack_result(state, session, &store)?;
         Ok(result)
     }
-}
 
-fn complete_close_attack(
-    _session: &Session,
-    char_id: &i32,
-    count: &u8,
-    skill_level: &u8,
-    skill_id: &i32,
-    display: &u8,
-    toleft: &u8,
-    stance: &u8,
-    speed: &u8,
-    mob_damages: &HashMap<i32, Vec<i32>>,
-) -> Result<HandlerResult<PlayerAction>, NetworkError> {
-    let mut result: HandlerResult<PlayerAction> = HandlerResult::new();
-    let packet = Packet::new_empty()
-        .build_close_attack_handler_packet(
-            char_id,
-            count,
-            skill_level,
-            skill_id,
-            display,
-            toleft,
-            stance,
-            speed,
-            mob_damages,
-        )?
-        .finish();
-    result.add_action(PlayerAction::SendLocalPacket {packet: packet.clone()});
-    Ok(result)
+    fn build_close_attack_result(
+        &self,
+        _state: &SharedState,
+        session: &Session,
+        store: &CloseAttackStore,
+    ) -> Result<HandlerResult, NetworkError> {
+        let mut result: HandlerResult = HandlerResult::new();
+        let packet = Packet::new_empty()
+            .build_close_attack_handler_packet(
+                &store.char.id,
+                &store.count,
+                &store.skill.level,
+                &store.skill.wz_id,
+                &store.display,
+                &store.toleft,
+                &store.stance,
+                &store.speed,
+                &store.mob_damages,
+            )?
+            .finish();
+        result.add_action(Action::Local {
+            session: session.clone(),
+            packet: packet.clone(),
+        });
+        result.add_action(Action::Player(PlayerAction::FieldMove {
+            session: session.clone(),
+            packet: packet.clone(),
+        }));
+        Ok(result)
+    }
 }

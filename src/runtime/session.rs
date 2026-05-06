@@ -1,23 +1,26 @@
+use crate::models::account::model::Account;
+use crate::models::channel::model::Channel;
+use crate::models::map::model::Map;
+use crate::models::world::model::World;
+use crate::net::packet::model::Packet;
 use core::sync::atomic::AtomicI32;
 use std::collections::HashMap;
 use std::sync::RwLock;
 use std::sync::atomic::Ordering;
 use tokio::sync::mpsc::UnboundedSender;
 
-use crate::net::packet::model::Packet;
-
 #[derive(Clone)]
 pub struct Session {
     pub id: i32,
-    pub acc_id: i32,
+    pub acc: Account,
     pub authenticated: bool,
-    pub hwid: String,
-    pub world_id: Option<i8>,
-    pub channel_id: Option<i8>,
-    pub map_id: Option<i32>,
-    pub char_id: Option<i32>,
-    pub tx: UnboundedSender<Packet>,
     pub playing: bool,
+    pub tx: UnboundedSender<Packet>,
+    pub hwid: Option<String>,
+    pub world: Option<World>,
+    pub channel: Option<Channel>,
+    pub map: Option<Map>,
+    pub char: Option<Character>,
 }
 
 pub struct SessionStore {
@@ -51,16 +54,16 @@ impl SessionStore {
             .cloned()
     }
 
-    pub fn get_by_acc_id(&self, acc_id: i32) -> Option<Session> {
+    pub fn get_by_acc_id(&self, acc_id: &i32) -> Option<Session> {
         self.sessions
             .read()
             .expect("session store read lock poisoned")
             .values()
-            .find(|s| s.acc_id == acc_id)
+            .find(|s| s.acc_id == *acc_id)
             .cloned()
     }
 
-    pub fn update(&self, id: i32, f: impl FnOnce(&mut Session)) {
+    pub fn update(&self, id: &i32, f: impl FnOnce(&mut Session)) {
         let mut guard = self
             .sessions
             .write()
@@ -70,7 +73,7 @@ impl SessionStore {
         }
     }
 
-    pub fn remove(&self, id: i32) {
+    pub fn remove(&self, id: &i32) {
         self.sessions
             .write()
             .expect("session store write lock poisoned")

@@ -1,4 +1,4 @@
-use crate::net::action::model::PlayerAction;
+use crate::net::action::model::{Action, PlayerAction};
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::despawn_player;
 use crate::net::packet::handler::result::HandlerResult;
@@ -15,22 +15,36 @@ impl DespawnPlayerHandler {
 
     pub async fn handle(
         &self,
-        _state: &SharedState,
+        state: &SharedState,
         session: &Session,
         packet: &Packet,
-    ) -> Result<HandlerResult<PlayerAction>, NetworkError> {
-        let read = despawn_player::read::read_despawn_player_handler_packet(packet)?;
+    ) -> Result<HandlerResult, NetworkError> {
+        let read = DespawnPlayerRead::new().read_despawn_player_handler_packet(packet)?;
+        let store = DespawnPlayerStore::new()
+            .store_despawn_player(state, &read)
+            .await?;
+        let result = self.build_despawn_player_result(session, &store)?;
+        Ok(result)
+    }
+
+    fn build_despawn_player_result(
+        &self,
+        session: &Session,
+        store: &DespawnPlayerStore,
+    ) -> Result<HandlerResult, NetworkError> {
         let mut result = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
-            .build_despawn_player_handler_packet(&read.char_id)?
+            .build_despawn_player_handler_packet(&store.char.id)?
             .finish();
-        result.add_action(PlayerAction::SendLocalPacket {
+        result.add_action(Action::Local {
             packet: packet.clone(),
         });
-        result.add_action(PlayerAction::ExitMap {
+        result.add_action(Action::Player(PlayerAction::ExitMap {
             session: session.clone(),
             packet: packet.clone(),
-        });
-        Ok(result)
+            source_world: store.world.clone(),
+            source_channel: store.channel.clone(),
+            source_map: store.map.clone(),
+        }));
     }
 }

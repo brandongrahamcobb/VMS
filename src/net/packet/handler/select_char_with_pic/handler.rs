@@ -30,7 +30,7 @@ impl SelectCharWithPicHandler {
             let state = state.lock().await;
             state
                 .sessions
-                .update(session.id, |s| s.char_id = Some(read.char_id.clone()));
+                .update(&session.id, |s| s.char_id = Some(read.char_id.clone()));
         }
         let acc_id = session.acc_id;
         let acc = account::query::get_account_by_id(&state, &acc_id).await?;

@@ -1,4 +1,5 @@
 use crate::db::schema::skills;
+use crate::models::character::skill::model::Skill;
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl};
@@ -7,7 +8,7 @@ pub async fn get_skill_level_by_character_id_and_skill_id(
     state: &SharedState,
     char_id: &i32,
     skill_id: &i32,
-) -> QueryResult<i16> {
+) -> QueryResult<Skill> {
     let db = {
         let state = state.lock().await;
         state.db.clone()
@@ -21,6 +22,5 @@ pub async fn get_skill_level_by_character_id_and_skill_id(
     skills::table
         .filter(skills::char_id.eq(char_id))
         .filter(skills::skill_id.eq(skill_id))
-        .select(skills::level)
-        .first(&mut conn)
+        .load::<Skill>(&mut conn)
 }

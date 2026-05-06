@@ -4,7 +4,7 @@ use crate::models::channel::model::Channel;
 use crate::models::error::ModelError;
 use crate::models::world;
 
-pub fn resolve_channel(channel_id: &i8, world_id: &i8) -> Result<Channel, ModelError> {
+pub fn get_channel_by_ids(channel_id: &i8, world_id: &i8) -> Result<Channel, ModelError> {
     let worlds = world::service::load_worlds().map_err(ModelError::from)?;
     for world in worlds {
         if world.id == *world_id {

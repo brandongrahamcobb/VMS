@@ -1,8 +1,9 @@
 use crate::models::character::keybinding;
 use crate::models::character::keybinding::model::NewKeybinding;
-use crate::net::action::model::PlayerAction;
+use crate::net::action::model::Action;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::change_keymap;
+use crate::net::packet::handler::change_keymap::store::ChangeKeymapStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::error::SessionError;
@@ -22,27 +23,23 @@ impl ChangeKeymapHandler {
         state: &SharedState,
         session: &Session,
         packet: &Packet,
-    ) -> Result<HandlerResult<PlayerAction>, NetworkError> {
-        let read = change_keymap::read::read_change_keymap_packet(packet)?;
-        let char_id = session
-            .char_id
-            .ok_or(SessionError::NoCharacterSelected(session.id))?;
-        let binds: Vec<NewKeybinding> = izip!(read.keys, read.types, read.model)
-            .map(|(key, bind_type, action): (i32, i16, i32)| NewKeybinding {
-                char_id: char_id,
-                key,
-                bind_type,
-                action,
-            })
-            .collect();
-        keybinding::query::update_keybindings(state, &binds).await?;
-        let result = complete_change_keymap_handler()?;
+    ) -> Result<HandlerResult, NetworkError> {
+        let read = ChangeKeymapRead::new().read_change_keymap_packet(packet)?;
+        let store = ChangeKeymapStore::new()
+            .close_change_keymap(state, session, &read)
+            .await?;
+        let result = self.build_change_keymap_result(state, session, &store)?;
         Ok(result)
     }
-}
 
-fn complete_change_keymap_handler() -> Result<HandlerResult<PlayerAction>, NetworkError> {
-    let mut result: HandlerResult<PlayerAction> = HandlerResult::new();
-    result.add_action(PlayerAction::Simple);
-    Ok(result)
+    fn build_change_keymap_actions(
+        &self,
+        _state: &SharedState,
+        _session: &Session,
+        _store: &ChangeKeymapStore,
+    ) -> Result<HandlerResult, NetworkError> {
+        let mut result: HandlerResult = HandlerResult::new();
+        result.add_action(Action::Simple)?;
+        Ok(result)
+    }
 }

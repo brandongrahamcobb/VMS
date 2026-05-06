@@ -29,7 +29,7 @@ impl SelectCharHandler {
             let state = state.lock().await;
             state
                 .sessions
-                .update(session.id, |s| s.char_id = Some(read.char_id.clone()));
+                .update(&session.id, |s| s.char_id = Some(read.char_id.clone()));
         }
         let addr = settings::get_address()?;
         let octets = helpers::convert_to_ip_array(&addr);
@@ -40,22 +40,21 @@ impl SelectCharHandler {
             .world_id
             .ok_or(SessionError::NoWorldSelected(session.id))?;
         let channel = channel::service::resolve_channel(&channel_id, &world_id)?;
-        let result = complete_select_char_handler(&read.char_id, &octets, &channel)?;
+        let packet: Packet = Packet::new_empty()
+            .build_select_char_handler_packet(char_id, &octets, &channel.port)?
+            .finish();
+        let mut result: HandlerResult<LoginAction> = HandlerResult::new();
+        self.build_actions(&result, &packet)?;
         Ok(result)
     }
-}
 
-fn complete_select_char_handler(
-    char_id: &i32,
-    octets: &[u8; 4],
-    channel: &Channel,
-) -> Result<HandlerResult<LoginAction>, NetworkError> {
-    let mut result: HandlerResult<LoginAction> = HandlerResult::new();
-    let packet: Packet = Packet::new_empty()
-        .build_select_char_handler_packet(char_id, octets, &channel.port)?
-        .finish();
-    result.add_action(LoginAction::SendLocalPacket {
-        packet: packet.clone(),
-    });
-    Ok(result)
+    fn build_first_action(
+        result: &HandlerResult<LoginAction>,
+        packet: &Packet,
+    ) -> Result<(), NetworkError> {
+        result.add_action(LoginAction::SendLocalPacket {
+            packet: packet.clone(),
+        });
+        Ok(())
+    }
 }

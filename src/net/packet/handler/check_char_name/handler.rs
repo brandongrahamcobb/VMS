@@ -1,7 +1,8 @@
 use crate::models::character;
-use crate::net::action::model::LoginAction;
+use crate::net::action::model::Action;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::check_char_name;
+use crate::net::packet::handler::check_char_name::store::CheckCharNameStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::session::Session;
@@ -17,26 +18,31 @@ impl CheckCharNameHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        _session: &Session,
+        session: &Session,
         packet: &Packet,
-    ) -> Result<HandlerResult<LoginAction>, NetworkError> {
-        let read = check_char_name::read::read_check_char_name_packet(packet)?;
-        let exists = character::query::get_character_by_name(state, &read.ign)
-            .await
-            .is_ok();
-        let result = complete_check_char_name_handler(&read.ign, &exists)?;
+    ) -> Result<HandlerResult, NetworkError> {
+        let read = CheckCharNameRead::new().read_check_char_name_packet(packet)?;
+        let store = CheckCharNameStore::new()
+            .store_check_char_name(state, session, &read)
+            .await?;
+        let result = build_check_char_name_result(state, session, &store)?;
         Ok(result)
     }
-}
 
-fn complete_check_char_name_handler(
-    ign: &str,
-    exists: &bool,
-) -> Result<HandlerResult<LoginAction>, NetworkError> {
-    let mut result: HandlerResult<LoginAction> = HandlerResult::new();
-    let packet: Packet = Packet::new_empty()
-        .build_check_char_name_handler_packet(exists, ign)?
-        .finish();
-    result.add_action(LoginAction::SendLocalPacket {packet: packet.clone()});
-    Ok(result)
+    fn build_check_char_name_result(
+        &self,
+        _state: &SharedState,
+        session: &Session,
+        store: &CheckCharNameStore,
+    ) -> Result<HandlerResult, NetworkError> {
+        let mut result: HandlerResult = HandlerResult::new();
+        let packet: Packet = Packet::new_empty()
+            .build_check_char_name_handler_packet(&store.exists, &store.ign)?
+            .finish();
+        result.add_action(Action::Local {
+            session: session.clone(),
+            packet: packet.clone(),
+        });
+        Ok(result)
+    }
 }
