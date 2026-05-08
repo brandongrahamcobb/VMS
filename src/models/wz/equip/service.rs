@@ -1,8 +1,8 @@
 use std::time::SystemTime;
 
 use crate::models::error::ModelError;
-use crate::models::wz;
-use crate::models::wz::equip::model::{Equip, NewEquipInsert};
+use crate::models::wz::equip::model::{Equip, EquipModel, NewEquipInsert};
+use crate::models::wz::{self, equip};
 use crate::runtime::state::SharedState;
 
 pub fn create_equip_insert(wz_id: i32) -> Result<NewEquipInsert, ModelError> {
@@ -27,4 +27,43 @@ pub fn create_equip_insert(wz_id: i32) -> Result<NewEquipInsert, ModelError> {
         jump: wz::service::get_i32(&map, "incJUMP").unwrap_or(0),
     };
     Ok(item)
+}
+
+pub async fn get_equip_by_id(state: &SharedState, id: i32) -> Result<Equip, ModelError> {
+    let equip_model = equip::query::get_equip_model_by_id(state, id).await?;
+    Ok(Equip { model: equip_model })
+}
+
+impl EquipModel {
+    pub fn new() -> Self {
+        Self {
+            id: -1,
+            wz_id: -1,
+            strength: -1,
+            dexterity: -1,
+            intelligence: -1,
+            luck: -1,
+            attack: -1,
+            weapon_defense: -1,
+            magic: -1,
+            magic_defense: -1,
+            hp: -1,
+            mp: -1,
+            accuracy: -1,
+            avoid: -1,
+            hands: -1,
+            speed: -1,
+            jump: -1,
+            created_at: SystemTime::now(),
+            updated_at: SystemTime::now(),
+        }
+    }
+}
+
+impl Equip {
+    pub fn new() -> Self {
+        Self {
+            model: EquipModel::new(),
+        }
+    }
 }

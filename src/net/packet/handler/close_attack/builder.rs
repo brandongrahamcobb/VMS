@@ -10,13 +10,13 @@ impl Packet {
     pub fn build_close_attack_handler_packet(
         &mut self,
         char_id: i32,
-        count: i8,
-        skill_level: i8,
+        count: i16,
+        skill_level: i16,
         skill_id: i32,
-        display: i8,
-        toleft: i8,
-        stance: i8,
-        speed: i8,
+        display: i16,
+        toleft: i16,
+        stance: i16,
+        speed: i16,
         mob_damages: HashMap<i32, Vec<i32>>,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::AttackedClose as i16;

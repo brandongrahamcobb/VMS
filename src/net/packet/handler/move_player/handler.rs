@@ -43,11 +43,11 @@ impl MovePlayerHandler {
             result.add_action(Action::Send {
                 packet: packet.clone(),
                 scope: Scope::Local,
-            });
+            })?;
             result.add_action(Action::Send {
                 packet: packet.clone(),
                 scope: Scope::Map,
-            });
+            })?;
         }
         Ok(result)
     }

@@ -59,7 +59,7 @@ pub trait PktWrite: WriteBytesExt {
         self.write(&bytes)
     }
 
-    fn write_byte(&mut self, byte: i8) -> std::io::Result<()> {
+    fn write_byte(&mut self, byte: i16) -> std::io::Result<()> {
         self.write_u8(byte as u8)
     }
 

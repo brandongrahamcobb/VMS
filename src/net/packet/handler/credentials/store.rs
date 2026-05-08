@@ -1,5 +1,5 @@
 use crate::models::account;
-use crate::models::account::model::AccountModel;
+use crate::models::account::model::Account;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::credentials;
 use crate::net::packet::handler::credentials::reader::CredentialsReader;
@@ -9,7 +9,7 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct CredentialsStore {
-    pub acc_model: Option<AccountModel>,
+    pub acc: Option<Account>,
     pub status: StatusCode,
 }
 
@@ -19,7 +19,6 @@ impl CredentialsStore {
         session: Session,
         reader: CredentialsReader,
     ) -> Result<Self, NetworkError> {
-        std::hint::black_box(session);
         match account::query::get_account_model_by_username(state, reader.username.clone()).await {
             Ok(acc_model) => {
                 let status = if credentials::service::authenticate(
@@ -44,17 +43,15 @@ impl CredentialsStore {
                         // s.hwid = hwid;
                     });
                 }
+                let acc = account::service::get_account_by_id(state, acc_model.id).await?;
                 Ok(Self {
-                    acc_model: Some(acc_model),
+                    acc: Some(acc),
                     status,
                 })
             }
             Err(_) => {
                 let status = StatusCode::Failed(FailedCode::UnknownCredentials);
-                Ok(Self {
-                    acc_model: None,
-                    status,
-                })
+                Ok(Self { acc: None, status })
             }
         }
     }

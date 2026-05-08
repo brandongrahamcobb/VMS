@@ -23,7 +23,7 @@ impl ServerStatusHandler {
     ) -> Result<HandlerResult, NetworkError> {
         let reader: ServerStatusReader = ServerStatusReader::read_server_status_packet(packet)?;
         let store: ServerStatusStore =
-            ServerStatusStore::store_server_status(state, session, reader.clone())?;
+            ServerStatusStore::store_server_status(state, session, reader.clone()).await?;
         let result: HandlerResult = self.build_server_status_result(store.clone())?;
         Ok(result)
     }

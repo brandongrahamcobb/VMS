@@ -23,7 +23,7 @@ impl RegisterPicStore {
         reader: RegisterPicReader,
     ) -> Result<Self, NetworkError> {
         let channel_model: ChannelModel = session.channel.model.clone();
-        let char: CharacterModel =
+        let char_model: CharacterModel =
             character::query::get_character_model_by_id(state, reader.char_id).await?;
         register_pic::service::set_pic(state, session, reader.pic.clone()).await?;
         let addr: String = settings::get_address()?;

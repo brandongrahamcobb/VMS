@@ -52,7 +52,7 @@ impl ChangeChannelHandler {
             scope: Scope::Local,
         })?;
         let packet: Packet = Packet::new_empty()
-            .build_spawn_player_packet(store.char.model.clone())?
+            .build_spawn_player_packet(store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

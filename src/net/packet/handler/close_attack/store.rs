@@ -11,11 +11,11 @@ use std::collections::HashMap;
 pub struct CloseAttackStore {
     pub char_model: CharacterModel,
     pub skill_model: SkillModel,
-    pub count: i8,
-    pub display: i8,
-    pub toleft: i8,
-    pub stance: i8,
-    pub speed: i8,
+    pub count: i16,
+    pub display: i16,
+    pub toleft: i16,
+    pub stance: i16,
+    pub speed: i16,
     pub mob_damages: HashMap<i32, Vec<i32>>,
 }
 

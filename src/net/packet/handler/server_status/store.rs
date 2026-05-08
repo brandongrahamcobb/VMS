@@ -7,19 +7,22 @@ use crate::runtime::state::SharedState;
 #[derive(Clone)]
 pub struct ServerStatusStore {
     pub worlds: Vec<World>,
-    pub status: i8,
+    pub status: i16,
 }
 
 impl ServerStatusStore {
-    pub fn store_server_status(
+    pub async fn store_server_status(
         state: &SharedState,
         session: Session,
         reader: ServerStatusReader,
     ) -> Result<Self, NetworkError> {
         std::hint::black_box(session);
         std::hint::black_box(reader.clone());
-        let worlds = state.worlds.clone();
-        let status: i8 = if worlds.iter().any(|world| !world.channels.is_empty()) {
+        let worlds = {
+            let state = state.lock().await;
+            state.worlds.clone()
+        };
+        let status: i16 = if worlds.iter().any(|world| !world.channels.is_empty()) {
             0
         } else {
             2

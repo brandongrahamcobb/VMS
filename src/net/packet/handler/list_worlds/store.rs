@@ -10,14 +10,17 @@ pub struct ListWorldsStore {
 }
 
 impl ListWorldsStore {
-    pub fn store_list_worlds(
+    pub async fn store_list_worlds(
         state: &SharedState,
         session: Session,
         reader: ListWorldsReader,
     ) -> Result<Self, NetworkError> {
         std::hint::black_box(session);
         std::hint::black_box(reader.clone());
-        let worlds = state.worlds.clone();
+        let worlds = {
+            let state = state.lock().await;
+            state.worlds.clone()
+        };
         Ok(Self { worlds })
     }
 }

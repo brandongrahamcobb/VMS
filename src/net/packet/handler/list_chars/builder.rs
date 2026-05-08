@@ -10,21 +10,21 @@ impl Packet {
     pub fn build_list_chars_handler_packet(
         &mut self,
         chars: Vec<Character>,
-        channel_id: i8,
-        char_max: i8,
-        pic_status: i8,
+        channel_id: i16,
+        char_max: i16,
+        pic_status: i16,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::CharList as i16;
         self.write_short(op).map_err(WriteError)?;
-        let channel_id = channel_id as i8;
+        let channel_id = channel_id as i16;
         self.write_byte(channel_id).map_err(WriteError)?;
-        let char_length = chars.len() as i8;
+        let char_length = chars.len() as i16;
         self.write_byte(char_length) // number of chars
             .map_err(WriteError)?;
         for char in chars {
             self.build_look_part_packet(char.clone())?;
         }
-        let pic_status = pic_status as i8;
+        let pic_status = pic_status as i16;
         self.write_byte(pic_status) // use pic?
             .map_err(WriteError)?;
         let char_max = char_max as i32;
@@ -37,7 +37,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        self.write_int(equip.wz_id).map_err(WriteError)?;
+        self.write_int(equip.model.wz_id).map_err(WriteError)?;
         Ok(self)
     }
 
@@ -45,7 +45,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let hat_identifier: i8 = 1;
+        let hat_identifier: i16 = 1;
         self.write_byte(hat_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -55,7 +55,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let face_acc_identifier: i8 = 2;
+        let face_acc_identifier: i16 = 2;
         self.write_byte(face_acc_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -65,7 +65,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let eye_acc_identifier: i8 = 3;
+        let eye_acc_identifier: i16 = 3;
         self.write_byte(eye_acc_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -75,7 +75,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let ear_acc_identifier: i8 = 4;
+        let ear_acc_identifier: i16 = 4;
         self.write_byte(ear_acc_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -85,7 +85,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let top_identifier: i8 = 5;
+        let top_identifier: i16 = 5;
         self.write_byte(top_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -95,7 +95,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let bottom_identifier: i8 = 6;
+        let bottom_identifier: i16 = 6;
         self.write_byte(bottom_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -105,7 +105,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let shoes_identifier: i8 = 7;
+        let shoes_identifier: i16 = 7;
         self.write_byte(shoes_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -115,7 +115,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let gloves_identifier: i8 = 8;
+        let gloves_identifier: i16 = 8;
         self.write_byte(gloves_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -125,7 +125,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let cape_identifier: i8 = 9;
+        let cape_identifier: i16 = 9;
         self.write_byte(cape_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -135,7 +135,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let shield_identifier: i8 = 10;
+        let shield_identifier: i16 = 10;
         self.write_byte(shield_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -145,7 +145,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let weapon_identifier: i8 = 11;
+        let weapon_identifier: i16 = 11;
         self.write_byte(weapon_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -155,7 +155,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let ring_one_identifier: i8 = 12;
+        let ring_one_identifier: i16 = 12;
         self.write_byte(ring_one_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -165,7 +165,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let ring_two_identifier: i8 = 13;
+        let ring_two_identifier: i16 = 13;
         self.write_byte(ring_two_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -175,7 +175,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let ring_three_identifier: i8 = 15;
+        let ring_three_identifier: i16 = 15;
         self.write_byte(ring_three_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -185,7 +185,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let ring_four_identifier: i8 = 16;
+        let ring_four_identifier: i16 = 16;
         self.write_byte(ring_four_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -195,7 +195,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let pendant_one_identifier: i8 = 17;
+        let pendant_one_identifier: i16 = 17;
         self.write_byte(pendant_one_identifier)
             .map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
@@ -206,7 +206,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let tamed_mob_identifier: i8 = 18;
+        let tamed_mob_identifier: i16 = 18;
         self.write_byte(tamed_mob_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -216,7 +216,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let saddle_identifier: i8 = 19;
+        let saddle_identifier: i16 = 19;
         self.write_byte(saddle_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -226,7 +226,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let medal_identifier: i8 = 49;
+        let medal_identifier: i16 = 49;
         self.write_byte(medal_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -236,7 +236,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let belt_identifier: i8 = 50;
+        let belt_identifier: i16 = 50;
         self.write_byte(belt_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -246,7 +246,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let pocket_identifier: i8 = 51;
+        let pocket_identifier: i16 = 51;
         self.write_byte(pocket_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -256,7 +256,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let book_identifier: i8 = 52;
+        let book_identifier: i16 = 52;
         self.write_byte(book_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -266,7 +266,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let pendant_two_identifier: i8 = 53;
+        let pendant_two_identifier: i16 = 53;
         self.write_byte(pendant_two_identifier)
             .map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
@@ -277,7 +277,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let shoulder_identifier: i8 = 54;
+        let shoulder_identifier: i16 = 54;
         self.write_byte(shoulder_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -287,7 +287,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let android_identifier: i8 = 55;
+        let android_identifier: i16 = 55;
         self.write_byte(android_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -297,7 +297,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let emblem_identifier: i8 = 56;
+        let emblem_identifier: i16 = 56;
         self.write_byte(emblem_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -307,7 +307,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let badge_identifier: i8 = 57;
+        let badge_identifier: i16 = 57;
         self.write_byte(badge_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -317,7 +317,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let subweapon_identifier: i8 = 58;
+        let subweapon_identifier: i16 = 58;
         self.write_byte(subweapon_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -327,7 +327,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let heart_identifier: i8 = 59;
+        let heart_identifier: i16 = 59;
         self.write_byte(heart_identifier).map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -435,12 +435,12 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        self.write_int(equip.wz_id).map_err(WriteError)?;
+        self.write_int(equip.model.wz_id).map_err(WriteError)?;
         Ok(self)
     }
 
     fn build_look_cash_hat_part_packet(&mut self, equip: Equip) -> Result<&mut Self, NetworkError> {
-        let hat_identifier: i8 = 1 + 100;
+        let hat_identifier: i16 = 1 + 100;
         self.write_byte(hat_identifier).map_err(WriteError)?;
         self.build_look_cash_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -450,7 +450,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let face_acc_identifier: i8 = 2 + 100;
+        let face_acc_identifier: i16 = 2 + 100;
         self.write_byte(face_acc_identifier).map_err(WriteError)?;
         self.build_look_cash_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -460,7 +460,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let eye_acc_identifier: i8 = 3 + 100;
+        let eye_acc_identifier: i16 = 3 + 100;
         self.write_byte(eye_acc_identifier).map_err(WriteError)?;
         self.build_look_cash_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -470,14 +470,14 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let ear_acc_identifier: i8 = 4 + 100;
+        let ear_acc_identifier: i16 = 4 + 100;
         self.write_byte(ear_acc_identifier).map_err(WriteError)?;
         self.build_look_cash_equip_meta_part_packet(equip.clone())?;
         Ok(self)
     }
 
     fn build_look_cash_top_part_packet(&mut self, equip: Equip) -> Result<&mut Self, NetworkError> {
-        let top_identifier: i8 = 5 + 100;
+        let top_identifier: i16 = 5 + 100;
         self.write_byte(top_identifier).map_err(WriteError)?;
         self.build_look_cash_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -487,7 +487,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let bottom_identifier: i8 = 6 + 100;
+        let bottom_identifier: i16 = 6 + 100;
         self.write_byte(bottom_identifier).map_err(WriteError)?;
         self.build_look_cash_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -497,7 +497,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let shoes_identifier: i8 = 7 + 100;
+        let shoes_identifier: i16 = 7 + 100;
         self.write_byte(shoes_identifier).map_err(WriteError)?;
         self.build_look_cash_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -507,7 +507,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let gloves_identifier: i8 = 8 + 100;
+        let gloves_identifier: i16 = 8 + 100;
         self.write_byte(gloves_identifier).map_err(WriteError)?;
         self.build_look_cash_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -517,7 +517,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let cape_identifier: i8 = 9 + 100;
+        let cape_identifier: i16 = 9 + 100;
         self.write_byte(cape_identifier).map_err(WriteError)?;
         self.build_look_cash_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -527,7 +527,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let weapon_identifier: i8 = 11 + 100;
+        let weapon_identifier: i16 = 11 + 100;
         self.write_byte(weapon_identifier).map_err(WriteError)?;
         self.build_look_cash_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -537,7 +537,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let ring_one_identifier: i8 = 12 + 100;
+        let ring_one_identifier: i16 = 12 + 100;
         self.write_byte(ring_one_identifier).map_err(WriteError)?;
         self.build_look_cash_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -547,7 +547,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let ring_two_identifier: i8 = 13 + 100;
+        let ring_two_identifier: i16 = 13 + 100;
         self.write_byte(ring_two_identifier).map_err(WriteError)?;
         self.build_look_cash_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -557,7 +557,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let ring_three_identifier: i8 = 15 + 100;
+        let ring_three_identifier: i16 = 15 + 100;
         self.write_byte(ring_three_identifier).map_err(WriteError)?;
         self.build_look_cash_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -567,7 +567,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        let ring_four_identifier: i8 = 16 + 100;
+        let ring_four_identifier: i16 = 16 + 100;
         self.write_byte(ring_four_identifier).map_err(WriteError)?;
         self.build_look_cash_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -639,9 +639,9 @@ impl Packet {
         self.write_str(char_model.ign.clone()).map_err(WriteError)?;
         self.write_bytes(vec![0u8; 13 - char_model.ign.len()])
             .map_err(WriteError)?;
-        let gender_id = char_model.gender_id as i8;
+        let gender_id = char_model.gender_id as i16;
         self.write_byte(gender_id).map_err(WriteError)?;
-        let skin_id = char_model.skin_id as i8;
+        let skin_id = char_model.skin_id as i16;
         self.write_byte(skin_id).map_err(WriteError)?;
         self.write_int(char_model.face_id).map_err(WriteError)?;
         self.write_int(char_model.hair_id).map_err(WriteError)?;
@@ -649,7 +649,7 @@ impl Packet {
         self.write_long(0).map_err(WriteError)?;
         self.write_long(0).map_err(WriteError)?;
         self.write_long(0).map_err(WriteError)?;
-        let level = char_model.level as i8;
+        let level = char_model.level as i16;
         self.write_byte(level).map_err(WriteError)?;
         self.write_short(char_model.job_id).map_err(WriteError)?;
         self.write_short(char_model.strength).map_err(WriteError)?;
@@ -678,9 +678,9 @@ impl Packet {
         &mut self,
         char: Character,
     ) -> Result<&mut Self, NetworkError> {
-        let gender_id = char.model.gender_id as i8;
+        let gender_id = char.model.gender_id as i16;
         self.write_byte(gender_id).map_err(WriteError)?;
-        let skin_id = char.model.skin_id as i8;
+        let skin_id = char.model.skin_id as i16;
         self.write_byte(skin_id).map_err(WriteError)?;
         self.write_int(char.model.face_id).map_err(WriteError)?;
         self.write_byte(0) // megaphone

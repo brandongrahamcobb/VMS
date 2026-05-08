@@ -22,5 +22,5 @@ pub struct AccountModel {
 #[derive(Clone)]
 pub struct Account {
     pub model: AccountModel,
-    pub characters: Vec<Character>,
+    pub chars: Vec<Character>,
 }

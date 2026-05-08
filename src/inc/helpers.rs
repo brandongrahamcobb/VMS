@@ -18,7 +18,7 @@ pub fn convert_to_ip_array(addr: String) -> [u8; 4] {
     octets
 }
 
-pub fn build_server_addr(addr: String, port: u16) -> SocketAddr {
+pub fn build_server_addr(addr: String, port: i16) -> SocketAddr {
     let octets = convert_to_ip_array(addr);
     SocketAddr::V4(SocketAddrV4::new(
         Ipv4Addr::new(octets[0], octets[1], octets[2], octets[3]),

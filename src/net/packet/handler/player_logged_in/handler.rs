@@ -41,21 +41,21 @@ impl PlayerLoggedInHandler {
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
-        });
+        })?;
         let packet: Packet = Packet::new_empty()
             .build_player_logged_in_handler_char_packet(store.char.clone(), store.channel_model.id)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
-        });
+        })?;
         let packet: Packet = Packet::new_empty()
-            .build_spawn_player_packet(store.char.model.clone())?
+            .build_spawn_player_packet(store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Map,
-        });
+        })?;
         Ok(result)
     }
 }

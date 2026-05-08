@@ -7,13 +7,13 @@ use std::io::Cursor;
 
 #[derive(Clone)]
 pub struct CloseAttackReader {
-    pub count: i8,
+    pub count: i16,
     pub skill_id: i32,
     pub charge: i32,
-    pub display: i8,
-    pub toleft: i8,
-    pub stance: i8,
-    pub speed: i8,
+    pub display: i16,
+    pub toleft: i16,
+    pub stance: i16,
+    pub speed: i16,
     pub mob_damages: HashMap<i32, Vec<i32>>,
 }
 
@@ -22,7 +22,7 @@ impl CloseAttackReader {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let skip = 1;
         pkt_reader.read_bytes(skip).map_err(ReadError)?;
-        let count = pkt_reader.read_byte().map_err(ReadError)? as i8;
+        let count = pkt_reader.read_byte().map_err(ReadError)? as i16;
         let mobcount = count >> 4;
         let hitcount = count & 0x0F;
         let skill_id = pkt_reader.read_int().map_err(ReadError)?;
@@ -30,14 +30,14 @@ impl CloseAttackReader {
         if charge != 0 {
             pkt_reader.read_int().map_err(ReadError)?;
         }
-        let display = pkt_reader.read_byte().map_err(ReadError)? as i8;
-        let toleft = pkt_reader.read_byte().map_err(ReadError)? as i8;
-        let stance = pkt_reader.read_byte().map_err(ReadError)? as i8;
+        let display = pkt_reader.read_byte().map_err(ReadError)? as i16;
+        let toleft = pkt_reader.read_byte().map_err(ReadError)? as i16;
+        let stance = pkt_reader.read_byte().map_err(ReadError)? as i16;
         let skip = 1;
         pkt_reader.read_bytes(skip).map_err(ReadError)?;
-        let speed = pkt_reader.read_byte().map_err(ReadError)? as i8;
-        pkt_reader.read_byte().map_err(ReadError)? as i8;
-        let to_left_ranged = pkt_reader.read_byte().map_err(ReadError)? as i8;
+        let speed = pkt_reader.read_byte().map_err(ReadError)? as i16;
+        pkt_reader.read_byte().map_err(ReadError)? as i16;
+        let to_left_ranged = pkt_reader.read_byte().map_err(ReadError)? as i16;
         if to_left_ranged != 0 {
             let skip = 7;
             pkt_reader.read_bytes(skip).map_err(ReadError)?;

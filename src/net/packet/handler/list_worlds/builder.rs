@@ -23,7 +23,7 @@ impl Packet {
         let recommended_world_names = settings::get_recommended_worlds()?;
         let op = SendOpcode::RecommendedWorlds as i16;
         self.write_short(op).map_err(WriteError)?;
-        let count: i8 = recommended_world_names.len() as i8;
+        let count: i16 = recommended_world_names.len() as i16;
         if count != 0 {
             self.write_byte(0).map_err(WriteError)?;
             self.write_byte(count).map_err(WriteError)?;
@@ -52,11 +52,10 @@ impl Packet {
         let op = SendOpcode::ServerList as i16;
         self.write_short(op).map_err(WriteError)?;
         for world in worlds {
-            let world_id = world.model.id as i8;
+            let world_id = world.model.id as i16;
             self.write_byte(world_id).map_err(WriteError)?;
             self.write_str(world.model.name.clone())
                 .map_err(WriteError)?;
-            let world_flag = world.model.flag as i8;
             self.write_byte(world.model.flag).map_err(WriteError)?;
             self.write_str(world.model.event_message.clone())
                 .map_err(WriteError)?;
@@ -65,17 +64,17 @@ impl Packet {
             self.write_byte(100).map_err(WriteError)?;
             self.write_byte(0).map_err(WriteError)?;
             self.write_byte(0).map_err(WriteError)?;
-            let channels_length = world.channels.len() as i8;
+            let channels_length = world.channels.len() as i16;
             self.write_byte(channels_length).map_err(WriteError)?;
             for channel in world.channels.clone() {
                 let channel_name = String::from("Placeholder");
                 self.write_str(channel_name).map_err(WriteError)?;
-                let channel_capacity = channel.capacity as i32;
+                let channel_capacity = channel.model.capacity as i32;
                 self.write_int(channel_capacity).map_err(WriteError)?;
                 self.write_byte(1).map_err(WriteError)?;
-                let channel_id = channel.id as i8;
+                let channel_id = channel.model.id as i16;
                 self.write_byte(channel_id).map_err(WriteError)?;
-                let world_id = world.model.id as i8;
+                let world_id = world.model.id as i16;
                 self.write_byte(world_id).map_err(WriteError)?;
             }
             self.write_short(0).map_err(WriteError)?;

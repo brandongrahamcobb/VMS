@@ -8,7 +8,7 @@ use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
 pub async fn create_android_equipment_set_model_for_new_character(
     state: &SharedState,
-    android_equips: &NewCharacterAndroidEquipmentSetInsert,
+    android_equips: NewCharacterAndroidEquipmentSetInsert,
 ) -> QueryResult<AndroidEquipmentSetModel> {
     let db = {
         let state = state.lock().await;

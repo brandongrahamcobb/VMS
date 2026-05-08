@@ -24,7 +24,8 @@ impl DespawnPlayerHandler {
         let reader: DespawnPlayerReader =
             DespawnPlayerReader::read_despawn_player_handler_packet(packet)?;
         let store: DespawnPlayerStore =
-            DespawnPlayerStore::store_despawn_player(state, session.clone(), reader.clone()).await?;
+            DespawnPlayerStore::store_despawn_player(state, session.clone(), reader.clone())
+                .await?;
         let result: HandlerResult = self.build_despawn_player_result(store.clone())?;
         Ok(result)
     }
@@ -35,7 +36,7 @@ impl DespawnPlayerHandler {
     ) -> Result<HandlerResult, NetworkError> {
         let mut result = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
-            .build_despawn_player_handler_packet(store.char.clone())?
+            .build_despawn_player_handler_packet(store.char_model.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

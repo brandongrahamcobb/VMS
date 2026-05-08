@@ -2,6 +2,7 @@ use crate::config::settings;
 use crate::db::error::DatabaseError;
 use crate::db::pool::DbPool;
 use crate::models::world;
+use crate::models::world::model::World;
 use crate::runtime::error::RuntimeError;
 use crate::runtime::session::SessionStore;
 use diesel::PgConnection;

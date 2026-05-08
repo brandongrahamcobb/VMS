@@ -36,8 +36,8 @@ impl ListCharsHandler {
         let packet: Packet = Packet::new_empty()
             .build_list_chars_handler_packet(
                 store.chars,
-                store.channel.id,
-                store.char_max as i8,
+                store.channel.model.id,
+                store.char_max as i16,
                 store.pic_status,
             )?
             .finish();

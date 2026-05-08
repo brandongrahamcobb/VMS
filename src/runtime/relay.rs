@@ -1,4 +1,3 @@
-use crate::models::world::model::World;
 use crate::net::action::{Action, SetAction};
 use crate::net::packet::handler::cc::handler::ChangeChannelHandler;
 use crate::net::packet::handler::change_keymap::handler::ChangeKeymapHandler;
@@ -311,7 +310,6 @@ pub trait RuntimeRelay: Sized {
                             }
                         }
                         Scope::Global => {
-                            let world = World { model: world_model };
                             let state = state.lock().await;
                             for s in state.sessions.iter() {
                                 if s.id != session.id {
@@ -325,16 +323,13 @@ pub trait RuntimeRelay: Sized {
                     SetAction::SetAccount { acc } => {
                         let state = state.lock().await;
                         state.sessions.update(session.id, |s| {
-                            s.acc = acc;
+                            s.acc = acc.clone();
                         });
                     }
                     SetAction::SetChar { char } => {
-                        let char =
-                            character::service::get_character_by_modal(state, char_model.clone())
-                                .await?;
                         let state = state.lock().await;
                         state.sessions.update(session.id, |s| {
-                            s.char = char;
+                            s.char = char.clone();
                         });
                     }
                 },

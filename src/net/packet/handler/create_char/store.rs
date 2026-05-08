@@ -3,11 +3,12 @@ use crate::models::character::equipment_set::android::model::NewCharacterAndroid
 use crate::models::character::equipment_set::cash::model::NewCharacterCashEquipmentSetInsert;
 use crate::models::character::equipment_set::pet::model::NewCharacterPetEquipmentSetInsert;
 use crate::models::character::equipment_set::regular::model::NewCharacterRegularEquipmentSetInsert;
-use crate::models::character::keybinding::model::NewCharacterKeybindingInsert;
-use crate::models::character::model::NewCharacterInsert;
+use crate::models::character::keybinding::model::{Keybinding, NewCharacterKeybindingInsert};
+use crate::models::character::model::{Character, NewCharacterInsert};
+use crate::models::character::skill::model::Skill;
 use crate::models::character::{equipment_set, keybinding, skill};
-use crate::models::map::model::MapModel;
-use crate::models::world::model::WorldModel;
+use crate::models::map::model::Map;
+use crate::models::world::model::World;
 use crate::models::wz;
 use crate::models::{character, map};
 use crate::net::error::NetworkError;
@@ -27,22 +28,22 @@ impl CreateCharStore {
         session: Session,
         reader: CreateCharReader,
     ) -> Result<Self, NetworkError> {
-        let map_model: MapModel = map::service::get_map_model_for_job(&reader.job_id)?;
-        let world_model: WorldModel = session.world.model.clone();
+        let map: Map = map::service::get_map_by_job_id(reader.job_id)?;
+        let world: World = session.world.clone();
         let acc_model = session.acc.model.clone();
         let char_insert = NewCharacterInsert {
             acc_id: acc_model.id,
             ign: reader.ign.clone(),
-            world_id: world_model.id as i16,
+            world_id: world.model.id,
             job_id: reader.job_id,
             face_id: reader.face_id,
             hair_id: reader.hair_id,
             hair_color_id: reader.hair_color_id,
             skin_id: reader.skin_id,
             gender_id: reader.gender_id,
-            map_id: map_model.id,
+            map_id: map.model.id,
         };
-        let char_model = character::query::create_character_model(state, &char_insert).await?;
+        let char_model = character::query::create_character_model(state, char_insert).await?;
         let binds_insert: Vec<NewCharacterKeybindingInsert> =
             izip!(DEFAULT_KEY, DEFAULT_TYPE, DEFAULT_ACTION)
                 .map(
@@ -54,17 +55,19 @@ impl CreateCharStore {
                     },
                 )
                 .collect();
-        let binds = keybinding::query::update_keybindings(state, &binds_insert).await?;
+        let bind_models = keybinding::query::update_keybindings(state, binds_insert).await?;
+        let mut binds: Vec<Keybinding> = Vec::<Keybinding>::new();
+        for bind_model in bind_models {
+            binds.push(Keybinding { model: bind_model });
+        }
         let top_insert = wz::equip::service::create_equip_insert(reader.top_id)?;
-        let top_model = wz::equip::query::create_equip_model(state, top_model.clone()).await?;
+        let top_model = wz::equip::query::create_equip_model(state, top_insert).await?;
         let bottom_insert = wz::equip::service::create_equip_insert(reader.bottom_id)?;
-        let bottom_model =
-            wz::equip::query::create_equip_model(state, bottom_model.clone()).await?;
+        let bottom_model = wz::equip::query::create_equip_model(state, bottom_insert).await?;
         let shoes_insert = wz::equip::service::create_equip_insert(reader.shoes_id)?;
-        let shoes_model = wz::equip::query::create_equip_model(state, shoes_model.clone()).await?;
-        let weapon_insert = wz::equip::service::create_equip_insert(reader.weapon_id).await?;
-        let weapon_model =
-            wz::equip::query::create_equip_model(state, weapon_model.clone()).await?;
+        let shoes_model = wz::equip::query::create_equip_model(state, shoes_insert).await?;
+        let weapon_insert = wz::equip::service::create_equip_insert(reader.weapon_id)?;
+        let weapon_model = wz::equip::query::create_equip_model(state, weapon_insert).await?;
         let regular_equips_insert = NewCharacterRegularEquipmentSetInsert {
             char_id: char_model.id,
             top_id: top_model.id,
@@ -125,12 +128,14 @@ impl CreateCharStore {
             regular_equips_model.clone(),
         )
         .await?;
-        let skills = skill::query::create_skills_by_character_id_and_job_id(
-            state,
-            char_model.id,
-            reader.job_id,
-        )
-        .await?;
+        let skill_models =
+            skill::service::create_skills_for_new_character(state, char_model.id, reader.job_id)
+                .await?;
+        let mut skills: Vec<Skill> = Vec::<Skill>::new();
+        for skill_model in skill_models {
+            skills.push(Skill { model: skill_model });
+        }
+
         let char = Character {
             model: char_model,
             regular_equips,

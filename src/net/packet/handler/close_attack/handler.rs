@@ -37,7 +37,7 @@ impl CloseAttackHandler {
             .build_close_attack_handler_packet(
                 store.char_model.id,
                 store.count,
-                store.skill_model.level as i8,
+                store.skill_model.level as i16,
                 store.skill_model.wz_id,
                 store.display,
                 store.toleft,

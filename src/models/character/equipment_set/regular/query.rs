@@ -8,7 +8,7 @@ use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
 pub async fn create_regular_equipment_set_model_for_new_character(
     state: &SharedState,
-    regular_equips: &NewCharacterRegularEquipmentSetInsert,
+    regular_equips: NewCharacterRegularEquipmentSetInsert,
 ) -> QueryResult<RegularEquipmentSetModel> {
     let db = {
         let state = state.lock().await;

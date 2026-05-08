@@ -1,10 +1,11 @@
 use crate::db::schema::skills;
-use crate::models::character::skill::model::SkillModel;
+use crate::models::character::skill::model::{NewCharacterSkillInsert, SkillModel};
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl};
+use serde_json;
 
-pub async fn get_skill_by_character_id_and_skill_id(
+pub async fn get_skill_model_by_character_id_and_skill_id(
     state: &SharedState,
     char_id: i32,
     skill_id: i32,
@@ -25,7 +26,7 @@ pub async fn get_skill_by_character_id_and_skill_id(
         .first::<SkillModel>(&mut conn)
 }
 
-pub async fn get_skills_by_character_id(
+pub async fn get_skill_models_by_character_id(
     state: &SharedState,
     char_id: i32,
 ) -> QueryResult<Vec<SkillModel>> {
@@ -41,13 +42,13 @@ pub async fn get_skills_by_character_id(
     })?;
     skills::table
         .filter(skills::char_id.eq(char_id))
-        .load::<Vec<SkillModel>>(&mut conn)
+        .load::<SkillModel>(&mut conn)
 }
 
 pub async fn create_skills_by_character_id_and_job_id(
     state: &SharedState,
     char_id: i32,
-    job_id: i32,
+    map: serde_json::Value,
 ) -> QueryResult<Vec<SkillModel>> {
     let db = {
         let state = state.lock().await;
@@ -59,6 +60,21 @@ pub async fn create_skills_by_character_id_and_job_id(
             Box::new(e.to_string()),
         )
     })?;
-    skills::table.load::<SkillModel>(&mut conn)
-    // need to setup skill/job mapping for new chars
+    let skill_ids: Vec<i32> = map
+        .as_object()
+        .unwrap()
+        .keys()
+        .filter_map(|k| k.parse::<i32>().ok())
+        .collect();
+    let mut skill_model_inserts: Vec<NewCharacterSkillInsert> = Vec::new();
+    for skill_id in skill_ids {
+        skill_model_inserts.push(NewCharacterSkillInsert {
+            char_id: char_id,
+            wz_id: skill_id,
+            level: 0,
+        });
+    }
+    diesel::insert_into(skills::table)
+        .values(skill_model_inserts)
+        .load::<SkillModel>(&mut conn)
 }

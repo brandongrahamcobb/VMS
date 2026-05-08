@@ -6,7 +6,7 @@ use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 pub async fn get_character_max_by_account_and_world_id(
     state: &SharedState,
     acc_id: i32,
-    world_id: i8,
+    world_id: i16,
 ) -> QueryResult<i16> {
     let db = {
         let state = state.lock().await;

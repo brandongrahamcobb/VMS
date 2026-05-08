@@ -1,5 +1,5 @@
 use crate::db::schema::equips;
-use crate::models::wz::equip::model::{Equip, NewEquipInsert};
+use crate::models::wz::equip::model::{EquipModel, NewEquipInsert};
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl};
@@ -20,10 +20,10 @@ pub async fn create_equip_model(
     })?;
     diesel::insert_into(equips::table)
         .values(equip)
-        .get_result::<Equip>(&mut conn)
+        .get_result::<EquipModel>(&mut conn)
 }
 
-pub async fn get_equip_by_id(state: &SharedState, id: i32) -> QueryResult<Equip> {
+pub async fn get_equip_model_by_id(state: &SharedState, id: i32) -> QueryResult<EquipModel> {
     let db = {
         let state = state.lock().await;
         state.db.clone()
@@ -36,5 +36,5 @@ pub async fn get_equip_by_id(state: &SharedState, id: i32) -> QueryResult<Equip>
     })?;
     equips::table
         .filter(equips::id.eq(id))
-        .get_result::<Equip>(&mut conn)
+        .get_result::<EquipModel>(&mut conn)
 }

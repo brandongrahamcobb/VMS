@@ -1,4 +1,5 @@
 use crate::models::account::model::AccountModel;
+use crate::models::character::model::Character;
 use crate::net::error::NetworkError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
@@ -18,7 +19,7 @@ impl Packet {
         // Flag
         self.write_byte(0).map_err(WriteError)?;
         self.build_player_logged_in_meta_part_packet(char.clone());
-        self.build_cash_shop_meta(acc.clone())?;
+        self.build_cash_shop_meta(acc_model.clone())?;
         Ok(self)
     }
 

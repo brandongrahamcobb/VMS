@@ -1,9 +1,9 @@
 #[derive(Clone, Debug)]
 pub struct ChannelModel {
-    pub id: i8,
+    pub id: i16,
     pub capacity: i16,
-    pub flag: i8,
-    pub port: u16,
+    pub flag: i16,
+    pub port: i16,
 }
 
 #[derive(Clone)]

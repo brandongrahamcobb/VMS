@@ -14,7 +14,7 @@ impl Packet {
         let op = SendOpcode::DeleteCharacter as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_int(char_id).map_err(WriteError)?;
-        let status = status as i8;
+        let status = status as i16;
         self.write_byte(status).map_err(WriteError)?;
         Ok(self)
     }

@@ -1,6 +1,6 @@
 use std::time::SystemTime;
 
-use crate::models::character::keybinding::model::{KeybindType, KeybindingModel};
+use crate::models::character::keybinding::model::{KeybindType, Keybinding, KeybindingModel};
 
 impl KeybindingModel {
     pub fn new() -> Self {
@@ -12,6 +12,14 @@ impl KeybindingModel {
             action: -1,
             created_at: SystemTime::now(),
             updated_at: SystemTime::now(),
+        }
+    }
+}
+
+impl Keybinding {
+    pub fn new() -> Self {
+        Self {
+            model: KeybindingModel::new(),
         }
     }
 }

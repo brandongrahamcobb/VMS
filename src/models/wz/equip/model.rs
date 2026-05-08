@@ -2,7 +2,7 @@ use crate::db::schema::equips;
 use diesel::prelude::*;
 use std::time::SystemTime;
 
-#[derive(Identifiable, Queryable, AsChangeset, Selectable)]
+#[derive(Clone, Identifiable, Queryable, AsChangeset, Selectable)]
 #[diesel(table_name = equips)]
 pub struct EquipModel {
     pub id: i32,

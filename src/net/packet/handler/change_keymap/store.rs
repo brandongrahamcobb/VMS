@@ -30,7 +30,7 @@ impl ChangeKeymapStore {
             },
         )
         .collect();
-        let binds = keybinding::query::update_keybindings(state, &new_binds).await?;
+        keybinding::query::update_keybindings(state, new_binds.clone()).await?;
         Ok(Self)
     }
 }

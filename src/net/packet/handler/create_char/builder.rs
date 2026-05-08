@@ -21,7 +21,7 @@ impl Packet {
         &mut self,
         char: Character,
     ) -> Result<&mut Self, NetworkError> {
-        self.build_list_char_meta_part_packet(char.clone())?;
+        self.build_list_char_meta_part_packet(char.model.clone())?;
         self.build_new_character_look_meta_part_packet(char.clone())?;
         self.write_byte(0).map_err(WriteError)?;
         // Disable rank.
@@ -33,9 +33,9 @@ impl Packet {
         &mut self,
         char: Character,
     ) -> Result<&mut Self, NetworkError> {
-        let gender_id = char.model.gender_id as i8;
+        let gender_id = char.model.gender_id as i16;
         self.write_byte(gender_id).map_err(WriteError)?;
-        let skin_id = char.model.skin_id as i8;
+        let skin_id = char.model.skin_id as i16;
         self.write_byte(skin_id).map_err(WriteError)?;
         self.write_int(char.model.face_id).map_err(WriteError)?;
         self.write_byte(0) // megaphone

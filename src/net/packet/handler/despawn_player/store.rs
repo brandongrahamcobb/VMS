@@ -1,7 +1,7 @@
-use crate::models::channel::model::ChannelModel;
+use crate::models::channel::model::Channel;
 use crate::models::character::model::CharacterModel;
-use crate::models::map::model::MapModel;
-use crate::models::world::model::WorldModel;
+use crate::models::map::model::Map;
+use crate::models::world::model::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::despawn_player::reader::DespawnPlayerReader;
 use crate::runtime::session::Session;
@@ -9,10 +9,10 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct DespawnPlayerStore {
-    pub char: CharacterModel,
-    pub world: WorldModel,
-    pub channel: ChannelModel,
-    pub map: MapModel,
+    pub char_model: CharacterModel,
+    pub world: World,
+    pub channel: Channel,
+    pub map: Map,
 }
 
 impl DespawnPlayerStore {
@@ -23,12 +23,12 @@ impl DespawnPlayerStore {
     ) -> Result<Self, NetworkError> {
         std::hint::black_box(state);
         std::hint::black_box(reader.clone());
-        let world = session.world.clone();
-        let channel: ChannelModel = session.channel.clone();
-        let map = session.map.clone();
-        let char = session.char.clone();
+        let world: World = session.world.clone();
+        let channel: Channel = session.channel.clone();
+        let map: Map = session.map.clone();
+        let char_model: CharacterModel = session.char.model.clone();
         Ok(Self {
-            char,
+            char_model,
             world,
             channel,
             map,

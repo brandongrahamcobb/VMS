@@ -35,13 +35,13 @@ impl SelectCharHandler {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_select_char_handler_packet(
-                store.char_model.id,
+                store.char.model.id,
                 store.octets,
                 store.channel_model.port,
             )?
             .finish();
         result.add_action(Action::Set(SetAction::SetChar {
-            char_model: store.char_model.clone(),
+            char: store.char.clone(),
         }))?;
         result.add_action(Action::Send {
             packet: packet.clone(),

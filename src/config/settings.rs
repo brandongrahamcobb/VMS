@@ -37,13 +37,13 @@ pub fn get_release_mode() -> Result<bool, ConfigError> {
     Ok(mode)
 }
 
-pub fn get_login_port() -> Result<u16, ConfigError> {
+pub fn get_login_port() -> Result<i16, ConfigError> {
     let settings = get_settings()?;
     let key = String::from("login_port");
     let port = settings
         .get_int(&key)
         .map_err(|_| ConfigError::InvalidInt(key))?;
-    Ok(port as u16)
+    Ok(port as i16)
 }
 
 pub fn get_version() -> Result<i16, ConfigError> {
@@ -107,7 +107,7 @@ pub fn get_gender_required() -> Result<bool, ConfigError> {
     Ok(gender_req)
 }
 
-pub fn get_channel_world_pairs() -> Result<Vec<(i8, i16)>, ConfigError> {
+pub fn get_channel_world_pairs() -> Result<Vec<(i16, i16)>, ConfigError> {
     let settings = get_settings()?;
     let mut list = Vec::new();
     let worlds = [
@@ -127,7 +127,7 @@ pub fn get_channel_world_pairs() -> Result<Vec<(i8, i16)>, ConfigError> {
                 .get_int(&key)?
                 .try_into()
                 .map_err(|e| ConfigError::IntConversion(e))?;
-            list.push((id as i8, count));
+            list.push((id as i16, count));
         }
     }
     Ok(list)
@@ -142,13 +142,13 @@ pub fn get_channel_capacity() -> Result<i16, ConfigError> {
     Ok(capacity as i16)
 }
 
-pub fn get_world_flag() -> Result<i8, ConfigError> {
+pub fn get_world_flag() -> Result<i16, ConfigError> {
     let settings = get_settings()?;
     let key = String::from("world_flag");
     let flag = settings
         .get_int(&key)
         .map_err(|_| ConfigError::InvalidInt(key))?;
-    Ok(flag as i8)
+    Ok(flag as i16)
 }
 
 pub fn get_world_event_message() -> Result<String, ConfigError> {
@@ -172,11 +172,11 @@ pub fn get_recommended_worlds() -> Result<Vec<String>, ConfigError> {
     Ok(worlds)
 }
 
-pub fn get_char_max() -> Result<i8, ConfigError> {
+pub fn get_char_max() -> Result<i16, ConfigError> {
     let settings = get_settings()?;
     let key = String::from("char_max");
     let char_max = settings
         .get_int(&key)
         .map_err(|_| ConfigError::InvalidInt(key))?;
-    Ok(char_max as i8)
+    Ok(char_max as i16)
 }

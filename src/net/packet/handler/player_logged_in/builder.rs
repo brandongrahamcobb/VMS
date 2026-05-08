@@ -1,5 +1,5 @@
 use crate::models::character::keybinding::model::KeybindingModel;
-use crate::models::character::model::{Character, CharacterModel};
+use crate::models::character::model::Character;
 use crate::models::wz::equip::model::Equip;
 use crate::net::error::NetworkError;
 use crate::net::packet::io::error::IOError::WriteError;
@@ -16,7 +16,7 @@ impl Packet {
         self.write_short(op).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
         for bind in binds {
-            let bind_type = bind.bind_type as i8;
+            let bind_type = bind.bind_type as i16;
             self.write_byte(bind_type).map_err(WriteError)?;
             let bind_action = bind.action as i32;
             self.write_int(bind_action).map_err(WriteError)?;
@@ -27,7 +27,7 @@ impl Packet {
     pub fn build_player_logged_in_handler_char_packet(
         &mut self,
         char: Character,
-        channel_id: i8,
+        channel_id: i16,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::SetField as i16;
         self.write_short(op).map_err(WriteError)?;
@@ -46,9 +46,9 @@ impl Packet {
         self.write_str(char.model.ign.clone()).map_err(WriteError)?;
         self.write_bytes(vec![0u8; 13 - char.model.ign.len()])
             .map_err(WriteError)?;
-        let gender_id = char.model.gender_id as i8;
+        let gender_id = char.model.gender_id as i16;
         self.write_byte(gender_id).map_err(WriteError)?;
-        let skin_id = char.model.skin_id as i8;
+        let skin_id = char.model.skin_id as i16;
         self.write_byte(skin_id).map_err(WriteError)?;
         self.write_int(char.model.face_id).map_err(WriteError)?;
         self.write_int(char.model.hair_id).map_err(WriteError)?;
@@ -473,9 +473,9 @@ impl Packet {
     ) -> Result<&mut Self, NetworkError> {
         // Dummy values
         self.write_byte(1).map_err(WriteError)?;
-        self.write_int(equip.wz_id).map_err(WriteError)?;
-        const NUM_EQUIP_STATS: i8 = 15;
-        let is_cash = false as i8;
+        self.write_int(equip.model.wz_id).map_err(WriteError)?;
+        const NUM_EQUIP_STATS: i16 = 15;
+        let is_cash = false as i16;
         self.write_byte(is_cash).map_err(WriteError)?;
         self.write_long(0).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
@@ -499,7 +499,7 @@ impl Packet {
         &mut self,
         equip: Equip,
     ) -> Result<&mut Self, NetworkError> {
-        self.write_int(equip.wz_id).map_err(WriteError)?;
+        self.write_int(equip.model.wz_id).map_err(WriteError)?;
         Ok(self)
     }
 
@@ -730,7 +730,7 @@ impl Packet {
         &mut self,
         char: Character,
     ) -> Result<&mut Self, NetworkError> {
-        let level = char.model.level as i8;
+        let level = char.model.level as i16;
         self.write_byte(level).map_err(WriteError)?;
         self.write_short(char.model.job_id).map_err(WriteError)?;
         self.write_short(char.model.strength).map_err(WriteError)?;
@@ -838,23 +838,23 @@ impl Packet {
 
     pub fn build_spawn_player_packet(
         &mut self,
-        char_model: CharacterModel,
+        char: Character,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::SpawnPlayer as i16;
         self.write_short(op).map_err(WriteError)?;
-        self.write_int(char_model.id).map_err(WriteError)?;
-        let level = char_model.level as i8;
+        self.write_int(char.model.id).map_err(WriteError)?;
+        let level = char.model.level as i16;
         self.write_byte(level).map_err(WriteError)?;
-        self.write_str(char_model.ign.clone()).map_err(WriteError)?;
+        self.write_str(char.model.ign.clone()).map_err(WriteError)?;
         let guild_name = String::from("Guild Name");
         self.write_str(guild_name).map_err(WriteError)?;
         let skip = 0 as i16;
         self.write_short(skip).map_err(WriteError)?; // guildlogobg
-        let skip = 0 as i8;
+        let skip = 0 as i16;
         self.write_byte(skip).map_err(WriteError)?; //guildlogobgcolor
         let skip = 0 as i16;
         self.write_short(skip).map_err(WriteError)?; //guildlogo
-        let skip = 0 as i8;
+        let skip = 0 as i16;
         self.write_byte(skip).map_err(WriteError)?; //guildlogocolor
         let skip = vec![0u8; 8];
         self.write_bytes(skip).map_err(WriteError)?;
@@ -879,7 +879,7 @@ impl Packet {
         self.write_int(mount).map_err(WriteError)?;
         let skip = vec![0u8; 61];
         self.write_bytes(skip).map_err(WriteError)?;
-        self.write_short(char_model.job_id).map_err(WriteError)?;
+        self.write_short(char.model.job_id).map_err(WriteError)?;
         self.build_look_meta_part_packet(char.clone())?;
         let count = 5110000;
         self.write_int(count).map_err(WriteError)?;
@@ -891,7 +891,7 @@ impl Packet {
         let position_y = 0; // 0 this is a point so it might be wrong
         self.write_short(position_x).map_err(WriteError)?;
         self.write_short(position_y).map_err(WriteError)?;
-        let stance = 0 as i8; // 0 not sure
+        let stance = 0 as i16; // 0 not sure
         self.write_byte(stance).map_err(WriteError)?;
         let skip = vec![0u8; 3];
         self.write_bytes(skip).map_err(WriteError)?;
@@ -899,7 +899,7 @@ impl Packet {
             let available = 0; // 0 not sure
             self.write_byte(available).map_err(WriteError)?;
             if available == 1 {
-                let byte_two = 0 as i8; // 0 not sure
+                let byte_two = 0 as i16; // 0 not sure
                 self.write_byte(byte_two).map_err(WriteError)?;
                 let pet_id = 0; // 0 is definitely not right
                 self.write_int(pet_id).map_err(WriteError)?;
@@ -924,10 +924,10 @@ impl Packet {
         self.write_int(mount_exp).map_err(WriteError)?;
         let mount_tiredness = 0; // 0 not sure
         self.write_int(mount_tiredness).map_err(WriteError)?;
-        let skip = 0 as i8;
+        let skip = 0 as i16;
         self.write_byte(skip).map_err(WriteError)?; // shop stuff
         let chalkboard_bool: bool = false; // false not sure
-        let chalkboard: i8 = chalkboard_bool as i8; // false not sure
+        let chalkboard: i16 = chalkboard_bool as i16; // false not sure
         self.write_byte(chalkboard).map_err(WriteError)?;
         if chalkboard_bool {
             let chalkboard_text = String::from("Placeholder");
@@ -935,7 +935,7 @@ impl Packet {
         }
         let skip = vec![0u8; 3];
         self.write_bytes(skip).map_err(WriteError)?;
-        let team = 0 as i8; // 0 not sure
+        let team = 0 as i16; // 0 not sure
         self.write_byte(team).map_err(WriteError)?;
         Ok(self)
     }

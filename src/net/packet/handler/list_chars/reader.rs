@@ -6,8 +6,8 @@ use std::io::Cursor;
 
 #[derive(Clone)]
 pub struct ListCharsReader {
-    pub channel_id: i8,
-    pub world_id: i8,
+    pub channel_id: i16,
+    pub world_id: i16,
 }
 
 impl ListCharsReader {
@@ -16,8 +16,8 @@ impl ListCharsReader {
         let _op = pkt_reader.read_short().map_err(ReadError)?;
         let skip = 1;
         pkt_reader.read_bytes(skip).map_err(ReadError)?;
-        let world_id = pkt_reader.read_byte().map_err(ReadError)?;
-        let channel_id = pkt_reader.read_byte().map_err(ReadError)?;
+        let world_id = pkt_reader.read_byte().map_err(ReadError)? as i16;
+        let channel_id = pkt_reader.read_byte().map_err(ReadError)? as i16;
         Ok(Self {
             channel_id,
             world_id,

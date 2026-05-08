@@ -22,7 +22,8 @@ impl ListWorldsHandler {
         packet: &Packet,
     ) -> Result<HandlerResult, NetworkError> {
         let reader: ListWorldsReader = ListWorldsReader::read_list_worlds_packet(packet)?;
-        let store: ListWorldsStore = ListWorldsStore::store_list_worlds(state, session, reader.clone())?;
+        let store: ListWorldsStore =
+            ListWorldsStore::store_list_worlds(state, session, reader.clone()).await?;
         let result: HandlerResult = self.build_list_worlds_result(store.clone())?;
         Ok(result)
     }

@@ -23,7 +23,7 @@ impl DeleteCharStore {
         let char_model = character::query::get_character_model_by_id(state, reader.char_id).await?;
         let status = delete_char::service::check_pic(acc_model.clone(), reader.pic)?;
         if status {
-            character::query::delete_character(state, char_model.id).await?;
+            character::query::delete_character_by_id(state, char_model.id).await?;
         }
         Ok(Self { char_model, status })
     }

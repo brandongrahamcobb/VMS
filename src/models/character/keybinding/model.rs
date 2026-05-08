@@ -38,5 +38,5 @@ pub enum KeybindType {
 
 #[derive(Clone)]
 pub struct Keybinding {
-    model: KeybindingModel,
+    pub model: KeybindingModel,
 }

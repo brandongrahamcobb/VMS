@@ -36,7 +36,7 @@ impl CredentialsHandler {
         let mut result: HandlerResult = HandlerResult::new();
         match store.status {
             StatusCode::Failed(code) => {
-                let code = code as i8;
+                let code = code as i16;
                 let packet: Packet = Packet::new_empty()
                     .build_credentials_handler_failed_login_packet(code)?
                     .finish();
@@ -45,12 +45,14 @@ impl CredentialsHandler {
                     scope: Scope::Local,
                 })?;
             }
-            StatusCode::Success(code) => {
+            StatusCode::Success(_) => {
                 let packet: Packet = Packet::new_empty()
-                    .build_credentials_handler_successful_login_packet(&store.acc.unwrap())?
+                    .build_credentials_handler_successful_login_packet(
+                        &store.acc.clone().unwrap().model.clone(),
+                    )?
                     .finish();
                 result.add_action(Action::Set(SetAction::SetAccount {
-                    acc: store.acc.clone(),
+                    acc: store.acc.clone().unwrap().clone(),
                 }))?;
                 result.add_action(Action::Send {
                     packet: packet.clone(),

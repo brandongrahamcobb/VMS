@@ -8,7 +8,7 @@ use crate::prelude::*;
 impl Packet {
     pub fn build_server_status_handler_packet(
         &mut self,
-        status: i8,
+        status: i16,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::ServerStatus as i16;
         self.write_short(op).map_err(WriteError)?;

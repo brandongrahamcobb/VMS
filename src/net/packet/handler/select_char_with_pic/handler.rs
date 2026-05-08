@@ -40,11 +40,11 @@ impl SelectCharWithPicHandler {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = if store.pic_status {
             result.add_action(Action::Set(SetAction::SetChar {
-                char_model: store.char_model.clone(),
+                char: store.char.clone(),
             }))?;
             Packet::new_empty()
                 .build_select_char_handler_packet(
-                    store.char_model.id,
+                    store.char.model.id,
                     store.octets,
                     store.channel_model.port,
                 )?

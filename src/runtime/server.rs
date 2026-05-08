@@ -1,10 +1,10 @@
 use crate::config::settings;
 use crate::inc::helpers;
-use crate::models::account::model::AccountModel;
-use crate::models::channel::model::ChannelModel;
-use crate::models::character::model::CharacterModel;
-use crate::models::map::model::MapModel;
-use crate::models::world::model::WorldModel;
+use crate::models::account::model::Account;
+use crate::models::channel::model::Channel;
+use crate::models::character::model::Character;
+use crate::models::map::model::Map;
+use crate::models::world::model::World;
 use crate::runtime::error::RuntimeError;
 use crate::runtime::relay::{LoginRelay, PlayerRelay, Runtime};
 use crate::runtime::session::Session;
@@ -30,27 +30,29 @@ impl LoginServer {
                         let state = state.lock().await;
                         state.sessions.insert(Session {
                             id: 0,
-                            acc: AccountModel::new(),
+                            acc: Account::new(),
                             authenticated: false,
                             playing: false,
                             hwid: String::new(),
-                            world: WorldModel::new(),
-                            channel: ChannelModel::new(),
-                            map: MapModel::new(),
-                            char: CharacterModel::new(),
+                            world: World::new(),
+                            channel: Channel::new(),
+                            map: Map::new(),
+                            char: Character::new(),
                             tx: tx.clone(),
                         })
                     };
                     info!("Listening on port {}...", port);
                     let state = state.clone();
                     tokio::spawn(async move {
-                        match Runtime::<LoginRelay>::new(state, stream, session_id, rx).await {
+                        match Runtime::<LoginRelay>::new(state.clone(), stream, session_id, rx)
+                            .await
+                        {
                             Ok(mut runtime) => match runtime.run().await {
                                 Ok(Some(id)) => {
                                     let port = {
                                         let state = state.lock().await;
                                         match state.sessions.get(id) {
-                                            Some(s) => s.channel.port,
+                                            Some(s) => s.channel.model.port,
                                             None => {
                                                 info!(
                                                     "Expected a valid session. Session ID: {}",
@@ -84,7 +86,7 @@ impl PlayerServer {
     pub fn accept(
         state: SharedState,
         session_id: i32,
-        port: u16,
+        port: i16,
     ) -> Pin<Box<dyn Future<Output = ()> + Send>> {
         Box::pin(async move {
             let addr = match settings::get_address() {
@@ -110,6 +112,7 @@ impl PlayerServer {
                         state.sessions.update(session_id, |s| s.tx = tx.clone());
                     }
                     info!("Listening on port {}...", port);
+                    let state = state.clone();
                     tokio::spawn(async move {
                         match Runtime::<PlayerRelay>::new(state.clone(), stream, session_id, rx)
                             .await
@@ -119,7 +122,7 @@ impl PlayerServer {
                                     let port = {
                                         let state = state.lock().await;
                                         match state.sessions.get(id) {
-                                            Some(s) => s.channel.port,
+                                            Some(s) => s.channel.model.port,
                                             None => {
                                                 info!(
                                                     "Expected a valid session. Session ID: {}",

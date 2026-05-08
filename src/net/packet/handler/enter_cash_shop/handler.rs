@@ -34,7 +34,7 @@ impl EnterCashShopHandler {
     ) -> Result<HandlerResult, NetworkError> {
         let mut result: HandlerResult = HandlerResult::new();
         result.add_action(Action::Set(SetAction::SetMap {
-            map: store.map_model.clone(),
+            map: store.map.clone(),
             scope: Scope::Local,
         }))?;
         let packet: Packet = Packet::new_empty()

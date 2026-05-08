@@ -1,16 +1,42 @@
-use crate::models::{error::ModelError, map::model::MapModel};
+use crate::models::{
+    error::ModelError,
+    map::model::{Map, MapModel},
+};
 
-pub fn get_map_by_id(map_id: i32) -> Result<MapModel, ModelError> {
-    Ok(MapModel { id: map_id })
+pub fn get_map_by_id(map_id: i32) -> Result<Map, ModelError> {
+    Ok(Map {
+        model: MapModel { id: map_id },
+    })
 }
 
-pub fn get_map_for_job(job_id: i16) -> Result<i32, NetworkError> {
-    let map_id = match job_id {
-        1 => 0,
-        1000 => 130000000,
-        2000 => 140000000,
+pub fn get_map_by_job_id(job_id: i16) -> Result<Map, ModelError> {
+    match job_id {
+        1 => {
+            let map_id = 0;
+            get_map_by_id(map_id)
+        }
+        1000 => {
+            let map_id = 130000000;
+            get_map_by_id(map_id)
+        }
+        2000 => {
+            let map_id = 140000000;
+            get_map_by_id(map_id)
+        }
         _ => Err(ModelError::MapError),
-    };
-    let map = get_map_by_id(map_id)?;
-    Ok(map)
+    }
+}
+
+impl Map {
+    pub fn new() -> Self {
+        Self {
+            model: MapModel::new(),
+        }
+    }
+}
+
+impl MapModel {
+    pub fn new() -> Self {
+        Self { id: -1 }
+    }
 }

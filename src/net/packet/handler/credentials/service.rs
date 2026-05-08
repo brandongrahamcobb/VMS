@@ -4,15 +4,18 @@ use crate::runtime::state::SharedState;
 use crate::{config::settings, runtime::session::Session};
 use bcrypt::{DEFAULT_COST, hash, verify};
 
-#[derive(Copy)]
+#[derive(Clone)]
 pub enum StatusCode {
     Failed(FailedCode),
     Success(SuccessCode),
 }
 
+#[derive(Clone)]
 pub enum SuccessCode {
     Success = 0,
 }
+
+#[derive(Clone)]
 pub enum FailedCode {
     Banned = 2,
     InvalidCredentials = 4,
@@ -40,20 +43,13 @@ fn check_if_pending_tos(acc: &AccountModel) -> Result<bool, NetworkError> {
     return Ok(false);
 }
 
-async fn check_if_playing(
-    state: &SharedState,
-    session: Session,
-    acc: &AccountModel,
-) -> Result<bool, NetworkError> {
-    let playing = match session.id {
-        Some(id) => {
-            let state = state.lock().await;
-            match state.sessions.get(id) {
-                Some(session) => session.playing,
-                None => false,
-            }
+async fn check_if_playing(state: &SharedState, session: Session) -> Result<bool, NetworkError> {
+    let playing = {
+        let state = state.lock().await;
+        match state.sessions.get(session.id) {
+            Some(session) => session.playing,
+            None => false,
         }
-        None => false,
     };
     Ok(playing)
 }
@@ -70,7 +66,7 @@ pub async fn get_status_code_by_account_model(
         return Ok(StatusCode::Failed(FailedCode::PendingTOS));
     }
     let mode = settings::get_release_mode()?;
-    if check_if_playing(state, session, acc).await? & mode {
+    if check_if_playing(state, session).await? & mode {
         return Ok(StatusCode::Failed(FailedCode::Playing));
     }
     return Ok(StatusCode::Success(SuccessCode::Success));

@@ -6,14 +6,22 @@ use std::time::SystemTime;
 #[diesel(table_name = skills)]
 pub struct SkillModel {
     pub id: i32,
-    pub wz_id: i32,
     pub char_id: i32,
+    pub wz_id: i32,
     pub level: i16,
     pub created_at: SystemTime,
     pub updated_at: SystemTime,
 }
 
+#[derive(Insertable, AsChangeset)]
+#[diesel(table_name = skills)]
+pub struct NewCharacterSkillInsert {
+    pub char_id: i32,
+    pub wz_id: i32,
+    pub level: i16,
+}
+
 #[derive(Clone)]
 pub struct Skill {
-    model: SkillModel,
+    pub model: SkillModel,
 }

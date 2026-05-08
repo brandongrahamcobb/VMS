@@ -43,7 +43,7 @@ impl RegisterPicHandler {
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
-        });
+        })?;
         Ok(result)
     }
 }

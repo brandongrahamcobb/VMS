@@ -20,7 +20,7 @@ impl TosStore {
         let accepted: bool = reader.confirmed != 0x01;
         let mut acc_model: AccountModel = session.acc.model.clone();
         acc_model.accepted_tos = true;
-        account::query::update_by_model(state, acc.model.clone()).await?;
+        account::query::update_by_model(state, acc_model.clone()).await?;
         Ok(Self {
             acc_model,
             accepted,

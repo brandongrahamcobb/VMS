@@ -5,7 +5,7 @@ use diesel::expression_methods::*;
 use diesel::pg::upsert::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
-pub async fn get_keybindings_by_character_id(
+pub async fn get_keybinding_models_by_character_id(
     state: &SharedState,
     char_id: i32,
 ) -> QueryResult<Vec<KeybindingModel>> {
@@ -26,7 +26,7 @@ pub async fn get_keybindings_by_character_id(
 
 pub async fn update_keybindings(
     state: &SharedState,
-    bindings: &Vec<NewCharacterKeybindingInsert>,
+    bindings: Vec<NewCharacterKeybindingInsert>,
 ) -> QueryResult<Vec<KeybindingModel>> {
     let db = {
         let state = state.lock().await;
