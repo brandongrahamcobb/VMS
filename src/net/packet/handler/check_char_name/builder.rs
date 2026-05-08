@@ -8,14 +8,14 @@ use crate::prelude::*;
 impl Packet {
     pub fn build_check_char_name_handler_packet(
         &mut self,
-        exists: &bool,
-        ign: &str,
+        exists: bool,
+        ign: String,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::CharNameResponse as i16;
-        self.write_short(&op).map_err(WriteError)?;
-        self.write_str_with_length(ign).map_err(WriteError)?;
-        let exists = *exists as u8;
-        self.write_byte(&exists).map_err(WriteError)?;
+        self.write_short(op).map_err(WriteError)?;
+        self.write_str(ign).map_err(WriteError)?;
+        let exists = exists as i8;
+        self.write_byte(exists).map_err(WriteError)?;
         Ok(self)
     }
 }

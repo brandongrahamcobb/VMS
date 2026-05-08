@@ -4,6 +4,7 @@ use crate::net::packet::model::Packet;
 use crate::prelude::*;
 use std::io::Cursor;
 
+#[derive(Clone)]
 pub struct ChangeKeymapReader {
     pub keys: Vec<i32>,
     pub types: Vec<i16>,
@@ -11,11 +12,7 @@ pub struct ChangeKeymapReader {
 }
 
 impl ChangeKeymapReader {
-    pub fn new() -> Self {
-        Self
-    }
-
-    pub fn read_change_keymap_packet(&self, packet: &Packet) -> Result<Self, NetworkError> {
+    pub fn read_change_keymap_packet(packet: &Packet) -> Result<Self, NetworkError> {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let _op = pkt_reader.read_short().map_err(ReadError)?;
         let _mode = pkt_reader.read_int().map_err(ReadError)?;
@@ -28,10 +25,6 @@ impl ChangeKeymapReader {
             types.push(pkt_reader.read_byte().map_err(ReadError)? as i16);
             model.push(pkt_reader.read_int().map_err(ReadError)?);
         }
-        Ok(Self {
-            keys: keys.clone(),
-            types: types.clone(),
-            model: model.clone(),
-        })
+        Ok(Self { keys, types, model })
     }
 }

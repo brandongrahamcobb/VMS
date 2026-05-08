@@ -1,5 +1,6 @@
 use crate::models::account::model::Account;
 use crate::models::channel::model::Channel;
+use crate::models::character::model::Character;
 use crate::models::map::model::Map;
 use crate::models::world::model::World;
 use crate::net::packet::model::Packet;
@@ -14,13 +15,13 @@ pub struct Session {
     pub id: i32,
     pub acc: Account,
     pub authenticated: bool,
+    pub channel: Channel,
+    pub char: Character,
+    pub hwid: String,
+    pub map: Map,
     pub playing: bool,
     pub tx: UnboundedSender<Packet>,
-    pub hwid: Option<String>,
-    pub world: Option<World>,
-    pub channel: Option<Channel>,
-    pub map: Option<Map>,
-    pub char: Option<Character>,
+    pub world: World,
 }
 
 pub struct SessionStore {
@@ -36,6 +37,15 @@ impl SessionStore {
         }
     }
 
+    pub fn iter(&self) -> Vec<Session> {
+        self.sessions
+            .read()
+            .expect("session store poisoned")
+            .values()
+            .cloned()
+            .collect()
+    }
+
     pub fn insert(&self, mut session: Session) -> i32 {
         let id = self.next_id.fetch_add(1, Ordering::Relaxed);
         session.id = id;
@@ -46,15 +56,15 @@ impl SessionStore {
         id
     }
 
-    pub fn get(&self, id: &i32) -> Option<Session> {
+    pub fn get(&self, id: i32) -> Option<Session> {
         self.sessions
             .read()
             .expect("session store read lock poisoned")
-            .get(id)
+            .get(&id)
             .cloned()
     }
 
-    pub fn update(&self, id: &i32, f: impl FnOnce(&mut Session)) {
+    pub fn update(&self, id: i32, f: impl FnOnce(&mut Session)) {
         let mut guard = self
             .sessions
             .write()
@@ -64,7 +74,7 @@ impl SessionStore {
         }
     }
 
-    pub fn remove(&self, id: &i32) {
+    pub fn remove(&self, id: i32) {
         self.sessions
             .write()
             .expect("session store write lock poisoned")

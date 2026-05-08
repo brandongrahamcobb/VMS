@@ -1,48 +1,37 @@
 use crate::config::settings;
-use crate::models::channel::model::Channel;
-use crate::models::character::model::Character;
-use crate::models::map::model::Map;
-use crate::models::world::model::World;
-use crate::models::{channel, world};
+use crate::inc::helpers;
+use crate::models::channel::model::ChannelModel;
+use crate::models::character;
+use crate::models::character::model::CharacterModel;
 use crate::net::error::NetworkError;
+use crate::net::packet::handler::register_pic;
 use crate::net::packet::handler::register_pic::reader::RegisterPicReader;
-use crate::runtime::error::SessionError;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
-use core::net::Ipv4Addr;
 
+#[derive(Clone)]
 pub struct RegisterPicStore {
-    pub char: Character,
-    pub world: World,
-    pub channel: Channel,
-    pub ip: Ipv4Addr,
+    pub channel_model: ChannelModel,
+    pub char_model: CharacterModel,
+    pub octets: [u8; 4],
 }
 
 impl RegisterPicStore {
-    pub fn new() -> Self {
-        Self
-    }
-
     pub async fn store_register_pic(
-        &self,
         state: &SharedState,
-        session: &Session,
-        reader: &RegisterPicReader,
+        session: Session,
+        reader: RegisterPicReader,
     ) -> Result<Self, NetworkError> {
-        let char: Character = character::query::get_character_by_id(state, &reader.char_id).await?;
-        let world_id: u8 = session.world_id.ok_or(SessionError::NoWorld(session.id))?;
-        let world: World = world::service::get_world_by_id(&world_id)?;
-        let channel_id: u8 = session
-            .channel_id
-            .ok_or(SessionError::NoChannel(session.id))?;
-        let channel: Channel = channel::service::get_channel_by_ids(&channel_id, &world_id)?;
-        register_pic::service::set_pic(state, &session, &read.pic).await?;
-        let ip: Ipv4Addr = settings::get_ip()?;
+        let channel_model: ChannelModel = session.channel.model.clone();
+        let char: CharacterModel =
+            character::query::get_character_model_by_id(state, reader.char_id).await?;
+        register_pic::service::set_pic(state, session, reader.pic.clone()).await?;
+        let addr: String = settings::get_address()?;
+        let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
         Ok(Self {
-            char: char.clone(),
-            world: world.clone(),
-            channel: channel.clone(),
-            ip: ip.clone(),
+            char_model,
+            channel_model,
+            octets,
         })
     }
 }

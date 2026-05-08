@@ -1,9 +1,6 @@
-use crate::config::settings;
-use crate::models::character::model::Character;
-use crate::models::{account, character, world};
-use crate::net::action::{Action, LoginAction};
+use crate::net::action::Action;
 use crate::net::error::NetworkError;
-use crate::net::packet::handler::list_chars;
+use crate::net::packet::handler::list_chars::reader::ListCharsReader;
 use crate::net::packet::handler::list_chars::store::ListCharsStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
@@ -21,28 +18,28 @@ impl ListCharsHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: &Session,
+        session: Session,
         packet: &Packet,
     ) -> Result<HandlerResult, NetworkError> {
-        let reader: ListCharsReader = ListCharsReader::new().read_list_chars_packet(packet)?;
+        let reader: ListCharsReader = ListCharsReader::read_list_chars_packet(packet)?;
         let store: ListCharsStore =
-            ListCharsStore::new().store_list_chars(state, session, &reader)?;
-        let result: HandlerResult = self.build_list_chars_result(state, &store)?;
+            ListCharsStore::store_list_chars(state, session.clone(), reader.clone()).await?;
+        let result: HandlerResult = self.build_list_chars_result(store.clone())?;
         Ok(result)
     }
 
     fn build_list_chars_result(
-        state: &SharedState,
-        store: &ListCharsStore,
+        &self,
+        store: ListCharsStore,
     ) -> Result<HandlerResult, NetworkError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_list_chars_handler_packet(
-                &store.channel.id,
-                &store.chars,
-                &store.char_max,
-                &store.pic_status,
-            )
+                store.chars,
+                store.channel.id,
+                store.char_max as i8,
+                store.pic_status,
+            )?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

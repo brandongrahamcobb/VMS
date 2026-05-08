@@ -1,6 +1,6 @@
-use crate::net::action::PlayerAction;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::party_search::reader::PartySearchReader;
+use crate::net::packet::handler::party_search::store::PartySearchStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::session::Session;
@@ -16,23 +16,23 @@ impl PartySearchHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: &Session,
+        session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult<PlayerAction>, NetworkError> {
-        let reader: PartySearchReader =
-            PartySearchReader::new().read_party_search_packet(packet)?;
+    ) -> Result<HandlerResult, NetworkError> {
+        let reader: PartySearchReader = PartySearchReader::read_party_search_packet(packet)?;
         let store: PartySearchStore =
-            PartySearchStore::new().store_party_search(state, session, &read)?;
-        let result: HandlerResult = self.build_party_search_result(&store)?;
+            PartySearchStore::store_party_search(state, session, reader.clone())?;
+        let result: HandlerResult = self.build_party_search_result(store.clone())?;
         Ok(result)
     }
 
     fn build_party_search_result(
         &self,
-        store: &PartySearchStore,
+        store: PartySearchStore,
     ) -> Result<HandlerResult, NetworkError> {
         // Not implemented
-        let mut result: HandlerResult = HandlerResult::new();
+        std::hint::black_box(store);
+        let result: HandlerResult = HandlerResult::new();
         Ok(result)
     }
 }

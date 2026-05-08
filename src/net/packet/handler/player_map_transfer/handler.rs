@@ -1,5 +1,6 @@
-use crate::net::action::PlayerAction;
 use crate::net::error::NetworkError;
+use crate::net::packet::handler::player_map_transfer::reader::PlayerMapTransferReader;
+use crate::net::packet::handler::player_map_transfer::store::PlayerMapTransferStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::session::Session;
@@ -15,23 +16,24 @@ impl PlayerMapTransferHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: &Session,
+        session: Session,
         packet: &Packet,
     ) -> Result<HandlerResult, NetworkError> {
         let reader: PlayerMapTransferReader =
-            PlayerMapTransferReader::new().read_player_map_transfer(packet)?;
+            PlayerMapTransferReader::read_player_map_transfer_packet(packet)?;
         let store: PlayerMapTransferStore =
-            PlayerMapTransferStore::new().store_player_map_transfer(state, session, &read)?;
-        let result: HandlerResult = self.build_player_map_transfer(&store)?;
+            PlayerMapTransferStore::store_player_map_transfer(state, session.clone(), reader.clone()).await?;
+        let result: HandlerResult = self.build_player_map_transfer(store.clone())?;
         Ok(result)
     }
 
     fn build_player_map_transfer(
         &self,
-        store: &PlayerMapTransferStore,
+        store: PlayerMapTransferStore,
     ) -> Result<HandlerResult, NetworkError> {
         // Not implemented
-        let mut result: HandlerResult = HandlerResult::new();
+        std::hint::black_box(store);
+        let result: HandlerResult = HandlerResult::new();
         Ok(result)
     }
 }

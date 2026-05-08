@@ -10,8 +10,8 @@ impl Packet {
         &mut self,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::CheckSpwResult as i16;
-        self.write_short(&op).map_err(WriteError)?;
-        self.write_byte(&0) // 0 for failure, anything else for success
+        self.write_short(op).map_err(WriteError)?;
+        self.write_byte(0) // 0 for failure, anything else for success
             .map_err(WriteError)?;
         Ok(self)
     }

@@ -1,42 +1,33 @@
-use crate::models::character::equipment_set::model::{CashEquipmentSet, RegularEquipmentSet};
-use crate::models::{account, character};
-use crate::runtime::error::SessionError;
+use crate::constants::CASH_SHOP_MAP_ID;
+use crate::models::account::model::AccountModel;
+use crate::models::character::model::Character;
+use crate::models::map;
+use crate::models::map::model::MapModel;
+use crate::net::error::NetworkError;
+use crate::net::packet::handler::enter_cash_shop::reader::EnterCashShopReader;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 
+#[derive(Clone)]
 pub struct EnterCashShopStore {
-    pub acc: Account,
+    pub acc_model: AccountModel,
     pub char: Character,
-    pub regular_equips: RegularEquipmentSet,
-    pub cash_equips: CashEquipmentSet,
+    pub map_model: MapModel,
 }
 
 impl EnterCashShopStore {
-    pub fn new() -> Self {
-        Self
-    }
-
     pub async fn store_enter_cash_shop(
-        &self,
         state: &SharedState,
-        session: &Session,
+        session: Session,
+        reader: EnterCashShopReader,
     ) -> Result<Self, NetworkError> {
-        let acc_id = session.acc_id;
-        let acc = account::query::get_account_by_id(state, &acc_id).await?;
-        let char_id = session
-            .char_id
-            .ok_or(SessionError::NoCharacterSelected(session.id))?;
-        let char = character::query::get_character_by_id(state, &char_id).await?;
-        let regular_equips =
-            equipment_set::query::get_regular_equipment_set_by_character_id(state, &char_id)
-                .await?;
-        let cash_equips =
-            equipment_set::query::get_cash_equipment_set_by_character_id(state, &char_id).await?;
+        let acc_model = session.acc.model.clone();
+        let char = session.char.clone();
+        let map_model = map::service::get_map_model_by_id(CASH_SHOP_MAP_ID)?;
         Ok(Self {
-            acc: acc.clone(),
-            char: char.clone(),
-            regular_equips: regular_equips.clone(),
-            cash_equips: cash_equips.clone(),
+            acc_model,
+            char,
+            map_model,
         })
     }
 }

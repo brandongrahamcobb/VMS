@@ -3,20 +3,18 @@ use crate::net::packet::handler::player_map_transfer::reader::PlayerMapTransferR
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 
+#[derive(Clone)]
 pub struct PlayerMapTransferStore;
 
 impl PlayerMapTransferStore {
-    pub fn new() -> Self {
-        Self
-    }
-
     pub async fn store_player_map_transfer(
-        &self,
         state: &SharedState,
-        session: &Session,
-        reader: &PlayerMapTransferReader,
+        session: Session,
+        reader: PlayerMapTransferReader,
     ) -> Result<Self, NetworkError> {
-        debug!("{:?} {:?} {:?}", state, session, reader);
+        std::hint::black_box(state);
+        std::hint::black_box(session);
+        std::hint::black_box(reader.clone());
         Ok(Self)
     }
 }

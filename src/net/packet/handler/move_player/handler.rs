@@ -4,7 +4,6 @@ use crate::net::packet::handler::move_player::reader::MovePlayerReader;
 use crate::net::packet::handler::move_player::store::MovePlayerStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::error::SessionError;
 use crate::runtime::scope::Scope;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
@@ -19,24 +18,27 @@ impl MovePlayerHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: &Session,
+        session: Session,
         packet: &Packet,
     ) -> Result<HandlerResult, NetworkError> {
-        let reader: MovePlayerReader = MovePlayerReader::new().read_move_player_packet(packet)?;
+        let reader: MovePlayerReader = MovePlayerReader::read_move_player_packet(packet)?;
         let store: MovePlayerStore =
-            MovePlayerStore::new().store_move_player(state, session, &reader)?;
-        let result: HandlerResult = self.build_move_player_result(&store)?;
+            MovePlayerStore::store_move_player(state, session, reader.clone())?;
+        let result: HandlerResult = self.build_move_player_result(store.clone())?;
         Ok(result)
     }
 
     fn build_move_player_result(
         &self,
-        store: &MovePlayerStore,
+        store: MovePlayerStore,
     ) -> Result<HandlerResult, NetworkError> {
         let mut result = HandlerResult::new();
-        if !read.too_short && !read.empty {
+        if !store.too_short && !store.empty {
             let packet: Packet = Packet::new_empty()
-                .build_player_move_handler_packet(&store.char.id, &store.movement_bytes)?
+                .build_player_move_handler_packet(
+                    store.char_model.id,
+                    store.movement_bytes.clone(),
+                )?
                 .finish();
             result.add_action(Action::Send {
                 packet: packet.clone(),

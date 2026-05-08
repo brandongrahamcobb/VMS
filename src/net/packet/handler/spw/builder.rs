@@ -8,8 +8,8 @@ use crate::prelude::*;
 impl Packet {
     pub fn build_spw_handler_packet(&mut self) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::CheckSpwResult as i16;
-        self.write_short(&op).map_err(WriteError)?;
-        self.write_byte(&0) // failure
+        self.write_short(op).map_err(WriteError)?;
+        self.write_byte(0) // failure
             .map_err(WriteError)?;
         Ok(self)
     }

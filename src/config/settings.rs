@@ -1,8 +1,6 @@
 use crate::config::error::ConfigError;
 use crate::constants::WorldID;
-use crate::inc::helpers;
 use config::Config;
-use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
 
 pub fn get_settings() -> Result<Config, ConfigError> {
     let settings = Config::builder()
@@ -39,13 +37,13 @@ pub fn get_release_mode() -> Result<bool, ConfigError> {
     Ok(mode)
 }
 
-pub fn get_login_port() -> Result<i16, ConfigError> {
+pub fn get_login_port() -> Result<u16, ConfigError> {
     let settings = get_settings()?;
     let key = String::from("login_port");
     let port = settings
         .get_int(&key)
         .map_err(|_| ConfigError::InvalidInt(key))?;
-    Ok(port as i16)
+    Ok(port as u16)
 }
 
 pub fn get_version() -> Result<i16, ConfigError> {
@@ -80,15 +78,6 @@ pub fn get_db_url() -> Result<String, ConfigError> {
         .get_string(&pw_key)
         .map_err(|_| ConfigError::InvalidString(pw_key))?;
     Ok(format!("postgres://{}:{}@{}:{}/{}", user, pw, ip, port, db))
-}
-
-pub fn build_server_addr(port: &i16) -> Result<SocketAddr, ConfigError> {
-    let addr = get_address()?;
-    let octets = helpers::convert_to_ip_array(&addr);
-    Ok(SocketAddr::V4(SocketAddrV4::new(
-        Ipv4Addr::new(octets[0], octets[1], octets[2], octets[3]),
-        *port as u16,
-    )))
 }
 
 pub fn get_pin_required() -> Result<bool, ConfigError> {

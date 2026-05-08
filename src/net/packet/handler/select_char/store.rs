@@ -1,44 +1,37 @@
-use crate::models::character::model::Character;
-use crate::models::world::model::World;
-use crate::models::{channel, character, world};
+use crate::config::settings;
+use crate::inc::helpers;
+use crate::models::channel::model::ChannelModel;
+use crate::models::character;
+use crate::models::character::model::CharacterModel;
+use crate::models::world::model::WorldModel;
 use crate::net::error::NetworkError;
+use crate::net::packet::handler::select_char::reader::SelectCharReader;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
-use core::net::Ipv4Addr;
 
+#[derive(Clone)]
 pub struct SelectCharStore {
-    pub char: Character,
-    pub ip: Ipv4Addr,
-    pub world: World,
-    pub channel: Channel,
+    pub channel_model: ChannelModel,
+    pub char_model: CharacterModel,
+    pub octets: [u8; 4],
 }
 
 impl SelectCharStore {
-    pub fn new() -> Self {
-        Self
-    }
-
-    pub fn store_select_char(
-        &self,
+    pub async fn store_select_char(
         state: &SharedState,
-        session: &Session,
-        reader: &SelectCharReader,
+        session: Session,
+        reader: SelectCharReader,
     ) -> Result<Self, NetworkError> {
-        let char: Character = character::query::get_character_by_id(state, &reader.char_id)?;
-        let addr = settings::get_address()?;
-        let octets = helpers::convert_to_ip_array(&addr);
-        let ip = Ipv4Addr::new(octets)?;
-        let world_id = session.world_id.ok_or(SessionError::NoWorld(session.id))?;
-        let world: World = world::service::get_world_by_id(&world_id)?;
-        let channel_id = session
-            .channel_id
-            .ok_or(SessionError::NoChannel(session.id))?;
-        let channel: Channel = channel::service::get_channel_by_ids(&channel_id, &world_id)?;
+        let channel_model: ChannelModel = session.channel.model.clone();
+        let char_model: CharacterModel =
+            character::query::get_character_by_id(state, reader.char_id).await?;
+        let world_model: WorldModel = session.world.model.clone();
+        let addr: String = settings::get_address()?;
+        let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
         Ok(Self {
-            char: char.clone(),
-            ip: ip.clone(),
-            world: world.clone(),
-            channel: channel.clone(),
+            channel_model,
+            char_model,
+            octets,
         })
     }
 }

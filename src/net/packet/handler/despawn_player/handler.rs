@@ -1,7 +1,5 @@
-use crate::net::action::{Action, PlayerAction};
+use crate::net::action::Action;
 use crate::net::error::NetworkError;
-use crate::net::packet::handler::despawn_player;
-use crate::net::packet::handler::despawn_player::read::DespawnPlayerReader;
 use crate::net::packet::handler::despawn_player::reader::DespawnPlayerReader;
 use crate::net::packet::handler::despawn_player::store::DespawnPlayerStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -20,25 +18,24 @@ impl DespawnPlayerHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: &Session,
+        session: Session,
         packet: &Packet,
     ) -> Result<HandlerResult, NetworkError> {
         let reader: DespawnPlayerReader =
-            DespawnPlayerReader::new().read_despawn_player_handler_packet(packet)?;
-        let store: DespawnPlayerStore = DespawnPlayerStore::new()
-            .store_despawn_player(state, session, &reader)
-            .await?;
-        let result: HandlerResult = self.build_despawn_player_result(&store)?;
+            DespawnPlayerReader::read_despawn_player_handler_packet(packet)?;
+        let store: DespawnPlayerStore =
+            DespawnPlayerStore::store_despawn_player(state, session.clone(), reader.clone()).await?;
+        let result: HandlerResult = self.build_despawn_player_result(store.clone())?;
         Ok(result)
     }
 
     fn build_despawn_player_result(
         &self,
-        store: &DespawnPlayerStore,
+        store: DespawnPlayerStore,
     ) -> Result<HandlerResult, NetworkError> {
         let mut result = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
-            .build_despawn_player_handler_packet(&store.char.id)?
+            .build_despawn_player_handler_packet(store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
@@ -48,5 +45,6 @@ impl DespawnPlayerHandler {
             packet: packet.clone(),
             scope: Scope::Map,
         })?;
+        Ok(result)
     }
 }

@@ -1,5 +1,5 @@
 use crate::db::schema::keybindings;
-use crate::models::character::keybinding::model::{Keybinding, NewKeybinding};
+use crate::models::character::keybinding::model::{KeybindingModel, NewCharacterKeybindingInsert};
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
 use diesel::pg::upsert::*;
@@ -7,8 +7,8 @@ use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
 pub async fn get_keybindings_by_character_id(
     state: &SharedState,
-    char_id: &i32,
-) -> QueryResult<Vec<Keybinding>> {
+    char_id: i32,
+) -> QueryResult<Vec<KeybindingModel>> {
     let db = {
         let state = state.lock().await;
         state.db.clone()
@@ -20,14 +20,14 @@ pub async fn get_keybindings_by_character_id(
         )
     })?;
     keybindings::table
-        .filter(keybindings::char_id.eq(*char_id))
-        .load::<Keybinding>(&mut conn)
+        .filter(keybindings::char_id.eq(char_id))
+        .load::<KeybindingModel>(&mut conn)
 }
 
 pub async fn update_keybindings(
     state: &SharedState,
-    bindings: &Vec<NewKeybinding>,
-) -> QueryResult<Vec<Keybinding>> {
+    bindings: &Vec<NewCharacterKeybindingInsert>,
+) -> QueryResult<Vec<KeybindingModel>> {
     let db = {
         let state = state.lock().await;
         state.db.clone()

@@ -1,3 +1,4 @@
+use crate::models::world::model::World;
 use crate::net::action::{Action, SetAction};
 use crate::net::packet::handler::cc::handler::ChangeChannelHandler;
 use crate::net::packet::handler::change_keymap::handler::ChangeKeymapHandler;
@@ -19,20 +20,18 @@ use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::handler::select_char::handler::SelectCharHandler;
 use crate::net::packet::handler::select_char_with_pic::handler::SelectCharWithPicHandler;
 use crate::net::packet::handler::server_status::handler::ServerStatusHandler;
-use crate::net::packet::handler::tos::handler::TOSHandler;
+use crate::net::packet::handler::tos::handler::TosHandler;
 use crate::net::packet::io::{read::PacketReader, write::PacketWriter};
 use crate::net::packet::model::Packet;
 use crate::op::recv::RecvOpcode;
 use crate::prelude::*;
 use crate::runtime::error::{RuntimeError, SessionError};
 use crate::runtime::scope::Scope;
-use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 use core::ops::ControlFlow;
 use rand::{RngExt, rng};
 use tokio::net::TcpStream;
 use tokio::sync::mpsc::UnboundedReceiver;
-use tokio::sync::mpsc::UnboundedSender;
 use tracing::debug;
 
 pub struct Runtime<T: RuntimeRelay> {
@@ -59,7 +58,7 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
             (recv_iv, send_iv)
         };
         let packet: Packet = Packet::new_empty()
-            .build_handshake_packet(&recv_iv, &send_iv)
+            .build_handshake_packet(recv_iv, send_iv)
             .await?
             .finish();
         let (read_half, write_half) = stream.into_split();
@@ -83,7 +82,7 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
                     let result = self.relay
                         .handle_packet(&self.state, &packet)
                         .await?;
-                    match self.relay.execute(&self.state, &result).await? {
+                    match self.relay.execute(&self.state, result).await? {
                         ControlFlow::Break(_) => break Ok(Some(self.relay.session_id())),
                         _ => {}
                     }
@@ -102,7 +101,7 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
 }
 
 #[allow(async_fn_in_trait)]
-pub trait RuntimeRelay {
+pub trait RuntimeRelay: Sized {
     async fn new(session_id: i32) -> Result<Self, RuntimeError>;
 
     fn session_id(&self) -> i32;
@@ -111,165 +110,231 @@ pub trait RuntimeRelay {
         &mut self,
         state: &SharedState,
         packet: &Packet,
-    ) -> Result<HandlerResult<Action>, RuntimeError>;
+    ) -> Result<HandlerResult, RuntimeError>;
 
     async fn execute(
         &mut self,
         state: &SharedState,
-        result: &HandlerResult<Action>,
+        result: HandlerResult,
     ) -> Result<ControlFlow<()>, RuntimeError> {
         let session = {
             let state = state.lock().await;
             state
                 .sessions
-                .get(&self.session_id())
-                .ok_or(SessionError::NotFound(self.session_id()))
-                .map_err(RuntimeError::from)?
+                .get(self.session_id())
+                .ok_or(SessionError::NotFound(self.session_id()))?
         };
         let model = &result.model;
         for action in model {
             match action {
                 Action::Send { packet, scope } => match scope {
-                    Scope::Local => session.tx.send(packet.clone()),
-                    _ => {
+                    Scope::Local => {
+                        let _ = session.tx.send(packet.clone());
+                    }
+                    Scope::Map => {
                         let state = state.lock().await;
-                        state.sessions.for_each(|s| match scope {
-                            Scope::Map => {
-                                if s.map == session.map && s.id != session.id {
-                                    s.tx.send(packet.clone());
-                                }
+                        for s in state.sessions.iter() {
+                            if s.map.model.id == session.map.model.id && s.id != session.id {
+                                let _ = s.tx.send(packet.clone());
                             }
-                            Scope::Channel => {
-                                if s.channel == session.channel && s.id != session.id {
-                                    s.tx.send(packet.clone());
-                                }
+                        }
+                    }
+                    Scope::Channel => {
+                        let state = state.lock().await;
+                        for s in state.sessions.iter() {
+                            if s.channel.model.id == session.channel.model.id && s.id != session.id
+                            {
+                                let _ = s.tx.send(packet.clone());
                             }
-                            Scope::World => {
-                                if s.world == session.world && s.id != session.id {
-                                    s.tx.send(packet.clone());
-                                }
+                        }
+                    }
+                    Scope::World => {
+                        let state = state.lock().await;
+                        for s in state.sessions.iter() {
+                            if s.world.model.id == session.world.model.id && s.id != session.id {
+                                let _ = s.tx.send(packet.clone());
                             }
-                            Scope::Global => {
-                                if s.id != session.id {
-                                    s.tx.send(packet.clone());
-                                }
+                        }
+                    }
+                    Scope::Global => {
+                        let state = state.lock().await;
+                        for s in state.sessions.iter() {
+                            if s.id != session.id {
+                                let _ = s.tx.send(packet.clone());
                             }
-                        });
+                        }
                     }
                 },
                 Action::Set(set_action) => match set_action {
                     SetAction::SetMap { map, scope } => match scope {
                         Scope::Local => {
                             let state = state.lock().await;
-                            state.sessions.update(&session.id, |s| {
-                                s.map = Some(map.clone());
+                            state.sessions.update(session.id, |s| {
+                                s.map = map.clone();
                             });
                         }
-                        _ => {
-                            let ids: Vec<i32> = {
-                                let state = state.lock().await;
-                                state.sessions.collect_ids(|s| match scope {
-                                    Scope::Map => s.map == session.map && s.id != session.id,
-                                    Scope::Channel => {
-                                        s.channel == session.channel && s.id != session.id
-                                    }
-                                    Scope::World => s.world == session.world && s.id != session.id,
-                                    Scope::Global => s.id != session.id,
-                                    Scope::Local => unreachable!(),
-                                })
-                            };
+
+                        Scope::Map => {
                             let state = state.lock().await;
-                            for id in ids {
-                                state.sessions.update(&id, |s| {
-                                    s.map = Some(map.clone());
-                                });
+                            for s in state.sessions.iter() {
+                                if s.map.model.id == session.map.model.id && s.id != session.id {
+                                    state.sessions.update(s.id, |s| {
+                                        s.map = map.clone();
+                                    });
+                                }
+                            }
+                        }
+                        Scope::Channel => {
+                            let state = state.lock().await;
+                            for s in state.sessions.iter() {
+                                if s.channel.model.id == session.channel.model.id
+                                    && s.id != session.id
+                                {
+                                    state.sessions.update(s.id, |s| {
+                                        s.map = map.clone();
+                                    });
+                                }
+                            }
+                        }
+                        Scope::World => {
+                            let state = state.lock().await;
+                            for s in state.sessions.iter() {
+                                if s.world.model.id == session.world.model.id && s.id != session.id
+                                {
+                                    state.sessions.update(s.id, |s| {
+                                        s.map = map.clone();
+                                    });
+                                }
+                            }
+                        }
+
+                        Scope::Global => {
+                            let state = state.lock().await;
+                            for s in state.sessions.iter() {
+                                if s.id != session.id {
+                                    state.sessions.update(s.id, |s| {
+                                        s.map = map.clone();
+                                    });
+                                }
                             }
                         }
                     },
                     SetAction::SetChannel { channel, scope } => match scope {
                         Scope::Local => {
                             let state = state.lock().await;
-                            state.sessions.update(&session.id, |s| {
-                                s.channel = Some(channel.clone());
+                            state.sessions.update(session.id, |s| {
+                                s.channel = channel.clone();
                             });
                         }
-                        _ => {
-                            let ids: Vec<i32> = {
-                                let state = state.lock().await;
-                                state.sessions.collect_ids(|s| match scope {
-                                    Scope::Map => s.map == session.map && s.id != session.id,
-                                    Scope::Channel => {
-                                        s.channel == session.channel && s.id != session.id
-                                    }
-                                    Scope::World => s.world == session.world && s.id != session.id,
-                                    Scope::Global => s.id != session.id,
-                                    Scope::Local => unreachable!(),
-                                })
-                            };
+                        Scope::Map => {
                             let state = state.lock().await;
-                            for id in ids {
-                                state.sessions.update(&id, |s| {
-                                    s.channel = Some(channel.clone());
-                                });
+                            for s in state.sessions.iter() {
+                                if s.map.model.id == session.map.model.id && s.id != session.id {
+                                    state.sessions.update(s.id, |s| {
+                                        s.channel = channel.clone();
+                                    });
+                                }
+                            }
+                        }
+                        Scope::Channel => {
+                            let state = state.lock().await;
+                            for s in state.sessions.iter() {
+                                if s.channel.model.id == session.channel.model.id
+                                    && s.id != session.id
+                                {
+                                    state.sessions.update(s.id, |s| {
+                                        s.channel = channel.clone();
+                                    });
+                                }
+                            }
+                        }
+                        Scope::World => {
+                            let state = state.lock().await;
+                            for s in state.sessions.iter() {
+                                if s.world.model.id == session.world.model.id && s.id != session.id
+                                {
+                                    state.sessions.update(s.id, |s| {
+                                        s.channel = channel.clone();
+                                    });
+                                }
+                            }
+                        }
+                        Scope::Global => {
+                            let state = state.lock().await;
+                            for s in state.sessions.iter() {
+                                if s.id != session.id {
+                                    state.sessions.update(s.id, |s| {
+                                        s.channel = channel.clone();
+                                    });
+                                }
                             }
                         }
                     },
                     SetAction::SetWorld { world, scope } => match scope {
                         Scope::Local => {
                             let state = state.lock().await;
-                            state.sessions.update(&session.id, |s| {
-                                s.world = Some(world.clone());
+                            state.sessions.update(session.id, |s| {
+                                s.world = world.clone();
                             });
                         }
-                        _ => {
-                            let ids: Vec<i32> = {
-                                let state = state.lock().await;
-                                state.sessions.collect_ids(|s| match scope {
-                                    Scope::Map => s.map == session.map && s.id != session.id,
-                                    Scope::Channel => {
-                                        s.channel == session.channel && s.id != session.id
-                                    }
-                                    Scope::World => s.world == session.world && s.id != session.id,
-                                    Scope::Global => s.id != session.id,
-                                    Scope::Local => unreachable!(),
-                                })
-                            };
+                        Scope::Map => {
                             let state = state.lock().await;
-                            for id in ids {
-                                state.sessions.update(&id, |s| {
-                                    s.world = Some(world.clone());
-                                });
+                            for s in state.sessions.iter() {
+                                if s.map.model.id == session.map.model.id && s.id != session.id {
+                                    state.sessions.update(s.id, |s| {
+                                        s.world = world.clone();
+                                    });
+                                }
+                            }
+                        }
+                        Scope::Channel => {
+                            let state = state.lock().await;
+                            for s in state.sessions.iter() {
+                                if s.channel.model.id == session.channel.model.id
+                                    && s.id != session.id
+                                {
+                                    state.sessions.update(s.id, |s| {
+                                        s.world = world.clone();
+                                    });
+                                }
+                            }
+                        }
+                        Scope::World => {
+                            let state = state.lock().await;
+                            for s in state.sessions.iter() {
+                                if s.world.model.id == session.world.model.id && s.id != session.id
+                                {
+                                    state.sessions.update(s.id, |s| {
+                                        s.world = world.clone();
+                                    });
+                                }
+                            }
+                        }
+                        Scope::Global => {
+                            let world = World { model: world_model };
+                            let state = state.lock().await;
+                            for s in state.sessions.iter() {
+                                if s.id != session.id {
+                                    state.sessions.update(s.id, |s| {
+                                        s.world = world.clone();
+                                    });
+                                }
                             }
                         }
                     },
-                    SetAction::SetAuthenticated => {
-                        let state = state.lock().await;
-                        state.sessions.update(&session.id, |s| {
-                            s.authenticated = true;
-                        });
-                    }
-                    SetAction::SetPlaying => {
-                        let state = state.lock().await;
-                        state.sessions.update(&session.id, |s| {
-                            s.playing = true;
-                        });
-                    }
                     SetAction::SetAccount { acc } => {
                         let state = state.lock().await;
-                        state.sessions.update(&session.id, |s| {
-                            s.acc = Some(acc);
+                        state.sessions.update(session.id, |s| {
+                            s.acc = acc;
                         });
                     }
                     SetAction::SetChar { char } => {
+                        let char =
+                            character::service::get_character_by_modal(state, char_model.clone())
+                                .await?;
                         let state = state.lock().await;
-                        state.sessions.update(&session.id, |s| {
-                            s.char = Some(char);
-                        });
-                    }
-                    SetAction::SetHwid { hwid } => {
-                        let state = state.lock().await;
-                        state.sessions.update(&session.id, |s| {
-                            s.hwid = Some(hwid);
+                        state.sessions.update(session.id, |s| {
+                            s.char = char;
                         });
                     }
                 },
@@ -296,12 +361,12 @@ impl RuntimeRelay for LoginRelay {
         &mut self,
         state: &SharedState,
         packet: &Packet,
-    ) -> Result<HandlerResult<Action>, RuntimeError> {
+    ) -> Result<HandlerResult, RuntimeError> {
         let session = {
             let state = state.lock().await;
             state
                 .sessions
-                .get(&self.session_id())
+                .get(self.session_id())
                 .ok_or(SessionError::NotFound(self.session_id()))?
         };
         let op = packet.opcode();
@@ -316,51 +381,51 @@ impl RuntimeRelay for LoginRelay {
         match op {
             x if x == RecvOpcode::RequestLogin as i16 => {
                 let handler = CredentialsHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::LoginStarted as i16 => {
                 let handler = LoginStartHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::AcceptTOS as i16 => {
-                let handler = TOSHandler::new();
-                handler.handle(state, session, packet).await?
+                let handler = TosHandler::new();
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::ServerListRequest as i16 => {
                 let handler = ListWorldsHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::ServerStatusRequest as i16 => {
                 let handler = ServerStatusHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::CharListRequest as i16 => {
                 let handler = ListCharsHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::CreateChar as i16 => {
                 let handler = CreateCharHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::CheckCharName as i16 => {
                 let handler = CheckCharNameHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::DeleteChar as i16 => {
                 let handler = DeleteCharHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::CharSelect as i16 => {
                 let handler = SelectCharHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::RegisterPic as i16 => {
                 let handler = RegisterPicHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::CharSelectWithPic as i16 => {
                 let handler = SelectCharWithPicHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             _ => Err(RuntimeError::UnsupportedOpcodeError(
                 op,
@@ -387,14 +452,13 @@ impl RuntimeRelay for PlayerRelay {
         &mut self,
         state: &SharedState,
         packet: &Packet,
-    ) -> Result<HandlerResult<Action>, RuntimeError> {
+    ) -> Result<HandlerResult, RuntimeError> {
         let session = {
             let state = state.lock().await;
             state
                 .sessions
-                .get(&self.session_id())
-                .ok_or(SessionError::NotFound(self.session_id()))
-                .map_err(RuntimeError::from)?
+                .get(self.session_id())
+                .ok_or(SessionError::NotFound(self.session_id()))?
         };
         let op = packet.opcode();
         let en = RecvOpcode::from_i16(op).ok_or(RuntimeError::UnsupportedOpcodeError(
@@ -408,35 +472,35 @@ impl RuntimeRelay for PlayerRelay {
         match op {
             x if x == RecvOpcode::PlayerLoggedIn as i16 => {
                 let handler = PlayerLoggedInHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::ChangeChannel as i16 => {
                 let handler = ChangeChannelHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::PartySearch as i16 => {
                 let handler = PartySearchHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::PlayerMapTransfer as i16 => {
                 let handler = PlayerMapTransferHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::PlayerMove as i16 => {
                 let handler = MovePlayerHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::EnterCashShop as i16 => {
                 let handler = EnterCashShopHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::ChangeKeymap as i16 => {
                 let handler = ChangeKeymapHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             x if x == RecvOpcode::CloseAttack as i16 => {
                 let handler = CloseAttackHandler::new();
-                handler.handle(state, session, packet).await?
+                Ok(handler.handle(state, session.clone(), packet).await?)
             }
             _ => Err(RuntimeError::UnsupportedOpcodeError(
                 op,

@@ -5,12 +5,11 @@ use crate::runtime::state::SharedState;
 
 pub async fn set_pic(
     state: &SharedState,
-    session: &Session,
-    pic: &str,
+    session: Session,
+    pic: String,
 ) -> Result<(), NetworkError> {
-    let acc_id = session.acc_id;
-    let mut acc = account::query::get_account_by_id(state, &acc_id).await?;
-    acc.pic = Some(pic.to_string());
-    account::query::update(state, &acc).await?;
+    let mut acc = session.acc.clone();
+    acc.model.pic = pic;
+    account::query::update_by_model(state, acc.model).await?;
     Ok(())
 }

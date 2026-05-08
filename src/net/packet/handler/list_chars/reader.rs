@@ -4,17 +4,14 @@ use crate::net::packet::model::Packet;
 use crate::prelude::*;
 use std::io::Cursor;
 
+#[derive(Clone)]
 pub struct ListCharsReader {
     pub channel_id: i8,
     pub world_id: i8,
 }
 
 impl ListCharsReader {
-    pub fn new() -> Self {
-        Self
-    }
-
-    pub fn read_list_chars_packet(&self, packet: &Packet) -> Result<Self, NetworkError> {
+    pub fn read_list_chars_packet(packet: &Packet) -> Result<Self, NetworkError> {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let _op = pkt_reader.read_short().map_err(ReadError)?;
         let skip = 1;

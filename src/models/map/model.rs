@@ -1,3 +1,9 @@
+#[derive(Clone)]
+pub struct MapModel {
+    pub id: i32,
+}
+
+#[derive(Clone)]
 pub struct Map {
-    id: i32,
+    pub model: MapModel,
 }

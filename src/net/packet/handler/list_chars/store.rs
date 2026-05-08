@@ -1,19 +1,21 @@
-ment_set::model::{CashEquipmentSet, RegularEquipmentSet};
 use crate::config::settings;
 use crate::models::account::model::Account;
-use crate::models::channel::model::Channel;
-use crate::models::{account, channel, character, world};
-use crate::net::packet::handler::list_chars::reader::ListCharsRead;
-use crate::runtime::error::SessionError;
+use crate::models::channel::model::ChannelModel;
+use crate::models::character::model::Character;
+use crate::models::world::model::WorldModel;
+use crate::models::{channel, world};
+use crate::net::error::NetworkError;
+use crate::net::packet::handler::list_chars::reader::ListCharsReader;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 
+#[derive(Clone)]
 pub struct ListCharsStore {
-    pub acc: Account,
+    pub channel: ChannelModel,
     pub chars: Vec<Character>,
-    pub channel: Channel,
-    pub char_max: u8,
-    pub pic_status: u8,
+    pub char_max: i16,
+    pub pic_status: i8,
+    pub world: WorldModel,
 }
 
 pub enum PicStatus {
@@ -23,40 +25,32 @@ pub enum PicStatus {
 }
 
 impl ListCharsStore {
-    pub fn new() -> Self {
-        Self
-    }
-
     pub async fn store_list_chars(
-        &self,
         state: &SharedState,
-        session: &Session,
-        reader: &ListCharsRead
+        session: Session,
+        reader: ListCharsReader,
     ) -> Result<Self, NetworkError> {
-        let world = world::service::get_world_by_id(&reader.world_id)?;
-        let channel = channel::service::get_channel_by_ids(&reader.channel_id, &reader.world_id)?;
-        let chars = character::query::get_characters_by_account_id_and_world_id(
-            state,
-            &session.acc.id,
-            &reader.world_id,
-        )
-        .await?;
-        let default_char_max = settings::get_char_max()?;
+        let acc: Account = session.acc.clone();
+        let chars: Vec<Character> = acc.chars.clone();
+        let world: WorldModel = world::service::get_world_by_id(reader.world_id)?;
+        let channel: ChannelModel =
+            channel::service::get_channel_by_ids(reader.channel_id, world.id)?;
         let char_max =
-            world::query::get_character_max_by_account_and_world_id(state, &session.acc.id, &reader.world_id)
-                .await
-                .unwrap_or(default_char_max as i16);
-        let mut pic_status: u8 = PicStatus::Disabled as u8;
+            world::query::get_character_max_by_account_and_world_id(state, acc.id, world.id)
+                .await?;
+        let mut pic_status: i8 = PicStatus::Disabled as i8;
         let use_pic = settings::get_pic_required()?;
-        if let Some(_pic) = *session.acc.pic {
-            pic_status = if use_pic { PicStatus::AlreadyRegistered as u8 } else { PicStatus::NeedsToRegister as u8 }; 
-        }
+        pic_status = if use_pic {
+            PicStatus::AlreadyRegistered as i8
+        } else {
+            PicStatus::NeedsToRegister as i8
+        };
         Ok(Self {
-            acc: session.acc.clone(),
-            chars: chars.clone(),
-            channel: channel.clone(),
-            char_max: char_max.clone(),
-            pic_status: pic_status.clone(),
+            channel,
+            chars,
+            char_max,
+            pic_status,
+            world,
         })
     }
 }

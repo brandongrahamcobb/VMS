@@ -4,6 +4,7 @@ use crate::net::packet::model::Packet;
 use crate::prelude::*;
 use std::io::Cursor;
 
+#[derive(Clone)]
 pub struct SelectCharWithPicReader {
     pub char_id: i32,
     pub mac: String,
@@ -12,11 +13,7 @@ pub struct SelectCharWithPicReader {
 }
 
 impl SelectCharWithPicReader {
-    pub fn new() -> Self {
-        Self
-    }
-
-    pub fn read_select_char_with_pic_packet(&self, packet: &Packet) -> Result<Self, NetworkError> {
+    pub fn read_select_char_with_pic_packet(packet: &Packet) -> Result<Self, NetworkError> {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let _op = pkt_reader.read_short().map_err(ReadError)?;
         let pic = pkt_reader.read_str_with_length().map_err(ReadError)?;

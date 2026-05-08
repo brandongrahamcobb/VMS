@@ -104,13 +104,3 @@ impl AES {
         result
     }
 }
-
-#[cfg(test)]
-mod tests {
-
-    use super::*;
-
-    fn test_encryption_decryption() {
-        println!("Placeholder");
-    }
-}

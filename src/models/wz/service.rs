@@ -26,7 +26,7 @@ pub fn load_wz_reader(filename: &str) -> Result<WzReader<BufReader<File>>, Model
 fn build_index(
     wz: &mut WzReader<BufReader<File>>,
     dir: &WzDir,
-    prefix: &String,
+    prefix: String,
     map: &mut HashMap<i32, String>,
 ) -> Result<(), ModelError> {
     for entry in dir.0.iter() {
@@ -39,7 +39,7 @@ fn build_index(
                     format!("{}/{}", prefix, name)
                 };
                 let sub_dir = wz.read_dir_node(&sub).map_err(WzError::AnyHowError)?;
-                build_index(wz, &sub_dir, &path, map)?;
+                build_index(wz, &sub_dir, path, map)?;
             }
             WzDirEntry::Img(img) => {
                 let name = &img.name.0;
@@ -71,12 +71,12 @@ impl WzResolver {
             .map_err(WzError::AnyHowError)
             .map_err(ModelError::from)?;
         let mut map = HashMap::new();
-        build_index(wz_reader, &dir, &String::new(), &mut map)?;
+        build_index(wz_reader, &dir, String::new(), &mut map)?;
         Ok(Self { map })
     }
 
-    pub fn resolve(&self, id: &i32) -> Result<Option<&String>, ModelError> {
-        Ok(self.map.get(id))
+    pub fn resolve(&self, id: i32) -> Result<String, ModelError> {
+        Ok(self.map.get(&id).cloned().ok_or(WzError::NotFound(id))?)
     }
 }
 
@@ -84,13 +84,10 @@ pub fn get_i32(map: &serde_json::Value, key: &str) -> Option<i32> {
     map.get(key).and_then(|v| v.as_i64().map(|n| n as i32))
 }
 
-pub fn get_img_map(id: &i32, wz_name: &str) -> Result<serde_json::Value, ModelError> {
+pub fn get_img_map(id: i32, wz_name: &str) -> Result<serde_json::Value, ModelError> {
     let mut wz = load_wz_reader(wz_name)?;
     let resolver = WzResolver::new(&mut wz)?;
-    let path = resolver
-        .resolve(id)?
-        .ok_or(WzError::NotFound(*id))
-        .map_err(ModelError::from)?;
+    let path = resolver.resolve(id)?;
     let parts: Vec<&str> = path.split('/').collect();
     let root = wz
         .read_root_dir()

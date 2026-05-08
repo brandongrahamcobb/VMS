@@ -9,18 +9,18 @@ use std::collections::HashMap;
 impl Packet {
     pub fn build_close_attack_handler_packet(
         &mut self,
-        char_id: &i32,
-        count: &u8,
-        skill_level: &u8,
-        skill_id: &i32,
-        display: &u8,
-        toleft: &u8,
-        stance: &u8,
-        speed: &u8,
-        mob_damages: &HashMap<i32, Vec<i32>>,
+        char_id: i32,
+        count: i8,
+        skill_level: i8,
+        skill_id: i32,
+        display: i8,
+        toleft: i8,
+        stance: i8,
+        speed: i8,
+        mob_damages: HashMap<i32, Vec<i32>>,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::AttackedClose as i16;
-        self.write_short(&op).map_err(WriteError)?;
+        self.write_short(op).map_err(WriteError)?;
         self.write_int(char_id).map_err(WriteError)?;
         self.write_byte(count).map_err(WriteError)?;
         self.write_byte(skill_level).map_err(WriteError)?;
@@ -30,9 +30,9 @@ impl Packet {
         self.write_byte(stance).map_err(WriteError)?;
         self.write_byte(speed).map_err(WriteError)?;
         for (mob_id, damages) in mob_damages {
-            self.write_int(&mob_id).map_err(WriteError)?;
+            self.write_int(mob_id).map_err(WriteError)?;
             for dmg in damages {
-                self.write_int(&dmg).map_err(WriteError)?;
+                self.write_int(dmg).map_err(WriteError)?;
             }
         }
         Ok(self)

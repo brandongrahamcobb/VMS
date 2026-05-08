@@ -33,4 +33,7 @@ pub enum ModelError {
 
     #[error("Diesel error in model layer")]
     DieselError(#[from] diesel::result::Error),
+
+    #[error("Map error in model layer")]
+    MapError,
 }

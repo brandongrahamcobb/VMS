@@ -4,19 +4,19 @@ use std::time::SystemTime;
 
 #[derive(Clone, Identifiable, Queryable, Insertable, AsChangeset)]
 #[diesel(table_name = keybindings)]
-pub struct Keybinding {
+pub struct KeybindingModel {
     pub id: i32,
     pub char_id: i32,
     pub key: i32,
     pub bind_type: i16,
     pub action: i32,
-    pub created_at: Option<SystemTime>,
-    pub updated_at: Option<SystemTime>,
+    pub created_at: SystemTime,
+    pub updated_at: SystemTime,
 }
 
 #[derive(Clone, Insertable, AsChangeset)]
 #[diesel(table_name = keybindings)]
-pub struct NewKeybinding {
+pub struct NewCharacterKeybindingInsert {
     pub char_id: i32,
     pub key: i32,
     pub bind_type: i16,
@@ -36,16 +36,7 @@ pub enum KeybindType {
     Text = 8,
 }
 
-impl Keybinding {
-    pub fn empty(char_id: &i32, key: &i32) -> Self {
-        Self {
-            id: 0,
-            char_id: char_id.clone(),
-            key: key.clone(),
-            bind_type: KeybindType::Nil as i16,
-            action: 0,
-            created_at: None,
-            updated_at: None,
-        }
-    }
+#[derive(Clone)]
+pub struct Keybinding {
+    model: KeybindingModel,
 }

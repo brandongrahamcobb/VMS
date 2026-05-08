@@ -81,20 +81,23 @@ pub enum SessionError {
     #[error("Failed to retrieve account in session: {0}")]
     NoAccount(i32),
 
-    #[error("Failed to retrieve selected channel in session: {0}")]
-    NoChannelSelected(i32),
+    #[error("Failed to retrieve channel in session: {0}")]
+    NoChannel(i32),
 
-    #[error("Failed to retrieve selected world in session: {0}")]
-    NoWorldSelected(i32),
+    #[error("Failed to retrieve world in session: {0}")]
+    NoWorld(i32),
 
     #[error("Failed to retrieve hardware id in session: {0}")]
-    NoHWID(i32),
+    NoHwid(i32),
 
     #[error("Failed to validate successful authentication in session: {0}")]
     NotAuthenticated(i32),
 
-    #[error("Failed to retrieve selected character in session: {0}")]
-    NoCharacterSelected(i32),
+    #[error("Failed to retrieve character in session: {0}")]
+    NoChar(i32),
+
+    #[error("Failed to retrieve map in session: {0}")]
+    NoMap(i32),
 
     #[error("Missing field in session: {0}")]
     MissingField(i32),
