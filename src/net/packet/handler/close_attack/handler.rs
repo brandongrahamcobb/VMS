@@ -35,10 +35,10 @@ impl CloseAttackHandler {
         let mut result: HandlerResult = HandlerResult::new();
         let packet = Packet::new_empty()
             .build_close_attack_handler_packet(
-                store.char_model.id,
+                store.char.model.id,
                 store.count,
-                store.skill_model.level as i16,
-                store.skill_model.wz_id,
+                store.skill.model.level as i16,
+                store.skill.model.wz_id,
                 store.display,
                 store.toleft,
                 store.stance,

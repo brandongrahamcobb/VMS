@@ -43,7 +43,7 @@ pub struct CharacterModel {
 
 #[derive(Insertable)]
 #[diesel(table_name = characters)]
-pub struct NewCharacterInsert {
+pub struct NewInsert {
     pub acc_id: i32,
     pub world_id: i16,
     pub ign: String,

@@ -1,6 +1,6 @@
 use crate::models::character;
-use crate::models::character::model::CharacterModel;
-use crate::models::character::skill::model::SkillModel;
+use crate::models::character::model::Character;
+use crate::models::character::skill::model::Skill;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::close_attack::reader::CloseAttackReader;
 use crate::runtime::session::Session;
@@ -9,8 +9,8 @@ use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct CloseAttackStore {
-    pub char_model: CharacterModel,
-    pub skill_model: SkillModel,
+    pub char: Character,
+    pub skill: Skill,
     pub count: i16,
     pub display: i16,
     pub toleft: i16,
@@ -25,23 +25,22 @@ impl CloseAttackStore {
         session: Session,
         reader: CloseAttackReader,
     ) -> Result<Self, NetworkError> {
-        let char_model: CharacterModel = session.char.model.clone();
-        let skill_model: SkillModel =
-            character::skill::query::get_skill_model_by_character_id_and_skill_id(
-                state,
-                char_model.id,
-                reader.skill_id,
-            )
-            .await?;
-        Ok(Self {
-            char_model,
-            skill_model,
+        let char = session.get_char()?;
+        let skill = character::skill::service::get_skill_by_character_id_and_skill_id(
+            state,
+            char.model.id,
+            reader.skill_id,
+        )
+        .await?;
+        return Ok(Self {
+            char: char.clone(),
+            skill: skill.clone(),
             count: reader.count,
             display: reader.display,
             toleft: reader.toleft,
             stance: reader.stance,
             speed: reader.speed,
-            mob_damages: reader.mob_damages,
-        })
+            mob_damages: reader.mob_damages.clone(),
+        });
     }
 }

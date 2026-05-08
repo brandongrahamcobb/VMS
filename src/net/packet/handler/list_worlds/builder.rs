@@ -54,10 +54,11 @@ impl Packet {
         for world in worlds {
             let world_id = world.model.id as i16;
             self.write_byte(world_id).map_err(WriteError)?;
-            self.write_str(world.model.name.clone())
+            self.write_str(world.model.get_name()?.clone())
                 .map_err(WriteError)?;
-            self.write_byte(world.model.flag).map_err(WriteError)?;
-            self.write_str(world.model.event_message.clone())
+            self.write_byte(world.model.get_flag()?)
+                .map_err(WriteError)?;
+            self.write_str(world.model.get_event_message()?.clone())
                 .map_err(WriteError)?;
             self.write_byte(100).map_err(WriteError)?;
             self.write_byte(0).map_err(WriteError)?;
@@ -69,7 +70,7 @@ impl Packet {
             for channel in world.channels.clone() {
                 let channel_name = String::from("Placeholder");
                 self.write_str(channel_name).map_err(WriteError)?;
-                let channel_capacity = channel.model.capacity as i32;
+                let channel_capacity = channel.model.get_capacity()? as i32;
                 self.write_int(channel_capacity).map_err(WriteError)?;
                 self.write_byte(1).map_err(WriteError)?;
                 let channel_id = channel.model.id as i16;

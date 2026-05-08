@@ -1,10 +1,5 @@
 use crate::config::settings;
 use crate::inc::helpers;
-use crate::models::account::model::Account;
-use crate::models::channel::model::Channel;
-use crate::models::character::model::Character;
-use crate::models::map::model::Map;
-use crate::models::world::model::World;
 use crate::runtime::error::RuntimeError;
 use crate::runtime::relay::{LoginRelay, PlayerRelay, Runtime};
 use crate::runtime::session::Session;
@@ -22,6 +17,7 @@ impl LoginServer {
         let addr = settings::get_address()?;
         let bind = helpers::build_server_addr(addr, port);
         let listener: TcpListener = TcpListener::bind(bind).await?;
+
         loop {
             match listener.accept().await {
                 Ok((stream, _)) => {
@@ -30,15 +26,14 @@ impl LoginServer {
                         let state = state.lock().await;
                         state.sessions.insert(Session {
                             id: 0,
-                            acc: Account::new(),
-                            authenticated: false,
-                            playing: false,
-                            hwid: String::new(),
-                            world: World::new(),
-                            channel: Channel::new(),
-                            map: Map::new(),
-                            char: Character::new(),
+                            acc: None,
+                            hwid: None,
+                            world: None,
+                            channel: None,
+                            map: None,
+                            char: None,
                             tx: tx.clone(),
+                            playing: true,
                         })
                     };
                     info!("Listening on port {}...", port);
@@ -51,16 +46,15 @@ impl LoginServer {
                                 Ok(Some(id)) => {
                                     let port = {
                                         let state = state.lock().await;
-                                        match state.sessions.get(id) {
-                                            Some(s) => s.channel.model.port,
-                                            None => {
-                                                info!(
-                                                    "Expected a valid session. Session ID: {}",
-                                                    id
-                                                );
-                                                return;
-                                            }
-                                        }
+                                        let Some(session) = state.sessions.get(id) else {
+                                            info!("Expected a valid session. Session ID: {}", id);
+                                            return;
+                                        };
+                                        let Some(channel) = session.channel else {
+                                            info!("Expected a valid channel. Session ID: {}", id);
+                                            return;
+                                        };
+                                        channel.model.port
                                     };
                                     tokio::spawn(PlayerServer::accept(state, id, port));
                                 }
@@ -121,16 +115,15 @@ impl PlayerServer {
                                 Ok(Some(id)) => {
                                     let port = {
                                         let state = state.lock().await;
-                                        match state.sessions.get(id) {
-                                            Some(s) => s.channel.model.port,
-                                            None => {
-                                                info!(
-                                                    "Expected a valid session. Session ID: {}",
-                                                    id
-                                                );
-                                                return;
-                                            }
-                                        }
+                                        let Some(session) = state.sessions.get(id) else {
+                                            info!("Expected a valid session. Session ID: {}", id);
+                                            return;
+                                        };
+                                        let Some(channel) = session.channel else {
+                                            info!("Expected a valid channel. Session ID: {}", id);
+                                            return;
+                                        };
+                                        channel.model.port
                                     };
                                     tokio::spawn(PlayerServer::accept(state.clone(), id, port));
                                 }

@@ -1,5 +1,5 @@
 use crate::db::schema::skills;
-use crate::models::character::skill::model::{NewCharacterSkillInsert, SkillModel};
+use crate::models::character::skill::model::{NewSkillInsert, SkillModel};
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl};
@@ -66,12 +66,11 @@ pub async fn create_skills_by_character_id_and_job_id(
         .keys()
         .filter_map(|k| k.parse::<i32>().ok())
         .collect();
-    let mut skill_model_inserts: Vec<NewCharacterSkillInsert> = Vec::new();
+    let mut skill_model_inserts: Vec<NewSkillInsert> = Vec::new();
     for skill_id in skill_ids {
-        skill_model_inserts.push(NewCharacterSkillInsert {
+        skill_model_inserts.push(NewSkillInsert {
             char_id: char_id,
             wz_id: skill_id,
-            level: 0,
         });
     }
     diesel::insert_into(skills::table)

@@ -48,7 +48,7 @@ impl CredentialsHandler {
             StatusCode::Success(_) => {
                 let packet: Packet = Packet::new_empty()
                     .build_credentials_handler_successful_login_packet(
-                        &store.acc.clone().unwrap().model.clone(),
+                        store.acc.clone().unwrap().model.clone(),
                     )?
                     .finish();
                 result.add_action(Action::Set(SetAction::SetAccount {

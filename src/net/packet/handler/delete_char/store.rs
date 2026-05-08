@@ -1,4 +1,4 @@
-use crate::models::account::model::AccountModel;
+use crate::models::account::model::Account;
 use crate::models::character;
 use crate::models::character::model::CharacterModel;
 use crate::net::error::NetworkError;
@@ -19,9 +19,10 @@ impl DeleteCharStore {
         session: Session,
         reader: DeleteCharReader,
     ) -> Result<Self, NetworkError> {
-        let acc_model: AccountModel = session.acc.model.clone();
-        let char_model = character::query::get_character_model_by_id(state, reader.char_id).await?;
-        let status = delete_char::service::check_pic(acc_model.clone(), reader.pic)?;
+        let acc: Account = session.get_acc()?;
+        let char_model: CharacterModel =
+            character::query::get_character_model_by_id(state, reader.char_id).await?;
+        let status = delete_char::service::check_pic(acc.model.clone(), reader.pic)?;
         if status {
             character::query::delete_character_by_id(state, char_model.id).await?;
         }

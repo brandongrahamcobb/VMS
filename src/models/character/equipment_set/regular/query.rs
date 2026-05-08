@@ -1,6 +1,6 @@
 use crate::db::schema::regular_equipment_set;
 use crate::models::character::equipment_set::regular::model::{
-    NewCharacterRegularEquipmentSetInsert, RegularEquipmentSetModel,
+    NewRegularEquipmentSetInsert, RegularEquipmentSetModel,
 };
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
@@ -8,7 +8,7 @@ use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
 pub async fn create_regular_equipment_set_model_for_new_character(
     state: &SharedState,
-    regular_equips: NewCharacterRegularEquipmentSetInsert,
+    regular_equips: NewRegularEquipmentSetInsert,
 ) -> QueryResult<RegularEquipmentSetModel> {
     let db = {
         let state = state.lock().await;

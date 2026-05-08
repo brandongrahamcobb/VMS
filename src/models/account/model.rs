@@ -9,9 +9,9 @@ pub struct AccountModel {
     pub id: i32,
     pub username: String,
     pub password: String,
-    pub pin: String,
-    pub pic: String,
-    pub last_login_at: SystemTime,
+    pub pin: Option<String>,
+    pub pic: Option<String>,
+    pub last_login_at: Option<SystemTime>,
     pub gender_id: i16,
     pub accepted_tos: bool,
     pub banned: bool,
@@ -23,4 +23,10 @@ pub struct AccountModel {
 pub struct Account {
     pub model: AccountModel,
     pub chars: Vec<Character>,
+}
+
+pub struct NewAccountInsert {
+    pub username: String,
+    pub password: String,
+    pub gender_id: i16,
 }

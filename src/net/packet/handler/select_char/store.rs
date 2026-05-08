@@ -1,6 +1,6 @@
 use crate::config::settings;
 use crate::inc::helpers;
-use crate::models::channel::model::ChannelModel;
+use crate::models::channel::model::Channel;
 use crate::models::character;
 use crate::models::character::model::Character;
 use crate::net::error::NetworkError;
@@ -10,7 +10,7 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct SelectCharStore {
-    pub channel_model: ChannelModel,
+    pub channel: Channel,
     pub char: Character,
     pub octets: [u8; 4],
 }
@@ -21,13 +21,13 @@ impl SelectCharStore {
         session: Session,
         reader: SelectCharReader,
     ) -> Result<Self, NetworkError> {
-        let channel_model: ChannelModel = session.channel.model.clone();
+        let channel: Channel = session.get_channel()?;
         let char: Character =
             character::service::get_character_by_id(state, reader.char_id).await?;
         let addr: String = settings::get_address()?;
         let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
         Ok(Self {
-            channel_model,
+            channel,
             char,
             octets,
         })

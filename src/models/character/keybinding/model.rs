@@ -16,7 +16,7 @@ pub struct KeybindingModel {
 
 #[derive(Clone, Insertable, AsChangeset)]
 #[diesel(table_name = keybindings)]
-pub struct NewCharacterKeybindingInsert {
+pub struct NewKeybindingInsert {
     pub char_id: i32,
     pub key: i32,
     pub bind_type: i16,

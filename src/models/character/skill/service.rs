@@ -1,29 +1,20 @@
 use crate::models::character::skill;
+use crate::models::character::skill::model::NewSkillInsert;
 use crate::models::character::skill::model::Skill;
 use crate::models::character::skill::model::SkillModel;
 use crate::models::error::ModelError;
 use crate::models::wz;
 use crate::runtime::state::SharedState;
-use std::time::SystemTime;
 
 impl Skill {
-    pub fn new() -> Self {
-        Self {
-            model: SkillModel::new(),
-        }
+    pub fn new(model: SkillModel) -> Self {
+        Self { model }
     }
 }
 
-impl SkillModel {
-    pub fn new() -> Self {
-        Self {
-            char_id: -1,
-            id: -1,
-            wz_id: -1,
-            level: -1,
-            created_at: SystemTime::now(),
-            updated_at: SystemTime::now(),
-        }
+impl NewSkillInsert {
+    pub fn default(char_id: i32, wz_id: i32) -> Self {
+        Self { char_id, wz_id }
     }
 }
 
@@ -50,4 +41,16 @@ pub async fn create_skills_for_new_character(
     let skills: Vec<SkillModel> =
         skill::query::create_skills_by_character_id_and_job_id(state, char_id, map).await?;
     Ok(skills)
+}
+
+pub async fn get_skill_by_character_id_and_skill_id(
+    state: &SharedState,
+    char_id: i32,
+    skill_id: i32,
+) -> Result<Skill, ModelError> {
+    let skill_model =
+        skill::query::get_skill_model_by_character_id_and_skill_id(state, char_id, skill_id)
+            .await?;
+    let skill = Skill { model: skill_model };
+    Ok(skill)
 }

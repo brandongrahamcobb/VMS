@@ -11,4 +11,13 @@ pub enum WorldError {
 
     #[error("No worlds error in world model layer")]
     NoWorlds,
+
+    #[error("No event message in world model layer: {0}")]
+    NoEventMessage(i16),
+
+    #[error("No name in world model layer: {0}")]
+    NoName(i16),
+
+    #[error("No flag in world model layer: {0}")]
+    NoFlag(i16),
 }

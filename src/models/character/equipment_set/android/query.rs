@@ -1,6 +1,6 @@
 use crate::db::schema::android_equipment_set;
 use crate::models::character::equipment_set::android::model::{
-    AndroidEquipmentSetModel, NewCharacterAndroidEquipmentSetInsert,
+    AndroidEquipmentSetModel, NewAndroidEquipmentSetInsert,
 };
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
@@ -8,7 +8,7 @@ use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
 pub async fn create_android_equipment_set_model_for_new_character(
     state: &SharedState,
-    android_equips: NewCharacterAndroidEquipmentSetInsert,
+    android_equips: NewAndroidEquipmentSetInsert,
 ) -> QueryResult<AndroidEquipmentSetModel> {
     let db = {
         let state = state.lock().await;

@@ -4,7 +4,7 @@ use tokio::sync::Mutex;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 use vms::runtime::error::RuntimeError;
-use vms::runtime::server::{LoginServer, PlayerServer};
+use vms::runtime::server::LoginServer;
 use vms::runtime::state::{SharedState, State};
 
 #[tokio::main]

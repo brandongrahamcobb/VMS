@@ -1,5 +1,7 @@
 use thiserror::Error;
 
+use crate::models::character::equipment_set::error::EquipmentSetError;
+
 #[derive(Debug, Error)]
 pub enum CharacterError {
     #[error("Requested character was not found in character model layer: {0}")]
@@ -10,4 +12,7 @@ pub enum CharacterError {
 
     #[error("Missing field in character model layer: {0}")]
     MissingField(i32),
+
+    #[error("Equipment set error in character model layer")]
+    EquipmentSetError(#[from] EquipmentSetError),
 }

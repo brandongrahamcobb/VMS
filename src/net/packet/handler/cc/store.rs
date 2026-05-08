@@ -22,9 +22,9 @@ impl ChangeChannelStore {
         reader: ChangeChannelReader,
     ) -> Result<Self, NetworkError> {
         let channel = channel::service::get_channel_by_id(state, reader.channel_id).await?;
-        let char = session.char.clone(); // preemptively planning for spawn player equips
         let addr = settings::get_address()?;
         let octets = helpers::convert_to_ip_array(addr);
+        let char = session.get_char()?;
         Ok(Self {
             char,
             channel,

@@ -1,5 +1,5 @@
 use crate::db::schema::characters;
-use crate::models::character::model::{CharacterModel, NewCharacterInsert};
+use crate::models::character::model::{CharacterModel, NewInsert};
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl};
@@ -25,7 +25,7 @@ pub async fn get_characters_models_by_account_id(
 
 pub async fn create_character_model(
     state: &SharedState,
-    insert: NewCharacterInsert,
+    insert: NewInsert,
 ) -> QueryResult<CharacterModel> {
     let db = {
         let state = state.lock().await;

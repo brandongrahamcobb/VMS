@@ -337,96 +337,92 @@ impl Packet {
         &mut self,
         char: Character,
     ) -> Result<&mut Self, NetworkError> {
-        if !char.regular_equips.hat.model.id.is_negative() {
-            self.build_look_regular_hat_part_packet(char.regular_equips.hat.clone())?;
+        if let Some(hat) = char.regular_equips.hat {
+            self.build_look_regular_hat_part_packet(hat.clone())?;
         }
-        if !char.regular_equips.face_acc.model.id.is_negative() {
-            self.build_look_regular_face_acc_part_packet(char.regular_equips.face_acc.clone())?;
+        if let Some(face_acc) = char.regular_equips.face_acc {
+            self.build_look_regular_face_acc_part_packet(face_acc.clone())?;
         }
-        if !char.regular_equips.eye_acc.model.id.is_negative() {
-            self.build_look_regular_eye_acc_part_packet(char.regular_equips.eye_acc.clone())?;
+        if let Some(eye_acc) = char.regular_equips.eye_acc {
+            self.build_look_regular_eye_acc_part_packet(eye_acc.clone())?;
         }
-        if !char.regular_equips.ear_acc.model.id.is_negative() {
-            self.build_look_regular_ear_acc_part_packet(char.regular_equips.ear_acc.clone())?;
+        if let Some(ear_acc) = char.regular_equips.ear_acc {
+            self.build_look_regular_ear_acc_part_packet(ear_acc.clone())?;
         }
-        if !char.regular_equips.top.model.id.is_negative() {
-            self.build_look_regular_top_part_packet(char.regular_equips.top.clone())?;
+        if let Some(top) = char.regular_equips.top {
+            self.build_look_regular_top_part_packet(top.clone())?;
         }
-        if !char.regular_equips.bottom.model.id.is_negative() {
-            self.build_look_regular_bottom_part_packet(char.regular_equips.bottom.clone())?;
+        if let Some(bottom) = char.regular_equips.bottom {
+            self.build_look_regular_bottom_part_packet(bottom.clone())?;
         }
-        if !char.regular_equips.shoes.model.id.is_negative() {
-            self.build_look_regular_shoes_part_packet(char.regular_equips.shoes.clone())?;
+        if let Some(shoes) = char.regular_equips.shoes {
+            self.build_look_regular_shoes_part_packet(shoes.clone())?;
         }
-        if !char.regular_equips.gloves.model.id.is_negative() {
-            self.build_look_regular_gloves_part_packet(char.regular_equips.gloves.clone())?;
+        if let Some(gloves) = char.regular_equips.gloves {
+            self.build_look_regular_gloves_part_packet(gloves.clone())?;
         }
-        if !char.regular_equips.cape.model.id.is_negative() {
-            self.build_look_regular_cape_part_packet(char.regular_equips.cape.clone())?;
+        if let Some(cape) = char.regular_equips.cape {
+            self.build_look_regular_cape_part_packet(cape.clone())?;
         }
-        if !char.regular_equips.shield.model.id.is_negative() {
-            self.build_look_regular_shield_part_packet(char.regular_equips.shield.clone())?;
+        if let Some(shield) = char.regular_equips.shield {
+            self.build_look_regular_shield_part_packet(shield.clone())?;
         }
-        if !char.regular_equips.weapon.model.id.is_negative() {
-            self.build_look_regular_weapon_part_packet(char.regular_equips.weapon.clone())?;
+        if let Some(weapon) = char.regular_equips.weapon {
+            self.build_look_regular_weapon_part_packet(weapon.clone())?;
         }
-        if !char.regular_equips.ring_one.model.id.is_negative() {
-            self.build_look_regular_ring_one_part_packet(char.regular_equips.ring_one.clone())?;
+        if let Some(ring_one) = char.regular_equips.ring_one {
+            self.build_look_regular_ring_one_part_packet(ring_one.clone())?;
         }
-        if !char.regular_equips.ring_two.model.id.is_negative() {
-            self.build_look_regular_ring_two_part_packet(char.regular_equips.ring_two.clone())?;
+        if let Some(ring_two) = char.regular_equips.ring_two {
+            self.build_look_regular_ring_two_part_packet(ring_two.clone())?;
         }
-        if !char.regular_equips.ring_three.model.id.is_negative() {
-            self.build_look_regular_ring_three_part_packet(char.regular_equips.ring_three.clone())?;
+        if let Some(ring_three) = char.regular_equips.ring_three {
+            self.build_look_regular_ring_three_part_packet(ring_three.clone())?;
         }
-        if !char.regular_equips.ring_four.model.id.is_negative() {
-            self.build_look_regular_ring_four_part_packet(char.regular_equips.ring_four.clone())?;
+        if let Some(ring_four) = char.regular_equips.ring_four {
+            self.build_look_regular_ring_four_part_packet(ring_four.clone())?;
         }
-        if !char.regular_equips.pendant_one.model.id.is_negative() {
-            self.build_look_regular_pendant_one_part_packet(
-                char.regular_equips.pendant_one.clone(),
-            )?;
+        if let Some(pendant_one) = char.regular_equips.pendant_one {
+            self.build_look_regular_pendant_one_part_packet(pendant_one.clone())?;
         }
-        if !char.regular_equips.tamed_mob.model.id.is_negative() {
-            self.build_look_regular_tamed_mob_part_packet(char.regular_equips.tamed_mob.clone())?;
+        if let Some(tamed_mob) = char.regular_equips.tamed_mob {
+            self.build_look_regular_tamed_mob_part_packet(tamed_mob.clone())?;
         }
-        if !char.regular_equips.saddle.model.id.is_negative() {
-            self.build_look_regular_saddle_part_packet(char.regular_equips.saddle.clone())?;
+        if let Some(saddle) = char.regular_equips.saddle {
+            self.build_look_regular_saddle_part_packet(saddle.clone())?;
         }
-        if !char.regular_equips.medal.model.id.is_negative() {
-            self.build_look_regular_medal_part_packet(char.regular_equips.medal.clone())?;
+        if let Some(medal) = char.regular_equips.medal {
+            self.build_look_regular_medal_part_packet(medal.clone())?;
         }
-        if !char.regular_equips.belt.model.id.is_negative() {
-            self.build_look_regular_belt_part_packet(char.regular_equips.belt.clone())?;
+        if let Some(belt) = char.regular_equips.belt {
+            self.build_look_regular_belt_part_packet(belt.clone())?;
         }
-        if !char.regular_equips.pocket.model.id.is_negative() {
-            self.build_look_regular_pocket_part_packet(char.regular_equips.pocket.clone())?;
+        if let Some(pocket) = char.regular_equips.pocket {
+            self.build_look_regular_pocket_part_packet(pocket.clone())?;
         }
-        if !char.regular_equips.book.model.id.is_negative() {
-            self.build_look_regular_book_part_packet(char.regular_equips.book.clone())?;
+        if let Some(book) = char.regular_equips.book {
+            self.build_look_regular_book_part_packet(book.clone())?;
         }
-        if !char.regular_equips.pendant_two.model.id.is_negative() {
-            self.build_look_regular_pendant_two_part_packet(
-                char.regular_equips.pendant_two.clone(),
-            )?;
+        if let Some(pendant_two) = char.regular_equips.pendant_two {
+            self.build_look_regular_pendant_two_part_packet(pendant_two.clone())?;
         }
-        if !char.regular_equips.shoulder.model.id.is_negative() {
-            self.build_look_regular_shoulder_part_packet(char.regular_equips.shoulder.clone())?;
+        if let Some(shoulder) = char.regular_equips.shoulder {
+            self.build_look_regular_shoulder_part_packet(shoulder.clone())?;
         }
-        if !char.regular_equips.android.model.id.is_negative() {
-            self.build_look_regular_android_part_packet(char.regular_equips.android.clone())?;
+        if let Some(android) = char.regular_equips.android {
+            self.build_look_regular_android_part_packet(android.clone())?;
         }
-        if !char.regular_equips.emblem.model.id.is_negative() {
-            self.build_look_regular_emblem_part_packet(char.regular_equips.emblem.clone())?;
+        if let Some(emblem) = char.regular_equips.emblem {
+            self.build_look_regular_emblem_part_packet(emblem.clone())?;
         }
-        if !char.regular_equips.badge.model.id.is_negative() {
-            self.build_look_regular_badge_part_packet(char.regular_equips.badge.clone())?;
+        if let Some(badge) = char.regular_equips.badge {
+            self.build_look_regular_badge_part_packet(badge.clone())?;
         }
-        if !char.regular_equips.subweapon.model.id.is_negative() {
-            self.build_look_regular_subweapon_part_packet(char.regular_equips.subweapon.clone())?;
+        if let Some(subweapon) = char.regular_equips.subweapon {
+            self.build_look_regular_subweapon_part_packet(subweapon.clone())?;
         }
-        if !char.regular_equips.heart.model.id.is_negative() {
-            self.build_look_regular_heart_part_packet(char.regular_equips.heart.clone())?;
+        if let Some(heart) = char.regular_equips.heart {
+            self.build_look_regular_heart_part_packet(heart.clone())?;
         }
         Ok(self)
     }
@@ -577,47 +573,47 @@ impl Packet {
         &mut self,
         char: Character,
     ) -> Result<&mut Self, NetworkError> {
-        if !char.cash_equips.bottom.model.id.is_negative() {
-            self.build_look_cash_bottom_part_packet(char.cash_equips.bottom.clone())?;
+        if let Some(bottom) = char.cash_equips.bottom {
+            self.build_look_cash_bottom_part_packet(bottom.clone())?;
         }
-        if !char.cash_equips.cape.model.id.is_negative() {
-            self.build_look_cash_cape_part_packet(char.cash_equips.cape.clone())?;
+        if let Some(cape) = char.cash_equips.cape {
+            self.build_look_cash_cape_part_packet(cape.clone())?;
         }
-        if !char.cash_equips.ear_acc.model.id.is_negative() {
-            self.build_look_cash_ear_acc_part_packet(char.cash_equips.ear_acc.clone())?;
+        if let Some(ear_acc) = char.cash_equips.ear_acc {
+            self.build_look_cash_ear_acc_part_packet(ear_acc.clone())?;
         }
-        if !char.cash_equips.eye_acc.model.id.is_negative() {
-            self.build_look_cash_eye_acc_part_packet(char.cash_equips.eye_acc.clone())?;
+        if let Some(eye_acc) = char.cash_equips.eye_acc {
+            self.build_look_cash_eye_acc_part_packet(eye_acc.clone())?;
         }
-        if !char.cash_equips.face_acc.model.id.is_negative() {
-            self.build_look_cash_face_acc_part_packet(char.cash_equips.face_acc.clone())?;
+        if let Some(face_acc) = char.cash_equips.face_acc {
+            self.build_look_cash_face_acc_part_packet(face_acc.clone())?;
         }
-        if !char.cash_equips.gloves.model.id.is_negative() {
-            self.build_look_cash_gloves_part_packet(char.cash_equips.gloves.clone())?;
+        if let Some(gloves) = char.cash_equips.gloves {
+            self.build_look_cash_gloves_part_packet(gloves.clone())?;
         }
-        if !char.cash_equips.hat.model.id.is_negative() {
-            self.build_look_cash_hat_part_packet(char.cash_equips.hat.clone())?;
+        if let Some(hat) = char.cash_equips.hat {
+            self.build_look_cash_hat_part_packet(hat.clone())?;
         }
-        if !char.cash_equips.ring_four.model.id.is_negative() {
-            self.build_look_cash_ring_four_part_packet(char.cash_equips.ring_four.clone())?;
+        if let Some(ring_one) = char.cash_equips.ring_one {
+            self.build_look_cash_ring_one_part_packet(ring_one.clone())?;
         }
-        if !char.cash_equips.ring_one.model.id.is_negative() {
-            self.build_look_cash_ring_one_part_packet(char.cash_equips.ring_one.clone())?;
+        if let Some(ring_two) = char.cash_equips.ring_two {
+            self.build_look_cash_ring_two_part_packet(ring_two.clone())?;
         }
-        if !char.cash_equips.ring_three.model.id.is_negative() {
-            self.build_look_cash_ring_three_part_packet(char.cash_equips.ring_three.clone())?;
+        if let Some(ring_three) = char.cash_equips.ring_three {
+            self.build_look_cash_ring_three_part_packet(ring_three.clone())?;
         }
-        if !char.cash_equips.ring_two.model.id.is_negative() {
-            self.build_look_cash_ring_two_part_packet(char.cash_equips.ring_two.clone())?;
+        if let Some(ring_four) = char.cash_equips.ring_four {
+            self.build_look_cash_ring_four_part_packet(ring_four.clone())?;
         }
-        if !char.cash_equips.shoes.model.id.is_negative() {
-            self.build_look_cash_shoes_part_packet(char.cash_equips.shoes.clone())?;
+        if let Some(shoes) = char.cash_equips.shoes {
+            self.build_look_cash_shoes_part_packet(shoes.clone())?;
         }
-        if !char.cash_equips.top.model.id.is_negative() {
-            self.build_look_cash_top_part_packet(char.cash_equips.top.clone())?;
+        if let Some(top) = char.cash_equips.top {
+            self.build_look_cash_top_part_packet(top.clone())?;
         }
-        if !char.cash_equips.weapon.model.id.is_negative() {
-            self.build_look_cash_weapon_part_packet(char.cash_equips.weapon.clone())?;
+        if let Some(weapon) = char.cash_equips.weapon {
+            self.build_look_cash_weapon_part_packet(weapon.clone())?;
         }
         Ok(self)
     }

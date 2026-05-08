@@ -1,10 +1,12 @@
+use std::time::SystemTime;
+
 use crate::config::settings;
 use crate::constants::WORLDS;
 use crate::models::channel;
 use crate::models::channel::model::Channel;
 use crate::models::error::ModelError;
 use crate::models::world::error::WorldError;
-use crate::models::world::model::{World, WorldModel};
+use crate::models::world::model::{NewWorldInsert, World, WorldModel};
 use crate::runtime::state::SharedState;
 
 pub fn load_worlds() -> Result<Vec<World>, ModelError> {
@@ -23,9 +25,11 @@ pub fn load_worlds() -> Result<Vec<World>, ModelError> {
             channel::service::load_channels(count, world_port).map_err(ModelError::from)?;
         let world_model = WorldModel {
             id,
-            name: world_name.to_string(),
-            flag,
-            event_message: event_message.clone(),
+            name: Some(world_name.to_string()),
+            flag: Some(flag),
+            event_message: Some(event_message.clone()),
+            created_at: SystemTime::now(),
+            updated_at: SystemTime::now(),
         };
         worlds.push(World {
             model: world_model,
@@ -58,21 +62,39 @@ pub async fn get_world_by_id(state: &SharedState, world_id: i16) -> Result<World
 }
 
 impl World {
-    pub fn new() -> Self {
-        Self {
-            model: WorldModel::new(),
-            channels: Vec::<Channel>::new(),
-        }
+    pub fn new(model: WorldModel, channels: Vec<Channel>) -> Self {
+        Self { model, channels }
     }
 }
 
 impl WorldModel {
-    pub fn new() -> Self {
-        Self {
-            id: -1,
-            name: String::new(),
-            flag: -1,
-            event_message: String::new(),
+    pub fn get_name(&self) -> Result<String, ModelError> {
+        if let Some(name) = self.name.clone() {
+            return Ok(name);
+        } else {
+            return Err(ModelError::from(WorldError::NoName(self.id)));
         }
+    }
+
+    pub fn get_flag(&self) -> Result<i16, ModelError> {
+        if let Some(flag) = self.flag {
+            return Ok(flag);
+        } else {
+            return Err(ModelError::from(WorldError::NoFlag(self.id)));
+        }
+    }
+
+    pub fn get_event_message(&self) -> Result<String, ModelError> {
+        if let Some(msg) = self.event_message.clone() {
+            return Ok(msg);
+        } else {
+            return Err(ModelError::from(WorldError::NoEventMessage(self.id)));
+        }
+    }
+}
+
+impl NewWorldInsert {
+    pub fn default(id: i16) -> Self {
+        Self { id }
     }
 }

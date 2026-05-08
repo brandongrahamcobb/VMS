@@ -37,7 +37,7 @@ impl SelectCharHandler {
             .build_select_char_handler_packet(
                 store.char.model.id,
                 store.octets,
-                store.channel_model.port,
+                store.channel.model.port,
             )?
             .finish();
         result.add_action(Action::Set(SetAction::SetChar {

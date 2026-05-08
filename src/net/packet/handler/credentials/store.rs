@@ -25,25 +25,18 @@ impl CredentialsStore {
                     acc_model.password.clone(),
                     reader.pw.clone(),
                 )? {
-                    credentials::service::get_status_code_by_account_model(
-                        state,
-                        session.clone(),
-                        &acc_model,
-                    )
-                    .await?
+                    credentials::service::get_status_code_by_account_model(state, acc_model.clone())
+                        .await?
                 } else {
                     StatusCode::Failed(FailedCode::InvalidCredentials)
                 };
+                let acc = account::service::get_account_by_id(state, acc_model.id).await?;
                 {
                     let state = state.lock().await;
                     state.sessions.update(session.id, |s| {
-                        s.authenticated = true;
-                        s.playing = true; // need to track this somehow, db seems to much but
-                        // session seems hard idk
-                        // s.hwid = hwid;
+                        s.playing = true;
                     });
                 }
-                let acc = account::service::get_account_by_id(state, acc_model.id).await?;
                 Ok(Self {
                     acc: Some(acc),
                     status,

@@ -43,7 +43,7 @@ impl PlayerLoggedInHandler {
             scope: Scope::Local,
         })?;
         let packet: Packet = Packet::new_empty()
-            .build_player_logged_in_handler_char_packet(store.char.clone(), store.channel_model.id)?
+            .build_player_logged_in_handler_char_packet(store.char.clone(), store.channel.model.id)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

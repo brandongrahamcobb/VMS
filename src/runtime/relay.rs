@@ -133,25 +133,30 @@ pub trait RuntimeRelay: Sized {
                     Scope::Map => {
                         let state = state.lock().await;
                         for s in state.sessions.iter() {
-                            if s.map.model.id == session.map.model.id && s.id != session.id {
-                                let _ = s.tx.send(packet.clone());
+                            if s.get_map()?.model.id == session.get_map()?.model.id
+                                && s.id != session.id
+                            {
+                                s.tx.send(packet.clone())?;
                             }
                         }
                     }
                     Scope::Channel => {
                         let state = state.lock().await;
                         for s in state.sessions.iter() {
-                            if s.channel.model.id == session.channel.model.id && s.id != session.id
+                            if s.get_channel()?.model.id == session.get_channel()?.model.id
+                                && s.id != session.id
                             {
-                                let _ = s.tx.send(packet.clone());
+                                s.tx.send(packet.clone())?;
                             }
                         }
                     }
                     Scope::World => {
                         let state = state.lock().await;
                         for s in state.sessions.iter() {
-                            if s.world.model.id == session.world.model.id && s.id != session.id {
-                                let _ = s.tx.send(packet.clone());
+                            if s.get_world()?.model.id == session.get_world()?.model.id
+                                && s.id != session.id
+                            {
+                                s.tx.send(packet.clone())?;
                             }
                         }
                     }
@@ -159,7 +164,7 @@ pub trait RuntimeRelay: Sized {
                         let state = state.lock().await;
                         for s in state.sessions.iter() {
                             if s.id != session.id {
-                                let _ = s.tx.send(packet.clone());
+                                s.tx.send(packet.clone())?;
                             }
                         }
                     }
@@ -169,16 +174,18 @@ pub trait RuntimeRelay: Sized {
                         Scope::Local => {
                             let state = state.lock().await;
                             state.sessions.update(session.id, |s| {
-                                s.map = map.clone();
+                                s.map = Some(map.clone());
                             });
                         }
 
                         Scope::Map => {
                             let state = state.lock().await;
                             for s in state.sessions.iter() {
-                                if s.map.model.id == session.map.model.id && s.id != session.id {
+                                if s.get_map()?.model.id == session.get_map()?.model.id
+                                    && s.id != session.id
+                                {
                                     state.sessions.update(s.id, |s| {
-                                        s.map = map.clone();
+                                        s.map = Some(map.clone());
                                     });
                                 }
                             }
@@ -186,11 +193,11 @@ pub trait RuntimeRelay: Sized {
                         Scope::Channel => {
                             let state = state.lock().await;
                             for s in state.sessions.iter() {
-                                if s.channel.model.id == session.channel.model.id
+                                if s.get_channel()?.model.id == session.get_channel()?.model.id
                                     && s.id != session.id
                                 {
                                     state.sessions.update(s.id, |s| {
-                                        s.map = map.clone();
+                                        s.map = Some(map.clone());
                                     });
                                 }
                             }
@@ -198,10 +205,11 @@ pub trait RuntimeRelay: Sized {
                         Scope::World => {
                             let state = state.lock().await;
                             for s in state.sessions.iter() {
-                                if s.world.model.id == session.world.model.id && s.id != session.id
+                                if s.get_world()?.model.id == session.get_world()?.model.id
+                                    && s.id != session.id
                                 {
                                     state.sessions.update(s.id, |s| {
-                                        s.map = map.clone();
+                                        s.map = Some(map.clone());
                                     });
                                 }
                             }
@@ -212,7 +220,7 @@ pub trait RuntimeRelay: Sized {
                             for s in state.sessions.iter() {
                                 if s.id != session.id {
                                     state.sessions.update(s.id, |s| {
-                                        s.map = map.clone();
+                                        s.map = Some(map.clone());
                                     });
                                 }
                             }
@@ -222,15 +230,17 @@ pub trait RuntimeRelay: Sized {
                         Scope::Local => {
                             let state = state.lock().await;
                             state.sessions.update(session.id, |s| {
-                                s.channel = channel.clone();
+                                s.channel = Some(channel.clone());
                             });
                         }
                         Scope::Map => {
                             let state = state.lock().await;
                             for s in state.sessions.iter() {
-                                if s.map.model.id == session.map.model.id && s.id != session.id {
+                                if s.get_map()?.model.id == session.get_map()?.model.id
+                                    && s.id != session.id
+                                {
                                     state.sessions.update(s.id, |s| {
-                                        s.channel = channel.clone();
+                                        s.channel = Some(channel.clone());
                                     });
                                 }
                             }
@@ -238,11 +248,11 @@ pub trait RuntimeRelay: Sized {
                         Scope::Channel => {
                             let state = state.lock().await;
                             for s in state.sessions.iter() {
-                                if s.channel.model.id == session.channel.model.id
+                                if s.get_channel()?.model.id == session.get_channel()?.model.id
                                     && s.id != session.id
                                 {
                                     state.sessions.update(s.id, |s| {
-                                        s.channel = channel.clone();
+                                        s.channel = Some(channel.clone());
                                     });
                                 }
                             }
@@ -250,10 +260,11 @@ pub trait RuntimeRelay: Sized {
                         Scope::World => {
                             let state = state.lock().await;
                             for s in state.sessions.iter() {
-                                if s.world.model.id == session.world.model.id && s.id != session.id
+                                if s.get_world()?.model.id == session.get_world()?.model.id
+                                    && s.id != session.id
                                 {
                                     state.sessions.update(s.id, |s| {
-                                        s.channel = channel.clone();
+                                        s.channel = Some(channel.clone());
                                     });
                                 }
                             }
@@ -263,7 +274,7 @@ pub trait RuntimeRelay: Sized {
                             for s in state.sessions.iter() {
                                 if s.id != session.id {
                                     state.sessions.update(s.id, |s| {
-                                        s.channel = channel.clone();
+                                        s.channel = Some(channel.clone());
                                     });
                                 }
                             }
@@ -273,15 +284,17 @@ pub trait RuntimeRelay: Sized {
                         Scope::Local => {
                             let state = state.lock().await;
                             state.sessions.update(session.id, |s| {
-                                s.world = world.clone();
+                                s.world = Some(world.clone());
                             });
                         }
                         Scope::Map => {
                             let state = state.lock().await;
                             for s in state.sessions.iter() {
-                                if s.map.model.id == session.map.model.id && s.id != session.id {
+                                if s.get_map()?.model.id == session.get_map()?.model.id
+                                    && s.id != session.id
+                                {
                                     state.sessions.update(s.id, |s| {
-                                        s.world = world.clone();
+                                        s.world = Some(world.clone());
                                     });
                                 }
                             }
@@ -289,11 +302,11 @@ pub trait RuntimeRelay: Sized {
                         Scope::Channel => {
                             let state = state.lock().await;
                             for s in state.sessions.iter() {
-                                if s.channel.model.id == session.channel.model.id
+                                if s.get_channel()?.model.id == session.get_channel()?.model.id
                                     && s.id != session.id
                                 {
                                     state.sessions.update(s.id, |s| {
-                                        s.world = world.clone();
+                                        s.world = Some(world.clone());
                                     });
                                 }
                             }
@@ -301,10 +314,11 @@ pub trait RuntimeRelay: Sized {
                         Scope::World => {
                             let state = state.lock().await;
                             for s in state.sessions.iter() {
-                                if s.world.model.id == session.world.model.id && s.id != session.id
+                                if s.get_world()?.model.id == session.get_world()?.model.id
+                                    && s.id != session.id
                                 {
                                     state.sessions.update(s.id, |s| {
-                                        s.world = world.clone();
+                                        s.world = Some(world.clone());
                                     });
                                 }
                             }
@@ -314,7 +328,7 @@ pub trait RuntimeRelay: Sized {
                             for s in state.sessions.iter() {
                                 if s.id != session.id {
                                     state.sessions.update(s.id, |s| {
-                                        s.world = world.clone();
+                                        s.world = Some(world.clone());
                                     });
                                 }
                             }
@@ -323,13 +337,13 @@ pub trait RuntimeRelay: Sized {
                     SetAction::SetAccount { acc } => {
                         let state = state.lock().await;
                         state.sessions.update(session.id, |s| {
-                            s.acc = acc.clone();
+                            s.acc = Some(acc.clone());
                         });
                     }
                     SetAction::SetChar { char } => {
                         let state = state.lock().await;
                         state.sessions.update(session.id, |s| {
-                            s.char = char.clone();
+                            s.char = Some(char.clone());
                         });
                     }
                 },

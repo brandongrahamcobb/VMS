@@ -15,10 +15,9 @@ pub struct SkillModel {
 
 #[derive(Insertable, AsChangeset)]
 #[diesel(table_name = skills)]
-pub struct NewCharacterSkillInsert {
+pub struct NewSkillInsert {
     pub char_id: i32,
     pub wz_id: i32,
-    pub level: i16,
 }
 
 #[derive(Clone)]

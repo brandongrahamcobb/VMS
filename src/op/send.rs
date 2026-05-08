@@ -6,7 +6,7 @@ pub enum SendOpcode {
     // CheckPin = 0x06,
     // UpdatePin = 0x07,
     ServerList = 0x0A,
-    NewCharacter = 0x0E,
+    New = 0x0E,
     DeleteCharacter = 0x0F,
     ChangeChannel = 0x10,
     CharList = 0x0B,

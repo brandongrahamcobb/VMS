@@ -31,7 +31,7 @@ impl TosHandler {
         let mut result: HandlerResult = HandlerResult::new();
         if store.accepted {
             let packet: Packet = Packet::new_empty()
-                .build_credentials_handler_successful_login_packet(&store.acc_model)?
+                .build_credentials_handler_successful_login_packet(store.acc.model.clone())?
                 .finish();
             result.add_action(Action::Send {
                 packet: packet.clone(),

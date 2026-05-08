@@ -36,7 +36,7 @@ impl MovePlayerHandler {
         if !store.too_short && !store.empty {
             let packet: Packet = Packet::new_empty()
                 .build_player_move_handler_packet(
-                    store.char_model.id,
+                    store.char.model.id,
                     store.movement_bytes.clone(),
                 )?
                 .finish();

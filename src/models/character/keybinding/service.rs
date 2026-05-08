@@ -1,26 +1,23 @@
 use std::time::SystemTime;
 
-use crate::models::character::keybinding::model::{KeybindType, Keybinding, KeybindingModel};
+use crate::models::character::keybinding::model::{
+    KeybindType, Keybinding, KeybindingModel, NewKeybindingInsert,
+};
 
-impl KeybindingModel {
-    pub fn new() -> Self {
+impl NewKeybindingInsert {
+    pub fn default(char_id: i32, key: i32, bind_type: i16, action: i32) -> Self {
         Self {
-            id: -1,
-            char_id: -1,
-            key: -1,
-            bind_type: -1,
-            action: -1,
-            created_at: SystemTime::now(),
-            updated_at: SystemTime::now(),
+            char_id,
+            key,
+            bind_type,
+            action,
         }
     }
 }
 
 impl Keybinding {
-    pub fn new() -> Self {
-        Self {
-            model: KeybindingModel::new(),
-        }
+    pub fn new(model: KeybindingModel) -> Self {
+        Self { model }
     }
 }
 

@@ -1,5 +1,5 @@
 use crate::db::schema::keybindings;
-use crate::models::character::keybinding::model::{KeybindingModel, NewCharacterKeybindingInsert};
+use crate::models::character::keybinding::model::{KeybindingModel, NewKeybindingInsert};
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
 use diesel::pg::upsert::*;
@@ -26,7 +26,7 @@ pub async fn get_keybinding_models_by_character_id(
 
 pub async fn update_keybindings(
     state: &SharedState,
-    bindings: Vec<NewCharacterKeybindingInsert>,
+    bindings: Vec<NewKeybindingInsert>,
 ) -> QueryResult<Vec<KeybindingModel>> {
     let db = {
         let state = state.lock().await;

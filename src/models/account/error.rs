@@ -7,4 +7,7 @@ pub enum AccountError {
 
     #[error("Missing field in account model layer: {0}")]
     MissingField(i32),
+
+    #[error("No pic found in account model layer: {0}")]
+    NoPic(i32),
 }

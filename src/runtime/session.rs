@@ -4,6 +4,7 @@ use crate::models::character::model::Character;
 use crate::models::map::model::Map;
 use crate::models::world::model::World;
 use crate::net::packet::model::Packet;
+use crate::runtime::error::SessionError;
 use core::sync::atomic::AtomicI32;
 use std::collections::HashMap;
 use std::sync::RwLock;
@@ -13,15 +14,56 @@ use tokio::sync::mpsc::UnboundedSender;
 #[derive(Clone)]
 pub struct Session {
     pub id: i32,
-    pub acc: Account,
-    pub authenticated: bool,
-    pub channel: Channel,
-    pub char: Character,
-    pub hwid: String,
-    pub map: Map,
-    pub playing: bool,
+    pub acc: Option<Account>,
+    pub channel: Option<Channel>,
+    pub char: Option<Character>,
+    pub hwid: Option<String>,
+    pub map: Option<Map>,
     pub tx: UnboundedSender<Packet>,
-    pub world: World,
+    pub world: Option<World>,
+    pub playing: bool,
+}
+
+impl Session {
+    pub fn get_acc(&self) -> Result<Account, SessionError> {
+        if let Some(acc) = self.acc.clone() {
+            return Ok(acc);
+        } else {
+            return Err(SessionError::NoAccount(self.id));
+        }
+    }
+
+    pub fn get_channel(&self) -> Result<Channel, SessionError> {
+        if let Some(channel) = self.channel.clone() {
+            return Ok(channel);
+        } else {
+            return Err(SessionError::NoChannel(self.id));
+        }
+    }
+
+    pub fn get_char(&self) -> Result<Character, SessionError> {
+        if let Some(char) = self.char.clone() {
+            return Ok(char);
+        } else {
+            return Err(SessionError::NoChar(self.id));
+        }
+    }
+
+    pub fn get_map(&self) -> Result<Map, SessionError> {
+        if let Some(map) = self.map.clone() {
+            return Ok(map);
+        } else {
+            return Err(SessionError::NoMap(self.id));
+        }
+    }
+
+    pub fn get_world(&self) -> Result<World, SessionError> {
+        if let Some(world) = self.world.clone() {
+            return Ok(world);
+        } else {
+            return Err(SessionError::NoWorld(self.id));
+        }
+    }
 }
 
 pub struct SessionStore {

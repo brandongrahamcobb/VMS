@@ -1,6 +1,8 @@
+use std::time::SystemTime;
+
 use crate::config::settings;
 use crate::models::channel::error::ChannelError;
-use crate::models::channel::model::{Channel, ChannelModel};
+use crate::models::channel::model::{Channel, ChannelModel, NewChannelInsert};
 use crate::models::error::ModelError;
 use crate::runtime::state::SharedState;
 
@@ -32,10 +34,12 @@ pub fn load_channels(channel_count: i16, world_port: i16) -> Result<Vec<Channel>
     for count in 0..count {
         let port = world_port + 1 + count;
         let channel_model = ChannelModel {
-            capacity: capacity,
+            capacity: Some(capacity),
             id,
-            flag,
+            flag: Some(flag),
             port,
+            created_at: SystemTime::now(),
+            updated_at: SystemTime::now(),
         };
         channels.push(Channel {
             model: channel_model,
@@ -46,20 +50,23 @@ pub fn load_channels(channel_count: i16, world_port: i16) -> Result<Vec<Channel>
 }
 
 impl Channel {
-    pub fn new() -> Self {
-        Self {
-            model: ChannelModel::new(),
-        }
+    pub fn new(model: ChannelModel) -> Self {
+        Self { model }
+    }
+}
+
+impl NewChannelInsert {
+    pub fn default(id: i16, port: i16) -> Self {
+        Self { id, port }
     }
 }
 
 impl ChannelModel {
-    pub fn new() -> Self {
-        Self {
-            id: -1,
-            capacity: -1,
-            flag: -1,
-            port: -1,
+    pub fn get_capacity(&self) -> Result<i16, ModelError> {
+        if let Some(capacity) = self.capacity {
+            Ok(capacity)
+        } else {
+            Err(ModelError::from(ChannelError::NoCapacity(self.id)))
         }
     }
 }

@@ -1,7 +1,7 @@
+use crate::config::settings;
 use crate::models::account::model::AccountModel;
 use crate::net::error::NetworkError;
 use crate::runtime::state::SharedState;
-use crate::{config::settings, runtime::session::Session};
 use bcrypt::{DEFAULT_COST, hash, verify};
 
 #[derive(Clone)]
@@ -29,44 +29,42 @@ pub fn authenticate(db_pw: String, pw: String) -> Result<bool, NetworkError> {
     Ok(verify(&pw, &hash)?)
 }
 
-fn check_if_banned(acc: &AccountModel) -> Result<bool, NetworkError> {
-    if acc.banned {
+fn check_if_banned(acc_model: AccountModel) -> Result<bool, NetworkError> {
+    if acc_model.banned {
         return Ok(true);
     }
-    return Ok(false);
+    Ok(false)
 }
 
-fn check_if_pending_tos(acc: &AccountModel) -> Result<bool, NetworkError> {
-    if !acc.accepted_tos {
+fn check_if_pending_tos(acc_model: AccountModel) -> Result<bool, NetworkError> {
+    if !acc_model.accepted_tos {
         return Ok(true);
     }
-    return Ok(false);
+    Ok(false)
 }
 
-async fn check_if_playing(state: &SharedState, session: Session) -> Result<bool, NetworkError> {
-    let playing = {
-        let state = state.lock().await;
-        match state.sessions.get(session.id) {
-            Some(session) => session.playing,
-            None => false,
+async fn check_if_playing(state: &SharedState, acc_id: i32) -> Result<bool, NetworkError> {
+    let state = state.lock().await;
+    for session in state.sessions.iter() {
+        if session.get_acc()?.model.id == acc_id {
+            return Ok(session.playing);
         }
-    };
-    Ok(playing)
+    }
+    Ok(false)
 }
 
 pub async fn get_status_code_by_account_model(
     state: &SharedState,
-    session: Session,
-    acc: &AccountModel,
+    acc_model: AccountModel,
 ) -> Result<StatusCode, NetworkError> {
-    if check_if_banned(acc)? {
+    if check_if_banned(acc_model.clone())? {
         return Ok(StatusCode::Failed(FailedCode::Banned));
     }
-    if check_if_pending_tos(acc)? {
+    if check_if_pending_tos(acc_model.clone())? {
         return Ok(StatusCode::Failed(FailedCode::PendingTOS));
     }
     let mode = settings::get_release_mode()?;
-    if check_if_playing(state, session).await? & mode {
+    if check_if_playing(state, acc_model.clone().id).await? & mode {
         return Ok(StatusCode::Failed(FailedCode::Playing));
     }
     return Ok(StatusCode::Success(SuccessCode::Success));

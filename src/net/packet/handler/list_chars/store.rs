@@ -29,7 +29,7 @@ impl ListCharsStore {
         session: Session,
         reader: ListCharsReader,
     ) -> Result<Self, NetworkError> {
-        let acc: Account = session.acc.clone();
+        let acc: Account = session.get_acc()?;
         let chars: Vec<Character> = acc.chars.clone();
         let world: World = world::service::get_world_by_id(state, reader.world_id).await?;
         let channel: Channel =
@@ -42,13 +42,13 @@ impl ListCharsStore {
         .await?;
         let mut pic_status: i16 = PicStatus::Disabled as i16;
         let use_pic = settings::get_pic_required()?;
-        if !acc.model.clone().pic.is_empty() {
+        if let Some(_) = acc.model.clone().pic {
             if use_pic {
                 pic_status = PicStatus::AlreadyRegistered as i16;
-            } else {
-                pic_status = PicStatus::NeedsToRegister as i16;
             }
-        }
+        } else {
+            pic_status = PicStatus::NeedsToRegister as i16;
+        };
         Ok(Self {
             channel,
             chars,

@@ -1,4 +1,4 @@
-use crate::models::channel::model::ChannelModel;
+use crate::models::channel::model::Channel;
 use crate::models::character::keybinding;
 use crate::models::character::keybinding::model::KeybindingModel;
 use crate::models::character::model::Character;
@@ -10,7 +10,7 @@ use crate::runtime::state::SharedState;
 #[derive(Clone)]
 pub struct PlayerLoggedInStore {
     pub bind_models: Vec<KeybindingModel>,
-    pub channel_model: ChannelModel,
+    pub channel: Channel,
     pub char: Character,
 }
 
@@ -20,13 +20,13 @@ impl PlayerLoggedInStore {
         session: Session,
         reader: PlayerLoggedInReader,
     ) -> Result<Self, NetworkError> {
-        let char: Character = session.char.clone();
-        let channel_model: ChannelModel = session.channel.model.clone();
+        let char: Character = session.get_char()?;
+        let channel: Channel = session.get_channel()?;
         let bind_models: Vec<KeybindingModel> =
             keybinding::query::get_keybinding_models_by_character_id(state, reader.char_id).await?;
         Ok(Self {
             bind_models,
-            channel_model,
+            channel,
             char,
         })
     }

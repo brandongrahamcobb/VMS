@@ -1,5 +1,5 @@
 use crate::constants::CASH_SHOP_MAP_ID;
-use crate::models::account::model::AccountModel;
+use crate::models::account::model::Account;
 use crate::models::character::model::Character;
 use crate::models::map;
 use crate::models::map::model::Map;
@@ -10,7 +10,7 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct EnterCashShopStore {
-    pub acc_model: AccountModel,
+    pub acc: Account,
     pub char: Character,
     pub map: Map,
 }
@@ -23,13 +23,9 @@ impl EnterCashShopStore {
     ) -> Result<Self, NetworkError> {
         std::hint::black_box(state);
         std::hint::black_box(reader);
-        let acc_model = session.acc.model.clone();
-        let char = session.char.clone();
+        let acc = session.get_acc()?;
+        let char = session.get_char()?;
         let map = map::service::get_map_by_id(CASH_SHOP_MAP_ID)?;
-        Ok(Self {
-            acc_model,
-            char,
-            map,
-        })
+        Ok(Self { acc, char, map })
     }
 }

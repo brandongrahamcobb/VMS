@@ -1,11 +1,14 @@
-use crate::models::{
-    error::ModelError,
-    map::model::{Map, MapModel},
-};
+use crate::models::error::ModelError;
+use crate::models::map::model::{Map, MapModel, NewMapInsert};
+use std::time::SystemTime;
 
 pub fn get_map_by_id(map_id: i32) -> Result<Map, ModelError> {
     Ok(Map {
-        model: MapModel { id: map_id },
+        model: MapModel {
+            id: map_id,
+            created_at: SystemTime::now(),
+            updated_at: SystemTime::now(),
+        },
     })
 }
 
@@ -28,15 +31,13 @@ pub fn get_map_by_job_id(job_id: i16) -> Result<Map, ModelError> {
 }
 
 impl Map {
-    pub fn new() -> Self {
-        Self {
-            model: MapModel::new(),
-        }
+    pub fn new(model: MapModel) -> Self {
+        Self { model }
     }
 }
 
-impl MapModel {
-    pub fn new() -> Self {
-        Self { id: -1 }
+impl NewMapInsert {
+    pub fn default(id: i32) -> Self {
+        Self { id }
     }
 }

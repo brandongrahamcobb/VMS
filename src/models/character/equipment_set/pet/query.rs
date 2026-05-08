@@ -1,6 +1,6 @@
 use crate::db::schema::pet_equipment_set;
 use crate::models::character::equipment_set::pet::model::{
-    NewCharacterPetEquipmentSetInsert, PetEquipmentSetModel,
+    NewPetEquipmentSetInsert, PetEquipmentSetModel,
 };
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
@@ -8,7 +8,7 @@ use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
 pub async fn create_pet_equipment_set_model_for_new_character(
     state: &SharedState,
-    pet_equips: NewCharacterPetEquipmentSetInsert,
+    pet_equips: NewPetEquipmentSetInsert,
 ) -> QueryResult<PetEquipmentSetModel> {
     let db = {
         let state = state.lock().await;

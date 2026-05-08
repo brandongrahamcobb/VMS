@@ -6,9 +6,11 @@ use std::time::SystemTime;
 #[derive(Clone)]
 pub struct WorldModel {
     pub id: i16,
-    pub name: String,
-    pub flag: i16,
-    pub event_message: String,
+    pub name: Option<String>,
+    pub flag: Option<i16>,
+    pub event_message: Option<String>,
+    pub created_at: SystemTime,
+    pub updated_at: SystemTime,
 }
 
 #[derive(Queryable, AsChangeset)]
@@ -31,4 +33,8 @@ pub struct WorldInfo {
 pub struct World {
     pub model: WorldModel,
     pub channels: Vec<Channel>,
+}
+
+pub struct NewWorldInsert {
+    pub id: i16,
 }

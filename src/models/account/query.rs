@@ -19,7 +19,7 @@ pub async fn get_account_model_by_username(
         )
     })?;
     accounts::table
-        .filter(accounts::username.eq(&user))
+        .filter(accounts::username.eq(user))
         .first::<AccountModel>(&mut conn)
 }
 

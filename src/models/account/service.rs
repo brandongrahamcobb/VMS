@@ -1,35 +1,26 @@
 use crate::models::account;
+use crate::models::account::error::AccountError;
 use crate::models::account::model::Account;
 use crate::models::account::model::AccountModel;
+use crate::models::account::model::NewAccountInsert;
 use crate::models::character;
+use crate::models::character::model::Character;
 use crate::models::error::ModelError;
 use crate::runtime::state::SharedState;
-use std::time::SystemTime;
 
-impl Account {
-    pub fn new() -> Self {
+impl NewAccountInsert {
+    pub fn default(username: String, password: String, gender_id: i16) -> Self {
         Self {
-            model: AccountModel::new(),
-            chars: Vec::new(),
+            username,
+            password,
+            gender_id,
         }
     }
 }
 
-impl AccountModel {
-    pub fn new() -> Self {
-        Self {
-            id: -1,
-            username: String::new(),
-            password: String::new(),
-            pin: String::new(),
-            pic: String::new(),
-            last_login_at: SystemTime::now(),
-            gender_id: -1,
-            accepted_tos: false,
-            banned: false,
-            created_at: SystemTime::now(),
-            updated_at: SystemTime::now(),
-        }
+impl Account {
+    pub fn new(chars: Vec<Character>, model: AccountModel) -> Self {
+        Self { model, chars }
     }
 }
 
@@ -40,4 +31,14 @@ pub async fn get_account_by_id(state: &SharedState, acc_id: i32) -> Result<Accou
         model: acc_model.clone(),
         chars: chars.clone(),
     })
+}
+
+impl AccountModel {
+    pub fn get_pic(&self) -> Result<String, ModelError> {
+        if let Some(pic) = self.pic.clone() {
+            Ok(pic)
+        } else {
+            Err(ModelError::from(AccountError::NoPic(self.id)))
+        }
+    }
 }
