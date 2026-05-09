@@ -45,6 +45,19 @@ impl CredentialsHandler {
                     scope: Scope::Local,
                 })?;
             }
+            StatusCode::Pending(code) => {
+                let code = code as i16;
+                let packet: Packet = Packet::new_empty()
+                    .build_credentials_handler_failed_login_packet(code)?
+                    .finish();
+                result.add_action(Action::Set(SetAction::SetAccount {
+                    acc: store.acc.clone().unwrap(),
+                }))?;
+                result.add_action(Action::Send {
+                    packet: packet.clone(),
+                    scope: Scope::Local,
+                })?;
+            }
             StatusCode::Success(_) => {
                 let packet: Packet = Packet::new_empty()
                     .build_credentials_handler_successful_login_packet(store.acc.clone().unwrap())?

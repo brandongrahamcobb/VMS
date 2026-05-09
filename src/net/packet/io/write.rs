@@ -76,7 +76,10 @@ pub trait PktWrite: WriteBytesExt {
     }
 
     fn write_str(&mut self, string: String) -> std::io::Result<usize> {
-        self.write(&string.as_bytes())
+        match self.write_short(string.len() as i16) {
+            Ok(_) => self.write(&string.as_bytes()),
+            Err(e) => Err(e),
+        }
     }
 }
 

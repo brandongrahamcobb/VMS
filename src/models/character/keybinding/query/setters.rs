@@ -22,7 +22,7 @@ pub async fn update_keybindings(
         results.push(
             diesel::insert_into(keybindings::table)
                 .values(bind_model)
-                .on_conflict(keybindings::char_id)
+                .on_conflict((keybindings::char_id, keybindings::key))
                 .do_update()
                 .set(bind_model)
                 .get_result::<KeybindingModel>(&mut conn)?,

@@ -15,6 +15,7 @@ pub struct ListCharsStore {
     pub channel: Channel,
     pub chars: Vec<Character>,
     pub char_max: i16,
+    pub world: World,
     pub pic_status: i16,
 }
 
@@ -35,12 +36,17 @@ impl ListCharsStore {
         let world: World = world::service::get_world_by_id(state, reader.world_id).await?;
         let channel: Channel =
             channel::service::get_channel_by_id(state, reader.channel_id).await?;
-        let char_max = character::query::getters::get_character_max_by_account_and_world_id(
-            state,
-            acc.model.get_id()?,
-            world.model.id,
-        )
-        .await?;
+        let char_max: i16 =
+            match character::query::getters::get_character_max_by_account_and_world_id(
+                state,
+                acc.model.get_id()?,
+                world.model.id,
+            )
+            .await
+            {
+                Ok(char_max) => char_max,
+                Err(_) => 8,
+            };
         let mut pic_status: i16 = PicStatus::Disabled as i16;
         let use_pic = settings::get_pic_required()?;
         if let Some(_) = acc.model.clone().pic {
@@ -55,6 +61,7 @@ impl ListCharsStore {
             chars,
             char_max,
             pic_status,
+            world,
         })
     }
 }

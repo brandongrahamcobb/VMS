@@ -23,7 +23,7 @@ pub async fn update_characters(
         results.push(
             diesel::insert_into(characters::table)
                 .values(char_model)
-                .on_conflict(characters::id)
+                .on_conflict(characters::ign)
                 .do_update()
                 .set(char_model)
                 .get_result::<CharacterModel>(&mut conn)?,

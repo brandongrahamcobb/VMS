@@ -62,7 +62,15 @@ impl LoginServer {
                                     let state = state.lock().await;
                                     state.sessions.remove(session_id);
                                 }
-                                Err(e) => info!("Expected a session ID. Error: {}", e.to_string()),
+                                Err(e) => {
+                                    use std::error::Error;
+                                    let mut current: Option<&dyn Error> = Some(&e);
+                                    while let Some(err) = current {
+                                        println!("{}", err);
+                                        current = err.source();
+                                    }
+                                    info!("Expected a session ID. Error: {}", e.to_string());
+                                }
                             },
                             Err(e) => info!("Expected a login runtime. Error: {}", e.to_string(),),
                         };

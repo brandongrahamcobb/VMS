@@ -22,7 +22,7 @@ pub async fn update_skills(
         results.push(
             diesel::insert_into(skills::table)
                 .values(skill_model)
-                .on_conflict(skills::wz_id)
+                .on_conflict((skills::char_id, skills::wz_id))
                 .do_update()
                 .set(skill_model)
                 .get_result::<SkillModel>(&mut conn)?,

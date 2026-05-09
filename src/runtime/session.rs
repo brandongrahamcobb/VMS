@@ -1,6 +1,6 @@
 use crate::models::account::model::Account;
-use crate::models::shroom::channel::model::Channel;
 use crate::models::character::model::Character;
+use crate::models::shroom::channel::model::Channel;
 use crate::models::shroom::map::model::Map;
 use crate::models::shroom::world::model::World;
 use crate::net::packet::model::Packet;

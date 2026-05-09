@@ -1,4 +1,4 @@
-use crate::net::action::Action;
+use crate::net::action::{Action, SetAction};
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::list_chars::reader::ListCharsReader;
 use crate::net::packet::handler::list_chars::store::ListCharsStore;
@@ -37,10 +37,18 @@ impl ListCharsHandler {
             .build_list_chars_handler_packet(
                 store.chars,
                 store.channel.model.id,
-                store.char_max as i16,
+                store.char_max,
                 store.pic_status,
             )?
             .finish();
+        result.add_action(Action::Set(SetAction::SetChannel {
+            channel: store.channel.clone(),
+            scope: Scope::Local,
+        }))?;
+        result.add_action(Action::Set(SetAction::SetWorld {
+            world: store.world.clone(),
+            scope: Scope::Local,
+        }))?;
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,

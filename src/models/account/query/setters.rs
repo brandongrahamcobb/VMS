@@ -62,7 +62,7 @@ pub async fn update_accounts(
         results.push(
             diesel::insert_into(accounts::table)
                 .values(acc_model)
-                .on_conflict(accounts::id)
+                .on_conflict(accounts::username)
                 .do_update()
                 .set(acc_model)
                 .get_result::<AccountModel>(&mut conn)?,

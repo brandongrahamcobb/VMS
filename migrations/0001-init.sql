@@ -18,19 +18,19 @@ CREATE TABLE characters (
     acc_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
     world_id SMALLINT NOT NULL,
     ign TEXT NOT NULL,
-    level SMALLINT NULL DEFAULT 1,
-    exp INTEGER NULL DEFAULT 0,
-    strength SMALLINT NULL DEFAULT 4,
-    dexterity SMALLINT NULL DEFAULT 4,
-    luck SMALLINT NULL DEFAULT 4,
-    intelligence SMALLINT NULL DEFAULT 4,
-    hp SMALLINT NULL DEFAULT 50,
-    mp SMALLINT NULL DEFAULT 5,
-    max_hp SMALLINT NULL DEFAULT 50,
-    max_mp SMALLINT NULL DEFAULT 0,
-    ap SMALLINT NULL DEFAULT 0,
-    fame SMALLINT NULL DEFAULT 0,
-    meso INTEGER NULL DEFAULT 0,
+    level SMALLINT NOT NULL DEFAULT 1,
+    exp INTEGER NOT NULL DEFAULT 0,
+    strength SMALLINT NOT NULL DEFAULT 4,
+    dexterity SMALLINT NOT NULL DEFAULT 4,
+    luck SMALLINT NOT NULL DEFAULT 4,
+    intelligence SMALLINT NOT NULL DEFAULT 4,
+    hp SMALLINT NOT NULL DEFAULT 50,
+    mp SMALLINT NOT NULL DEFAULT 5,
+    max_hp SMALLINT NOT NULL DEFAULT 50,
+    max_mp SMALLINT NOT NULL DEFAULT 0,
+    ap SMALLINT NOT NULL DEFAULT 0,
+    fame SMALLINT NOT NULL DEFAULT 0,
+    meso INTEGER NOT NULL DEFAULT 0,
     job_id SMALLINT NOT NULL,
     face_id INTEGER NOT NULL,
     hair_id INTEGER NOT NULL,
@@ -45,26 +45,26 @@ CREATE TABLE characters (
 CREATE TABLE equips (
     id SERIAL PRIMARY KEY,
     wz_id INTEGER NOT NULL,
-    strength INTEGER NULL DEFAULT 0,
-    dexterity INTEGER NULL DEFAULT 0,
-    intelligence INTEGER NULL DEFAULT 0,
-    luck INTEGER NULL DEFAULT 0,
-    attack INTEGER NULL DEFAULT 0,
-    weapon_defense INTEGER NULL DEFAULT 0,
-    magic INTEGER NULL DEFAULT 0,
-    magic_defense INTEGER NULL DEFAULT 0,
-    hp INTEGER NULL DEFAULT 0,
-    mp INTEGER NULL DEFAULT 0,
-    accuracy INTEGER NULL DEFAULT 0,
-    avoid INTEGER NULL DEFAULT 0,
-    hands INTEGER NULL DEFAULT 0,
-    speed INTEGER NULL DEFAULT 0,
-    jump INTEGER NULL DEFAULT 0,
+    strength INTEGER NOT NULL DEFAULT 0,
+    dexterity INTEGER NOT NULL DEFAULT 0,
+    intelligence INTEGER NOT NULL DEFAULT 0,
+    luck INTEGER NOT NULL DEFAULT 0,
+    attack INTEGER NOT NULL DEFAULT 0,
+    weapon_defense INTEGER NOT NULL DEFAULT 0,
+    magic INTEGER NOT NULL DEFAULT 0,
+    magic_defense INTEGER NOT NULL DEFAULT 0,
+    hp INTEGER NOT NULL DEFAULT 0,
+    mp INTEGER NOT NULL DEFAULT 0,
+    accuracy INTEGER NOT NULL DEFAULT 0,
+    avoid INTEGER NOT NULL DEFAULT 0,
+    hands INTEGER NOT NULL DEFAULT 0,
+    speed INTEGER NOT NULL DEFAULT 0,
+    jump INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE regular_equipment_set (
+CREATE TABLE regular_equipment_sets (
     char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
     hat_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
     pants_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
@@ -101,7 +101,7 @@ CREATE TABLE regular_equipment_set (
     PRIMARY KEY (char_id)
 );
 
-CREATE TABLE cash_equipment_set (
+CREATE TABLE cash_equipment_sets (
     char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
     ring_one_id INTEGER NULL,
     ring_two_id INTEGER NULL,
@@ -127,17 +127,17 @@ CREATE TABLE cash_equipment_set (
     PRIMARY KEY (char_id)
 );
 
-CREATE TABLE pet_equipment_set (
+CREATE TABLE pet_equipment_sets (
     char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
     accessory_one_id INTEGER NULL,
-    paccessory_two_id INTEGER NULL,
+    accessory_two_id INTEGER NULL,
     accessory_three_id INTEGER NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY (char_id)
 );
 
-CREATE TABLE android_equipment_set (
+CREATE TABLE android_equipment_sets (
     char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
     hat_id INTEGER NULL,
     face_id INTEGER NULL,
@@ -160,7 +160,6 @@ CREATE TABLE character_limits (
 );
 
 CREATE TABLE keybindings (
-    id SERIAL PRIMARY KEY,
     char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
     key INTEGER NOT NULL,
     bind_type SMALLINT NOT NULL,
@@ -169,17 +168,25 @@ CREATE TABLE keybindings (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-ALTER TABLE keybindings
-ADD CONSTRAINT key_is_unique_per_character UNIQUE (char_id, key);
-
 CREATE TABLE skills (
-    id SERIAL PRIMARY KEY,
     char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
     wz_id INTEGER NOT NULL,
     level SMALLINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE accounts
+ADD CONSTRAINT accounts_unique UNIQUE (username);
+
+ALTER TABLE characters
+ADD CONSTRAINT characters_unique UNIQUE (ign);
+
+ALTER TABLE keybindings
+ADD CONSTRAINT keybindings_unique UNIQUE (char_id, key);
+
+ALTER TABLE skills
+ADD CONSTRAINT skills_unique UNIQUE (char_id, wz_id);
 
 
 

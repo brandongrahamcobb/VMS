@@ -6,7 +6,13 @@ use bcrypt::{DEFAULT_COST, hash, verify};
 #[derive(Clone)]
 pub enum StatusCode {
     Failed(FailedCode),
+    Pending(PendingCode),
     Success(SuccessCode),
+}
+
+#[derive(Clone)]
+pub enum PendingCode {
+    PendingTOS = 23,
 }
 
 #[derive(Clone)]
@@ -20,7 +26,6 @@ pub enum FailedCode {
     InvalidCredentials = 4,
     UnknownCredentials = 5,
     Playing = 7,
-    PendingTOS = 23,
 }
 
 pub fn authenticate(db_pw: String, pw: String) -> Result<bool, NetworkError> {
@@ -46,8 +51,13 @@ async fn check_if_playing(state: &SharedState, acc: &Account) -> Result<bool, Ne
     let acc_id = acc.model.get_id()?;
     let state = state.lock().await;
     for session in state.sessions.iter() {
-        if session.get_acc()?.model.get_id()? == acc_id {
-            return Ok(session.playing);
+        match session.get_acc() {
+            Ok(acc) => {
+                if acc.model.get_id()? == acc_id {
+                    return Ok(session.playing);
+                }
+            }
+            Err(_) => return Ok(false),
         }
     }
     return Ok(false);
@@ -61,7 +71,7 @@ pub async fn get_status_code_by_account(
         return Ok(StatusCode::Failed(FailedCode::Banned));
     }
     if check_if_pending_tos(acc)? {
-        return Ok(StatusCode::Failed(FailedCode::PendingTOS));
+        return Ok(StatusCode::Pending(PendingCode::PendingTOS));
     }
     let mode = settings::get_release_mode()?;
     if check_if_playing(state, acc).await? & mode {
