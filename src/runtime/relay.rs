@@ -24,8 +24,9 @@ use crate::net::packet::io::{read::PacketReader, write::PacketWriter};
 use crate::net::packet::model::Packet;
 use crate::op::recv::RecvOpcode;
 use crate::prelude::*;
-use crate::runtime::error::{RuntimeError, SessionError};
-use crate::runtime::scope::Scope;
+use crate::runtime::error::RuntimeError;
+use crate::runtime::scope::{ChannelScope, MapScope, Scope};
+use crate::runtime::session::error::SessionError;
 use crate::runtime::state::SharedState;
 use core::ops::ControlFlow;
 use rand::{RngExt, rng};
@@ -311,7 +312,9 @@ pub trait RuntimeRelay: Sized {
                                     session.id,
                                 );
                                 for s in sessions {
-                                    s.map = Some(map.clone());
+                                    state.sessions.update(s.id, |s| {
+                                        s.map = Some(map.clone());
+                                    });
                                 }
                             }
                             MapScope::AllChannelsAllWorlds => {

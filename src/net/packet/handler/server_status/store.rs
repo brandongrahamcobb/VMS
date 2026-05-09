@@ -1,7 +1,7 @@
 use crate::models::shroom::world::model::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::server_status::reader::ServerStatusReader;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 #[derive(Clone)]

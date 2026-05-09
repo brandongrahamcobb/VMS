@@ -6,7 +6,7 @@ use crate::models::character::model::Character;
 use crate::models::shroom::channel::model::Channel;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::select_char_with_pic::reader::SelectCharWithPicReader;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 #[derive(Clone)]

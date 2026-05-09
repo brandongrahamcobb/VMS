@@ -5,7 +5,7 @@ use crate::net::packet::handler::player_logged_in::store::PlayerLoggedInStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::scope::{MapScope, Scope};
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 pub struct PlayerLoggedInHandler;

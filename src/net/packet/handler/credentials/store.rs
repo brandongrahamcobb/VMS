@@ -4,7 +4,7 @@ use crate::net::error::NetworkError;
 use crate::net::packet::handler::credentials;
 use crate::net::packet::handler::credentials::reader::CredentialsReader;
 use crate::net::packet::handler::credentials::service::{FailedCode, StatusCode};
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 #[derive(Clone)]

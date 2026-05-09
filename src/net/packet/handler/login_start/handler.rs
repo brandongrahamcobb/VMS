@@ -3,7 +3,7 @@ use crate::net::packet::handler::login_start::reader::LoginStartReader;
 use crate::net::packet::handler::login_start::store::LoginStartStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 pub struct LoginStartHandler;

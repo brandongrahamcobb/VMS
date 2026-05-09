@@ -6,7 +6,7 @@ use crate::net::packet::handler::credentials::store::CredentialsStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::scope::Scope;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 pub struct CredentialsHandler;

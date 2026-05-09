@@ -4,8 +4,8 @@ use crate::net::packet::handler::cc::reader::ChangeChannelReader;
 use crate::net::packet::handler::cc::store::ChangeChannelStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::scope::Scope;
-use crate::runtime::session::Session;
+use crate::runtime::scope::{MapScope, Scope};
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 pub struct ChangeChannelHandler;
@@ -42,7 +42,7 @@ impl ChangeChannelHandler {
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
-            scope: Scope::Map,
+            scope: Scope::Map(MapScope::SameChannelSameWorld),
         })?;
         let packet: Packet = Packet::new_empty()
             .build_channel_change_handler_packet(store.channel.clone(), store.octets.clone())?
@@ -56,8 +56,17 @@ impl ChangeChannelHandler {
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
-            scope: Scope::Map,
+            scope: Scope::Map(MapScope::SameChannelSameWorld),
         })?;
+        for session in store.sessions {
+            let packet: Packet = Packet::new_empty()
+                .build_spawn_player_packet(session.get_char()?.clone())?
+                .finish();
+            result.add_action(Action::Send {
+                packet: packet.clone(),
+                scope: Scope::Local,
+            })?;
+        }
         Ok(result)
     }
 }

@@ -3,13 +3,12 @@ use crate::models::character::model::Character;
 use crate::models::shroom::channel::model::Channel;
 use crate::models::shroom::map::model::Map;
 use crate::models::shroom::world::model::World;
-use crate::net::packet::model::Packet;
-use crate::runtime::error::SessionError;
+use crate::runtime::session::error::SessionError;
+use crate::runtime::session::model::{Session, SessionData, SessionStore};
 use core::sync::atomic::AtomicI32;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::RwLock;
 use std::sync::atomic::Ordering;
-use tokio::sync::mpsc::UnboundedSender;
 
 impl Session {
     pub fn get_acc(&self) -> Result<Account, SessionError> {
@@ -68,11 +67,11 @@ impl SessionData {
     fn reindex(
         &mut self,
         id: i32,
-        old_world: Option<i32>,
-        old_channel: Option<i32>,
+        old_world: Option<i16>,
+        old_channel: Option<i16>,
         old_map: Option<i32>,
-        new_world: Option<i32>,
-        new_channel: Option<i32>,
+        new_world: Option<i16>,
+        new_channel: Option<i16>,
         new_map: Option<i32>,
     ) {
         if old_world != new_world {
@@ -209,8 +208,8 @@ impl SessionStore {
     pub fn get_by_map_channel_world(
         &self,
         wz_id: i32,
-        channel_id: i32,
-        world_id: i32,
+        channel_id: i16,
+        world_id: i16,
         exclude: i32,
     ) -> Vec<Session> {
         let data = self.data.read().expect("poisoned");
@@ -223,7 +222,7 @@ impl SessionStore {
         data.resolve_intersection(&mc, &w, exclude)
     }
 
-    pub fn get_by_map_world(&self, wz_id: i32, world_id: i32, exclude: i32) -> Vec<Session> {
+    pub fn get_by_map_world(&self, wz_id: i32, world_id: i16, exclude: i32) -> Vec<Session> {
         let data = self.data.read().expect("poisoned");
         let m = data.by_map.get(&wz_id).cloned().unwrap_or_default();
         let w = data.by_world.get(&world_id).cloned().unwrap_or_default();
@@ -239,8 +238,8 @@ impl SessionStore {
 
     pub fn get_by_channel_world(
         &self,
-        channel_id: i32,
-        world_id: i32,
+        channel_id: i16,
+        world_id: i16,
         exclude: i32,
     ) -> Vec<Session> {
         let data = self.data.read().expect("poisoned");
@@ -252,14 +251,14 @@ impl SessionStore {
         data.resolve(ids, exclude)
     }
 
-    pub fn get_by_channel(&self, channel_id: i32, exclude: i32) -> Vec<Session> {
+    pub fn get_by_channel(&self, channel_id: i16, exclude: i32) -> Vec<Session> {
         let data = self.data.read().expect("poisoned");
         let empty = HashSet::new();
         let ids = data.by_channel.get(&channel_id).unwrap_or(&empty);
         data.resolve(ids, exclude)
     }
 
-    pub fn get_by_world(&self, world_id: i32, exclude: i32) -> Vec<Session> {
+    pub fn get_by_world(&self, world_id: i16, exclude: i32) -> Vec<Session> {
         let data = self.data.read().expect("poisoned");
         let empty = HashSet::new();
         let ids = data.by_world.get(&world_id).unwrap_or(&empty);

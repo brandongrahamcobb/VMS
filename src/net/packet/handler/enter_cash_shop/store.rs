@@ -5,7 +5,7 @@ use crate::models::shroom::map;
 use crate::models::shroom::map::model::Map;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::enter_cash_shop::reader::EnterCashShopReader;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 #[derive(Clone)]

@@ -3,7 +3,7 @@ use crate::models::character::model::Character;
 use crate::models::character::skill::model::Skill;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::close_attack::reader::CloseAttackReader;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 use std::collections::HashMap;
 

@@ -22,7 +22,7 @@ use crate::models::shroom::map::model::Map;
 use crate::models::shroom::world::model::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::create_char::reader::CreateCharReader;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 use itertools::izip;
 use std::time::SystemTime;

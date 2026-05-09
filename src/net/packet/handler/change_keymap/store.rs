@@ -4,7 +4,7 @@ use crate::models::character::keybinding;
 use crate::models::character::keybinding::model::KeybindingModel;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::change_keymap::reader::ChangeKeymapReader;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 use itertools::izip;
 

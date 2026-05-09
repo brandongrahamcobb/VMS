@@ -7,7 +7,7 @@ use crate::models::shroom::world::model::World;
 use crate::models::shroom::{channel, world};
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::list_chars::reader::ListCharsReader;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 #[derive(Clone)]

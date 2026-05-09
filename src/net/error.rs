@@ -6,7 +6,7 @@ use crate::models::error::ModelError;
 use crate::net::packet::error::PacketError;
 use crate::net::packet::io::error::IOError;
 use crate::net::packet::model::Packet;
-use crate::runtime::error::SessionError;
+use crate::runtime::session::error::SessionError;
 use bcrypt::BcryptError;
 use std::time::SystemTimeError;
 use thiserror::Error;

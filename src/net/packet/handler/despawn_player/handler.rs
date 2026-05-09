@@ -4,8 +4,8 @@ use crate::net::packet::handler::despawn_player::reader::DespawnPlayerReader;
 use crate::net::packet::handler::despawn_player::store::DespawnPlayerStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::scope::Scope;
-use crate::runtime::session::Session;
+use crate::runtime::scope::{MapScope, Scope};
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 pub struct DespawnPlayerHandler;
@@ -44,7 +44,7 @@ impl DespawnPlayerHandler {
         })?;
         result.add_action(Action::Send {
             packet: packet.clone(),
-            scope: Scope::Map,
+            scope: Scope::Map(MapScope::SameChannelSameWorld),
         })?;
         Ok(result)
     }

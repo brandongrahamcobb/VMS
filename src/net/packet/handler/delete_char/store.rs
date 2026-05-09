@@ -4,7 +4,7 @@ use crate::models::character::model::{Character, CharacterModel};
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::delete_char;
 use crate::net::packet::handler::delete_char::reader::DeleteCharReader;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 #[derive(Clone)]

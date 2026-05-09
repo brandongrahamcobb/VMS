@@ -3,7 +3,7 @@ use crate::net::packet::handler::party_search::reader::PartySearchReader;
 use crate::net::packet::handler::party_search::store::PartySearchStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 pub struct PartySearchHandler;

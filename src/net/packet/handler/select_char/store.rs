@@ -5,7 +5,7 @@ use crate::models::character::model::Character;
 use crate::models::shroom::channel::model::Channel;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::select_char::reader::SelectCharReader;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 #[derive(Clone)]

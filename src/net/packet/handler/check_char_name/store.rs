@@ -1,7 +1,7 @@
 use crate::models::character;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::check_char_name::reader::CheckCharNameReader;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 #[derive(Clone)]

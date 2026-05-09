@@ -1,6 +1,6 @@
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::login_start::reader::LoginStartReader;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 #[derive(Clone)]

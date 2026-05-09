@@ -4,7 +4,7 @@ use crate::models::shroom::map::model::Map;
 use crate::models::shroom::world::model::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::despawn_player::reader::DespawnPlayerReader;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 #[derive(Clone)]

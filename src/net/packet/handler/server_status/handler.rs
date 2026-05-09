@@ -5,7 +5,7 @@ use crate::net::packet::handler::server_status::reader::ServerStatusReader;
 use crate::net::packet::handler::server_status::store::ServerStatusStore;
 use crate::net::packet::model::Packet;
 use crate::runtime::scope::Scope;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 pub struct ServerStatusHandler;

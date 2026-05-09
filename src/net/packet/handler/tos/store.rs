@@ -1,7 +1,7 @@
 use crate::models::account::model::Account;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::tos::reader::TosReader;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 #[derive(Clone)]

@@ -4,8 +4,8 @@ use crate::net::packet::handler::enter_cash_shop::reader::EnterCashShopReader;
 use crate::net::packet::handler::enter_cash_shop::store::EnterCashShopStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::scope::Scope;
-use crate::runtime::session::Session;
+use crate::runtime::scope::{MapScope, Scope};
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 pub struct EnterCashShopHandler;
@@ -49,7 +49,7 @@ impl EnterCashShopHandler {
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
-            scope: Scope::Map,
+            scope: Scope::Map(MapScope::SameChannelSameWorld),
         })?;
         Ok(result)
     }

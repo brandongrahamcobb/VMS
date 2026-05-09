@@ -5,7 +5,7 @@ use crate::net::packet::handler::select_char_with_pic::reader::SelectCharWithPic
 use crate::net::packet::handler::select_char_with_pic::store::SelectCharWithPicStore;
 use crate::net::packet::model::Packet;
 use crate::runtime::scope::Scope;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 pub struct SelectCharWithPicHandler;

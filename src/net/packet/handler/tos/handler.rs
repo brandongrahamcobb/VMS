@@ -5,7 +5,7 @@ use crate::net::packet::handler::tos::reader::TosReader;
 use crate::net::packet::handler::tos::store::TosStore;
 use crate::net::packet::model::Packet;
 use crate::runtime::scope::Scope;
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 pub struct TosHandler;

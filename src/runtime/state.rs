@@ -4,7 +4,7 @@ use crate::db::pool::DbPool;
 use crate::models::shroom::world;
 use crate::models::shroom::world::model::World;
 use crate::runtime::error::RuntimeError;
-use crate::runtime::session::SessionStore;
+use crate::runtime::session::model::SessionStore;
 use diesel::PgConnection;
 use diesel::r2d2::{ConnectionManager, Pool};
 use std::sync::Arc;

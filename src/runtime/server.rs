@@ -2,7 +2,7 @@ use crate::config::settings;
 use crate::inc::helpers;
 use crate::runtime::error::RuntimeError;
 use crate::runtime::relay::{LoginRelay, PlayerRelay, Runtime};
-use crate::runtime::session::Session;
+use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 use std::future::Future;
 use std::pin::Pin;
