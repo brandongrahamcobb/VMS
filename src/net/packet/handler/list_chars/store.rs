@@ -1,9 +1,10 @@
 use crate::config::settings;
 use crate::models::account::model::Account;
-use crate::models::channel::model::Channel;
+use crate::models::character;
 use crate::models::character::model::Character;
-use crate::models::world::model::World;
-use crate::models::{channel, world};
+use crate::models::shroom::channel::model::Channel;
+use crate::models::shroom::world::model::World;
+use crate::models::shroom::{channel, world};
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::list_chars::reader::ListCharsReader;
 use crate::runtime::session::Session;
@@ -34,9 +35,9 @@ impl ListCharsStore {
         let world: World = world::service::get_world_by_id(state, reader.world_id).await?;
         let channel: Channel =
             channel::service::get_channel_by_id(state, reader.channel_id).await?;
-        let char_max = world::query::get_character_max_by_account_and_world_id(
+        let char_max = character::query::getters::get_character_max_by_account_and_world_id(
             state,
-            acc.model.id,
+            acc.model.get_id()?,
             world.model.id,
         )
         .await?;

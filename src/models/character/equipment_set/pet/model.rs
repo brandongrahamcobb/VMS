@@ -1,25 +1,16 @@
-use crate::db::schema::pet_equipment_set;
-use crate::models::wz::equip::model::Equip;
+use crate::db::schema::pet_equipment_sets;
+use crate::models::item::equip::model::Equip;
 use diesel::prelude::*;
 use std::time::SystemTime;
 
-#[derive(Insertable, AsChangeset)]
-#[diesel(table_name = pet_equipment_set)]
-pub struct NewPetEquipmentSetInsert {
-    pub char_id: i32,
-    pub accessory_one_id: Option<i32>,
-    pub accessory_two_id: Option<i32>,
-    pub accessory_three_id: Option<i32>,
-}
-
-#[derive(Clone, Queryable, AsChangeset, Selectable)]
-#[diesel(table_name = pet_equipment_set)]
+#[derive(Clone, Insertable, Queryable, AsChangeset, Selectable)]
+#[diesel(table_name = pet_equipment_sets)]
 pub struct PetEquipmentSetModel {
     pub char_id: i32,
     pub accessory_one_id: Option<i32>,
     pub accessory_two_id: Option<i32>,
     pub accessory_three_id: Option<i32>,
-    pub created_at: SystemTime,
+    pub created_at: Option<SystemTime>,
     pub updated_at: SystemTime,
 }
 

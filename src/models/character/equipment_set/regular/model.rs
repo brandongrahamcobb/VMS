@@ -1,45 +1,10 @@
-use crate::db::schema::regular_equipment_set;
-use crate::models::wz::equip::model::Equip;
+use crate::db::schema::regular_equipment_sets;
+use crate::models::item::equip::model::Equip;
 use diesel::prelude::*;
 use std::time::SystemTime;
 
-#[derive(Insertable, AsChangeset)]
-#[diesel(table_name = regular_equipment_set)]
-pub struct NewRegularEquipmentSetInsert {
-    pub char_id: i32,
-    pub hat_id: Option<i32>,
-    pub face_acc_id: Option<i32>,
-    pub eye_acc_id: Option<i32>,
-    pub ear_acc_id: Option<i32>,
-    pub top_id: Option<i32>,
-    pub bottom_id: Option<i32>,
-    pub shoes_id: Option<i32>,
-    pub gloves_id: Option<i32>,
-    pub cape_id: Option<i32>,
-    pub shield_id: Option<i32>,
-    pub weapon_id: Option<i32>,
-    pub ring_one_id: Option<i32>,
-    pub ring_two_id: Option<i32>,
-    pub ring_three_id: Option<i32>,
-    pub ring_four_id: Option<i32>,
-    pub pendant_one_id: Option<i32>,
-    pub tamed_mob_id: Option<i32>,
-    pub saddle_id: Option<i32>,
-    pub medal_id: Option<i32>,
-    pub belt_id: Option<i32>,
-    pub pocket_id: Option<i32>,
-    pub book_id: Option<i32>,
-    pub pendant_two_id: Option<i32>,
-    pub shoulder_id: Option<i32>,
-    pub android_id: Option<i32>,
-    pub emblem_id: Option<i32>,
-    pub badge_id: Option<i32>,
-    pub subweapon_id: Option<i32>,
-    pub heart_id: Option<i32>,
-}
-
-#[derive(Clone, Queryable, AsChangeset, Selectable)]
-#[diesel(table_name = regular_equipment_set)]
+#[derive(Clone, Insertable, Queryable, AsChangeset, Selectable)]
+#[diesel(table_name = regular_equipment_sets)]
 pub struct RegularEquipmentSetModel {
     pub char_id: i32,
     pub hat_id: Option<i32>,
@@ -71,7 +36,7 @@ pub struct RegularEquipmentSetModel {
     pub badge_id: Option<i32>,
     pub subweapon_id: Option<i32>,
     pub heart_id: Option<i32>,
-    pub created_at: SystemTime,
+    pub created_at: Option<SystemTime>,
     pub updated_at: SystemTime,
 }
 

@@ -38,14 +38,14 @@ impl ChangeChannelHandler {
             scope: Scope::Local,
         }))?;
         let packet: Packet = Packet::new_empty()
-            .build_despawn_player_handler_packet(store.char.model.clone())?
+            .build_despawn_player_handler_packet(store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Map,
         })?;
         let packet: Packet = Packet::new_empty()
-            .build_channel_change_handler_packet(store.channel.model.clone(), store.octets.clone())?
+            .build_channel_change_handler_packet(store.channel.clone(), store.octets.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

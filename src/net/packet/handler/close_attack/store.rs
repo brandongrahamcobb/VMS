@@ -26,12 +26,14 @@ impl CloseAttackStore {
         reader: CloseAttackReader,
     ) -> Result<Self, NetworkError> {
         let char = session.get_char()?;
-        let skill = character::skill::service::get_skill_by_character_id_and_skill_id(
-            state,
-            char.model.id,
-            reader.skill_id,
-        )
-        .await?;
+        let skill_model =
+            character::skill::query::getters::get_skill_model_by_character_id_and_skill_id(
+                state,
+                char.model.get_id()?,
+                reader.skill_id,
+            )
+            .await?;
+        let skill = skill_model.load()?;
         return Ok(Self {
             char: char.clone(),
             skill: skill.clone(),

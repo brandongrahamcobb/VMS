@@ -1,9 +1,9 @@
 use crate::config::settings;
 use crate::inc::helpers;
 use crate::models::account::model::Account;
-use crate::models::channel::model::Channel;
 use crate::models::character;
 use crate::models::character::model::Character;
+use crate::models::shroom::channel::model::Channel;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::select_char_with_pic::reader::SelectCharWithPicReader;
 use crate::runtime::session::Session;

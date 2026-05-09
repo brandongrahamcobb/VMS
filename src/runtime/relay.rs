@@ -133,7 +133,7 @@ pub trait RuntimeRelay: Sized {
                     Scope::Map => {
                         let state = state.lock().await;
                         for s in state.sessions.iter() {
-                            if s.get_map()?.model.id == session.get_map()?.model.id
+                            if s.get_map()?.model.wz_id == session.get_map()?.model.wz_id
                                 && s.id != session.id
                             {
                                 s.tx.send(packet.clone())?;
@@ -181,7 +181,7 @@ pub trait RuntimeRelay: Sized {
                         Scope::Map => {
                             let state = state.lock().await;
                             for s in state.sessions.iter() {
-                                if s.get_map()?.model.id == session.get_map()?.model.id
+                                if s.get_map()?.model.wz_id == session.get_map()?.model.wz_id
                                     && s.id != session.id
                                 {
                                     state.sessions.update(s.id, |s| {
@@ -236,7 +236,7 @@ pub trait RuntimeRelay: Sized {
                         Scope::Map => {
                             let state = state.lock().await;
                             for s in state.sessions.iter() {
-                                if s.get_map()?.model.id == session.get_map()?.model.id
+                                if s.get_map()?.model.wz_id == session.get_map()?.model.wz_id
                                     && s.id != session.id
                                 {
                                     state.sessions.update(s.id, |s| {
@@ -290,7 +290,7 @@ pub trait RuntimeRelay: Sized {
                         Scope::Map => {
                             let state = state.lock().await;
                             for s in state.sessions.iter() {
-                                if s.get_map()?.model.id == session.get_map()?.model.id
+                                if s.get_map()?.model.wz_id == session.get_map()?.model.wz_id
                                     && s.id != session.id
                                 {
                                     state.sessions.update(s.id, |s| {

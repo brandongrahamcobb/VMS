@@ -38,14 +38,14 @@ impl EnterCashShopHandler {
             scope: Scope::Local,
         }))?;
         let packet: Packet = Packet::new_empty()
-            .build_enter_cash_shop_handler_packet(store.acc.model.clone(), store.char.clone())?
+            .build_enter_cash_shop_handler_packet(store.acc.clone(), store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
         })?;
         let packet: Packet = Packet::new_empty()
-            .build_despawn_player_handler_packet(store.char.model.clone())?
+            .build_despawn_player_handler_packet(store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

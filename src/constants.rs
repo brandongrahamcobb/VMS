@@ -1,4 +1,4 @@
-use crate::models::world::model::WorldInfo;
+use crate::models::shroom::world::model::WorldModel;
 
 pub const CASH_SHOP_MAP_ID: i32 = 193000000;
 
@@ -52,7 +52,7 @@ pub const MAX_PACKET_LENGTH: i16 = i16::MAX;
 
 pub const HEADER_SIZE: u8 = 4;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum WorldID {
     SCANIA = 0,
     BERA = 1,
@@ -64,45 +64,64 @@ pub enum WorldID {
     BELLOCAN = 7,
 }
 
-pub const WORLDS: &[WorldInfo] = &[
-    WorldInfo {
+const EVENT_MESSAGE: &str = "";
+const FLAG: i16 = 0;
+
+pub const WORLDS: &[WorldModel] = &[
+    WorldModel {
         id: 0,
         name: "Scania",
+        event_message: EVENT_MESSAGE,
+        flag: FLAG,
         port: 8585,
     },
-    WorldInfo {
+    WorldModel {
         id: 1,
         name: "Bera",
+        event_message: EVENT_MESSAGE,
+        flag: FLAG,
         port: 8686,
     },
-    WorldInfo {
+    WorldModel {
         id: 2,
         name: "Broa",
+        event_message: EVENT_MESSAGE,
+        flag: FLAG,
         port: 8787,
     },
-    WorldInfo {
+    WorldModel {
         id: 3,
         name: "Windia",
+        event_message: EVENT_MESSAGE,
+        flag: FLAG,
         port: 8888,
     },
-    WorldInfo {
+    WorldModel {
         id: 4,
         name: "Khaini",
+        event_message: EVENT_MESSAGE,
+        flag: FLAG,
         port: 8989,
     },
-    WorldInfo {
+    WorldModel {
         id: 5,
         name: "Mardia",
+        event_message: EVENT_MESSAGE,
+        flag: FLAG,
         port: 9090,
     },
-    WorldInfo {
+    WorldModel {
         id: 6,
         name: "Yellonde",
+        event_message: EVENT_MESSAGE,
+        flag: FLAG,
         port: 9191,
     },
-    WorldInfo {
+    WorldModel {
         id: 7,
         name: "Bellocan",
+        event_message: EVENT_MESSAGE,
+        flag: FLAG,
         port: 9292,
     },
 ];

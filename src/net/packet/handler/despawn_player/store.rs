@@ -1,7 +1,7 @@
-use crate::models::channel::model::Channel;
 use crate::models::character::model::Character;
-use crate::models::map::model::Map;
-use crate::models::world::model::World;
+use crate::models::shroom::channel::model::Channel;
+use crate::models::shroom::map::model::Map;
+use crate::models::shroom::world::model::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::despawn_player::reader::DespawnPlayerReader;
 use crate::runtime::session::Session;

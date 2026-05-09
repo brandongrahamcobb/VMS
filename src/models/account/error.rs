@@ -10,4 +10,10 @@ pub enum AccountError {
 
     #[error("No pic found in account model layer: {0}")]
     NoPic(i32),
+
+    #[error("No id found in account model layer")]
+    NoId,
+
+    #[error("No created at time found in account model layer: {0}")]
+    NoCreatedAt(i32),
 }

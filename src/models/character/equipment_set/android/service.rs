@@ -1,74 +1,26 @@
 use crate::models::character::equipment_set::android::error::AndroidEquipmentSetModelError;
 use crate::models::character::equipment_set::android::model::{
-    AndroidEquipmentSet, AndroidEquipmentSetModel, NewAndroidEquipmentSetInsert,
+    AndroidEquipmentSet, AndroidEquipmentSetModel,
 };
 use crate::models::character::equipment_set::error::EquipmentSetError;
 use crate::models::character::error::CharacterError;
 use crate::models::error::ModelError;
-use crate::models::wz;
-use crate::models::wz::equip::model::Equip;
+use crate::models::item::equip;
 use crate::runtime::state::SharedState;
 
-pub async fn get_android_equipment_set_from_model(
-    state: &SharedState,
-    model: AndroidEquipmentSetModel,
-) -> Result<AndroidEquipmentSet, ModelError> {
-    Ok(AndroidEquipmentSet {
-        model: model.clone(),
-        hat: wz::equip::service::resolve_equip(state, model.hat_id).await?,
-        face: wz::equip::service::resolve_equip(state, model.face_id).await?,
-        top: wz::equip::service::resolve_equip(state, model.top_id).await?,
-        bottom: wz::equip::service::resolve_equip(state, model.bottom_id).await?,
-        gloves: wz::equip::service::resolve_equip(state, model.gloves_id).await?,
-        cape: wz::equip::service::resolve_equip(state, model.cape_id).await?,
-    })
-}
-
-impl NewAndroidEquipmentSetInsert {
-    pub fn default(
-        char_id: i32,
-        bottom_id: Option<i32>,
-        cape_id: Option<i32>,
-        face_id: Option<i32>,
-        gloves_id: Option<i32>,
-        hat_id: Option<i32>,
-        top_id: Option<i32>,
-    ) -> Self {
-        Self {
-            char_id,
-            bottom_id,
-            cape_id,
-            face_id,
-            gloves_id,
-            hat_id,
-            top_id,
-        }
-    }
-}
-
-impl AndroidEquipmentSet {
-    pub fn new(
-        model: AndroidEquipmentSetModel,
-        bottom: Option<Equip>,
-        cape: Option<Equip>,
-        face: Option<Equip>,
-        gloves: Option<Equip>,
-        hat: Option<Equip>,
-        top: Option<Equip>,
-    ) -> Self {
-        Self {
-            model,
-            bottom,
-            cape,
-            face,
-            gloves,
-            hat,
-            top,
-        }
-    }
-}
-
 impl AndroidEquipmentSetModel {
+    pub async fn load(&self, state: &SharedState) -> Result<AndroidEquipmentSet, ModelError> {
+        Ok(AndroidEquipmentSet {
+            model: self.clone(),
+            hat: equip::service::resolve_equip(state, self.hat_id).await?,
+            face: equip::service::resolve_equip(state, self.face_id).await?,
+            top: equip::service::resolve_equip(state, self.top_id).await?,
+            bottom: equip::service::resolve_equip(state, self.bottom_id).await?,
+            gloves: equip::service::resolve_equip(state, self.gloves_id).await?,
+            cape: equip::service::resolve_equip(state, self.cape_id).await?,
+        })
+    }
+
     pub fn get_bottom_id(&self) -> Result<i32, ModelError> {
         if let Some(bottom_id) = self.bottom_id {
             Ok(bottom_id)

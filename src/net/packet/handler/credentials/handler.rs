@@ -47,12 +47,10 @@ impl CredentialsHandler {
             }
             StatusCode::Success(_) => {
                 let packet: Packet = Packet::new_empty()
-                    .build_credentials_handler_successful_login_packet(
-                        store.acc.clone().unwrap().model.clone(),
-                    )?
+                    .build_credentials_handler_successful_login_packet(store.acc.clone().unwrap())?
                     .finish();
                 result.add_action(Action::Set(SetAction::SetAccount {
-                    acc: store.acc.clone().unwrap().clone(),
+                    acc: store.acc.clone().unwrap(),
                 }))?;
                 result.add_action(Action::Send {
                     packet: packet.clone(),

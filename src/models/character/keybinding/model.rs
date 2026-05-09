@@ -2,25 +2,15 @@ use crate::db::schema::keybindings;
 use diesel::prelude::*;
 use std::time::SystemTime;
 
-#[derive(Clone, Identifiable, Queryable, Insertable, AsChangeset)]
+#[derive(Clone, Queryable, Insertable, AsChangeset)]
 #[diesel(table_name = keybindings)]
 pub struct KeybindingModel {
-    pub id: i32,
     pub char_id: i32,
     pub key: i32,
     pub bind_type: i16,
     pub action: i32,
-    pub created_at: SystemTime,
+    pub created_at: Option<SystemTime>,
     pub updated_at: SystemTime,
-}
-
-#[derive(Clone, Insertable, AsChangeset)]
-#[diesel(table_name = keybindings)]
-pub struct NewKeybindingInsert {
-    pub char_id: i32,
-    pub key: i32,
-    pub bind_type: i16,
-    pub action: i32,
 }
 
 #[derive(Debug, Clone, Copy)]

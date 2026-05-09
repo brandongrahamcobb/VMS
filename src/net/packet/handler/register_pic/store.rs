@@ -1,11 +1,10 @@
 use crate::config::settings;
 use crate::inc::helpers;
 use crate::models::account::model::Account;
-use crate::models::channel::model::Channel;
 use crate::models::character;
 use crate::models::character::model::Character;
+use crate::models::shroom::channel::model::Channel;
 use crate::net::error::NetworkError;
-use crate::net::packet::handler::register_pic;
 use crate::net::packet::handler::register_pic::reader::RegisterPicReader;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
@@ -27,7 +26,7 @@ impl RegisterPicStore {
         let channel: Channel = session.get_channel()?;
         let char: Character =
             character::service::get_character_by_id(state, reader.char_id).await?;
-        register_pic::service::set_pic(state, acc.clone(), reader.pic.clone()).await?;
+        acc.set_pic(state, reader.pic.clone()).await?;
         let addr: String = settings::get_address()?;
         let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
         Ok(Self {

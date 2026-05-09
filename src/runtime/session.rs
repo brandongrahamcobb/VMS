@@ -1,8 +1,8 @@
 use crate::models::account::model::Account;
-use crate::models::channel::model::Channel;
+use crate::models::shroom::channel::model::Channel;
 use crate::models::character::model::Character;
-use crate::models::map::model::Map;
-use crate::models::world::model::World;
+use crate::models::shroom::map::model::Map;
+use crate::models::shroom::world::model::World;
 use crate::net::packet::model::Packet;
 use crate::runtime::error::SessionError;
 use core::sync::atomic::AtomicI32;

@@ -1,5 +1,5 @@
 use crate::config::settings;
-use crate::models::account::model::AccountModel;
+use crate::models::account::model::Account;
 use crate::net::error::NetworkError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
@@ -22,15 +22,16 @@ impl Packet {
 
     pub fn build_credentials_handler_successful_login_packet(
         &mut self,
-        acc_model: AccountModel,
+        acc: Account,
     ) -> Result<&mut Self, NetworkError> {
         let pin_required = settings::get_pin_required()? as i16;
         let opcode = SendOpcode::AccountStatus as i16;
-        let acc_id = acc_model.id as i32;
-        let gender_id = acc_model.gender_id as i16;
-        let account_name = acc_model.username.clone();
-        let created_at: i64 = acc_model
-            .created_at
+        let acc_id = acc.model.get_id()? as i32;
+        let gender_id = acc.model.gender_id as i16;
+        let account_name = acc.model.username.clone();
+        let created_at: i64 = acc
+            .model
+            .get_created_at()?
             .duration_since(UNIX_EPOCH)?
             .as_secs()
             .try_into()?;

@@ -19,18 +19,16 @@ impl CredentialsStore {
         session: Session,
         reader: CredentialsReader,
     ) -> Result<Self, NetworkError> {
-        match account::query::get_account_model_by_username(state, reader.username.clone()).await {
-            Ok(acc_model) => {
+        match account::service::get_account_by_username(state, reader.username.clone()).await {
+            Ok(acc) => {
                 let status = if credentials::service::authenticate(
-                    acc_model.password.clone(),
+                    acc.model.password.clone(),
                     reader.pw.clone(),
                 )? {
-                    credentials::service::get_status_code_by_account_model(state, acc_model.clone())
-                        .await?
+                    credentials::service::get_status_code_by_account(state, &acc).await?
                 } else {
                     StatusCode::Failed(FailedCode::InvalidCredentials)
                 };
-                let acc = account::service::get_account_by_id(state, acc_model.id).await?;
                 {
                     let state = state.lock().await;
                     state.sessions.update(session.id, |s| {

@@ -36,14 +36,14 @@ impl PlayerLoggedInHandler {
     ) -> Result<HandlerResult, NetworkError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
-            .build_player_logged_in_handler_keymap_packet(store.bind_models.clone())?
+            .build_player_logged_in_handler_keymap_packet(store.binds.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
         })?;
         let packet: Packet = Packet::new_empty()
-            .build_player_logged_in_handler_char_packet(store.char.clone(), store.channel.model.id)?
+            .build_player_logged_in_handler_char_packet(store.char.clone(), store.channel.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

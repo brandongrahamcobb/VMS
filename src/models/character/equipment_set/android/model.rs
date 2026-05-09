@@ -1,21 +1,9 @@
-use crate::{db::schema::android_equipment_set, models::wz::equip::model::Equip};
+use crate::{db::schema::android_equipment_sets, models::item::equip::model::Equip};
 use diesel::prelude::*;
 use std::time::SystemTime;
 
-#[derive(Insertable, AsChangeset)]
-#[diesel(table_name = android_equipment_set)]
-pub struct NewAndroidEquipmentSetInsert {
-    pub char_id: i32,
-    pub hat_id: Option<i32>,
-    pub face_id: Option<i32>,
-    pub top_id: Option<i32>,
-    pub bottom_id: Option<i32>,
-    pub gloves_id: Option<i32>,
-    pub cape_id: Option<i32>,
-}
-
-#[derive(Clone, Queryable, AsChangeset, Selectable)]
-#[diesel(table_name = android_equipment_set)]
+#[derive(Clone, Insertable, Queryable, AsChangeset, Selectable)]
+#[diesel(table_name = android_equipment_sets)]
 pub struct AndroidEquipmentSetModel {
     pub char_id: i32,
     pub hat_id: Option<i32>,
@@ -24,7 +12,7 @@ pub struct AndroidEquipmentSetModel {
     pub bottom_id: Option<i32>,
     pub gloves_id: Option<i32>,
     pub cape_id: Option<i32>,
-    pub created_at: SystemTime,
+    pub created_at: Option<SystemTime>,
     pub updated_at: SystemTime,
 }
 

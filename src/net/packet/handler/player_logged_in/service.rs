@@ -11,10 +11,10 @@
 //     char: &CharacterModel,
 // ) -> Result<(RegularEquipmentSetModel, CashEquipmentSetModel), NetworkError> {
 //     let regular_equips =
-//         equipment_set::regular::query::get_regular_equipment_set_by_character_id(state, char.id)
+//         equipment_set::regular::query::getters::get_regular_equipment_set_by_character_id(state, char.id)
 //             .await?;
 //     let cash_equips =
-//         equipment_set::cash::query::get_cash_equipment_set_by_character_id(state, char.id).await?;
+//         equipment_set::cash::query::getters::get_cash_equipment_set_by_character_id(state, char.id).await?;
 //     Ok((regular_equips, cash_equips))
 // }
 //
@@ -22,7 +22,7 @@
 //     state: &SharedState,
 //     char: &CharacterModel,
 // ) -> Result<Vec<KeybindingModel>, NetworkError> {
-//     let binds = keybinding::query::get_keybindings_by_character_id(state, char.id).await?;
+//     let binds = keybinding::query::getters::get_keybindings_by_character_id(state, char.id).await?;
 //     let binds: Vec<KeybindingModel> = keybinding::service::normalize_keybindings(binds, char.id);
 //     Ok(binds)
 // }

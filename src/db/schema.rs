@@ -2,7 +2,7 @@
 
 diesel::table! {
     accounts (id) {
-        id -> Int4,
+        id -> Nullable<Int4>,
         username -> Text,
         password -> Text,
         pin -> Nullable<Text>,
@@ -11,14 +11,14 @@ diesel::table! {
         gender_id -> Int2,
         accepted_tos -> Bool,
         banned -> Bool,
-        created_at -> Timestamp,
+        created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
     }
 }
 
 diesel::table! {
     characters (id) {
-        id -> Int4,
+        id -> Nullable<Int4>,
         acc_id -> Int4,
         world_id -> Int2,
         ign -> Text,
@@ -42,13 +42,13 @@ diesel::table! {
         skin_id -> Int4,
         gender_id -> Int2,
         map_id -> Int4,
-        created_at -> Timestamp,
+        created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp
     }
 }
 
 diesel::table! {
-    regular_equipment_set (char_id) {
+    regular_equipment_sets (char_id) {
         char_id -> Int4,
         hat_id -> Nullable<Int4>,
         face_acc_id -> Nullable<Int4>,
@@ -79,13 +79,13 @@ diesel::table! {
         badge_id -> Nullable<Int4>,
         subweapon_id -> Nullable<Int4>,
         heart_id -> Nullable<Int4>,
-        created_at -> Timestamp,
+        created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
     }
 }
 
 diesel::table! {
-    cash_equipment_set (char_id) {
+    cash_equipment_sets (char_id) {
         char_id -> Int4,
         hat_id -> Nullable<Int4>,
         face_acc_id -> Nullable<Int4>,
@@ -106,14 +106,14 @@ diesel::table! {
         shoulder_id -> Nullable<Int4>,
         subweapon_id -> Nullable<Int4>,
         hair_id -> Nullable<Int4>,
-        created_at -> Timestamp,
+        created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
     }
 }
 
 diesel::table! {
     equips (id) {
-        id -> Int4,
+        id -> Nullable<Int4>,
         wz_id -> Int4,
         strength -> Int4,
         dexterity -> Int4,
@@ -130,24 +130,24 @@ diesel::table! {
         hands -> Int4,
         speed -> Int4,
         jump -> Int4,
-        created_at -> Timestamp,
+        created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp
     }
 }
 
 diesel::table! {
-    pet_equipment_set (char_id) {
+    pet_equipment_sets (char_id) {
         char_id -> Int4,
         accessory_one_id -> Nullable<Int4>,
         accessory_two_id -> Nullable<Int4>,
         accessory_three_id -> Nullable<Int4>,
-        created_at -> Timestamp,
+        created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp
     }
 }
 
 diesel::table! {
-    android_equipment_set (char_id) {
+    android_equipment_sets (char_id) {
         char_id -> Int4,
         hat_id -> Nullable<Int4>,
         face_id -> Nullable<Int4>,
@@ -155,7 +155,7 @@ diesel::table! {
         bottom_id -> Nullable<Int4>,
         gloves_id -> Nullable<Int4>,
         cape_id -> Nullable<Int4>,
-        created_at -> Timestamp,
+        created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
     }
 }
@@ -165,42 +165,40 @@ diesel::table! {
         acc_id -> Int4,
         world_id -> Int2,
         char_max -> Int2,
-        created_at -> Timestamp,
+        created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
     }
 }
 
 diesel::table! {
-    keybindings (id) {
-        id -> Int4,
+    keybindings (char_id, key) {
         char_id -> Int4,
         key -> Int4,
         bind_type -> Int2,
         action -> Int4,
-        created_at -> Timestamp,
+        created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
     }
 }
 
 diesel::table! {
-    skills (id) {
-        id -> Int4,
+    skills (char_id, wz_id) {
         char_id -> Int4,
         wz_id -> Int4,
         level -> Int2,
-        created_at -> Timestamp,
+        created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
     }
 }
 
 diesel::allow_tables_to_appear_in_same_query!(
     accounts,
-    android_equipment_set,
-    cash_equipment_set,
+    android_equipment_sets,
+    cash_equipment_sets,
     character_limits,
     characters,
-    regular_equipment_set,
+    regular_equipment_sets,
     skills,
     equips,
-    pet_equipment_set,
+    pet_equipment_sets,
 );

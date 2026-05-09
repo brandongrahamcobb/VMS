@@ -9,3 +9,5 @@ pub mod prelude;
 pub mod runtime;
 pub mod sec;
 mod test_suite;
+pub mod wz;
+

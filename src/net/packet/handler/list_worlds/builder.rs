@@ -1,6 +1,6 @@
 use crate::config::settings;
 use crate::constants::WORLDS;
-use crate::models::world::model::World;
+use crate::models::shroom::world::model::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
@@ -28,8 +28,8 @@ impl Packet {
             self.write_byte(0).map_err(WriteError)?;
             self.write_byte(count).map_err(WriteError)?;
             for world in WORLDS {
-                for world_name in &recommended_world_names {
-                    if world_name == world.name {
+                for world_name in recommended_world_names.clone() {
+                    if world.name == world_name.clone() {
                         let id = world.id as i32;
                         self.write_int(id).map_err(WriteError)?;
                         self.write_str(world.name.to_string()).map_err(WriteError)?;
@@ -54,11 +54,10 @@ impl Packet {
         for world in worlds {
             let world_id = world.model.id as i16;
             self.write_byte(world_id).map_err(WriteError)?;
-            self.write_str(world.model.get_name()?.clone())
+            self.write_str(world.model.name.to_string())
                 .map_err(WriteError)?;
-            self.write_byte(world.model.get_flag()?)
-                .map_err(WriteError)?;
-            self.write_str(world.model.get_event_message()?.clone())
+            self.write_byte(world.model.flag).map_err(WriteError)?;
+            self.write_str(world.model.event_message.to_string())
                 .map_err(WriteError)?;
             self.write_byte(100).map_err(WriteError)?;
             self.write_byte(0).map_err(WriteError)?;
@@ -70,7 +69,7 @@ impl Packet {
             for channel in world.channels.clone() {
                 let channel_name = String::from("Placeholder");
                 self.write_str(channel_name).map_err(WriteError)?;
-                let channel_capacity = channel.model.get_capacity()? as i32;
+                let channel_capacity = channel.model.capacity as i32;
                 self.write_int(channel_capacity).map_err(WriteError)?;
                 self.write_byte(1).map_err(WriteError)?;
                 let channel_id = channel.model.id as i16;

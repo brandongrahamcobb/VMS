@@ -1,4 +1,4 @@
-use crate::models::account::model::AccountModel;
+use crate::models::account::model::Account;
 use crate::models::character::model::Character;
 use crate::net::error::NetworkError;
 use crate::net::packet::io::error::IOError::WriteError;
@@ -9,7 +9,7 @@ use crate::prelude::*;
 impl Packet {
     pub fn build_enter_cash_shop_handler_packet(
         &mut self,
-        acc_model: AccountModel,
+        acc: Account,
         char: Character,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::SetCashShop as i16;
@@ -19,16 +19,16 @@ impl Packet {
         // Flag
         self.write_byte(0).map_err(WriteError)?;
         self.build_player_logged_in_meta_part_packet(char.clone());
-        self.build_cash_shop_meta(acc_model.clone())?;
+        self.build_cash_shop_meta(acc.clone())?;
         Ok(self)
     }
 
-    fn build_cash_shop_meta(&mut self, acc_model: AccountModel) -> Result<&mut Self, NetworkError> {
+    fn build_cash_shop_meta(&mut self, acc: Account) -> Result<&mut Self, NetworkError> {
         // Dummy values
         // Not MTS
         self.write_byte(0).map_err(WriteError)?;
         // Account name
-        self.write_str(acc_model.username.clone())
+        self.write_str(acc.model.username.clone())
             .map_err(WriteError)?;
         self.write_int(0).map_err(WriteError)?;
         // Special cash items

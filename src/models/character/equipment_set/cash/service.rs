@@ -1,139 +1,38 @@
 use crate::models::character::equipment_set::cash::error::CashEquipmentSetModelError;
 use crate::models::character::equipment_set::cash::model::{
-    CashEquipmentSet, CashEquipmentSetModel, NewCashEquipmentSetInsert,
+    CashEquipmentSet, CashEquipmentSetModel,
 };
 use crate::models::character::equipment_set::error::EquipmentSetError;
 use crate::models::character::error::CharacterError;
 use crate::models::error::ModelError;
-use crate::models::wz;
-use crate::models::wz::equip::model::Equip;
+use crate::models::item::equip;
 use crate::runtime::state::SharedState;
 
-pub async fn get_cash_equipment_set_from_model(
-    state: &SharedState,
-    model: CashEquipmentSetModel,
-) -> Result<CashEquipmentSet, ModelError> {
-    Ok(CashEquipmentSet {
-        model: model.clone(),
-        hat: wz::equip::service::resolve_equip(state, model.hat_id).await?,
-        face_acc: wz::equip::service::resolve_equip(state, model.face_acc_id).await?,
-        eye_acc: wz::equip::service::resolve_equip(state, model.eye_acc_id).await?,
-        ear_acc: wz::equip::service::resolve_equip(state, model.ear_acc_id).await?,
-        top: wz::equip::service::resolve_equip(state, model.top_id).await?,
-        bottom: wz::equip::service::resolve_equip(state, model.bottom_id).await?,
-        shoes: wz::equip::service::resolve_equip(state, model.shoes_id).await?,
-        gloves: wz::equip::service::resolve_equip(state, model.gloves_id).await?,
-        cape: wz::equip::service::resolve_equip(state, model.cape_id).await?,
-        weapon: wz::equip::service::resolve_equip(state, model.weapon_id).await?,
-        ring_one: wz::equip::service::resolve_equip(state, model.ring_one_id).await?,
-        ring_two: wz::equip::service::resolve_equip(state, model.ring_two_id).await?,
-        ring_three: wz::equip::service::resolve_equip(state, model.ring_three_id).await?,
-        ring_four: wz::equip::service::resolve_equip(state, model.ring_four_id).await?,
-        pendant: wz::equip::service::resolve_equip(state, model.pendant_id).await?,
-        belt: wz::equip::service::resolve_equip(state, model.belt_id).await?,
-        shoulder: wz::equip::service::resolve_equip(state, model.shoulder_id).await?,
-        subweapon: wz::equip::service::resolve_equip(state, model.subweapon_id).await?,
-        hair: wz::equip::service::resolve_equip(state, model.hair_id).await?,
-    })
-}
-
-impl NewCashEquipmentSetInsert {
-    pub fn default(
-        char_id: i32,
-        belt_id: Option<i32>,
-        bottom_id: Option<i32>,
-        cape_id: Option<i32>,
-        ear_acc_id: Option<i32>,
-        eye_acc_id: Option<i32>,
-        face_acc_id: Option<i32>,
-        gloves_id: Option<i32>,
-        hair_id: Option<i32>,
-        hat_id: Option<i32>,
-        pendant_id: Option<i32>,
-        ring_four_id: Option<i32>,
-        ring_one_id: Option<i32>,
-        ring_three_id: Option<i32>,
-        ring_two_id: Option<i32>,
-        shoes_id: Option<i32>,
-        shoulder_id: Option<i32>,
-        subweapon_id: Option<i32>,
-        top_id: Option<i32>,
-        weapon_id: Option<i32>,
-    ) -> Self {
-        Self {
-            char_id,
-            belt_id,
-            bottom_id,
-            cape_id,
-            ear_acc_id,
-            eye_acc_id,
-            face_acc_id,
-            gloves_id,
-            hair_id,
-            hat_id,
-            pendant_id,
-            ring_four_id,
-            ring_one_id,
-            ring_three_id,
-            ring_two_id,
-            shoes_id,
-            shoulder_id,
-            subweapon_id,
-            top_id,
-            weapon_id,
-        }
-    }
-}
-
-impl CashEquipmentSet {
-    pub fn new(
-        model: CashEquipmentSetModel,
-        belt: Option<Equip>,
-        bottom: Option<Equip>,
-        cape: Option<Equip>,
-        ear_acc: Option<Equip>,
-        eye_acc: Option<Equip>,
-        face_acc: Option<Equip>,
-        gloves: Option<Equip>,
-        hair: Option<Equip>,
-        hat: Option<Equip>,
-        pendant: Option<Equip>,
-        ring_four: Option<Equip>,
-        ring_one: Option<Equip>,
-        ring_three: Option<Equip>,
-        ring_two: Option<Equip>,
-        shoes: Option<Equip>,
-        shoulder: Option<Equip>,
-        subweapon: Option<Equip>,
-        top: Option<Equip>,
-        weapon: Option<Equip>,
-    ) -> Self {
-        Self {
-            model,
-            hat,
-            face_acc,
-            eye_acc,
-            ear_acc,
-            top,
-            bottom,
-            shoes,
-            gloves,
-            cape,
-            weapon,
-            ring_one,
-            ring_two,
-            ring_three,
-            ring_four,
-            pendant,
-            belt,
-            shoulder,
-            subweapon,
-            hair,
-        }
-    }
-}
-
 impl CashEquipmentSetModel {
+    pub async fn load(&self, state: &SharedState) -> Result<CashEquipmentSet, ModelError> {
+        Ok(CashEquipmentSet {
+            model: self.clone(),
+            hat: equip::service::resolve_equip(state, self.hat_id).await?,
+            face_acc: equip::service::resolve_equip(state, self.face_acc_id).await?,
+            eye_acc: equip::service::resolve_equip(state, self.eye_acc_id).await?,
+            ear_acc: equip::service::resolve_equip(state, self.ear_acc_id).await?,
+            top: equip::service::resolve_equip(state, self.top_id).await?,
+            bottom: equip::service::resolve_equip(state, self.bottom_id).await?,
+            shoes: equip::service::resolve_equip(state, self.shoes_id).await?,
+            gloves: equip::service::resolve_equip(state, self.gloves_id).await?,
+            cape: equip::service::resolve_equip(state, self.cape_id).await?,
+            weapon: equip::service::resolve_equip(state, self.weapon_id).await?,
+            ring_one: equip::service::resolve_equip(state, self.ring_one_id).await?,
+            ring_two: equip::service::resolve_equip(state, self.ring_two_id).await?,
+            ring_three: equip::service::resolve_equip(state, self.ring_three_id).await?,
+            ring_four: equip::service::resolve_equip(state, self.ring_four_id).await?,
+            pendant: equip::service::resolve_equip(state, self.pendant_id).await?,
+            belt: equip::service::resolve_equip(state, self.belt_id).await?,
+            shoulder: equip::service::resolve_equip(state, self.shoulder_id).await?,
+            subweapon: equip::service::resolve_equip(state, self.subweapon_id).await?,
+            hair: equip::service::resolve_equip(state, self.hair_id).await?,
+        })
+    }
     pub fn get_belt_id(&self) -> Result<i32, ModelError> {
         if let Some(belt_id) = self.belt_id {
             Ok(belt_id)

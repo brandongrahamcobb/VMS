@@ -1,8 +1,8 @@
 use crate::config::settings;
 use crate::inc::helpers;
-use crate::models::channel;
-use crate::models::channel::model::Channel;
 use crate::models::character::model::Character;
+use crate::models::shroom::channel;
+use crate::models::shroom::channel::model::Channel;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::cc::reader::ChangeChannelReader;
 use crate::runtime::session::Session;

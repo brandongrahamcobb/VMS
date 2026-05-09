@@ -1,4 +1,4 @@
-use crate::models::world::model::World;
+use crate::models::shroom::world::model::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::server_status::reader::ServerStatusReader;
 use crate::runtime::session::Session;

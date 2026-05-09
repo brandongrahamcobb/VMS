@@ -3,10 +3,10 @@ use crate::models::character::model::Character;
 use diesel::prelude::*;
 use std::time::SystemTime;
 
-#[derive(Clone, Identifiable, Queryable, AsChangeset)]
+#[derive(Clone, Identifiable, Insertable, Queryable, AsChangeset)]
 #[diesel(table_name = accounts)]
 pub struct AccountModel {
-    pub id: i32,
+    pub id: Option<i32>,
     pub username: String,
     pub password: String,
     pub pin: Option<String>,
@@ -15,7 +15,7 @@ pub struct AccountModel {
     pub gender_id: i16,
     pub accepted_tos: bool,
     pub banned: bool,
-    pub created_at: SystemTime,
+    pub created_at: Option<SystemTime>,
     pub updated_at: SystemTime,
 }
 
@@ -23,10 +23,4 @@ pub struct AccountModel {
 pub struct Account {
     pub model: AccountModel,
     pub chars: Vec<Character>,
-}
-
-pub struct NewAccountInsert {
-    pub username: String,
-    pub password: String,
-    pub gender_id: i16,
 }

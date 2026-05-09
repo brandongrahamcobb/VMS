@@ -21,7 +21,7 @@ impl Packet {
         &mut self,
         char: Character,
     ) -> Result<&mut Self, NetworkError> {
-        self.build_list_char_meta_part_packet(char.model.clone())?;
+        self.build_list_char_meta_part_packet(char.clone())?;
         self.build_new_character_look_meta_part_packet(char.clone())?;
         self.write_byte(0).map_err(WriteError)?;
         // Disable rank.

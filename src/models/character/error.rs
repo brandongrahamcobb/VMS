@@ -15,4 +15,7 @@ pub enum CharacterError {
 
     #[error("Equipment set error in character model layer")]
     EquipmentSetError(#[from] EquipmentSetError),
+
+    #[error("No id found in character model layer")]
+    NoId,
 }

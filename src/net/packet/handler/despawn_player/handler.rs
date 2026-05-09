@@ -36,7 +36,7 @@ impl DespawnPlayerHandler {
     ) -> Result<HandlerResult, NetworkError> {
         let mut result = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
-            .build_despawn_player_handler_packet(store.char.model.clone())?
+            .build_despawn_player_handler_packet(store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

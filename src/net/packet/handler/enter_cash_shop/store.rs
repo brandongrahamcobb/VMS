@@ -1,8 +1,8 @@
 use crate::constants::CASH_SHOP_MAP_ID;
 use crate::models::account::model::Account;
 use crate::models::character::model::Character;
-use crate::models::map;
-use crate::models::map::model::Map;
+use crate::models::shroom::map;
+use crate::models::shroom::map::model::Map;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::enter_cash_shop::reader::EnterCashShopReader;
 use crate::runtime::session::Session;

@@ -12,98 +12,98 @@ pub fn get_settings() -> Result<Config, ConfigError> {
 
 pub fn get_address() -> Result<String, ConfigError> {
     let settings = get_settings()?;
-    let key = String::from("ip_address");
+    let key: &str = "ip_address";
     let addr = settings
-        .get_string(&key)
-        .map_err(|_| ConfigError::InvalidString(key))?;
+        .get_string(key)
+        .map_err(|_| ConfigError::InvalidString(key.to_string()))?;
     Ok(addr)
 }
 
 pub fn get_wz_path() -> Result<String, ConfigError> {
     let settings = get_settings()?;
-    let key = String::from("wz_directory");
+    let key: &str = "wz_directory";
     let addr = settings
-        .get_string(&key)
-        .map_err(|_| ConfigError::InvalidString(key))?;
+        .get_string(key)
+        .map_err(|_| ConfigError::InvalidString(key.to_string()))?;
     Ok(addr)
 }
 
 pub fn get_release_mode() -> Result<bool, ConfigError> {
     let settings = get_settings()?;
-    let key = String::from("release_mode");
+    let key: &str = "release_mode";
     let mode = settings
-        .get_bool(&key)
-        .map_err(|_| ConfigError::InvalidString(key))?;
+        .get_bool(key)
+        .map_err(|_| ConfigError::InvalidString(key.to_string()))?;
     Ok(mode)
 }
 
 pub fn get_login_port() -> Result<i16, ConfigError> {
     let settings = get_settings()?;
-    let key = String::from("login_port");
+    let key: &str = "login_port";
     let port = settings
-        .get_int(&key)
-        .map_err(|_| ConfigError::InvalidInt(key))?;
+        .get_int(key)
+        .map_err(|_| ConfigError::InvalidInt(key.to_string()))?;
     Ok(port as i16)
 }
 
 pub fn get_version() -> Result<i16, ConfigError> {
     let settings = get_settings()?;
-    let key = String::from("version");
+    let key: &str = "version";
     let version = settings
-        .get_int(&key)
-        .map_err(|_| ConfigError::InvalidInt(key))?;
+        .get_int(key)
+        .map_err(|_| ConfigError::InvalidInt(key.to_string()))?;
     Ok(version as i16)
 }
 
 pub fn get_db_url() -> Result<String, ConfigError> {
     let settings = get_settings()?;
-    let db_key = String::from("postgres_database");
-    let ip_key = String::from("postgres_host");
-    let port_key = String::from("postgres_port");
-    let user_key = String::from("postgres_user");
-    let pw_key = String::from("postgres_password");
+    let db_key: &str = "postgres_database";
+    let ip_key: &str = "postgres_host";
+    let port_key: &str = "postgres_port";
+    let user_key: &str = "postgres_user";
+    let pw_key: &str = "postgres_password";
     let db = settings
         .get_string(&db_key)
-        .map_err(|_| ConfigError::InvalidString(db_key))?;
+        .map_err(|_| ConfigError::InvalidString(db_key.to_string()))?;
     let ip = settings
         .get_string(&ip_key)
-        .map_err(|_| ConfigError::InvalidString(ip_key))?;
+        .map_err(|_| ConfigError::InvalidString(ip_key.to_string()))?;
     let port = settings
         .get_int(&port_key)
-        .map_err(|_| ConfigError::InvalidInt(port_key))?;
+        .map_err(|_| ConfigError::InvalidInt(port_key.to_string()))?;
     let user = settings
         .get_string(&user_key)
-        .map_err(|_| ConfigError::InvalidString(user_key))?;
+        .map_err(|_| ConfigError::InvalidString(user_key.to_string()))?;
     let pw = settings
         .get_string(&pw_key)
-        .map_err(|_| ConfigError::InvalidString(pw_key))?;
+        .map_err(|_| ConfigError::InvalidString(pw_key.to_string()))?;
     Ok(format!("postgres://{}:{}@{}:{}/{}", user, pw, ip, port, db))
 }
 
 pub fn get_pin_required() -> Result<bool, ConfigError> {
     let settings = get_settings()?;
-    let key = String::from("pin_required");
+    let key: &str = "pin_required";
     let pin_req = settings
-        .get_bool(&key)
-        .map_err(|_| ConfigError::InvalidBool(key))?;
+        .get_bool(key)
+        .map_err(|_| ConfigError::InvalidBool(key.to_string()))?;
     Ok(pin_req)
 }
 
 pub fn get_pic_required() -> Result<bool, ConfigError> {
     let settings = get_settings()?;
-    let key = String::from("pic_required");
+    let key: &str = "pic_required";
     let pic_req = settings
-        .get_bool(&key)
-        .map_err(|_| ConfigError::InvalidBool(key))?;
+        .get_bool(key)
+        .map_err(|_| ConfigError::InvalidBool(key.to_string()))?;
     Ok(pic_req)
 }
 
 pub fn get_gender_required() -> Result<bool, ConfigError> {
     let settings = get_settings()?;
-    let key = String::from("gender_required");
+    let key: &str = "gender_required";
     let gender_req = settings
-        .get_bool(&key)
-        .map_err(|_| ConfigError::InvalidBool(key))?;
+        .get_bool(key)
+        .map_err(|_| ConfigError::InvalidBool(key.to_string()))?;
     Ok(gender_req)
 }
 
@@ -122,7 +122,7 @@ pub fn get_channel_world_pairs() -> Result<Vec<(i16, i16)>, ConfigError> {
     ];
     for (name, id) in worlds {
         if settings.get_bool(name)? {
-            let key = String::from(format!("{name}_channel_count"));
+            let key = format!("{name}_channel_count");
             let count: i16 = settings
                 .get_int(&key)?
                 .try_into()
@@ -135,37 +135,28 @@ pub fn get_channel_world_pairs() -> Result<Vec<(i16, i16)>, ConfigError> {
 
 pub fn get_channel_capacity() -> Result<i16, ConfigError> {
     let settings = get_settings()?;
-    let key = String::from("channel_capacity");
+    let key: &str = "channel_capacity";
     let capacity = settings
-        .get_int(&key)
-        .map_err(|_| ConfigError::InvalidInt(key))?;
+        .get_int(key)
+        .map_err(|_| ConfigError::InvalidInt(key.to_string()))?;
     Ok(capacity as i16)
 }
 
-pub fn get_world_flag() -> Result<i16, ConfigError> {
+pub fn get_channel_flag() -> Result<i16, ConfigError> {
     let settings = get_settings()?;
-    let key = String::from("world_flag");
+    let key: &str = "channel_flag";
     let flag = settings
-        .get_int(&key)
-        .map_err(|_| ConfigError::InvalidInt(key))?;
+        .get_int(key)
+        .map_err(|_| ConfigError::InvalidInt(key.to_string()))?;
     Ok(flag as i16)
-}
-
-pub fn get_world_event_message() -> Result<String, ConfigError> {
-    let settings = get_settings()?;
-    let key = String::from("event_message");
-    let msg = settings
-        .get_string(&key)
-        .map_err(|_| ConfigError::InvalidString(key))?;
-    Ok(msg)
 }
 
 pub fn get_recommended_worlds() -> Result<Vec<String>, ConfigError> {
     let settings = get_settings()?;
-    let key = String::from("recommended_worlds");
+    let key: &str = "recommended_worlds";
     let worlds: Vec<String> = settings
-        .get_string(&key)
-        .map_err(|_| ConfigError::InvalidString(key))?
+        .get_string(key)
+        .map_err(|_| ConfigError::InvalidString(key.to_string()))?
         .split(",")
         .map(|s| s.trim().to_string())
         .collect::<Vec<String>>();
@@ -174,9 +165,9 @@ pub fn get_recommended_worlds() -> Result<Vec<String>, ConfigError> {
 
 pub fn get_char_max() -> Result<i16, ConfigError> {
     let settings = get_settings()?;
-    let key = String::from("char_max");
+    let key: &str = "char_max";
     let char_max = settings
-        .get_int(&key)
-        .map_err(|_| ConfigError::InvalidInt(key))?;
+        .get_int(key)
+        .map_err(|_| ConfigError::InvalidInt(key.to_string()))?;
     Ok(char_max as i16)
 }

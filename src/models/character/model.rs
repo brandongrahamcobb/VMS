@@ -1,19 +1,20 @@
-use crate::db::schema::characters;
+use crate::db::schema::{character_limits, characters};
 use crate::models::character::equipment_set::android::model::AndroidEquipmentSet;
 use crate::models::character::equipment_set::cash::model::CashEquipmentSet;
 use crate::models::character::equipment_set::pet::model::PetEquipmentSet;
 use crate::models::character::equipment_set::regular::model::RegularEquipmentSet;
 use crate::models::character::keybinding::model::Keybinding;
 use crate::models::character::skill::model::Skill;
-use crate::models::map::model::Map;
-use crate::models::world::model::World;
+use crate::models::shroom::job::model::Job;
+use crate::models::shroom::map::model::Map;
+use crate::models::shroom::world::model::World;
 use diesel::prelude::*;
 use std::time::SystemTime;
 
-#[derive(Clone, Identifiable, Queryable, AsChangeset, Selectable)]
+#[derive(Clone, Identifiable, Insertable, Queryable, AsChangeset, Selectable)]
 #[diesel(table_name = characters)]
 pub struct CharacterModel {
-    pub id: i32,
+    pub id: Option<i32>,
     pub acc_id: i32,
     pub world_id: i16,
     pub ign: String,
@@ -37,34 +38,30 @@ pub struct CharacterModel {
     pub skin_id: i32,
     pub gender_id: i16,
     pub map_id: i32,
-    pub created_at: SystemTime,
+    pub created_at: Option<SystemTime>,
     pub updated_at: SystemTime,
-}
-
-#[derive(Insertable)]
-#[diesel(table_name = characters)]
-pub struct NewInsert {
-    pub acc_id: i32,
-    pub world_id: i16,
-    pub ign: String,
-    pub job_id: i16,
-    pub face_id: i32,
-    pub hair_id: i32,
-    pub hair_color_id: i32,
-    pub skin_id: i32,
-    pub gender_id: i16,
-    pub map_id: i32,
 }
 
 #[derive(Clone)]
 pub struct Character {
     pub model: CharacterModel,
-    pub regular_equips: RegularEquipmentSet,
-    pub cash_equips: CashEquipmentSet,
-    pub pet_equips: PetEquipmentSet,
-    pub android_equips: AndroidEquipmentSet,
+    pub regular_equip_set: RegularEquipmentSet,
+    pub cash_equip_set: CashEquipmentSet,
+    pub pet_equip_set: PetEquipmentSet,
+    pub android_equip_set: AndroidEquipmentSet,
     pub skills: Vec<Skill>,
     pub binds: Vec<Keybinding>,
     pub world: World,
     pub map: Map,
+    pub job: Job,
+}
+
+#[derive(Queryable, AsChangeset)]
+#[diesel(table_name = character_limits)]
+pub struct CharacterLimit {
+    pub acc_id: i32,
+    pub char_max: i16,
+    pub world_id: i16,
+    pub created_at: Option<SystemTime>,
+    pub updated_at: SystemTime,
 }

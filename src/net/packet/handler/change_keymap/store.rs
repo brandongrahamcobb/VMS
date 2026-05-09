@@ -1,5 +1,7 @@
+use std::time::SystemTime;
+
 use crate::models::character::keybinding;
-use crate::models::character::keybinding::model::NewKeybindingInsert;
+use crate::models::character::keybinding::model::KeybindingModel;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::change_keymap::reader::ChangeKeymapReader;
 use crate::runtime::session::Session;
@@ -16,21 +18,24 @@ impl ChangeKeymapStore {
         reader: ChangeKeymapReader,
     ) -> Result<Self, NetworkError> {
         let char = session.get_char()?;
-        let new_binds: Vec<NewKeybindingInsert> = izip!(
+        let char_id = char.model.get_id()?;
+        let new_binds: Vec<KeybindingModel> = izip!(
             reader.keys.clone(),
             reader.types.clone(),
             reader.model.clone()
         )
         .map(
-            |(key, bind_type, action): (i32, i16, i32)| NewKeybindingInsert {
-                char_id: char.model.id,
+            |(key, bind_type, action): (i32, i16, i32)| KeybindingModel {
+                char_id,
                 key,
                 bind_type,
                 action,
+                created_at: None,
+                updated_at: SystemTime::now(),
             },
         )
         .collect();
-        keybinding::query::update_keybindings(state, new_binds.clone()).await?;
+        keybinding::query::setters::update_keybindings(state, new_binds.clone()).await?;
         return Ok(Self);
     }
 }

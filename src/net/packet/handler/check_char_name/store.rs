@@ -17,7 +17,7 @@ impl CheckCharNameStore {
         reader: CheckCharNameReader,
     ) -> Result<Self, NetworkError> {
         std::hint::black_box(session);
-        let exists = character::query::get_character_model_by_name(state, reader.ign.clone())
+        let exists = character::query::getters::get_character_model_by_name(state, reader.ign.clone())
             .await
             .is_ok();
         Ok(Self {
