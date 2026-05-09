@@ -41,7 +41,6 @@ impl CredentialsStore {
                 })
             }
             Err(e) => {
-                println!("{}", e.to_string());
                 let status = StatusCode::Failed(FailedCode::UnknownCredentials);
                 Ok(Self { acc: None, status })
             }

@@ -105,9 +105,17 @@ impl CreateCharStore {
         char_id: i32,
     ) -> Result<RegularEquipmentSet, NetworkError> {
         let top_model = equip::service::deserialize(reader.top_id)?;
+        let top_model =
+            equip::query::setters::update_equips(state, vec![top_model]).await?[0].clone();
         let bottom_model = equip::service::deserialize(reader.bottom_id)?;
+        let bottom_model =
+            equip::query::setters::update_equips(state, vec![bottom_model]).await?[0].clone();
         let shoes_model = equip::service::deserialize(reader.shoes_id)?;
+        let shoes_model =
+            equip::query::setters::update_equips(state, vec![shoes_model]).await?[0].clone();
         let weapon_model = equip::service::deserialize(reader.weapon_id)?;
+        let weapon_model =
+            equip::query::setters::update_equips(state, vec![weapon_model]).await?[0].clone();
         let regular_equip_set_models: Vec<RegularEquipmentSetModel> =
             Vec::from([RegularEquipmentSetModel {
                 char_id,
