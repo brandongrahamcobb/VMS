@@ -54,7 +54,7 @@ impl SelectCharWithPicHandler {
                 .build_select_char_handler_failed_pic_packet()?
                 .finish()
         };
-        result.add_action(Action::Send {
+        result.add_action(Action::Break {
             packet: packet.clone(),
             scope: Scope::Local,
         })?;

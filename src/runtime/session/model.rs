@@ -66,27 +66,34 @@ impl Session {
     }
 }
 
+pub struct SessionData {
+    sessions: HashMap<i32, Session>,
+    by_world: HashMap<i32, HashSet<i32>>,
+    by_channel: HashMap<i32, HashSet<i32>>,
+    by_map: HashMap<i32, HashSet<i32>>,
+    by_map_channel: HashMap<(i32, i32), HashSet<i32>>,
+    by_channel_world: HashMap<(i32, i32), HashSet<i32>>,
+}
+
 pub struct SessionStore {
-    pub sessions: RwLock<HashMap<i32, Session>>,
+    data: RwLock<SessionData>,
     pub next_id: AtomicI32,
 }
 
 impl SessionStore {
     pub fn new() -> Self {
         Self {
-            sessions: RwLock::new(HashMap::new()),
             next_id: AtomicI32::new(1),
         }
     }
 
-    pub fn iter(&self) -> Vec<Session> {
-        self.sessions
-            .read()
-            .expect("session store poisoned")
-            .values()
-            .cloned()
-            .collect()
-    }
+    pub fn get_by_map_channel_world(&self, wz_id: i32, channel_id: i32) -> Vec<Session>
+    pub fn get_by_map_world(&self, wz_id: i32, world_id: i32) -> Vec<Session>
+    pub fn get_by_map(&self, wz_id: i32) -> Vec<Session>
+    pub fn get_by_channel_world(&self, channel_id: i32, world_id: i32) -> Vec<Session>
+    pub fn get_by_channel(&self, channel_id: i32) -> Vec<Session>
+    pub fn get_by_world(&self, world_id: i32) -> Vec<Session>
+    pub fn get_all(&self) -> Vec<Session>
 
     pub fn insert(&self, mut session: Session) -> i32 {
         let id = self.next_id.fetch_add(1, Ordering::Relaxed);

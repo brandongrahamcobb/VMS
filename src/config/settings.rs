@@ -10,9 +10,18 @@ pub fn get_settings() -> Result<Config, ConfigError> {
     Ok(settings)
 }
 
-pub fn get_address() -> Result<String, ConfigError> {
+pub fn get_bind_address() -> Result<String, ConfigError> {
     let settings = get_settings()?;
-    let key: &str = "ip_address";
+    let key: &str = "bind_address";
+    let addr = settings
+        .get_string(key)
+        .map_err(|_| ConfigError::InvalidString(key.to_string()))?;
+    Ok(addr)
+}
+
+pub fn get_routing_address() -> Result<String, ConfigError> {
+    let settings = get_settings()?;
+    let key: &str = "routing_address";
     let addr = settings
         .get_string(key)
         .map_err(|_| ConfigError::InvalidString(key.to_string()))?;

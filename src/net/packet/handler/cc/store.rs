@@ -22,7 +22,7 @@ impl ChangeChannelStore {
         reader: ChangeChannelReader,
     ) -> Result<Self, NetworkError> {
         let channel = channel::service::get_channel_by_id(state, reader.channel_id).await?;
-        let addr = settings::get_address()?;
+        let addr = settings::get_routing_address()?;
         let octets = helpers::convert_to_ip_array(addr);
         let char = session.get_char()?;
         Ok(Self {

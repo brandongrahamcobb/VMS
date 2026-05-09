@@ -1,5 +1,3 @@
-use crate::models::character::keybinding;
-use crate::models::character::keybinding::model::{Keybinding, KeybindingModel};
 use crate::models::character::model::Character;
 use crate::models::shroom::channel::model::Channel;
 use crate::net::error::NetworkError;
@@ -9,9 +7,9 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct PlayerLoggedInStore {
-    pub binds: Vec<Keybinding>,
     pub channel: Channel,
     pub char: Character,
+    pub sessions: Vec<Session>,
 }
 
 impl PlayerLoggedInStore {
@@ -22,20 +20,17 @@ impl PlayerLoggedInStore {
     ) -> Result<Self, NetworkError> {
         let char: Character = session.get_char()?;
         let channel: Channel = session.get_channel()?;
-        let bind_models: Vec<KeybindingModel> =
-            keybinding::query::getters::get_keybinding_models_by_character_id(
-                state,
-                reader.char_id,
-            )
-            .await?;
-        let mut binds: Vec<Keybinding> = Vec::<Keybinding>::new();
-        for bind_model in bind_models {
-            binds.push(bind_model.load()?);
+        let sessions: Vec<Session> = Vec::<Session>::new();
+        {
+            let state = state.lock().await;
+            for s in state.sessions.get_by_map_channel_world(session.id) {
+                sessions.push(s);
+            }
         }
         Ok(Self {
-            binds,
             channel,
             char,
+            sessions,
         })
     }
 }

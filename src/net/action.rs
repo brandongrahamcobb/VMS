@@ -7,6 +7,7 @@ use crate::net::packet::model::Packet;
 use crate::runtime::scope::Scope;
 
 pub enum Action {
+    Break { packet: Packet, scope: Scope },
     Set(SetAction),
     Send { packet: Packet, scope: Scope },
 }

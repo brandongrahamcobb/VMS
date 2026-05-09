@@ -9,8 +9,6 @@ use std::time::SystemTime;
 pub fn deserialize(wz_id: i32) -> Result<EquipModel, ModelError> {
     let filename = String::from("Character.wz");
     let map = wz::service::get_img_map(wz_id, &filename)?;
-    println!("{}", wz_id);
-    println!("{:?}", map);
     let item = EquipModel {
         id: None,
         wz_id: wz_id,

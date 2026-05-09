@@ -14,7 +14,6 @@ impl Packet {
         self.write_short(op).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
         self.build_new_character_look_part_packet(char.clone())?;
-        println!("{}", self.bytes.len());
         Ok(self)
     }
 

@@ -27,7 +27,7 @@ impl RegisterPicStore {
         let char: Character =
             character::service::get_character_by_id(state, reader.char_id).await?;
         acc.set_pic(state, reader.pic.clone()).await?;
-        let addr: String = settings::get_address()?;
+        let addr: String = settings::get_routing_address()?;
         let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
         Ok(Self {
             char,

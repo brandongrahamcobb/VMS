@@ -14,7 +14,7 @@ use crate::models::character::equipment_set::regular::model::{
 use crate::models::character::keybinding::model::{Keybinding, KeybindingModel};
 use crate::models::character::model::{Character, CharacterModel};
 use crate::models::character::skill::model::{Skill, SkillModel};
-use crate::models::character::{equipment_set, keybinding, skill};
+use crate::models::character::{equipment_set, keybinding};
 use crate::models::item::equip;
 use crate::models::shroom::job;
 use crate::models::shroom::map;
@@ -24,8 +24,6 @@ use crate::net::error::NetworkError;
 use crate::net::packet::handler::create_char::reader::CreateCharReader;
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
-use crate::wz;
-use core::todo;
 use itertools::izip;
 use std::time::SystemTime;
 
@@ -264,9 +262,9 @@ impl CreateCharStore {
     }
 
     pub async fn init_skills(
-        state: &SharedState,
-        reader: CreateCharReader,
-        char_id: i32,
+        _state: &SharedState,
+        _reader: CreateCharReader,
+        _char_id: i32,
     ) -> Result<Vec<Skill>, NetworkError> {
         // let filename = String::from("Skill.wz");
         // let map = wz::service::get_img_map(reader.job_id as i32, &filename)?;

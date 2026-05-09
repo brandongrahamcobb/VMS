@@ -32,7 +32,7 @@ impl SelectCharWithPicStore {
         if acc_pic == reader.pic {
             pic_status = true;
         }
-        let addr: String = settings::get_address()?;
+        let addr: String = settings::get_routing_address()?;
         let octets: [u8; 4] = helpers::convert_to_ip_array(addr.clone());
         Ok(Self {
             channel,

@@ -35,9 +35,9 @@ use tracing::debug;
 
 pub struct Runtime<T: RuntimeRelay> {
     pkt_reader: PacketReader,
-    pkt_writer: PacketWriter,
+    pub pkt_writer: PacketWriter,
     state: SharedState,
-    relay: T,
+    pub relay: T,
     rx: UnboundedReceiver<Packet>,
 }
 
@@ -73,7 +73,7 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
         })
     }
 
-    pub async fn run(&mut self) -> Result<Option<i32>, RuntimeError> {
+    pub async fn run(mut self) -> Result<Option<(Self, Packet)>, RuntimeError> {
         loop {
             tokio::select! {
                 packet = self.pkt_reader.read_packet() => {
@@ -82,7 +82,7 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
                         .handle_packet(&self.state, &packet)
                         .await?;
                     match self.relay.execute(&self.state, result).await? {
-                        ControlFlow::Break(_) => break Ok(Some(self.relay.session_id())),
+                        ControlFlow::Break(packet) => break Ok(Some((self, packet))),
                         _ => {}
                     }
                 }
@@ -115,57 +115,168 @@ pub trait RuntimeRelay: Sized {
         &mut self,
         state: &SharedState,
         result: HandlerResult,
-    ) -> Result<ControlFlow<()>, RuntimeError> {
-        let session = {
-            let state = state.lock().await;
-            state
-                .sessions
-                .get(self.session_id())
-                .ok_or(SessionError::NotFound(self.session_id()))?
-        };
+    ) -> Result<ControlFlow<Packet>, RuntimeError> {
         let model = &result.model;
         for action in model {
+            let session = {
+                let state = state.lock().await;
+                state
+                    .sessions
+                    .get(self.session_id())
+                    .ok_or(SessionError::NotFound(self.session_id()))?
+            };
             match action {
-                Action::Send { packet, scope } => match scope {
+                Action::Break { packet, scope } => match scope {
                     Scope::Local => {
-                        let _ = session.tx.send(packet.clone());
+                        return Ok(ControlFlow::Break(packet.clone()));
                     }
-                    Scope::Map => {
-                        let state = state.lock().await;
-                        for s in state.sessions.iter() {
-                            if s.get_map()?.model.wz_id == session.get_map()?.model.wz_id
-                                && s.id != session.id
-                            {
+                    Scope::Map(map_scope) => match map_scope {
+                        MapScope::SameChannelSameWorld => {
+                            let state = state.lock().await;
+                            let sessions = state.sessions.get_by_map_channel_world(
+                                session.get_map()?.model.wz_id,
+                                session.get_channel()?.model.id,
+                                session.get_world()?.model.id,
+                                session.id,
+                            );
+                            for s in sessions {
                                 s.tx.send(packet.clone())?;
                             }
                         }
-                    }
-                    Scope::Channel => {
-                        let state = state.lock().await;
-                        for s in state.sessions.iter() {
-                            if s.get_channel()?.model.id == session.get_channel()?.model.id
-                                && s.id != session.id
-                            {
+                        MapScope::AllChannelsSameWorld => {
+                            let state = state.lock().await;
+                            let sessions = state.sessions.get_by_map_world(
+                                session.get_map()?.model.wz_id,
+                                session.get_world()?.model.id,
+                                session.id,
+                            );
+                            for s in sessions {
                                 s.tx.send(packet.clone())?;
                             }
                         }
-                    }
+                        MapScope::AllChannelsAllWorlds => {
+                            let state = state.lock().await;
+                            let sessions = state
+                                .sessions
+                                .get_by_map(session.get_map()?.model.wz_id, session.id);
+                            for s in sessions {
+                                s.tx.send(packet.clone())?;
+                            }
+                        }
+                    },
+                    Scope::Channel(channel_scope) => match channel_scope {
+                        ChannelScope::SameWorld => {
+                            let state = state.lock().await;
+                            let sessions = state.sessions.get_by_channel_world(
+                                session.get_channel()?.model.id,
+                                session.get_world()?.model.id,
+                                session.id,
+                            );
+                            for s in sessions {
+                                s.tx.send(packet.clone())?;
+                            }
+                        }
+                        ChannelScope::AllWorlds => {
+                            let state = state.lock().await;
+                            let sessions = state
+                                .sessions
+                                .get_by_channel(session.get_channel()?.model.id, session.id);
+                            for s in sessions {
+                                s.tx.send(packet.clone())?;
+                            }
+                        }
+                    },
                     Scope::World => {
                         let state = state.lock().await;
-                        for s in state.sessions.iter() {
-                            if s.get_world()?.model.id == session.get_world()?.model.id
-                                && s.id != session.id
-                            {
-                                s.tx.send(packet.clone())?;
-                            }
+                        let sessions = state
+                            .sessions
+                            .get_by_world(session.get_world()?.model.id, session.id);
+                        for s in sessions {
+                            s.tx.send(packet.clone())?;
                         }
                     }
                     Scope::Global => {
                         let state = state.lock().await;
-                        for s in state.sessions.iter() {
-                            if s.id != session.id {
+                        let sessions = state.sessions.get_all(session.id);
+                        for s in sessions {
+                            s.tx.send(packet.clone())?;
+                        }
+                    }
+                },
+                Action::Send { packet, scope } => match scope {
+                    Scope::Local => {
+                        session.tx.send(packet.clone())?;
+                    }
+                    Scope::Map(map_scope) => match map_scope {
+                        MapScope::SameChannelSameWorld => {
+                            let state = state.lock().await;
+                            let sessions = state.sessions.get_by_map_channel_world(
+                                session.get_map()?.model.wz_id,
+                                session.get_channel()?.model.id,
+                                session.get_world()?.model.id,
+                                session.id,
+                            );
+                            for s in sessions {
                                 s.tx.send(packet.clone())?;
                             }
+                        }
+                        MapScope::AllChannelsSameWorld => {
+                            let state = state.lock().await;
+                            let sessions = state.sessions.get_by_map_world(
+                                session.get_map()?.model.wz_id,
+                                session.get_world()?.model.id,
+                                session.id,
+                            );
+                            for s in sessions {
+                                s.tx.send(packet.clone())?;
+                            }
+                        }
+                        MapScope::AllChannelsAllWorlds => {
+                            let state = state.lock().await;
+                            let sessions = state
+                                .sessions
+                                .get_by_map(session.get_map()?.model.wz_id, session.id);
+                            for s in sessions {
+                                s.tx.send(packet.clone())?;
+                            }
+                        }
+                    },
+                    Scope::Channel(channel_scope) => match channel_scope {
+                        ChannelScope::SameWorld => {
+                            let state = state.lock().await;
+                            let sessions = state.sessions.get_by_channel_world(
+                                session.get_channel()?.model.id,
+                                session.get_world()?.model.id,
+                                session.id,
+                            );
+                            for s in sessions {
+                                s.tx.send(packet.clone())?;
+                            }
+                        }
+                        ChannelScope::AllWorlds => {
+                            let state = state.lock().await;
+                            let sessions = state
+                                .sessions
+                                .get_by_channel(session.get_channel()?.model.id, session.id);
+                            for s in sessions {
+                                s.tx.send(packet.clone())?;
+                            }
+                        }
+                    },
+                    Scope::World => {
+                        let state = state.lock().await;
+                        let sessions = state
+                            .sessions
+                            .get_by_world(session.get_world()?.model.id, session.id);
+                        for s in sessions {
+                            s.tx.send(packet.clone())?;
+                        }
+                    }
+                    Scope::Global => {
+                        let state = state.lock().await;
+                        let sessions = state.sessions.get_all(session.id);
+                        for s in sessions {
+                            s.tx.send(packet.clone())?;
                         }
                     }
                 },
@@ -177,52 +288,88 @@ pub trait RuntimeRelay: Sized {
                                 s.map = Some(map.clone());
                             });
                         }
-
-                        Scope::Map => {
-                            let state = state.lock().await;
-                            for s in state.sessions.iter() {
-                                if s.get_map()?.model.wz_id == session.get_map()?.model.wz_id
-                                    && s.id != session.id
-                                {
+                        Scope::Map(map_scope) => match map_scope {
+                            MapScope::SameChannelSameWorld => {
+                                let state = state.lock().await;
+                                let sessions = state.sessions.get_by_map_channel_world(
+                                    session.get_map()?.model.wz_id,
+                                    session.get_channel()?.model.id,
+                                    session.get_world()?.model.id,
+                                    session.id,
+                                );
+                                for s in sessions {
                                     state.sessions.update(s.id, |s| {
                                         s.map = Some(map.clone());
                                     });
                                 }
                             }
-                        }
-                        Scope::Channel => {
-                            let state = state.lock().await;
-                            for s in state.sessions.iter() {
-                                if s.get_channel()?.model.id == session.get_channel()?.model.id
-                                    && s.id != session.id
-                                {
+                            MapScope::AllChannelsSameWorld => {
+                                let state = state.lock().await;
+                                let sessions = state.sessions.get_by_map_world(
+                                    session.get_map()?.model.wz_id,
+                                    session.get_world()?.model.id,
+                                    session.id,
+                                );
+                                for s in sessions {
+                                    s.map = Some(map.clone());
+                                }
+                            }
+                            MapScope::AllChannelsAllWorlds => {
+                                let state = state.lock().await;
+                                let sessions = state
+                                    .sessions
+                                    .get_by_map(session.get_map()?.model.wz_id, session.id);
+                                for s in sessions {
                                     state.sessions.update(s.id, |s| {
                                         s.map = Some(map.clone());
                                     });
                                 }
                             }
-                        }
+                        },
+                        Scope::Channel(channel_scope) => match channel_scope {
+                            ChannelScope::SameWorld => {
+                                let state = state.lock().await;
+                                let sessions = state.sessions.get_by_channel_world(
+                                    session.get_channel()?.model.id,
+                                    session.get_world()?.model.id,
+                                    session.id,
+                                );
+                                for s in sessions {
+                                    state.sessions.update(s.id, |s| {
+                                        s.map = Some(map.clone());
+                                    });
+                                }
+                            }
+                            ChannelScope::AllWorlds => {
+                                let state = state.lock().await;
+                                let sessions = state
+                                    .sessions
+                                    .get_by_channel(session.get_channel()?.model.id, session.id);
+                                for s in sessions {
+                                    state.sessions.update(s.id, |s| {
+                                        s.map = Some(map.clone());
+                                    });
+                                }
+                            }
+                        },
                         Scope::World => {
                             let state = state.lock().await;
-                            for s in state.sessions.iter() {
-                                if s.get_world()?.model.id == session.get_world()?.model.id
-                                    && s.id != session.id
-                                {
-                                    state.sessions.update(s.id, |s| {
-                                        s.map = Some(map.clone());
-                                    });
-                                }
+                            let sessions = state
+                                .sessions
+                                .get_by_world(session.get_world()?.model.id, session.id);
+                            for s in sessions {
+                                state.sessions.update(s.id, |s| {
+                                    s.map = Some(map.clone());
+                                });
                             }
                         }
-
                         Scope::Global => {
                             let state = state.lock().await;
-                            for s in state.sessions.iter() {
-                                if s.id != session.id {
-                                    state.sessions.update(s.id, |s| {
-                                        s.map = Some(map.clone());
-                                    });
-                                }
+                            let sessions = state.sessions.get_all(session.id);
+                            for s in sessions {
+                                state.sessions.update(s.id, |s| {
+                                    s.map = Some(map.clone());
+                                });
                             }
                         }
                     },
@@ -233,50 +380,90 @@ pub trait RuntimeRelay: Sized {
                                 s.channel = Some(channel.clone());
                             });
                         }
-                        Scope::Map => {
-                            let state = state.lock().await;
-                            for s in state.sessions.iter() {
-                                if s.get_map()?.model.wz_id == session.get_map()?.model.wz_id
-                                    && s.id != session.id
-                                {
+                        Scope::Map(map_scope) => match map_scope {
+                            MapScope::SameChannelSameWorld => {
+                                let state = state.lock().await;
+                                let sessions = state.sessions.get_by_map_channel_world(
+                                    session.get_map()?.model.wz_id,
+                                    session.get_channel()?.model.id,
+                                    session.get_world()?.model.id,
+                                    session.id,
+                                );
+                                for s in sessions {
                                     state.sessions.update(s.id, |s| {
                                         s.channel = Some(channel.clone());
                                     });
                                 }
                             }
-                        }
-                        Scope::Channel => {
-                            let state = state.lock().await;
-                            for s in state.sessions.iter() {
-                                if s.get_channel()?.model.id == session.get_channel()?.model.id
-                                    && s.id != session.id
-                                {
+                            MapScope::AllChannelsSameWorld => {
+                                let state = state.lock().await;
+                                let sessions = state.sessions.get_by_map_world(
+                                    session.get_map()?.model.wz_id,
+                                    session.get_world()?.model.id,
+                                    session.id,
+                                );
+                                for s in sessions {
                                     state.sessions.update(s.id, |s| {
                                         s.channel = Some(channel.clone());
                                     });
                                 }
                             }
-                        }
+                            MapScope::AllChannelsAllWorlds => {
+                                let state = state.lock().await;
+                                let sessions = state
+                                    .sessions
+                                    .get_by_map(session.get_map()?.model.wz_id, session.id);
+                                for s in sessions {
+                                    state.sessions.update(s.id, |s| {
+                                        s.channel = Some(channel.clone());
+                                    });
+                                }
+                            }
+                        },
+                        Scope::Channel(channel_scope) => match channel_scope {
+                            ChannelScope::SameWorld => {
+                                let state = state.lock().await;
+                                let sessions = state.sessions.get_by_channel_world(
+                                    session.get_channel()?.model.id,
+                                    session.get_world()?.model.id,
+                                    session.id,
+                                );
+                                for s in sessions {
+                                    state.sessions.update(s.id, |s| {
+                                        s.channel = Some(channel.clone());
+                                    });
+                                }
+                            }
+                            ChannelScope::AllWorlds => {
+                                let state = state.lock().await;
+                                let sessions = state
+                                    .sessions
+                                    .get_by_channel(session.get_channel()?.model.id, session.id);
+                                for s in sessions {
+                                    state.sessions.update(s.id, |s| {
+                                        s.channel = Some(channel.clone());
+                                    });
+                                }
+                            }
+                        },
                         Scope::World => {
                             let state = state.lock().await;
-                            for s in state.sessions.iter() {
-                                if s.get_world()?.model.id == session.get_world()?.model.id
-                                    && s.id != session.id
-                                {
-                                    state.sessions.update(s.id, |s| {
-                                        s.channel = Some(channel.clone());
-                                    });
-                                }
+                            let sessions = state
+                                .sessions
+                                .get_by_world(session.get_world()?.model.id, session.id);
+                            for s in sessions {
+                                state.sessions.update(s.id, |s| {
+                                    s.channel = Some(channel.clone());
+                                });
                             }
                         }
                         Scope::Global => {
                             let state = state.lock().await;
-                            for s in state.sessions.iter() {
-                                if s.id != session.id {
-                                    state.sessions.update(s.id, |s| {
-                                        s.channel = Some(channel.clone());
-                                    });
-                                }
+                            let sessions = state.sessions.get_all(session.id);
+                            for s in sessions {
+                                state.sessions.update(s.id, |s| {
+                                    s.channel = Some(channel.clone());
+                                });
                             }
                         }
                     },
@@ -287,50 +474,90 @@ pub trait RuntimeRelay: Sized {
                                 s.world = Some(world.clone());
                             });
                         }
-                        Scope::Map => {
-                            let state = state.lock().await;
-                            for s in state.sessions.iter() {
-                                if s.get_map()?.model.wz_id == session.get_map()?.model.wz_id
-                                    && s.id != session.id
-                                {
+                        Scope::Map(map_scope) => match map_scope {
+                            MapScope::SameChannelSameWorld => {
+                                let state = state.lock().await;
+                                let sessions = state.sessions.get_by_map_channel_world(
+                                    session.get_map()?.model.wz_id,
+                                    session.get_channel()?.model.id,
+                                    session.get_world()?.model.id,
+                                    session.id,
+                                );
+                                for s in sessions {
                                     state.sessions.update(s.id, |s| {
                                         s.world = Some(world.clone());
                                     });
                                 }
                             }
-                        }
-                        Scope::Channel => {
-                            let state = state.lock().await;
-                            for s in state.sessions.iter() {
-                                if s.get_channel()?.model.id == session.get_channel()?.model.id
-                                    && s.id != session.id
-                                {
+                            MapScope::AllChannelsSameWorld => {
+                                let state = state.lock().await;
+                                let sessions = state.sessions.get_by_map_world(
+                                    session.get_map()?.model.wz_id,
+                                    session.get_world()?.model.id,
+                                    session.id,
+                                );
+                                for s in sessions {
                                     state.sessions.update(s.id, |s| {
                                         s.world = Some(world.clone());
                                     });
                                 }
                             }
-                        }
+                            MapScope::AllChannelsAllWorlds => {
+                                let state = state.lock().await;
+                                let sessions = state
+                                    .sessions
+                                    .get_by_map(session.get_map()?.model.wz_id, session.id);
+                                for s in sessions {
+                                    state.sessions.update(s.id, |s| {
+                                        s.world = Some(world.clone());
+                                    });
+                                }
+                            }
+                        },
+                        Scope::Channel(channel_scope) => match channel_scope {
+                            ChannelScope::SameWorld => {
+                                let state = state.lock().await;
+                                let sessions = state.sessions.get_by_channel_world(
+                                    session.get_channel()?.model.id,
+                                    session.get_world()?.model.id,
+                                    session.id,
+                                );
+                                for s in sessions {
+                                    state.sessions.update(s.id, |s| {
+                                        s.world = Some(world.clone());
+                                    });
+                                }
+                            }
+                            ChannelScope::AllWorlds => {
+                                let state = state.lock().await;
+                                let sessions = state
+                                    .sessions
+                                    .get_by_channel(session.get_channel()?.model.id, session.id);
+                                for s in sessions {
+                                    state.sessions.update(s.id, |s| {
+                                        s.world = Some(world.clone());
+                                    });
+                                }
+                            }
+                        },
                         Scope::World => {
                             let state = state.lock().await;
-                            for s in state.sessions.iter() {
-                                if s.get_world()?.model.id == session.get_world()?.model.id
-                                    && s.id != session.id
-                                {
-                                    state.sessions.update(s.id, |s| {
-                                        s.world = Some(world.clone());
-                                    });
-                                }
+                            let sessions = state
+                                .sessions
+                                .get_by_world(session.get_world()?.model.id, session.id);
+                            for s in sessions {
+                                state.sessions.update(s.id, |s| {
+                                    s.world = Some(world.clone());
+                                });
                             }
                         }
                         Scope::Global => {
                             let state = state.lock().await;
-                            for s in state.sessions.iter() {
-                                if s.id != session.id {
-                                    state.sessions.update(s.id, |s| {
-                                        s.world = Some(world.clone());
-                                    });
-                                }
+                            let sessions = state.sessions.get_all(session.id);
+                            for s in sessions {
+                                state.sessions.update(s.id, |s| {
+                                    s.world = Some(world.clone());
+                                });
                             }
                         }
                     },
@@ -354,7 +581,7 @@ pub trait RuntimeRelay: Sized {
 }
 
 pub struct LoginRelay {
-    session_id: i32,
+    pub session_id: i32,
 }
 
 impl RuntimeRelay for LoginRelay {
@@ -445,7 +672,7 @@ impl RuntimeRelay for LoginRelay {
 }
 
 pub struct PlayerRelay {
-    session_id: i32,
+    pub session_id: i32,
 }
 
 impl RuntimeRelay for PlayerRelay {

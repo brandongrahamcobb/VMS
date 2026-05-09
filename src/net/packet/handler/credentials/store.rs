@@ -40,7 +40,7 @@ impl CredentialsStore {
                     status,
                 })
             }
-            Err(e) => {
+            Err(_) => {
                 let status = StatusCode::Failed(FailedCode::UnknownCredentials);
                 Ok(Self { acc: None, status })
             }

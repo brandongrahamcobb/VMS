@@ -13,7 +13,7 @@ impl SkillModel {
     }
 }
 
-pub fn generate_skill_ids_by_job_id(job_id: i16) -> Result<Vec<i32>, ModelError> {
+pub fn generate_skill_ids_by_job_id(_job_id: i16) -> Result<Vec<i32>, ModelError> {
     let skill_ids: Vec<i32> = Vec::<i32>::new();
     // let filename = String::from("Skill.wz");
     // let map = item::service::get_img_map(job_id, &filename)?;

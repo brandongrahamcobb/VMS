@@ -50,7 +50,7 @@ fn check_if_pending_tos(acc: &Account) -> Result<bool, NetworkError> {
 async fn check_if_playing(state: &SharedState, acc: &Account) -> Result<bool, NetworkError> {
     let acc_id = acc.model.get_id()?;
     let state = state.lock().await;
-    for session in state.sessions.iter() {
+    for session in state.sessions.get_all(0) {
         match session.get_acc() {
             Ok(acc) => {
                 if acc.model.get_id()? == acc_id {

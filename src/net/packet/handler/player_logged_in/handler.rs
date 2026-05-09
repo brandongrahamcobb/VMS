@@ -1,10 +1,10 @@
-use crate::net::action::Action;
+use crate::net::action::{Action, SetAction};
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::player_logged_in::reader::PlayerLoggedInReader;
 use crate::net::packet::handler::player_logged_in::store::PlayerLoggedInStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::scope::Scope;
+use crate::runtime::scope::{MapScope, Scope};
 use crate::runtime::session::Session;
 use crate::runtime::state::SharedState;
 
@@ -36,7 +36,7 @@ impl PlayerLoggedInHandler {
     ) -> Result<HandlerResult, NetworkError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
-            .build_player_logged_in_handler_keymap_packet(store.binds.clone())?
+            .build_player_logged_in_handler_keymap_packet(store.char.binds.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
@@ -49,13 +49,27 @@ impl PlayerLoggedInHandler {
             packet: packet.clone(),
             scope: Scope::Local,
         })?;
+        result.add_action(Action::Set(SetAction::SetMap {
+            map: store.char.map.clone(),
+            scope: Scope::Local,
+        }))?;
         let packet: Packet = Packet::new_empty()
             .build_spawn_player_packet(store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
-            scope: Scope::Map,
+            scope: Scope::Map(MapScope::SameChannelSameWorld),
         })?;
+        for session in store.sessions {
+            let packet: Packet = Packet::new_empty()
+                .build_spawn_player_packet(session.get_char()?.clone())?
+                .finish();
+            result.add_action(Action::Send {
+                packet: packet.clone(),
+                scope: Scope::Local,
+            })?;
+        }
+
         Ok(result)
     }
 }

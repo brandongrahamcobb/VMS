@@ -14,10 +14,9 @@ pub struct LoginServer;
 impl LoginServer {
     pub async fn run(state: SharedState) -> Result<(), RuntimeError> {
         let port = settings::get_login_port()?;
-        let addr = settings::get_address()?;
+        let addr = settings::get_bind_address()?;
         let bind = helpers::build_server_addr(addr, port);
         let listener: TcpListener = TcpListener::bind(bind).await?;
-
         loop {
             match listener.accept().await {
                 Ok((stream, _)) => {
@@ -42,8 +41,9 @@ impl LoginServer {
                         match Runtime::<LoginRelay>::new(state.clone(), stream, session_id, rx)
                             .await
                         {
-                            Ok(mut runtime) => match runtime.run().await {
-                                Ok(Some(id)) => {
+                            Ok(runtime) => match runtime.run().await {
+                                Ok(Some((mut runtime, mut packet))) => {
+                                    let id = runtime.relay.session_id;
                                     let port = {
                                         let state = state.lock().await;
                                         let Some(session) = state.sessions.get(id) else {
@@ -57,6 +57,18 @@ impl LoginServer {
                                         channel.model.port
                                     };
                                     tokio::spawn(PlayerServer::accept(state, id, port));
+                                    tokio::task::yield_now().await;
+                                    match runtime
+                                        .pkt_writer
+                                        .send_encrypted_packet(&mut packet)
+                                        .await
+                                    {
+                                        Ok(_) => {}
+                                        Err(e) => info!(
+                                            "Expected to send a final packet. Error: {}",
+                                            e.to_string()
+                                        ),
+                                    }
                                 }
                                 Ok(None) => {
                                     let state = state.lock().await;
@@ -91,7 +103,7 @@ impl PlayerServer {
         port: i16,
     ) -> Pin<Box<dyn Future<Output = ()> + Send>> {
         Box::pin(async move {
-            let addr = match settings::get_address() {
+            let addr = match settings::get_bind_address() {
                 Ok(a) => a,
                 Err(e) => {
                     info!("Expected valid player addr. Error: {}", e);
@@ -119,8 +131,9 @@ impl PlayerServer {
                         match Runtime::<PlayerRelay>::new(state.clone(), stream, session_id, rx)
                             .await
                         {
-                            Ok(mut runtime) => match runtime.run().await {
-                                Ok(Some(id)) => {
+                            Ok(runtime) => match runtime.run().await {
+                                Ok(Some((mut runtime, mut packet))) => {
+                                    let id = runtime.relay.session_id;
                                     let port = {
                                         let state = state.lock().await;
                                         let Some(session) = state.sessions.get(id) else {
@@ -134,12 +147,32 @@ impl PlayerServer {
                                         channel.model.port
                                     };
                                     tokio::spawn(PlayerServer::accept(state.clone(), id, port));
+                                    tokio::task::yield_now().await;
+                                    match runtime
+                                        .pkt_writer
+                                        .send_encrypted_packet(&mut packet)
+                                        .await
+                                    {
+                                        Ok(_) => {}
+                                        Err(e) => info!(
+                                            "Expected to send a final packet. Error: {}",
+                                            e.to_string()
+                                        ),
+                                    }
                                 }
                                 Ok(None) => {
                                     let state = state.lock().await;
                                     state.sessions.remove(session_id);
                                 }
-                                Err(e) => info!("Expected a session ID. Error: {}", e.to_string()),
+                                Err(e) => {
+                                    use std::error::Error;
+                                    let mut current: Option<&dyn Error> = Some(&e);
+                                    while let Some(err) = current {
+                                        println!("{}", err);
+                                        current = err.source();
+                                    }
+                                    info!("Expected a session ID. Error: {}", e.to_string());
+                                }
                             },
                             Err(e) => info!("Expected a player runtime. Error: {}", e.to_string()),
                         };

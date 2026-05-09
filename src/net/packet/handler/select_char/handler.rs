@@ -43,7 +43,7 @@ impl SelectCharHandler {
         result.add_action(Action::Set(SetAction::SetChar {
             char: store.char.clone(),
         }))?;
-        result.add_action(Action::Send {
+        result.add_action(Action::Break {
             packet: packet.clone(),
             scope: Scope::Local,
         })?;
