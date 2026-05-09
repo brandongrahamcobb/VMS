@@ -10,10 +10,11 @@ impl Packet {
         &mut self,
         char: Character,
     ) -> Result<&mut Self, NetworkError> {
-        let op = SendOpcode::New as i16;
+        let op = SendOpcode::NewChar as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
         self.build_new_character_look_part_packet(char.clone())?;
+        println!("{}", self.bytes.len());
         Ok(self)
     }
 

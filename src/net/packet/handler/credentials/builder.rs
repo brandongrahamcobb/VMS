@@ -43,7 +43,7 @@ impl Packet {
         self.write_byte(0).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
-        self.write_str(account_name).map_err(WriteError)?;
+        self.write_str_with_length(account_name).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
         self.write_long(0).map_err(WriteError)?;

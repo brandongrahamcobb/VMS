@@ -28,7 +28,7 @@ impl Packet {
         // Not MTS
         self.write_byte(0).map_err(WriteError)?;
         // Account name
-        self.write_str(acc.model.username.clone())
+        self.write_str_with_length(acc.model.username.clone())
             .map_err(WriteError)?;
         self.write_int(0).map_err(WriteError)?;
         // Special cash items

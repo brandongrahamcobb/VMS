@@ -260,10 +260,10 @@ impl CreateCharStore {
         reader: CreateCharReader,
         char_id: i32,
     ) -> Result<Vec<Skill>, NetworkError> {
-        let filename = String::from("Skill.wz");
-        let map = wz::service::get_img_map(reader.job_id as i32, &filename)?;
-        use tracing::debug;
-        debug!("{:?}", map);
+        // let filename = String::from("Skill.wz");
+        // let map = wz::service::get_img_map(reader.job_id as i32, &filename)?;
+        // use tracing::debug;
+        // debug!("{:?}", map);
         let skill_models: Vec<SkillModel> = Vec::<SkillModel>::new();
         // skill::service::get_skill_models_by_job_id(state, reader.job_id).await?;
         let mut skills: Vec<Skill> = Vec::<Skill>::new();

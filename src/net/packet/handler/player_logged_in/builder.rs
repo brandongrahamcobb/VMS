@@ -465,7 +465,8 @@ impl Packet {
         for _ in 0..NUM_EQUIP_STATS {
             self.write_short(0).map_err(WriteError)?;
         }
-        self.write_str(String::new()).map_err(WriteError)?;
+        self.write_str_with_length(String::new())
+            .map_err(WriteError)?;
         self.write_short(0).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
@@ -827,9 +828,10 @@ impl Packet {
         self.write_int(char.model.get_id()?).map_err(WriteError)?;
         let level = char.model.level as i16;
         self.write_byte(level).map_err(WriteError)?;
-        self.write_str(char.model.ign.clone()).map_err(WriteError)?;
+        self.write_str_with_length(char.model.ign.clone())
+            .map_err(WriteError)?;
         let guild_name = String::from("Guild Name");
-        self.write_str(guild_name).map_err(WriteError)?;
+        self.write_str_with_length(guild_name).map_err(WriteError)?;
         let skip = 0 as i16;
         self.write_short(skip).map_err(WriteError)?; // guildlogobg
         let skip = 0 as i16;
@@ -886,7 +888,7 @@ impl Packet {
                 let pet_id = 0; // 0 is definitely not right
                 self.write_int(pet_id).map_err(WriteError)?;
                 let pet_name = String::from("George");
-                self.write_str(pet_name).map_err(WriteError)?;
+                self.write_str_with_length(pet_name).map_err(WriteError)?;
                 let unique_id = 0; // 0 not sure
                 self.write_int(unique_id).map_err(WriteError)?;
                 let skip = 0;
@@ -913,7 +915,8 @@ impl Packet {
         self.write_byte(chalkboard).map_err(WriteError)?;
         if chalkboard_bool {
             let chalkboard_text = String::from("Placeholder");
-            self.write_str(chalkboard_text).map_err(WriteError)?;
+            self.write_str_with_length(chalkboard_text)
+                .map_err(WriteError)?;
         }
         let skip = vec![0u8; 3];
         self.write_bytes(skip).map_err(WriteError)?;
