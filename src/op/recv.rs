@@ -29,7 +29,7 @@ pub enum RecvOpcode {
     ChangeMap = 0x26,
     //
     PlayerMove = 0x29,
-    // AllChat = 0x31,
+    AllChat = 0x31,
     // Whisper = 0x78,
     //
     ChangeKeymap = 0x87,

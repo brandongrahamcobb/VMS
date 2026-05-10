@@ -15,6 +15,7 @@ pub struct AccountModel {
     pub gender_id: i16,
     pub accepted_tos: bool,
     pub banned: bool,
+    pub admin: bool,
     pub created_at: Option<SystemTime>,
     pub updated_at: SystemTime,
 }

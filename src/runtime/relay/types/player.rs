@@ -1,5 +1,6 @@
 use crate::net::packet::handler::cc::handler::ChangeChannelHandler;
 use crate::net::packet::handler::change_keymap::handler::ChangeKeymapHandler;
+use crate::net::packet::handler::chat_text::handler::ChatTextHandler;
 use crate::net::packet::handler::close_attack::handler::CloseAttackHandler;
 use crate::net::packet::handler::enter_cash_shop::handler::EnterCashShopHandler;
 use crate::net::packet::handler::move_player::handler::MovePlayerHandler;
@@ -78,6 +79,10 @@ impl RuntimeRelay for PlayerRelay {
             }
             x if x == RecvOpcode::CloseAttack as i16 => {
                 let handler = CloseAttackHandler::new();
+                Ok(handler.handle(state, session.clone(), packet).await?)
+            }
+            x if x == RecvOpcode::AllChat as i16 => {
+                let handler = ChatTextHandler::new();
                 Ok(handler.handle(state, session.clone(), packet).await?)
             }
             _ => Err(RuntimeError::UnsupportedOpcodeError(

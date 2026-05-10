@@ -11,6 +11,7 @@ diesel::table! {
         gender_id -> Int2,
         accepted_tos -> Bool,
         banned -> Bool,
+        admin -> Bool,
         created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
     }
