@@ -38,7 +38,7 @@ pub async fn send(
     session: &Session,
     packet: &Packet,
     scope: &Scope,
-) -> Result<ControlFlow<Packet>, RuntimeError> {
+) -> Result<(), RuntimeError> {
     match scope {
         Scope::Local => {
             session.tx.send(packet.clone())?;
@@ -52,7 +52,7 @@ pub async fn send(
         Scope::World => simple::simply_send_to_world(state, session, packet).await?,
         Scope::Global => simple::simply_send_globally(state, session, packet).await?,
     }
-    Ok(ControlFlow::Continue(()))
+    Ok(())
 }
 
 pub async fn set_map(
@@ -60,7 +60,7 @@ pub async fn set_map(
     session: &Session,
     map: &Map,
     scope: &Scope,
-) -> Result<ControlFlow<()>, RuntimeError> {
+) -> Result<(), RuntimeError> {
     match scope {
         Scope::Local => {
             set_map::set_map_locally(state, session, map).await?;
@@ -72,7 +72,7 @@ pub async fn set_map(
         Scope::World => set_map::set_map_for_world(state, session, map).await?,
         Scope::Global => set_map::set_map_globally(state, session, map).await?,
     }
-    Ok(ControlFlow::Continue(()))
+    Ok(())
 }
 
 pub async fn set_channel(
@@ -80,7 +80,7 @@ pub async fn set_channel(
     session: &Session,
     channel: &Channel,
     scope: &Scope,
-) -> Result<ControlFlow<()>, RuntimeError> {
+) -> Result<(), RuntimeError> {
     match scope {
         Scope::Local => {
             set_channel::set_channel_locally(state, session, channel).await?;
@@ -94,7 +94,7 @@ pub async fn set_channel(
         Scope::World => set_channel::set_channel_for_world(state, session, channel).await?,
         Scope::Global => set_channel::set_channel_globally(state, session, channel).await?,
     }
-    Ok(ControlFlow::Continue(()))
+    Ok(())
 }
 
 pub async fn set_world(
@@ -102,7 +102,7 @@ pub async fn set_world(
     session: &Session,
     world: &World,
     scope: &Scope,
-) -> Result<ControlFlow<()>, RuntimeError> {
+) -> Result<(), RuntimeError> {
     match scope {
         Scope::Local => {
             set_world::set_world_locally(state, session, world).await?;
@@ -116,29 +116,29 @@ pub async fn set_world(
         Scope::World => set_world::set_world_for_world(state, session, world).await?,
         Scope::Global => set_world::set_world_globally(state, session, world).await?,
     }
-    Ok(ControlFlow::Continue(()))
+    Ok(())
 }
 
 pub async fn set_acc(
     state: &SharedState,
     session: &Session,
     acc: &Account,
-) -> Result<ControlFlow<()>, RuntimeError> {
+) -> Result<(), RuntimeError> {
     let state = state.lock().await;
     state.sessions.update(session.id, |s| {
         s.acc = Some(acc.clone());
     });
-    Ok(ControlFlow::Continue(()))
+    Ok(())
 }
 
 pub async fn set_char(
     state: &SharedState,
     session: &Session,
     char: &Character,
-) -> Result<ControlFlow<()>, RuntimeError> {
+) -> Result<(), RuntimeError> {
     let state = state.lock().await;
     state.sessions.update(session.id, |s| {
         s.char = Some(char.clone());
     });
-    Ok(ControlFlow::Continue(()))
+    Ok(())
 }

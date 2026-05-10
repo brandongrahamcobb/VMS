@@ -1,3 +1,4 @@
+use crate::config::settings;
 use crate::models::account::model::Account;
 use crate::models::character;
 use crate::models::character::model::{Character, CharacterModel};
@@ -23,7 +24,11 @@ impl DeleteCharStore {
         let char_model: CharacterModel =
             character::query::getters::get_character_model_by_id(state, reader.char_id).await?;
         let char: Character = char_model.load(state).await?;
-        let status = delete_char::service::check_pic(acc.model.clone(), reader.pic)?;
+        let pic_status = settings::get_pic_required()?;
+        let mut status = true;
+        if pic_status {
+            status = delete_char::service::check_pic(acc.model.clone(), reader.pic)?;
+        }
         if status {
             character::query::setters::delete_character_by_id(state, char_model.get_id()?).await?;
         }
