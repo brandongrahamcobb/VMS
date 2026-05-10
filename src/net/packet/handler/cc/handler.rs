@@ -45,13 +45,6 @@ impl ChangeChannelHandler {
             scope: Scope::Map(MapScope::SameChannelSameWorld),
         })?;
         let packet: Packet = Packet::new_empty()
-            .build_channel_change_handler_packet(store.channel.clone(), store.octets.clone())?
-            .finish();
-        result.add_action(Action::Send {
-            packet: packet.clone(),
-            scope: Scope::Local,
-        })?;
-        let packet: Packet = Packet::new_empty()
             .build_spawn_player_packet(store.char.clone())?
             .finish();
         result.add_action(Action::Send {
@@ -67,6 +60,13 @@ impl ChangeChannelHandler {
                 scope: Scope::Local,
             })?;
         }
+        let packet: Packet = Packet::new_empty()
+            .build_channel_change_handler_packet(store.channel.clone(), store.octets.clone())?
+            .finish();
+        result.add_action(Action::Break {
+            packet: packet.clone(),
+            scope: Scope::Local,
+        })?;
         Ok(result)
     }
 }
