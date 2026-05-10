@@ -4,7 +4,7 @@ use crate::models::shroom::channel::model::Channel;
 use crate::models::shroom::map::model::Map;
 use crate::models::shroom::world::model::World;
 use crate::net::packet::model::Packet;
-use crate::runtime::scope::Scope;
+use crate::runtime::relay::scope::Scope;
 
 pub enum Action {
     Break { packet: Packet, scope: Scope },

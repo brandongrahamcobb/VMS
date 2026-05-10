@@ -4,7 +4,7 @@ use crate::net::packet::handler::player_logged_in::reader::PlayerLoggedInReader;
 use crate::net::packet::handler::player_logged_in::store::PlayerLoggedInStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::scope::{MapScope, Scope};
+use crate::runtime::relay::scope::{MapScope, Scope};
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
@@ -36,7 +36,7 @@ impl PlayerLoggedInHandler {
     ) -> Result<HandlerResult, NetworkError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
-            .build_player_logged_in_handler_keymap_packet(store.char.binds.clone())?
+            .build_player_logged_in_handler_keymap_packet(store.binds.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

@@ -4,7 +4,7 @@ use crate::net::packet::handler::list_worlds::reader::ListWorldsReader;
 use crate::net::packet::handler::list_worlds::store::ListWorldsStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::scope::Scope;
+use crate::runtime::relay::scope::Scope;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 

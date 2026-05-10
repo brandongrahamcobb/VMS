@@ -1,3 +1,6 @@
+use std::time::SystemTime;
+
+use crate::models::character::keybinding::model::{KeybindType, Keybinding, KeybindingModel};
 use crate::models::character::model::Character;
 use crate::models::shroom::channel::model::Channel;
 use crate::net::error::NetworkError;
@@ -7,6 +10,7 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct PlayerLoggedInStore {
+    pub binds: Vec<Keybinding>,
     pub channel: Channel,
     pub char: Character,
     pub sessions: Vec<Session>,
@@ -32,7 +36,28 @@ impl PlayerLoggedInStore {
                 sessions.push(s);
             }
         }
+        let mut binds: Vec<Keybinding> = Vec::with_capacity(90);
+        for key in 0..90 {
+            binds.push(
+                KeybindingModel {
+                    char_id: char.model.get_id()?,
+                    key: key,
+                    bind_type: KeybindType::Nil as i16,
+                    action: 0,
+                    created_at: Some(SystemTime::now()),
+                    updated_at: SystemTime::now(),
+                }
+                .load()?,
+            )
+        }
+        for bind in char.binds.clone() {
+            let idx = bind.model.key as usize;
+            if idx < 90 {
+                binds[idx] = bind.clone();
+            }
+        }
         Ok(Self {
+            binds,
             channel,
             char,
             sessions,

@@ -4,7 +4,7 @@ use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::handler::server_status::reader::ServerStatusReader;
 use crate::net::packet::handler::server_status::store::ServerStatusStore;
 use crate::net::packet::model::Packet;
-use crate::runtime::scope::Scope;
+use crate::runtime::relay::scope::Scope;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 

@@ -4,7 +4,7 @@ use crate::net::packet::handler::list_chars::reader::ListCharsReader;
 use crate::net::packet::handler::list_chars::store::ListCharsStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::scope::Scope;
+use crate::runtime::relay::scope::Scope;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 

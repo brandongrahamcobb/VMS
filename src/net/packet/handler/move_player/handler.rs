@@ -4,7 +4,7 @@ use crate::net::packet::handler::move_player::reader::MovePlayerReader;
 use crate::net::packet::handler::move_player::store::MovePlayerStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::scope::{MapScope, Scope};
+use crate::runtime::relay::scope::{MapScope, Scope};
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 

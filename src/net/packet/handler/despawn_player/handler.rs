@@ -4,7 +4,7 @@ use crate::net::packet::handler::despawn_player::reader::DespawnPlayerReader;
 use crate::net::packet::handler::despawn_player::store::DespawnPlayerStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::scope::{MapScope, Scope};
+use crate::runtime::relay::scope::{MapScope, Scope};
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
