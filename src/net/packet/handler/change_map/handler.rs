@@ -1,16 +1,16 @@
 use crate::net::action::{Action, SetAction};
 use crate::net::error::NetworkError;
-use crate::net::packet::handler::player_logged_in::reader::PlayerLoggedInReader;
-use crate::net::packet::handler::player_logged_in::store::PlayerLoggedInStore;
+use crate::net::packet::handler::change_map::reader::ChangeMapReader;
+use crate::net::packet::handler::change_map::store::ChangeMapStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::relay::scope::{MapScope, Scope};
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
-pub struct PlayerLoggedInHandler;
+pub struct ChangeMapHandler;
 
-impl PlayerLoggedInHandler {
+impl ChangeMapHandler {
     pub fn new() -> Self {
         Self
     }
@@ -21,29 +21,32 @@ impl PlayerLoggedInHandler {
         session: Session,
         packet: &Packet,
     ) -> Result<HandlerResult, NetworkError> {
-        let reader: PlayerLoggedInReader =
-            PlayerLoggedInReader::read_player_logged_in_packet(packet)?;
-        let store: PlayerLoggedInStore =
-            PlayerLoggedInStore::store_player_logged_in(state, session.clone(), reader.clone())
-                .await?;
-        let result: HandlerResult = self.build_player_logged_in_result(store.clone())?;
+        let reader: ChangeMapReader = ChangeMapReader::read_change_map_packet(packet)?;
+        let store: ChangeMapStore =
+            ChangeMapStore::store_change_map(state, session.clone(), reader.clone()).await?;
+        let result: HandlerResult = self.build_change_map(store.clone())?;
         Ok(result)
     }
 
-    fn build_player_logged_in_result(
-        &self,
-        store: PlayerLoggedInStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    fn build_change_map(&self, store: ChangeMapStore) -> Result<HandlerResult, NetworkError> {
         let mut result: HandlerResult = HandlerResult::new();
+        result.add_action(Action::Set(SetAction::SetChar {
+            char: store.char.clone(),
+        }))?;
+        // let packet: Packet = Packet::new_empty()
+        //     .build_player_logged_in_handler_keymap_packet(store.binds.clone())?
+        //     .finish();
+        // result.add_action(Action::Send {
+        //     packet: packet.clone(),
+        //     scope: Scope::Local,
+        // })?;
+        dbg!(store.char.model.map_id);
         let packet: Packet = Packet::new_empty()
-            .build_player_logged_in_handler_keymap_packet(store.binds.clone())?
-            .finish();
-        result.add_action(Action::Send {
-            packet: packet.clone(),
-            scope: Scope::Local,
-        })?;
-        let packet: Packet = Packet::new_empty()
-            .build_set_field_packet(store.char.clone(), store.channel.clone())?
+            .build_set_field_change_map_packet(
+                store.channel.clone(),
+                store.char.clone(),
+                store.portal.model.pid,
+            )?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
@@ -69,7 +72,6 @@ impl PlayerLoggedInHandler {
                 scope: Scope::Local,
             })?;
         }
-
         Ok(result)
     }
 }

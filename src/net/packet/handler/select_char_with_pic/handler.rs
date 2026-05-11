@@ -38,26 +38,30 @@ impl SelectCharWithPicHandler {
         store: SelectCharWithPicStore,
     ) -> Result<HandlerResult, NetworkError> {
         let mut result: HandlerResult = HandlerResult::new();
-        let packet: Packet = if store.pic_status {
+        if store.pic_status {
             result.add_action(Action::Set(SetAction::SetChar {
                 char: store.char.clone(),
             }))?;
-            Packet::new_empty()
+            let packet: Packet = Packet::new_empty()
                 .build_select_char_handler_packet(
                     store.channel.clone(),
                     store.char.clone(),
                     store.octets,
                 )?
-                .finish()
+                .finish();
+            result.add_action(Action::Break {
+                packet: packet.clone(),
+                scope: Scope::Local,
+            })?;
         } else {
-            Packet::new_empty()
+            let packet: Packet = Packet::new_empty()
                 .build_select_char_handler_failed_pic_packet()?
-                .finish()
+                .finish();
+            result.add_action(Action::Send {
+                packet: packet.clone(),
+                scope: Scope::Local,
+            })?;
         };
-        result.add_action(Action::Break {
-            packet: packet.clone(),
-            scope: Scope::Local,
-        })?;
         Ok(result)
     }
 }

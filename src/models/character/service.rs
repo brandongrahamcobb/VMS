@@ -73,6 +73,12 @@ impl CharacterModel {
     }
 }
 
+impl Character {
+    pub fn update_model(&mut self, char_model: CharacterModel) {
+        self.model = char_model.clone();
+    }
+}
+
 pub async fn get_character_by_id(
     state: &SharedState,
     char_id: i32,
@@ -83,7 +89,6 @@ pub async fn get_character_by_id(
 }
 
 pub async fn delete_character_by_id(state: &SharedState, char_id: i32) -> Result<(), ModelError> {
-    let char = get_character_by_id(state, char_id).await?;
     character::query::setters::delete_character_by_id(state, char_id).await?;
     equipment_set::android::query::setters::delete_android_equipment_set_by_char_id(state, char_id)
         .await?;

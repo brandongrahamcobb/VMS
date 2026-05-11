@@ -52,8 +52,8 @@ async fn check_if_playing(state: &SharedState, acc: &Account) -> Result<bool, Ne
     let state = state.lock().await;
     for session in state.sessions.get_all(0) {
         match session.get_acc() {
-            Ok(playing_acc) => {
-                if playing_acc.model.get_id()? == acc_id {
+            Ok(acc) => {
+                if acc.model.get_id()? == acc_id {
                     return Ok(session.playing);
                 }
             }

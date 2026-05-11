@@ -1,7 +1,9 @@
-use crate::net::error::NetworkError;
-use crate::net::packet::handler::player_map_transfer::reader::PlayerMapTransferReader;
-use crate::runtime::session::model::Session;
-use crate::runtime::state::SharedState;
+use crate::{
+    net::{
+        error::NetworkError, packet::handler::player_map_transfer::reader::PlayerMapTransferReader,
+    },
+    runtime::{session::model::Session, state::SharedState},
+};
 
 #[derive(Clone)]
 pub struct PlayerMapTransferStore;

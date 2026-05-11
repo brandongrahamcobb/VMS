@@ -26,7 +26,7 @@ impl Packet {
         Ok(self)
     }
 
-    pub fn build_player_logged_in_handler_char_packet(
+    pub fn build_set_field_packet(
         &mut self,
         char: Character,
         channel: Channel,
