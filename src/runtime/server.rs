@@ -75,6 +75,12 @@ impl LoginServer {
                                     state.sessions.remove(session_id);
                                 }
                                 Err(e) => {
+                                    use std::error::Error;
+                                    let mut current: Option<&dyn Error> = Some(&e);
+                                    while let Some(err) = current {
+                                        println!("{}", err);
+                                        current = err.source();
+                                    }
                                     let state = state.lock().await;
                                     state.sessions.remove(session_id);
                                     info!("Expected a session ID. Error: {}", e.to_string());
@@ -161,6 +167,12 @@ impl PlayerServer {
                                     state.sessions.remove(session_id);
                                 }
                                 Err(e) => {
+                                    use std::error::Error;
+                                    let mut current: Option<&dyn Error> = Some(&e);
+                                    while let Some(err) = current {
+                                        println!("{}", err);
+                                        current = err.source();
+                                    }
                                     let state = state.lock().await;
                                     state.sessions.remove(session_id);
                                     info!("Expected a session ID. Error: {}", e.to_string());

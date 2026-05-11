@@ -1,7 +1,7 @@
 use crate::db::error::DatabaseError;
 
 #[derive(Debug, thiserror::Error)]
-pub enum WzEquipError {
+pub enum EquipError {
     #[error("Requested equip resource was not found in equip model layer: {0}")]
     NotFound(i32),
 

@@ -35,9 +35,9 @@ impl SelectCharHandler {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_select_char_handler_packet(
-                store.char.model.get_id()?,
+                store.channel.clone(),
+                store.char.clone(),
                 store.octets,
-                store.channel.model.port,
             )?
             .finish();
         result.add_action(Action::Set(SetAction::SetChar {

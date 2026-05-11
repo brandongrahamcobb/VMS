@@ -1,7 +1,8 @@
 use crate::db::schema::keybindings;
 use crate::models::character::keybinding::model::KeybindingModel;
 use crate::runtime::state::SharedState;
-use diesel::{QueryResult, RunQueryDsl};
+use diesel::expression_methods::*;
+use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
 pub async fn update_keybindings(
     state: &SharedState,
@@ -29,4 +30,21 @@ pub async fn update_keybindings(
         )
     }
     Ok(results)
+}
+
+pub async fn delete_keybindings_by_char_id(
+    state: &SharedState,
+    char_id: i32,
+) -> QueryResult<usize> {
+    let db = {
+        let state = state.lock().await;
+        state.db.clone()
+    };
+    let mut conn = db.get().map_err(|e| {
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UnableToSendCommand,
+            Box::new(e.to_string()),
+        )
+    })?;
+    diesel::delete(keybindings::table.filter(keybindings::char_id.eq(char_id))).execute(&mut conn)
 }

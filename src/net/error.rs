@@ -8,6 +8,7 @@ use crate::net::packet::io::error::IOError;
 use crate::net::packet::model::Packet;
 use crate::runtime::session::error::SessionError;
 use bcrypt::BcryptError;
+use core::num::ParseIntError;
 use std::time::SystemTimeError;
 use thiserror::Error;
 use tokio::sync::mpsc::error::SendError;
@@ -55,4 +56,7 @@ pub enum NetworkError {
 
     #[error("Failed UnboundedSender error in runtime layer")]
     UnboundedSenderError(#[from] SendError<Packet>),
+
+    #[error("Parse int error in runtime layer")]
+    ParseIntError(#[from] ParseIntError),
 }

@@ -1,10 +1,10 @@
 use crate::config::error::ConfigError;
 use crate::models::account::error::AccountError;
-use crate::models::shroom::channel::error::ChannelError;
 use crate::models::character::error::CharacterError;
 use crate::models::character::keybinding::error::KeybindingError;
+use crate::models::shroom::channel::error::ChannelError;
 use crate::models::shroom::world::error::WorldError;
-use crate::models::shroom::error::WzError;
+use crate::wz::error::WzError;
 use diesel;
 use thiserror::Error;
 

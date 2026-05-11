@@ -20,9 +20,9 @@ pub struct ListCharsStore {
 }
 
 pub enum PicStatus {
-    Disabled = 0,
+    Disabled = 2,
     AlreadyRegistered = 1,
-    NeedsToRegister = 2,
+    NeedsToRegister = 0,
 }
 
 impl ListCharsStore {

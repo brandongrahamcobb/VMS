@@ -1,7 +1,8 @@
 use crate::db::schema::skills;
 use crate::models::character::skill::model::SkillModel;
 use crate::runtime::state::SharedState;
-use diesel::{QueryResult, RunQueryDsl};
+use diesel::expression_methods::*;
+use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
 pub async fn update_skills(
     state: &SharedState,
@@ -29,4 +30,18 @@ pub async fn update_skills(
         )
     }
     Ok(results)
+}
+
+pub async fn delete_skills_by_char_id(state: &SharedState, char_id: i32) -> QueryResult<usize> {
+    let db = {
+        let state = state.lock().await;
+        state.db.clone()
+    };
+    let mut conn = db.get().map_err(|e| {
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UnableToSendCommand,
+            Box::new(e.to_string()),
+        )
+    })?;
+    diesel::delete(skills::table.filter(skills::char_id.eq(char_id))).execute(&mut conn)
 }

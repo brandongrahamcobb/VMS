@@ -34,7 +34,7 @@ impl DeleteCharHandler {
     ) -> Result<HandlerResult, NetworkError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet = Packet::new_empty()
-            .build_delete_char_handler_packet(store.char.model.get_id()?, store.status)?
+            .build_delete_char_handler_packet(store.char.clone(), store.status)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

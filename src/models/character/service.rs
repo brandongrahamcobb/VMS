@@ -81,3 +81,20 @@ pub async fn get_character_by_id(
     let char = char_model.load(state).await?;
     Ok(char)
 }
+
+pub async fn delete_character_by_id(state: &SharedState, char_id: i32) -> Result<(), ModelError> {
+    let char = get_character_by_id(state, char_id).await?;
+    character::query::setters::delete_character_by_id(state, char_id).await?;
+    equipment_set::android::query::setters::delete_android_equipment_set_by_char_id(state, char_id)
+        .await?;
+    equipment_set::cash::query::setters::delete_cash_equipment_set_by_char_id(state, char_id)
+        .await?;
+    equipment_set::pet::query::setters::delete_pet_equipment_set_by_char_id(state, char_id).await?;
+    equipment_set::regular::query::setters::delete_regular_equipment_set_by_char_id(state, char_id)
+        .await?;
+    skill::query::setters::delete_skills_by_char_id(state, char_id).await?;
+    keybinding::query::setters::delete_keybindings_by_char_id(state, char_id).await?;
+    // delete inventory items
+    // delete associated skills shard between chars
+    Ok(())
+}

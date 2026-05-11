@@ -1,6 +1,5 @@
 use crate::constants::{DEFAULT_ACTION, DEFAULT_KEY, DEFAULT_TYPE};
 use crate::models::account::model::Account;
-use crate::models::character;
 use crate::models::character::equipment_set::android::model::{
     AndroidEquipmentSet, AndroidEquipmentSetModel,
 };
@@ -14,6 +13,7 @@ use crate::models::character::equipment_set::regular::model::{
 use crate::models::character::keybinding::model::{Keybinding, KeybindingModel};
 use crate::models::character::model::{Character, CharacterModel};
 use crate::models::character::skill::model::{Skill, SkillModel};
+use crate::models::character::{self, skill};
 use crate::models::character::{equipment_set, keybinding};
 use crate::models::item::equip;
 use crate::models::shroom::job;
@@ -52,7 +52,7 @@ impl CreateCharStore {
             gender_id: reader.gender_id,
             map_id: map.model.wz_id,
             world_id: world.model.id,
-            level: 0,
+            level: 1,
             exp: 0,
             strength: 4,
             dexterity: 4,
@@ -262,16 +262,23 @@ impl CreateCharStore {
     }
 
     pub async fn init_skills(
-        _state: &SharedState,
-        _reader: CreateCharReader,
-        _char_id: i32,
+        state: &SharedState,
+        reader: CreateCharReader,
+        char_id: i32,
     ) -> Result<Vec<Skill>, NetworkError> {
-        // let filename = String::from("Skill.wz");
-        // let map = wz::service::get_img_map(reader.job_id as i32, &filename)?;
-        // use tracing::debug;
-        // debug!("{:?}", map);
-        let skill_models: Vec<SkillModel> = Vec::<SkillModel>::new();
-        // skill::service::get_skill_models_by_job_id(state, reader.job_id).await?;
+        let mut skill_models: Vec<SkillModel> = Vec::<SkillModel>::new();
+        let wz_job_id: i32 = job::service::job_index_to_wz_id(reader.job_id);
+        let wz_skill_ids: Vec<i32> = skill::service::generate_skill_ids_by_job_id(wz_job_id)?;
+        for wz_skill_id in wz_skill_ids {
+            skill_models.push(SkillModel {
+                char_id,
+                wz_id: wz_skill_id,
+                level: 0,
+                created_at: Some(SystemTime::now()),
+                updated_at: SystemTime::now(),
+            });
+        }
+        skill::query::setters::update_skills(state, skill_models.clone()).await?;
         let mut skills: Vec<Skill> = Vec::<Skill>::new();
         for skill_model in skill_models {
             skills.push(skill_model.load()?);

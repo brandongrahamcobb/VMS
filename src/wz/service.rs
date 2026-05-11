@@ -1,8 +1,8 @@
 use crate::config::settings;
 use crate::models::error::ModelError;
-use crate::models::shroom::error::WzError;
+use crate::wz::error::WzError;
 use serde_json;
-use shroom_img::value::{Object, Value};
+use shroom_img::value::Object;
 use shroom_wz::reader::WzReader;
 use shroom_wz::{WzContext, WzDir, WzDirEntry, try_detect_file_versions};
 use std::collections::HashMap;
@@ -80,13 +80,10 @@ impl WzResolver {
     }
 }
 
-pub fn get_i32(map: &serde_json::Value, key: &str) -> Option<i32> {
-    map.get(key).and_then(|v| v.as_i64().map(|n| n as i32))
-}
-
-pub fn get_img_map(id: i32, wz_name: &str) -> Result<serde_json::Value, ModelError> {
+pub fn get_img_root(id: i32, wz_name: &str) -> Result<serde_json::Value, ModelError> {
     let mut wz = load_wz_reader(wz_name)?;
     let resolver = WzResolver::new(&mut wz)?;
+    dbg!(resolver.map.iter().take(5).collect::<Vec<_>>());
     let path = resolver.resolve(id)?;
     let parts: Vec<&str> = path.split('/').collect();
     let root = wz
@@ -114,10 +111,7 @@ pub fn get_img_map(id: i32, wz_name: &str) -> Result<serde_json::Value, ModelErr
                     .map_err(WzError::BinRwError)
                     .map_err(ModelError::from)?;
                 let root_obj = root_obj.as_property().unwrap();
-                if let Some(Value::Object(obj)) = root_obj.get("info") {
-                    return Ok(obj.to_json_value());
-                }
-                return Err(ModelError::from(WzError::ObjectError));
+                return Ok(root_obj.to_json_value());
             }
             _ => return Err(ModelError::from(WzError::EntryError)),
         };

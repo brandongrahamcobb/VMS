@@ -26,6 +26,7 @@ impl CloseAttackStore {
         reader: CloseAttackReader,
     ) -> Result<Self, NetworkError> {
         let char = session.get_char()?;
+        dbg!("{}", reader.skill_id);
         let skill_model =
             character::skill::query::getters::get_skill_model_by_character_id_and_skill_id(
                 state,

@@ -1,4 +1,4 @@
-use crate::net::action::Action;
+use crate::net::action::{Action, SetAction};
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::register_pic::reader::RegisterPicReader;
 use crate::net::packet::handler::register_pic::store::RegisterPicStore;
@@ -35,12 +35,15 @@ impl RegisterPicHandler {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_select_char_handler_packet(
-                store.char.model.get_id()?,
+                store.channel.clone(),
+                store.char.clone(),
                 store.octets,
-                store.channel.model.port,
             )?
             .finish();
-        result.add_action(Action::Send {
+        result.add_action(Action::Set(SetAction::SetChar {
+            char: store.char.clone(),
+        }))?;
+        result.add_action(Action::Break {
             packet: packet.clone(),
             scope: Scope::Local,
         })?;

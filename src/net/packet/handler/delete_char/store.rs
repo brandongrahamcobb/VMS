@@ -25,11 +25,11 @@ impl DeleteCharStore {
             character::query::getters::get_character_model_by_id(state, reader.char_id).await?;
         let char: Character = char_model.load(state).await?;
         let pic_status = settings::get_pic_required()?;
-        let mut status = true;
+        let mut status = false;
         if pic_status {
             status = delete_char::service::check_pic(acc.model.clone(), reader.pic)?;
         }
-        if status {
+        if !status {
             character::query::setters::delete_character_by_id(state, char_model.get_id()?).await?;
         }
         Ok(Self { char, status })

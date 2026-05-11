@@ -44,9 +44,9 @@ impl SelectCharWithPicHandler {
             }))?;
             Packet::new_empty()
                 .build_select_char_handler_packet(
-                    store.char.model.get_id()?,
+                    store.channel.clone(),
+                    store.char.clone(),
                     store.octets,
-                    store.channel.model.port,
                 )?
                 .finish()
         } else {

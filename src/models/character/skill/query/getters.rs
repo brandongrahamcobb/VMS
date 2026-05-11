@@ -7,7 +7,7 @@ use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 pub async fn get_skill_model_by_character_id_and_skill_id(
     state: &SharedState,
     char_id: i32,
-    skill_id: i32,
+    wz_id: i32,
 ) -> QueryResult<SkillModel> {
     let db = {
         let state = state.lock().await;
@@ -21,7 +21,7 @@ pub async fn get_skill_model_by_character_id_and_skill_id(
     })?;
     skills::table
         .filter(skills::char_id.eq(char_id))
-        .filter(skills::wz_id.eq(skill_id))
+        .filter(skills::wz_id.eq(wz_id))
         .first::<SkillModel>(&mut conn)
 }
 
