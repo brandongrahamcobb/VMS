@@ -20,7 +20,7 @@ impl PlayerLoggedInStore {
     pub async fn store_player_logged_in(
         state: &SharedState,
         session: Session,
-        reader: PlayerLoggedInReader,
+        _reader: PlayerLoggedInReader,
     ) -> Result<Self, NetworkError> {
         let char: Character = session.get_char()?;
         let channel: Channel = session.get_channel()?;

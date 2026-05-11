@@ -16,7 +16,7 @@ pub struct ChatTextStore {
 
 impl ChatTextStore {
     pub async fn store_chat_text(
-        state: &SharedState,
+        _state: &SharedState,
         session: Session,
         reader: ChatTextReader,
     ) -> Result<Self, NetworkError> {

@@ -83,7 +83,6 @@ impl WzResolver {
 pub fn get_img_root(id: i32, wz_name: &str) -> Result<serde_json::Value, ModelError> {
     let mut wz = load_wz_reader(wz_name)?;
     let resolver = WzResolver::new(&mut wz)?;
-    dbg!(resolver.map.iter().take(5).collect::<Vec<_>>());
     let path = resolver.resolve(id)?;
     let parts: Vec<&str> = path.split('/').collect();
     let root = wz

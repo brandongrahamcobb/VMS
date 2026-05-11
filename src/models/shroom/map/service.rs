@@ -14,7 +14,6 @@ pub fn get_map_by_id(wz_map_id: i32) -> Result<Map, ModelError> {
             .and_then(|v| v.as_str())
             .unwrap_or("")
             .to_string();
-        dbg!(&pn);
         let tm = target
             .get("tm")
             .and_then(|v| v.as_i64())

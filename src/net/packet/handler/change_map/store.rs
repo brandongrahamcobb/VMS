@@ -1,3 +1,4 @@
+use crate::models::character;
 use crate::models::character::model::{Character, CharacterModel};
 use crate::models::shroom::channel::model::Channel;
 use crate::models::shroom::map;
@@ -33,6 +34,7 @@ impl ChangeMapStore {
         char_model.map_id = map.model.wz_id;
         char.update_model(char_model.clone());
         let char: Character = char_model.load(state).await?;
+        character::query::setters::update_characters(state, vec![char_model]).await?;
         let died: i16 = reader.died;
         let wheel_of_destiny: i16 = reader.wod;
         let mut sessions: Vec<Session> = Vec::<Session>::new();

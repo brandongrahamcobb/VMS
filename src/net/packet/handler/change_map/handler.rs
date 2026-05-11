@@ -33,14 +33,6 @@ impl ChangeMapHandler {
         result.add_action(Action::Set(SetAction::SetChar {
             char: store.char.clone(),
         }))?;
-        // let packet: Packet = Packet::new_empty()
-        //     .build_player_logged_in_handler_keymap_packet(store.binds.clone())?
-        //     .finish();
-        // result.add_action(Action::Send {
-        //     packet: packet.clone(),
-        //     scope: Scope::Local,
-        // })?;
-        dbg!(store.char.model.map_id);
         let packet: Packet = Packet::new_empty()
             .build_set_field_change_map_packet(
                 store.channel.clone(),

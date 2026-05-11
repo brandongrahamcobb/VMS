@@ -5,7 +5,7 @@ use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 pub async fn simply_send_locally(
-    state: &SharedState,
+    _state: &SharedState,
     session: &Session,
     packet: &Packet,
 ) -> Result<(), RuntimeError> {
