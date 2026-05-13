@@ -1,6 +1,27 @@
+/* skills/service.rs
+ * The purpose of this module is to provide assisting functions and implementations for skills.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+use crate::models::character::skill;
 use crate::models::character::skill::model::Skill;
 use crate::models::character::skill::model::SkillModel;
 use crate::models::error::ModelError;
+use crate::runtime::state::SharedState;
 use crate::wz;
 
 impl SkillModel {
@@ -13,14 +34,27 @@ impl SkillModel {
 
 pub fn generate_skill_ids_by_job_id(wz_job_id: i32) -> Result<Vec<i32>, ModelError> {
     let root = wz::service::get_img_root(wz_job_id, "Skill.wz")?;
-    let mut wz_ids: Vec<i32> = root
+    let mut ids: Vec<i32> = root
         .get("skill")
         .and_then(|s| s.as_object())
         .unwrap_or(&serde_json::Map::new())
         .keys()
         .filter_map(|k| k.parse::<i32>().ok())
         .collect();
-    let basic_attack_skill_wz_id: i32 = 256;
-    wz_ids.push(basic_attack_skill_wz_id);
-    Ok(wz_ids)
+    let basic_attack_skill_id: i32 = 256;
+    ids.push(basic_attack_skill_id);
+    Ok(ids)
+}
+
+pub async fn get_skills_by_char_id(
+    state: &SharedState,
+    char_id: i32,
+) -> Result<Vec<Skill>, ModelError> {
+    let mut skills: Vec<Skill> = Vec::<Skill>::new();
+    let skill_models: Vec<SkillModel> =
+        skill::query::getters::get_skill_models_by_char_id(state, char_id).await?;
+    for skill_model in skill_models {
+        skills.push(skill_model.load()?);
+    }
+    Ok(skills)
 }

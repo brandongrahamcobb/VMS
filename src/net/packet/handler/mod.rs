@@ -7,7 +7,6 @@ pub mod close_attack;
 pub mod create_char;
 pub mod credentials;
 pub mod delete_char;
-pub mod despawn_player;
 pub mod enter_cash_shop;
 pub mod error;
 pub mod handshake;

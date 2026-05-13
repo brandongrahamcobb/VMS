@@ -1,4 +1,21 @@
-use crate::models::shroom::channel::model::Channel;
+/* world/model.rs
+ * The purpose of this module is to provide a world model and its wrapper.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 #[derive(Clone)]
 pub struct WorldModel {
@@ -7,10 +24,4 @@ pub struct WorldModel {
     pub flag: i16,
     pub event_message: &'static str,
     pub port: i16,
-}
-
-#[derive(Clone)]
-pub struct World {
-    pub model: WorldModel,
-    pub channels: Vec<Channel>,
 }

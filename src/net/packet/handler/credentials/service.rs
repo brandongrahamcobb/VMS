@@ -1,6 +1,24 @@
+/* credentials/service.rs
+ * The purpose of this module is to provide assisting functions and implementations for credential validation.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+use crate::models::account::wrapper::Account;
 use crate::net::error::NetworkError;
-use crate::runtime::state::SharedState;
-use crate::{config::settings, models::account::model::Account};
 use bcrypt::{DEFAULT_COST, hash, verify};
 
 #[derive(Clone)]
@@ -33,48 +51,14 @@ pub fn authenticate(db_pw: String, pw: String) -> Result<bool, NetworkError> {
     Ok(verify(&pw, &hash)?)
 }
 
-fn check_if_banned(acc: &Account) -> Result<bool, NetworkError> {
+pub async fn get_status_code_by_account(acc: &Account) -> Result<StatusCode, NetworkError> {
     if acc.model.banned {
-        return Ok(true);
-    }
-    Ok(false)
-}
-
-fn check_if_pending_tos(acc: &Account) -> Result<bool, NetworkError> {
-    if !acc.model.accepted_tos {
-        return Ok(true);
-    }
-    Ok(false)
-}
-
-async fn check_if_playing(state: &SharedState, acc: &Account) -> Result<bool, NetworkError> {
-    let acc_id = acc.model.get_id()?;
-    let state = state.lock().await;
-    for session in state.sessions.get_all(0) {
-        match session.get_acc() {
-            Ok(acc) => {
-                if acc.model.get_id()? == acc_id {
-                    return Ok(session.playing);
-                }
-            }
-            Err(_) => return Ok(false),
-        }
-    }
-    return Ok(false);
-}
-
-pub async fn get_status_code_by_account(
-    state: &SharedState,
-    acc: &Account,
-) -> Result<StatusCode, NetworkError> {
-    if check_if_banned(acc)? {
         return Ok(StatusCode::Failed(FailedCode::Banned));
     }
-    if check_if_pending_tos(acc)? {
+    if !acc.model.accepted_tos {
         return Ok(StatusCode::Pending(PendingCode::PendingTOS));
     }
-    let mode = settings::get_release_mode()?;
-    if check_if_playing(state, acc).await? & mode {
+    if acc.model.playing {
         return Ok(StatusCode::Failed(FailedCode::Playing));
     }
     return Ok(StatusCode::Success(SuccessCode::Success));

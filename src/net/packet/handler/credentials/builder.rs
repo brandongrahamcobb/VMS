@@ -1,5 +1,24 @@
+/* credentials/builder.rs
+ * The purpose of this module is to build an outgoing credentials validation packet.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 use crate::config::settings;
-use crate::models::account::model::Account;
+use crate::models::account::wrapper::Account;
 use crate::net::error::NetworkError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
@@ -27,7 +46,7 @@ impl Packet {
         let pin_required = settings::get_pin_required()? as i16;
         let opcode = SendOpcode::AccountStatus as i16;
         let acc_id = acc.model.get_id()? as i32;
-        let gender_id = acc.model.gender_id as i16;
+        let gender_wz = acc.model.gender_wz as i16;
         let account_name = acc.model.username.clone();
         let created_at: i64 = acc
             .model
@@ -39,11 +58,12 @@ impl Packet {
         self.write_int(0).map_err(WriteError)?;
         self.write_short(0).map_err(WriteError)?;
         self.write_int(acc_id).map_err(WriteError)?;
-        self.write_byte(gender_id).map_err(WriteError)?;
+        self.write_byte(gender_wz).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
-        self.write_str_with_length(account_name).map_err(WriteError)?;
+        self.write_str_with_length(account_name)
+            .map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
         self.write_long(0).map_err(WriteError)?;

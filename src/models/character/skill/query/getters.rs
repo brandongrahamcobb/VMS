@@ -1,3 +1,22 @@
+/* skill/query/getters.rs
+ * The purpose of this module is to provide database getters for skills.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 use crate::db::schema::skills;
 use crate::models::character::skill::model::SkillModel;
 use crate::runtime::state::SharedState;
@@ -7,7 +26,7 @@ use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 pub async fn get_skill_model_by_character_id_and_skill_id(
     state: &SharedState,
     char_id: i32,
-    wz_id: i32,
+    wz: i32,
 ) -> QueryResult<SkillModel> {
     let db = {
         let state = state.lock().await;
@@ -21,11 +40,11 @@ pub async fn get_skill_model_by_character_id_and_skill_id(
     })?;
     skills::table
         .filter(skills::char_id.eq(char_id))
-        .filter(skills::wz_id.eq(wz_id))
+        .filter(skills::wz.eq(wz))
         .first::<SkillModel>(&mut conn)
 }
 
-pub async fn get_skill_models_by_character_id(
+pub async fn get_skill_models_by_char_id(
     state: &SharedState,
     char_id: i32,
 ) -> QueryResult<Vec<SkillModel>> {

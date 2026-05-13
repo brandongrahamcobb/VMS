@@ -1,3 +1,22 @@
+/* delete_char/handler.rs
+ * The purpose of this module is to handle character deletion.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 use crate::net::action::Action;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::delete_char::reader::DeleteCharReader;
@@ -34,7 +53,7 @@ impl DeleteCharHandler {
     ) -> Result<HandlerResult, NetworkError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet = Packet::new_empty()
-            .build_delete_char_handler_packet(store.char.clone(), store.status)?
+            .build_delete_char_packet(store.char.clone(), store.pic_status)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

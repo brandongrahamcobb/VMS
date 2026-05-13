@@ -1,17 +1,40 @@
-// @generated automatically by Diesel CLI.
+/* schema.rs
+ * The purpose of this module is to frame the database schema for diesel.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 diesel::table! {
     accounts (id) {
         id -> Nullable<Int4>,
+        session_id -> Int4,
+        world_id -> Nullable<Int2>,
+        map_wz -> Nullable<Int4>,
+        channel_id -> Nullable<Int2>,
+        char_id -> Nullable<Int4>,
         username -> Text,
         password -> Text,
         pin -> Nullable<Text>,
         pic -> Nullable<Text>,
         last_login_at -> Nullable<Timestamp>,
-        gender_id -> Int2,
+        gender_wz -> Int2,
         accepted_tos -> Bool,
         banned -> Bool,
         admin -> Bool,
+        playing -> Bool,
         created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
     }
@@ -22,6 +45,7 @@ diesel::table! {
         id -> Nullable<Int4>,
         acc_id -> Int4,
         world_id -> Int2,
+        map_wz -> Int4,
         ign -> Text,
         level -> Int2,
         exp -> Int4,
@@ -36,86 +60,20 @@ diesel::table! {
         ap -> Int2,
         fame -> Int2,
         meso -> Int4,
-        job_id -> Int2,
-        face_id -> Int4,
-        hair_id -> Int4,
-        hair_color_id -> Int4,
-        skin_id -> Int4,
-        gender_id -> Int2,
-        map_id -> Int4,
+        job_wz -> Int2,
+        face_wz -> Int4,
+        hair_wz -> Int4,
+        hair_color_wz -> Int4,
+        skin_wz -> Int4,
+        gender_wz -> Int2,
         created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp
     }
 }
 
 diesel::table! {
-    regular_equipment_sets (char_id) {
-        char_id -> Int4,
-        hat_id -> Nullable<Int4>,
-        face_acc_id -> Nullable<Int4>,
-        eye_acc_id -> Nullable<Int4>,
-        ear_acc_id -> Nullable<Int4>,
-        top_id -> Nullable<Int4>,
-        bottom_id -> Nullable<Int4>,
-        shoes_id -> Nullable<Int4>,
-        gloves_id -> Nullable<Int4>,
-        cape_id -> Nullable<Int4>,
-        shield_id -> Nullable<Int4>,
-        weapon_id -> Nullable<Int4>,
-        ring_one_id -> Nullable<Int4>,
-        ring_two_id -> Nullable<Int4>,
-        ring_three_id -> Nullable<Int4>,
-        ring_four_id -> Nullable<Int4>,
-        pendant_one_id -> Nullable<Int4>,
-        tamed_mob_id -> Nullable<Int4>,
-        saddle_id -> Nullable<Int4>,
-        medal_id -> Nullable<Int4>,
-        belt_id -> Nullable<Int4>,
-        pocket_id -> Nullable<Int4>,
-        book_id -> Nullable<Int4>,
-        pendant_two_id -> Nullable<Int4>,
-        shoulder_id -> Nullable<Int4>,
-        android_id -> Nullable<Int4>,
-        emblem_id -> Nullable<Int4>,
-        badge_id -> Nullable<Int4>,
-        subweapon_id -> Nullable<Int4>,
-        heart_id -> Nullable<Int4>,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
-    cash_equipment_sets (char_id) {
-        char_id -> Int4,
-        hat_id -> Nullable<Int4>,
-        face_acc_id -> Nullable<Int4>,
-        eye_acc_id -> Nullable<Int4>,
-        ear_acc_id -> Nullable<Int4>,
-        top_id -> Nullable<Int4>,
-        bottom_id -> Nullable<Int4>,
-        shoes_id -> Nullable<Int4>,
-        gloves_id -> Nullable<Int4>,
-        cape_id -> Nullable<Int4>,
-        weapon_id -> Nullable<Int4>,
-        ring_one_id -> Nullable<Int4>,
-        ring_two_id -> Nullable<Int4>,
-        ring_three_id -> Nullable<Int4>,
-        ring_four_id -> Nullable<Int4>,
-        pendant_id -> Nullable<Int4>,
-        belt_id -> Nullable<Int4>,
-        shoulder_id -> Nullable<Int4>,
-        subweapon_id -> Nullable<Int4>,
-        hair_id -> Nullable<Int4>,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
-    equips (id) {
-        id -> Nullable<Int4>,
-        wz_id -> Int4,
+    equip_stats (id) {
+        id -> Int4,
         strength -> Int4,
         dexterity -> Int4,
         intelligence -> Int4,
@@ -133,31 +91,6 @@ diesel::table! {
         jump -> Int4,
         created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp
-    }
-}
-
-diesel::table! {
-    pet_equipment_sets (char_id) {
-        char_id -> Int4,
-        accessory_one_id -> Nullable<Int4>,
-        accessory_two_id -> Nullable<Int4>,
-        accessory_three_id -> Nullable<Int4>,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Timestamp
-    }
-}
-
-diesel::table! {
-    android_equipment_sets (char_id) {
-        char_id -> Int4,
-        hat_id -> Nullable<Int4>,
-        face_id -> Nullable<Int4>,
-        top_id -> Nullable<Int4>,
-        bottom_id -> Nullable<Int4>,
-        gloves_id -> Nullable<Int4>,
-        cape_id -> Nullable<Int4>,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Timestamp,
     }
 }
 
@@ -183,10 +116,30 @@ diesel::table! {
 }
 
 diesel::table! {
-    skills (char_id, wz_id) {
+    skills (char_id, wz) {
         char_id -> Int4,
-        wz_id -> Int4,
+        wz -> Int4,
         level -> Int2,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    drop_items (id, wz) {
+        id -> Int4,
+        wz -> Int4,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    inventory_items (id, wz) {
+        id -> Int4,
+        char_id -> Int4,
+        equipped -> Bool,
+        wz -> Int4,
         created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
     }
@@ -194,12 +147,10 @@ diesel::table! {
 
 diesel::allow_tables_to_appear_in_same_query!(
     accounts,
-    android_equipment_sets,
-    cash_equipment_sets,
     character_limits,
     characters,
-    regular_equipment_sets,
+    drop_items,
+    equip_stats,
+    inventory_items,
     skills,
-    equips,
-    pet_equipment_sets,
 );

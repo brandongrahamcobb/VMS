@@ -1,4 +1,25 @@
-use crate::models::shroom::world::model::World;
+/* set_world.rs
+ * The purpose of this module is to provide the set world functions for relay handling.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+use crate::models::account;
+use crate::models::account::wrapper::Account;
+use crate::models::shroom::world::wrapper::World;
 use crate::runtime::error::RuntimeError;
 use crate::runtime::relay::scope::{ChannelScope, MapScope};
 use crate::runtime::session::model::Session;
@@ -9,9 +30,12 @@ pub async fn set_world_locally(
     session: &Session,
     world: &World,
 ) -> Result<(), RuntimeError> {
-    let state = state.lock().await;
-    state.sessions.update(session.id, |s| {
-        s.world = Some(world.clone());
+    let mut acc: Account = session.get_acc()?;
+    acc.model.world_id = Some(world.model.id);
+    account::query::setters::update_accounts(state, vec![acc.model.clone()]).await?;
+    let locked_state = state.lock().await;
+    locked_state.sessions.update(session.id, |s| {
+        s.acc = Some(acc);
     });
     Ok(())
 }
@@ -24,40 +48,58 @@ pub async fn set_world_for_map(
 ) -> Result<(), RuntimeError> {
     match map_scope {
         MapScope::SameChannelSameWorld => {
-            let state = state.lock().await;
-            let sessions = state.sessions.get_by_map_channel_world(
-                session.get_map()?.model.wz_id,
-                session.get_channel()?.model.id,
-                session.get_world()?.model.id,
-                session.id,
-            );
+            let sessions = {
+                let locked_state = state.lock().await;
+                locked_state.sessions.get_by_map_channel_world(
+                    session.get_active_map(state).await?.model.wz,
+                    session.get_active_channel(state).await?.model.id,
+                    session.get_active_world(state).await?.model.id,
+                    session.id,
+                )
+            };
             for s in sessions {
-                state.sessions.update(s.id, |s| {
-                    s.world = Some(world.clone());
+                let mut acc: Account = s.get_acc()?;
+                acc.model.world_id = Some(world.model.id);
+                account::query::setters::update_accounts(state, vec![acc.model.clone()]).await?;
+                let locked_state = state.lock().await;
+                locked_state.sessions.update(s.id, |s| {
+                    s.acc = Some(acc);
                 });
             }
         }
         MapScope::AllChannelsSameWorld => {
-            let state = state.lock().await;
-            let sessions = state.sessions.get_by_map_world(
-                session.get_map()?.model.wz_id,
-                session.get_world()?.model.id,
-                session.id,
-            );
+            let sessions = {
+                let locked_state = state.lock().await;
+                locked_state.sessions.get_by_map_world(
+                    session.get_active_map(state).await?.model.wz,
+                    session.get_active_world(state).await?.model.id,
+                    session.id,
+                )
+            };
             for s in sessions {
-                state.sessions.update(s.id, |s| {
-                    s.world = Some(world.clone());
+                let mut acc: Account = s.get_acc()?;
+                acc.model.world_id = Some(world.model.id);
+                account::query::setters::update_accounts(state, vec![acc.model.clone()]).await?;
+                let locked_state = state.lock().await;
+                locked_state.sessions.update(s.id, |s| {
+                    s.acc = Some(acc);
                 });
             }
         }
         MapScope::AllChannelsAllWorlds => {
-            let state = state.lock().await;
-            let sessions = state
-                .sessions
-                .get_by_map(session.get_map()?.model.wz_id, session.id);
+            let sessions = {
+                let locked_state = state.lock().await;
+                locked_state
+                    .sessions
+                    .get_by_map(session.get_active_map(state).await?.model.wz, session.id)
+            };
             for s in sessions {
-                state.sessions.update(s.id, |s| {
-                    s.world = Some(world.clone());
+                let mut acc: Account = s.get_acc()?;
+                acc.model.world_id = Some(world.model.id);
+                account::query::setters::update_accounts(state, vec![acc.model.clone()]).await?;
+                let locked_state = state.lock().await;
+                locked_state.sessions.update(s.id, |s| {
+                    s.acc = Some(acc);
                 });
             }
         }
@@ -73,26 +115,39 @@ pub async fn set_world_for_channel(
 ) -> Result<(), RuntimeError> {
     match channel_scope {
         ChannelScope::SameWorld => {
-            let state = state.lock().await;
-            let sessions = state.sessions.get_by_channel_world(
-                session.get_channel()?.model.id,
-                session.get_world()?.model.id,
-                session.id,
-            );
+            let sessions = {
+                let locked_state = state.lock().await;
+                locked_state.sessions.get_by_channel_world(
+                    session.get_active_channel(state).await?.model.id,
+                    session.get_active_world(state).await?.model.id,
+                    session.id,
+                )
+            };
             for s in sessions {
-                state.sessions.update(s.id, |s| {
-                    s.world = Some(world.clone());
+                let mut acc: Account = s.get_acc()?;
+                acc.model.world_id = Some(world.model.id);
+                account::query::setters::update_accounts(state, vec![acc.model.clone()]).await?;
+                let locked_state = state.lock().await;
+                locked_state.sessions.update(s.id, |s| {
+                    s.acc = Some(acc);
                 });
             }
         }
         ChannelScope::AllWorlds => {
-            let state = state.lock().await;
-            let sessions = state
-                .sessions
-                .get_by_channel(session.get_channel()?.model.id, session.id);
+            let sessions = {
+                let locked_state = state.lock().await;
+                locked_state.sessions.get_by_channel(
+                    session.get_active_channel(state).await?.model.id,
+                    session.id,
+                )
+            };
             for s in sessions {
-                state.sessions.update(s.id, |s| {
-                    s.world = Some(world.clone());
+                let mut acc: Account = s.get_acc()?;
+                acc.model.world_id = Some(world.model.id);
+                account::query::setters::update_accounts(state, vec![acc.model.clone()]).await?;
+                let locked_state = state.lock().await;
+                locked_state.sessions.update(s.id, |s| {
+                    s.acc = Some(acc);
                 });
             }
         }
@@ -105,13 +160,19 @@ pub async fn set_world_for_world(
     session: &Session,
     world: &World,
 ) -> Result<(), RuntimeError> {
-    let state = state.lock().await;
-    let sessions = state
-        .sessions
-        .get_by_world(session.get_world()?.model.id, session.id);
+    let sessions = {
+        let locked_state = state.lock().await;
+        locked_state
+            .sessions
+            .get_by_world(session.get_active_world(state).await?.model.id, session.id)
+    };
     for s in sessions {
-        state.sessions.update(s.id, |s| {
-            s.world = Some(world.clone());
+        let mut acc: Account = s.get_acc()?;
+        acc.model.world_id = Some(world.model.id);
+        account::query::setters::update_accounts(state, vec![acc.model.clone()]).await?;
+        let locked_state = state.lock().await;
+        locked_state.sessions.update(s.id, |s| {
+            s.acc = Some(acc);
         });
     }
     Ok(())
@@ -122,11 +183,17 @@ pub async fn set_world_globally(
     session: &Session,
     world: &World,
 ) -> Result<(), RuntimeError> {
-    let state = state.lock().await;
-    let sessions = state.sessions.get_all(session.id);
+    let sessions = {
+        let locked_state = state.lock().await;
+        locked_state.sessions.get_all(session.id)
+    };
     for s in sessions {
-        state.sessions.update(s.id, |s| {
-            s.world = Some(world.clone());
+        let mut acc: Account = s.get_acc()?;
+        acc.model.world_id = Some(world.model.id);
+        account::query::setters::update_accounts(state, vec![acc.model.clone()]).await?;
+        let locked_state = state.lock().await;
+        locked_state.sessions.update(s.id, |s| {
+            s.acc = Some(acc);
         });
     }
     Ok(())

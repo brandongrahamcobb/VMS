@@ -52,7 +52,7 @@ VMS is a Mushroom-based v83 private server implemented in Rust.
 
 ### Overview
 
-There are a total of # crates in (`config`, `db`, `inc`, `models`, `net`, `op`, `runtime`, `sec`, and `wz`.
+There are a total of 9 crates (`config`, `db`, `inc`, `models`, `net`, `op`, `runtime`, `sec`, and `wz`).
 
 The `config` crate accesses the **.env** file to load constant defaults for running the server.
 

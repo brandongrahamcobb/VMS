@@ -1,5 +1,25 @@
+/* server.rs
+ * The purpose of this module is to provide the connection to the client.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 use crate::config::settings;
 use crate::inc::helpers;
+use crate::models::shroom::channel;
 use crate::runtime::error::RuntimeError;
 use crate::runtime::relay::model::{LoginRelay, PlayerRelay, Runtime};
 use crate::runtime::session::model::Session;
@@ -24,15 +44,9 @@ impl LoginServer {
                     let session_id = {
                         let state = state.lock().await;
                         state.sessions.insert(Session {
-                            id: 0,
                             acc: None,
-                            hwid: None,
-                            world: None,
-                            channel: None,
-                            map: None,
-                            char: None,
+                            id: 0,
                             tx: tx.clone(),
-                            playing: true,
                         })
                     };
                     info!("Listening on port {}...", port);
@@ -44,15 +58,25 @@ impl LoginServer {
                             Ok(runtime) => match runtime.run().await {
                                 Ok(Some((mut runtime, mut packet))) => {
                                     let id = runtime.relay.session_id;
-                                    let port = {
+                                    let session = {
                                         let state = state.lock().await;
                                         let Some(session) = state.sessions.get(id) else {
                                             info!("Expected a valid session. Session ID: {}", id);
                                             return;
                                         };
-                                        let Some(channel) = session.channel else {
-                                            info!("Expected a valid channel. Session ID: {}", id);
-                                            return;
+                                        session
+                                    };
+                                    let port = {
+                                        let channel = match session.get_active_channel(&state).await
+                                        {
+                                            Ok(channel) => channel,
+                                            Err(e) => {
+                                                info!(
+                                                    "Failed to get active channel for session: {:?}",
+                                                    e
+                                                );
+                                                return;
+                                            }
                                         };
                                         channel.model.port
                                     };
@@ -136,15 +160,25 @@ impl PlayerServer {
                             Ok(runtime) => match runtime.run().await {
                                 Ok(Some((mut runtime, mut packet))) => {
                                     let id = runtime.relay.session_id;
-                                    let port = {
+                                    let session = {
                                         let state = state.lock().await;
                                         let Some(session) = state.sessions.get(id) else {
                                             info!("Expected a valid session. Session ID: {}", id);
                                             return;
                                         };
-                                        let Some(channel) = session.channel else {
-                                            info!("Expected a valid channel. Session ID: {}", id);
-                                            return;
+                                        session
+                                    };
+                                    let port = {
+                                        let channel = match session.get_active_channel(&state).await
+                                        {
+                                            Ok(channel) => channel,
+                                            Err(e) => {
+                                                info!(
+                                                    "Failed to get active channel for session: {:?}",
+                                                    e
+                                                );
+                                                return;
+                                            }
                                         };
                                         channel.model.port
                                     };

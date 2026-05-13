@@ -1,80 +1,141 @@
-use std::time::SystemTime;
+/* account/service.rs
+ * The purpose of this module is to provide assisting functions and implementations for accounts.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 use crate::models::account;
-use crate::models::account::error::AccountError;
-use crate::models::account::model::Account;
 use crate::models::account::model::AccountModel;
-use crate::models::character;
-use crate::models::character::model::Character;
+use crate::models::account::wrapper::Account;
 use crate::models::error::ModelError;
 use crate::runtime::state::SharedState;
-
-impl Account {
-    pub async fn accept_tos(&self, state: &SharedState) -> Result<Self, ModelError> {
-        account::query::setters::accept_tos_by_account_id(state, self.model.get_id()?).await?;
-        Ok(self.clone())
-    }
-
-    pub async fn set_pic(&self, state: &SharedState, pic: String) -> Result<Self, ModelError> {
-        account::query::setters::set_pic_by_account_id(state, self.model.get_id()?, pic.clone())
-            .await?;
-        Ok(self.clone())
-    }
-}
-
-pub async fn get_account_by_id(state: &SharedState, acc_id: i32) -> Result<Account, ModelError> {
-    let acc_model = account::query::getters::get_account_model_by_id(state, acc_id).await?;
-    let acc = acc_model.load(state).await?;
-    Ok(acc)
-}
-
-impl AccountModel {
-    pub async fn load(&self, state: &SharedState) -> Result<Account, ModelError> {
-        let acc_id = self.get_id()?;
-        let char_models =
-            character::query::getters::get_character_models_by_account_id(state, acc_id).await?;
-        let mut chars: Vec<Character> = Vec::<Character>::new();
-        for char_model in char_models {
-            chars.push(char_model.load(state).await?);
-        }
-        let acc = Account {
-            model: self.clone(),
-            chars: chars.clone(),
-        };
-        Ok(acc)
-    }
-
-    pub fn get_pic(&self) -> Result<String, ModelError> {
-        if let Some(pic) = self.pic.clone() {
-            Ok(pic)
-        } else {
-            Err(ModelError::from(AccountError::NoPic(self.get_id()?)))
-        }
-    }
-
-    pub fn get_id(&self) -> Result<i32, ModelError> {
-        if let Some(id) = self.id {
-            Ok(id)
-        } else {
-            Err(ModelError::from(AccountError::NoId))
-        }
-    }
-
-    pub fn get_created_at(&self) -> Result<SystemTime, ModelError> {
-        if let Some(created_at) = self.created_at {
-            Ok(created_at)
-        } else {
-            Err(ModelError::from(AccountError::NoCreatedAt(self.get_id()?)))
-        }
-    }
-}
 
 pub async fn get_account_by_username(
     state: &SharedState,
     username: String,
 ) -> Result<Account, ModelError> {
-    let acc_model =
+    let acc_model: AccountModel =
         account::query::getters::get_account_model_by_username(state, username.clone()).await?;
     let acc = acc_model.load(state).await?;
     Ok(acc)
+}
+
+pub async fn get_account_by_map_channel_world_ids_except_self(
+    state: &SharedState,
+    channel_id: i16,
+    map_wz: i32,
+    world_id: i16,
+    excluded_acc_id: i32,
+) -> Result<Vec<Account>, ModelError> {
+    let account_models: Vec<AccountModel> =
+        account::query::getters::get_account_models_by_channel_world_ids_map_wz(
+            state, channel_id, map_wz, world_id,
+        )
+        .await?;
+    let mut accounts: Vec<Account> = Vec::<Account>::new();
+    for account_model in account_models {
+        if account_model.id != Some(excluded_acc_id) {
+            accounts.push(account_model.load(state).await?);
+        }
+    }
+    Ok(accounts)
+}
+
+pub async fn get_accounts_by_map_world_ids_except_self(
+    state: &SharedState,
+    map_wz: i32,
+    world_id: i16,
+    excluded_acc_id: i32,
+) -> Result<Vec<Account>, ModelError> {
+    let account_models: Vec<AccountModel> =
+        account::query::getters::get_account_models_by_map_wz_world_id(state, map_wz, world_id)
+            .await?;
+    let mut accounts: Vec<Account> = Vec::<Account>::new();
+    for account_model in account_models {
+        if account_model.id != Some(excluded_acc_id) {
+            accounts.push(account_model.load(state).await?);
+        }
+    }
+    Ok(accounts)
+}
+
+pub async fn get_accounts_by_map_wz_except_self(
+    state: &SharedState,
+    map_wz: i32,
+    excluded_acc_id: i32,
+) -> Result<Vec<Account>, ModelError> {
+    let account_models: Vec<AccountModel> =
+        account::query::getters::get_account_models_by_map_wz(state, map_wz).await?;
+    let mut accounts: Vec<Account> = Vec::<Account>::new();
+    for account_model in account_models {
+        if account_model.id != Some(excluded_acc_id) {
+            accounts.push(account_model.load(state).await?);
+        }
+    }
+    Ok(accounts)
+}
+
+pub async fn get_accounts_by_channel_world_ids_except_self(
+    state: &SharedState,
+    channel_id: i16,
+    world_id: i16,
+    excluded_acc_id: i32,
+) -> Result<Vec<Account>, ModelError> {
+    let account_models: Vec<AccountModel> =
+        account::query::getters::get_account_models_by_channel_world_ids(
+            state, channel_id, world_id,
+        )
+        .await?;
+    let mut accounts: Vec<Account> = Vec::<Account>::new();
+    for account_model in account_models {
+        if account_model.id != Some(excluded_acc_id) {
+            accounts.push(account_model.load(state).await?);
+        }
+    }
+    Ok(accounts)
+}
+
+pub async fn get_accounts_by_channel_id_except_self(
+    state: &SharedState,
+    channel_id: i16,
+    excluded_acc_id: i32,
+) -> Result<Vec<Account>, ModelError> {
+    let account_models: Vec<AccountModel> =
+        account::query::getters::get_account_models_by_channel_id(state, channel_id).await?;
+    let mut accounts: Vec<Account> = Vec::<Account>::new();
+    for account_model in account_models {
+        if account_model.id != Some(excluded_acc_id) {
+            accounts.push(account_model.load(state).await?);
+        }
+    }
+    Ok(accounts)
+}
+
+pub async fn get_accounts_by_world_id_except_self(
+    state: &SharedState,
+    world_id: i16,
+    excluded_acc_id: i32,
+) -> Result<Vec<Account>, ModelError> {
+    let account_models: Vec<AccountModel> =
+        account::query::getters::get_account_models_by_world_id(state, world_id).await?;
+    let mut accounts: Vec<Account> = Vec::<Account>::new();
+    for account_model in account_models {
+        if account_model.id != Some(excluded_acc_id) {
+            accounts.push(account_model.load(state).await?);
+        }
+    }
+    Ok(accounts)
 }

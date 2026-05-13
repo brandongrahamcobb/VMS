@@ -1,13 +1,35 @@
-use crate::db::schema::{character_limits, characters};
-use crate::models::character::equipment_set::android::model::AndroidEquipmentSet;
-use crate::models::character::equipment_set::cash::model::CashEquipmentSet;
-use crate::models::character::equipment_set::pet::model::PetEquipmentSet;
-use crate::models::character::equipment_set::regular::model::RegularEquipmentSet;
+/* character/model.rs
+ * The purpose of this module is to provide a character model and its wrapper.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+use crate::db::schema::character_limits;
+use crate::db::schema::characters;
+use crate::models::character::error::CharacterError;
+use crate::models::character::keybinding;
 use crate::models::character::keybinding::model::Keybinding;
+use crate::models::character::keybinding::model::KeybindingModel;
+use crate::models::character::skill;
 use crate::models::character::skill::model::Skill;
-use crate::models::shroom::job::model::Job;
-use crate::models::shroom::map::model::Map;
-use crate::models::shroom::world::model::World;
+use crate::models::character::skill::model::SkillModel;
+use crate::models::character::wrapper::Character;
+use crate::models::error::ModelError;
+use crate::models::item;
+use crate::models::item::inventory::wrapper::InventoryItem;
+use crate::runtime::state::SharedState;
 use diesel::prelude::*;
 use std::time::SystemTime;
 
@@ -17,6 +39,7 @@ pub struct CharacterModel {
     pub id: Option<i32>,
     pub acc_id: i32,
     pub world_id: i16,
+    pub map_wz: i32,
     pub ign: String,
     pub level: i16,
     pub exp: i32,
@@ -31,37 +54,47 @@ pub struct CharacterModel {
     pub ap: i16,
     pub fame: i16,
     pub meso: i32,
-    pub job_id: i16,
-    pub face_id: i32,
-    pub hair_id: i32,
-    pub hair_color_id: i32,
-    pub skin_id: i32,
-    pub gender_id: i16,
-    pub map_id: i32,
+    pub job_wz: i16,
+    pub face_wz: i32,
+    pub hair_wz: i32,
+    pub hair_color_wz: i32,
+    pub skin_wz: i32,
+    pub gender_wz: i16,
     pub created_at: Option<SystemTime>,
     pub updated_at: SystemTime,
 }
 
-#[derive(Clone)]
-pub struct Character {
-    pub model: CharacterModel,
-    pub regular_equip_set: RegularEquipmentSet,
-    pub cash_equip_set: CashEquipmentSet,
-    pub pet_equip_set: PetEquipmentSet,
-    pub android_equip_set: AndroidEquipmentSet,
-    pub skills: Vec<Skill>,
-    pub binds: Vec<Keybinding>,
-    pub world: World,
-    pub map: Map,
-    pub job: Job,
-}
-
 #[derive(Queryable, AsChangeset)]
 #[diesel(table_name = character_limits)]
-pub struct CharacterLimit {
+pub struct CharacterLimitModel {
     pub acc_id: i32,
     pub char_max: i16,
     pub world_id: i16,
     pub created_at: Option<SystemTime>,
     pub updated_at: SystemTime,
+}
+
+impl CharacterModel {
+    pub async fn load(&self, state: &SharedState) -> Result<Character, ModelError> {
+        let char_id: i32 = self.get_id()?;
+        let binds: Vec<Keybinding> =
+            keybinding::service::get_keybindings_by_char_id(state, char_id).await?;
+        let items: Vec<InventoryItem> =
+            item::inventory::service::get_inventory_items_by_char_id(state, char_id).await?;
+        let skills: Vec<Skill> = skill::service::get_skills_by_char_id(state, char_id).await?;
+        Ok(Character {
+            model: self.clone(),
+            binds,
+            items,
+            skills,
+        })
+    }
+
+    pub fn get_id(&self) -> Result<i32, ModelError> {
+        if let Some(oid) = self.id {
+            Ok(oid)
+        } else {
+            Err(ModelError::from(CharacterError::NoId))
+        }
+    }
 }

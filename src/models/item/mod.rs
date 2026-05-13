@@ -1,1 +1,3 @@
-pub mod equip;
+pub mod drop;
+pub mod equip_stats;
+pub mod inventory;

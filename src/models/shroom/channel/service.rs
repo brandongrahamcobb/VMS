@@ -1,7 +1,29 @@
+/* channel/service.rs
+ * The purpose of this module is to provide assisting functions and implementations for channels.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 use crate::config::settings;
 use crate::models::error::ModelError;
 use crate::models::shroom::channel::error::ChannelError;
-use crate::models::shroom::channel::model::{Channel, ChannelModel};
+use crate::models::shroom::channel::model::ChannelModel;
+use crate::models::shroom::channel::wrapper::Channel;
+use crate::models::shroom::map;
+use crate::models::shroom::map::wrapper::Map;
 use crate::runtime::state::SharedState;
 
 pub async fn get_channel_by_id(
@@ -28,17 +50,18 @@ pub fn load_channels(channel_count: i16, world_port: i16) -> Result<Vec<Channel>
     let capacity: i16 = settings::get_channel_capacity()?;
     let flag: i16 = settings::get_channel_flag()?;
     let mut id = 0;
-    let count = channel_count;
-    for count in 0..count {
-        let port = world_port + 1 + count;
+    for i in 0..channel_count {
+        let port = world_port + 1 + i;
         let channel_model = ChannelModel {
             capacity,
             id,
             flag,
             port,
         };
+        let maps: Vec<Map> = map::service::load_maps()?;
         channels.push(Channel {
             model: channel_model,
+            maps: maps.clone(),
         });
         id += 1;
     }

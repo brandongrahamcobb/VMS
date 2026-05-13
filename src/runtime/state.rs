@@ -1,10 +1,29 @@
+/* state.rs
+ * The purpose of this module is to provide a shared state across the program.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 use crate::config::settings;
 use crate::db::error::DatabaseError;
 use crate::db::pool::DbPool;
 use crate::models::shroom::world;
-use crate::models::shroom::world::model::World;
+use crate::models::shroom::world::wrapper::World;
 use crate::runtime::error::RuntimeError;
-use crate::runtime::session::model::SessionStore;
+use crate::runtime::session::session_store::SessionStore;
 use diesel::PgConnection;
 use diesel::r2d2::{ConnectionManager, Pool};
 use std::sync::Arc;

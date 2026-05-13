@@ -1,3 +1,22 @@
+/* move_player/handler.rs
+ * The purpose of this module is to handle player movement.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 use crate::net::action::Action;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::move_player::reader::MovePlayerReader;
@@ -23,7 +42,7 @@ impl MovePlayerHandler {
     ) -> Result<HandlerResult, NetworkError> {
         let reader: MovePlayerReader = MovePlayerReader::read_move_player_packet(packet)?;
         let store: MovePlayerStore =
-            MovePlayerStore::store_move_player(state, session, reader.clone())?;
+            MovePlayerStore::store_move_player(state, session, reader.clone()).await?;
         let result: HandlerResult = self.build_move_player_result(store.clone())?;
         Ok(result)
     }
@@ -35,10 +54,7 @@ impl MovePlayerHandler {
         let mut result = HandlerResult::new();
         if !store.too_short && !store.empty {
             let packet: Packet = Packet::new_empty()
-                .build_player_move_handler_packet(
-                    store.char.model.get_id()?,
-                    store.movement_bytes.clone(),
-                )?
+                .build_player_move_packet(store.char.model.get_id()?, store.movement_bytes.clone())?
                 .finish();
             result.add_action(Action::Send {
                 packet: packet.clone(),

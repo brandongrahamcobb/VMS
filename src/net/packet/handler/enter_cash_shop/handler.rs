@@ -1,3 +1,22 @@
+/* enter_cash_shop/handler.rs
+ * The purpose of this module is to handle cash shop entrance.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 use crate::net::action::{Action, SetAction};
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::enter_cash_shop::reader::EnterCashShopReader;
@@ -38,14 +57,14 @@ impl EnterCashShopHandler {
             scope: Scope::Local,
         }))?;
         let packet: Packet = Packet::new_empty()
-            .build_enter_cash_shop_handler_packet(store.acc.clone(), store.char.clone())?
+            .build_enter_cash_shop_packet(store.acc.clone(), store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
         })?;
         let packet: Packet = Packet::new_empty()
-            .build_despawn_player_handler_packet(store.char.clone())?
+            .build_despawn_player_packet(store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

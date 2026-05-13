@@ -1,25 +1,35 @@
+/* create_char/store.rs
+ * The purpose of this module is to resolve relevant variables for character creation.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 use crate::constants::{DEFAULT_ACTION, DEFAULT_KEY, DEFAULT_TYPE};
-use crate::models::account::model::Account;
-use crate::models::character::equipment_set::android::model::{
-    AndroidEquipmentSet, AndroidEquipmentSetModel,
-};
-use crate::models::character::equipment_set::cash::model::{
-    CashEquipmentSet, CashEquipmentSetModel,
-};
-use crate::models::character::equipment_set::pet::model::{PetEquipmentSet, PetEquipmentSetModel};
-use crate::models::character::equipment_set::regular::model::{
-    RegularEquipmentSet, RegularEquipmentSetModel,
-};
+use crate::models::account::wrapper::Account;
+use crate::models::character::keybinding;
 use crate::models::character::keybinding::model::{Keybinding, KeybindingModel};
-use crate::models::character::model::{Character, CharacterModel};
+use crate::models::character::model::CharacterModel;
 use crate::models::character::skill::model::{Skill, SkillModel};
+use crate::models::character::wrapper::Character;
 use crate::models::character::{self, skill};
-use crate::models::character::{equipment_set, keybinding};
-use crate::models::item::equip;
-use crate::models::shroom::job;
-use crate::models::shroom::map;
-use crate::models::shroom::map::model::Map;
-use crate::models::shroom::world::model::World;
+use crate::models::item::inventory::wrapper::InventoryItem;
+use crate::models::item::{self, equip_stats};
+use crate::models::shroom::map::wrapper::Map;
+use crate::models::shroom::world::wrapper::World;
+use crate::models::shroom::{job, map};
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::create_char::reader::CreateCharReader;
 use crate::runtime::session::model::Session;
@@ -44,13 +54,13 @@ impl CreateCharStore {
             id: None,
             acc_id: acc.model.get_id()?,
             ign: reader.ign.clone(),
-            job_id: reader.job_id,
-            face_id: reader.face_id,
-            hair_id: reader.hair_id,
-            hair_color_id: reader.hair_color_id,
-            skin_id: reader.skin_id,
-            gender_id: reader.gender_id,
-            map_id: map.model.wz_id,
+            job_wz: reader.job_wz,
+            face_wz: reader.face_wz,
+            hair_wz: reader.hair_wz,
+            hair_color_wz: reader.hair_color_wz,
+            skin_wz: reader.skin_wz,
+            gender_wz: reader.gender_wz,
+            map_wz: map.model.wz,
             world_id: world.model.id,
             level: 1,
             exp: 0,
@@ -97,168 +107,29 @@ impl CreateCharStore {
         Ok(binds.clone())
     }
 
-    async fn init_regular_equips(
+    async fn init_equips(
         state: &SharedState,
         reader: CreateCharReader,
         char_id: i32,
-    ) -> Result<RegularEquipmentSet, NetworkError> {
-        let top_model = equip::service::deserialize(reader.top_id)?;
-        let top_model =
-            equip::query::setters::update_equips(state, vec![top_model]).await?[0].clone();
-        let bottom_model = equip::service::deserialize(reader.bottom_id)?;
-        let bottom_model =
-            equip::query::setters::update_equips(state, vec![bottom_model]).await?[0].clone();
-        let shoes_model = equip::service::deserialize(reader.shoes_id)?;
-        let shoes_model =
-            equip::query::setters::update_equips(state, vec![shoes_model]).await?[0].clone();
-        let weapon_model = equip::service::deserialize(reader.weapon_id)?;
-        let weapon_model =
-            equip::query::setters::update_equips(state, vec![weapon_model]).await?[0].clone();
-        let regular_equip_set_models: Vec<RegularEquipmentSetModel> =
-            Vec::from([RegularEquipmentSetModel {
-                char_id,
-                top_id: top_model.id,
-                bottom_id: bottom_model.id,
-                shoes_id: shoes_model.id,
-                weapon_id: weapon_model.id,
-                android_id: None,
-                badge_id: None,
-                belt_id: None,
-                book_id: None,
-                cape_id: None,
-                ear_acc_id: None,
-                emblem_id: None,
-                eye_acc_id: None,
-                face_acc_id: None,
-                gloves_id: None,
-                hat_id: None,
-                heart_id: None,
-                medal_id: None,
-                pendant_one_id: None,
-                pendant_two_id: None,
-                pocket_id: None,
-                ring_four_id: None,
-                ring_one_id: None,
-                ring_three_id: None,
-                ring_two_id: None,
-                saddle_id: None,
-                shield_id: None,
-                shoulder_id: None,
-                subweapon_id: None,
-                tamed_mob_id: None,
-                created_at: Some(SystemTime::now()),
-                updated_at: SystemTime::now(),
-            }]);
-        let regular_equip_set_models: Vec<RegularEquipmentSetModel> =
-            equipment_set::regular::query::setters::update_regular_equips(
-                state,
-                regular_equip_set_models.clone(),
-            )
-            .await?;
-        let mut regular_equips: Vec<RegularEquipmentSet> = Vec::new();
-        for regular_equip_set_model in &regular_equip_set_models {
-            regular_equips.push(regular_equip_set_model.load(state).await?)
-        }
-        Ok(regular_equips[0].clone())
-    }
-
-    async fn init_cash_equips(
-        state: &SharedState,
-        _reader: CreateCharReader,
-        char_id: i32,
-    ) -> Result<CashEquipmentSet, NetworkError> {
-        let cash_equip_set_models: Vec<CashEquipmentSetModel> =
-            Vec::from([CashEquipmentSetModel {
-                char_id,
-                pendant_id: None,
-                hair_id: None,
-                top_id: None,
-                bottom_id: None,
-                shoes_id: None,
-                weapon_id: None,
-                belt_id: None,
-                cape_id: None,
-                ear_acc_id: None,
-                eye_acc_id: None,
-                face_acc_id: None,
-                gloves_id: None,
-                hat_id: None,
-                ring_four_id: None,
-                ring_one_id: None,
-                ring_three_id: None,
-                ring_two_id: None,
-                shoulder_id: None,
-                subweapon_id: None,
-                created_at: Some(SystemTime::now()),
-                updated_at: SystemTime::now(),
-            }]);
-        let cash_equip_set_models: Vec<CashEquipmentSetModel> =
-            equipment_set::cash::query::setters::update_cash_equips(
-                state,
-                cash_equip_set_models.clone(),
-            )
-            .await?;
-        let mut cash_equips: Vec<CashEquipmentSet> = Vec::new();
-        for cash_equip_set_model in &cash_equip_set_models {
-            cash_equips.push(cash_equip_set_model.load(state).await?)
-        }
-        Ok(cash_equips[0].clone())
-    }
-
-    async fn init_android_equips(
-        state: &SharedState,
-        _reader: CreateCharReader,
-        char_id: i32,
-    ) -> Result<AndroidEquipmentSet, NetworkError> {
-        let android_equip_set_models: Vec<AndroidEquipmentSetModel> =
-            Vec::from([AndroidEquipmentSetModel {
-                char_id,
-                top_id: None,
-                bottom_id: None,
-                cape_id: None,
-                gloves_id: None,
-                hat_id: None,
-                face_id: None,
-                created_at: Some(SystemTime::now()),
-                updated_at: SystemTime::now(),
-            }]);
-        let android_equip_set_models: Vec<AndroidEquipmentSetModel> =
-            equipment_set::android::query::setters::update_android_equips(
-                state,
-                android_equip_set_models.clone(),
-            )
-            .await?;
-        let mut android_equips: Vec<AndroidEquipmentSet> = Vec::new();
-        for android_equip_set_model in &android_equip_set_models {
-            android_equips.push(android_equip_set_model.load(state).await?)
-        }
-        Ok(android_equips[0].clone())
-    }
-
-    async fn init_pet_equips(
-        state: &SharedState,
-        _reader: CreateCharReader,
-        char_id: i32,
-    ) -> Result<PetEquipmentSet, NetworkError> {
-        let pet_equip_set_models: Vec<PetEquipmentSetModel> = Vec::from([PetEquipmentSetModel {
-            char_id,
-            accessory_one_id: None,
-            accessory_two_id: None,
-            accessory_three_id: None,
-            created_at: Some(SystemTime::now()),
-            updated_at: SystemTime::now(),
-        }]);
-        let pet_equip_set_models: Vec<PetEquipmentSetModel> =
-            equipment_set::pet::query::setters::update_pet_equips(
-                state,
-                pet_equip_set_models.clone(),
-            )
-            .await?;
-        let mut pet_equips: Vec<PetEquipmentSet> = Vec::new();
-        for pet_equip_set_model in &pet_equip_set_models {
-            pet_equips.push(pet_equip_set_model.load(state).await?)
-        }
-        Ok(pet_equips[0].clone())
+    ) -> Result<Vec<InventoryItem>, NetworkError> {
+        let mut equips: Vec<InventoryItem> = Vec::<InventoryItem>::new();
+        let equipped: bool = true;
+        let top =
+            item::inventory::service::create_inventory_item(state, equipped, reader.top_wz).await?;
+        equips.push(top);
+        let bottom =
+            item::inventory::service::create_inventory_item(state, equipped, reader.bottom_wz)
+                .await?;
+        equips.push(botom);
+        let shoes =
+            item::inventory::service::create_inventory_item(state, equipped, reader.shoes_wz)
+                .await?;
+        equips.push(shoes);
+        let weapon =
+            item::inventory::service::create_inventory_item(state, equipped, reader.weapon_wz)
+                .await?;
+        equips.push(weapon);
+        Ok(equips)
     }
 
     pub async fn init_skills(
@@ -267,12 +138,11 @@ impl CreateCharStore {
         char_id: i32,
     ) -> Result<Vec<Skill>, NetworkError> {
         let mut skill_models: Vec<SkillModel> = Vec::<SkillModel>::new();
-        let wz_job_id: i32 = job::service::job_index_to_wz_id(reader.job_id);
-        let wz_skill_ids: Vec<i32> = skill::service::generate_skill_ids_by_job_id(wz_job_id)?;
-        for wz_skill_id in wz_skill_ids {
+        let skill_wzs: Vec<i32> = skill::service::generate_skill_wzs_by_job_wz(reader.job_wz)?;
+        for skill_wz in skill_wzs {
             skill_models.push(SkillModel {
                 char_id,
-                wz_id: wz_skill_id,
+                wz: skill_wz,
                 level: 0,
                 created_at: Some(SystemTime::now()),
                 updated_at: SystemTime::now(),
@@ -291,9 +161,9 @@ impl CreateCharStore {
         session: Session,
         reader: CreateCharReader,
     ) -> Result<Self, NetworkError> {
-        let map: Map = map::service::get_map_by_job_id(reader.job_id)?;
-        let world = session.get_world()?;
-        let acc = session.get_acc()?;
+        let acc: Account = session.get_acc()?;
+        let world: World = session.get_active_world(state).await?;
+        let map_wz = map::service::get_map_by_job_wz(reader.job_wz)?;
         let char_model = Self::init_char_model(
             state,
             reader.clone(),
@@ -303,28 +173,14 @@ impl CreateCharStore {
         )
         .await?;
         let char_id = char_model.get_id()?;
-        let android_equip_set: AndroidEquipmentSet =
-            Self::init_android_equips(state, reader.clone(), char_id).await?;
-        let cash_equip_set: CashEquipmentSet =
-            Self::init_cash_equips(state, reader.clone(), char_id).await?;
-        let pet_equip_set: PetEquipmentSet =
-            Self::init_pet_equips(state, reader.clone(), char_id).await?;
-        let regular_equip_set: RegularEquipmentSet =
-            Self::init_regular_equips(state, reader.clone(), char_id).await?;
         let binds: Vec<Keybinding> = Self::init_keybindings(state, char_id).await?;
+        let items = Self::init_equips(state, reader.clone(), char_id).await?;
         let skills = Self::init_skills(state, reader.clone(), char_id).await?;
-        let job = job::service::get_job_by_id(reader.job_id)?;
         let char = Character {
             model: char_model,
-            regular_equip_set,
-            cash_equip_set,
-            pet_equip_set,
-            android_equip_set,
-            skills,
             binds,
-            world,
-            map,
-            job,
+            items,
+            skills,
         };
         Ok(Self { char })
     }

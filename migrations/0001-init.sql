@@ -6,7 +6,7 @@ CREATE TABLE accounts (
     pic TEXT NULL,
     last_login_at TIMESTAMP NULL,
     character_slots SMALLINT NOT NULL DEFAULT 8,
-    gender_id SMALLINT NOT NULL,
+    gender_wz_id SMALLINT NOT NULL,
     accepted_tos BOOLEAN NOT NULL DEFAULT FALSE,
     banned BOOLEAN NOT NULL DEFAULT FALSE,
     admin BOOLEAN NOT NULL DEFAULT FALSE,
@@ -17,7 +17,7 @@ CREATE TABLE accounts (
 CREATE TABLE characters (
     id SERIAL PRIMARY KEY,
     acc_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
-    world_id SMALLINT NOT NULL,
+    world_oid SMALLINT NOT NULL,
     ign TEXT NOT NULL,
     level SMALLINT NOT NULL DEFAULT 1,
     exp INTEGER NOT NULL DEFAULT 0,
@@ -32,20 +32,19 @@ CREATE TABLE characters (
     ap SMALLINT NOT NULL DEFAULT 0,
     fame SMALLINT NOT NULL DEFAULT 0,
     meso INTEGER NOT NULL DEFAULT 0,
-    job_id SMALLINT NOT NULL,
-    face_id INTEGER NOT NULL,
-    hair_id INTEGER NOT NULL,
-    hair_color_id INTEGER NOT NULL,
-    skin_id INTEGER NOT NULL,
-    gender_id SMALLINT NOT NULL,
-    map_id INTEGER NOT NULL,
+    job_wz_id SMALLINT NOT NULL,
+    face_wz_id INTEGER NOT NULL,
+    hair_wz_id INTEGER NOT NULL,
+    hair_color_wz_id INTEGER NOT NULL,
+    skin_wz_id INTEGER NOT NULL,
+    gender_wz_id SMALLINT NOT NULL,
+    map_wz_id INTEGER NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE equips (
+CREATE TABLE equip_stats (
     id SERIAL PRIMARY KEY,
-    wz_id INTEGER NOT NULL,
     strength INTEGER NOT NULL DEFAULT 0,
     dexterity INTEGER NOT NULL DEFAULT 0,
     intelligence INTEGER NOT NULL DEFAULT 0,
@@ -65,103 +64,17 @@ CREATE TABLE equips (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE regular_equipment_sets (
-    char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
-    hat_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    pants_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    face_acc_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    eye_acc_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    ear_acc_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    top_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    bottom_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    shoes_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    gloves_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    cape_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    weapon_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    shield_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    saddle_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    tamed_mob_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    subweapon_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    belt_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    pendant_one_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    pendant_two_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    ring_one_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    ring_two_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    ring_three_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    ring_four_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    shoulder_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    emblem_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    medal_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    badge_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    android_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    heart_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    book_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    pocket_id INTEGER NULL REFERENCES equips(id) ON DELETE CASCADE,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    PRIMARY KEY (char_id)
-);
-
-CREATE TABLE cash_equipment_sets (
-    char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
-    ring_one_id INTEGER NULL,
-    ring_two_id INTEGER NULL,
-    ring_three_id INTEGER NULL,
-    ring_four_id INTEGER NULL,
-    hat_id INTEGER NULL,
-    face_acc_id INTEGER NULL,
-    hair_id INTEGER NULL,
-    pendant_id INTEGER NULL,
-    weapon_id INTEGER NULL,
-    belt_id INTEGER NULL,
-    top_id INTEGER NULL,
-    bottom_id INTEGER NULL,
-    shoes_id INTEGER NULL,
-    ear_acc_id INTEGER NULL,
-    shoulder_id INTEGER NULL,
-    subweapon_id INTEGER NULL,
-    cape_id INTEGER NULL,
-    gloves_id INTEGER NULL,
-    eye_acc_id INTEGER NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    PRIMARY KEY (char_id)
-);
-
-CREATE TABLE pet_equipment_sets (
-    char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
-    accessory_one_id INTEGER NULL,
-    accessory_two_id INTEGER NULL,
-    accessory_three_id INTEGER NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    PRIMARY KEY (char_id)
-);
-
-CREATE TABLE android_equipment_sets (
-    char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
-    hat_id INTEGER NULL,
-    face_id INTEGER NULL,
-    top_id INTEGER NULL,
-    bottom_id INTEGER NULL,
-    gloves_id INTEGER NULL,
-    cape_id INTEGER NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    PRIMARY KEY (char_id)
-);
-
 CREATE TABLE character_limits (
-    acc_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
-    world_id SMALLINT NOT NULL,
+    acc_oid INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+    world_oid SMALLINT NOT NULL,
     char_max SMALLINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    PRIMARY KEY (acc_id, world_id)
+    PRIMARY KEY (acc_oid, world_oid)
 );
 
 CREATE TABLE keybindings (
-    char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+    char_oid INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
     key INTEGER NOT NULL,
     bind_type SMALLINT NOT NULL,
     action INTEGER NOT NULL,
@@ -170,7 +83,7 @@ CREATE TABLE keybindings (
 );
 
 CREATE TABLE skills (
-    char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+    char_oid INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
     wz_id INTEGER NOT NULL,
     level SMALLINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -184,10 +97,10 @@ ALTER TABLE characters
 ADD CONSTRAINT characters_unique UNIQUE (ign);
 
 ALTER TABLE keybindings
-ADD CONSTRAINT keybindings_unique UNIQUE (char_id, key);
+ADD CONSTRAINT keybindings_unique UNIQUE (char_oid, key);
 
 ALTER TABLE skills
-ADD CONSTRAINT skills_unique UNIQUE (char_id, wz_id);
+ADD CONSTRAINT skills_unique UNIQUE (char_oid, wz_id);
 
 
 
