@@ -20,11 +20,10 @@
 use crate::config::settings;
 use crate::inc::helpers;
 use crate::models::character::wrapper::Character;
-use crate::models::item::inventory::wrapper::InventoryItem;
-use crate::models::shroom::channel;
-use crate::models::shroom::channel::wrapper::Channel;
-use crate::models::shroom::map::wrapper::Map;
-use crate::models::shroom::world::wrapper::World;
+use crate::models::channel;
+use crate::models::channel::wrapper::Channel;
+use crate::models::map::wrapper::Map;
+use crate::models::world::wrapper::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::cc::reader::ChangeChannelReader;
 use crate::runtime::session::model::Session;

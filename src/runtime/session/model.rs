@@ -18,12 +18,12 @@
  */
 
 use crate::models::account::wrapper::Account;
+use crate::models::channel::wrapper::Channel;
 use crate::models::character::wrapper::Character;
-use crate::models::item::inventory::wrapper::InventoryItem;
-use crate::models::shroom::channel::wrapper::Channel;
-use crate::models::shroom::map::wrapper::Map;
-use crate::models::shroom::world::wrapper::World;
-use crate::models::shroom::{channel, map, world};
+use crate::models::item::wrapper::Item;
+use crate::models::map::wrapper::Map;
+use crate::models::world::wrapper::World;
+use crate::models::{channel, map, world};
 use crate::models::{character, item};
 use crate::net::packet::model::Packet;
 use crate::runtime::session::error::SessionError;
@@ -90,14 +90,13 @@ impl Session {
     pub async fn get_active_inventory_items(
         &self,
         state: &SharedState,
-    ) -> Result<Vec<InventoryItem>, SessionError> {
+    ) -> Result<Vec<Item>, SessionError> {
         let char_id = if let Some(char_id) = self.get_acc()?.model.char_id {
             char_id
         } else {
             return Err(SessionError::NoChar(self.id));
         };
-        let items =
-            item::inventory::service::get_inventory_items_by_char_id(state, char_id).await?;
+        let items = item::service::get_items_by_char_id(state, char_id).await?;
         Ok(items)
     }
 }

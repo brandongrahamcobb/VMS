@@ -72,29 +72,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    equip_stats (id) {
-        id -> Int4,
-        strength -> Int4,
-        dexterity -> Int4,
-        intelligence -> Int4,
-        luck -> Int4,
-        attack -> Int4,
-        weapon_defense -> Int4,
-        magic -> Int4,
-        magic_defense -> Int4,
-        hp -> Int4,
-        mp -> Int4,
-        accuracy -> Int4,
-        avoid -> Int4,
-        hands -> Int4,
-        speed -> Int4,
-        jump -> Int4,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Timestamp
-    }
-}
-
-diesel::table! {
     character_limits (acc_id, world_id) {
         acc_id -> Int4,
         world_id -> Int2,
@@ -126,20 +103,26 @@ diesel::table! {
 }
 
 diesel::table! {
-    drop_items (id, wz) {
-        id -> Int4,
-        wz -> Int4,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
-    inventory_items (id, wz) {
-        id -> Int4,
-        char_id -> Int4,
+    items (id) {
+        id -> Nullable<Int4>,
+        char_id -> Nullable<Int4>,
         equipped -> Bool,
         wz -> Int4,
+        strength -> Int4,
+        dexterity -> Int4,
+        intelligence -> Int4,
+        luck -> Int4,
+        attack -> Int4,
+        weapon_defense -> Int4,
+        magic -> Int4,
+        magic_defense -> Int4,
+        hp -> Int4,
+        mp -> Int4,
+        accuracy -> Int4,
+        avoid -> Int4,
+        hands -> Int4,
+        speed -> Int4,
+        jump -> Int4,
         created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
     }
@@ -149,8 +132,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     accounts,
     character_limits,
     characters,
-    drop_items,
-    equip_stats,
-    inventory_items,
+    items,
+    keybindings,
     skills,
 );

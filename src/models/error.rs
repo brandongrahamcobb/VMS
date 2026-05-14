@@ -19,11 +19,12 @@
 
 use crate::config::error::ConfigError;
 use crate::models::account::error::AccountError;
+use crate::models::channel::error::ChannelError;
 use crate::models::character::error::CharacterError;
-use crate::models::character::keybinding::error::KeybindingError;
-use crate::models::shroom::channel::error::ChannelError;
-use crate::models::shroom::map::error::MapError;
-use crate::models::shroom::world::error::WorldError;
+use crate::models::item::error::ItemError;
+use crate::models::keybinding::error::KeybindingError;
+use crate::models::map::error::MapError;
+use crate::models::world::error::WorldError;
 use crate::wz::error::WzError;
 use diesel;
 use thiserror::Error;
@@ -56,4 +57,7 @@ pub enum ModelError {
 
     #[error("Map error in model layer")]
     MapError(#[from] MapError),
+
+    #[error("Item error in model layer")]
+    ItemError(#[from] ItemError),
 }

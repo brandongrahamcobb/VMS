@@ -19,7 +19,7 @@
 
 use crate::config::settings;
 use crate::constants::WORLDS;
-use crate::models::shroom::world::wrapper::World;
+use crate::models::world::wrapper::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;

@@ -19,7 +19,7 @@
 
 use crate::models::account;
 use crate::models::account::wrapper::Account;
-use crate::models::shroom::world::wrapper::World;
+use crate::models::world::wrapper::World;
 use crate::runtime::error::RuntimeError;
 use crate::runtime::relay::scope::{ChannelScope, MapScope};
 use crate::runtime::session::model::Session;

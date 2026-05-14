@@ -19,7 +19,7 @@
 
 use crate::models::account::wrapper::Account;
 use crate::models::character::wrapper::Character;
-use crate::models::shroom::map::wrapper::Map;
+use crate::models::map::wrapper::Map;
 use crate::models::{account, character};
 use crate::runtime::error::RuntimeError;
 use crate::runtime::relay::scope::{ChannelScope, MapScope};

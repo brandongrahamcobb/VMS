@@ -47,7 +47,7 @@ impl DeleteCharStore {
             pic_status = delete_char::service::check_pic(acc.model.clone(), reader.pic)?;
         }
         if !pic_status {
-            character::query::setters::delete_character_by_id(state, reader.char_id).await?;
+            character::query::setters::delete_char_by_id(state, reader.char_id).await?;
         }
         Ok(Self { char, pic_status })
     }

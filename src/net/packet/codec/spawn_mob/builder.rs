@@ -17,7 +17,7 @@
 //  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //  */
 //
-// use crate::models::shroom::mob::model::Mob;
+// use crate::models::mob::model::Mob;
 // use crate::net::error::NetworkError;
 // use crate::net::packet::io::error::IOError::WriteError;
 // use crate::net::packet::model::Packet;

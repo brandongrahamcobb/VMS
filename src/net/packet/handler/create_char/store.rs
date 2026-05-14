@@ -19,17 +19,21 @@
 
 use crate::constants::{DEFAULT_ACTION, DEFAULT_KEY, DEFAULT_TYPE};
 use crate::models::account::wrapper::Account;
-use crate::models::character::keybinding;
-use crate::models::character::keybinding::model::{Keybinding, KeybindingModel};
+use crate::models::channel::wrapper::Channel;
+use crate::models::character;
 use crate::models::character::model::CharacterModel;
-use crate::models::character::skill::model::{Skill, SkillModel};
 use crate::models::character::wrapper::Character;
-use crate::models::character::{self, skill};
-use crate::models::item::inventory::wrapper::InventoryItem;
-use crate::models::item::{self, equip_stats};
-use crate::models::shroom::map::wrapper::Map;
-use crate::models::shroom::world::wrapper::World;
-use crate::models::shroom::{job, map};
+use crate::models::item;
+use crate::models::item::wrapper::Item;
+use crate::models::keybinding;
+use crate::models::keybinding::model::KeybindingModel;
+use crate::models::keybinding::wrapper::Keybinding;
+use crate::models::map;
+use crate::models::map::wrapper::Map;
+use crate::models::skill;
+use crate::models::skill::model::SkillModel;
+use crate::models::skill::wrapper::Skill;
+use crate::models::world::wrapper::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::create_char::reader::CreateCharReader;
 use crate::runtime::session::model::Session;
@@ -111,23 +115,19 @@ impl CreateCharStore {
         state: &SharedState,
         reader: CreateCharReader,
         char_id: i32,
-    ) -> Result<Vec<InventoryItem>, NetworkError> {
-        let mut equips: Vec<InventoryItem> = Vec::<InventoryItem>::new();
+    ) -> Result<Vec<Item>, NetworkError> {
+        let mut equips: Vec<Item> = Vec::<Item>::new();
         let equipped: bool = true;
-        let top =
-            item::inventory::service::create_inventory_item(state, equipped, reader.top_wz).await?;
+        let top = item::service::create_item(state, Some(char_id), equipped, reader.top_wz).await?;
         equips.push(top);
         let bottom =
-            item::inventory::service::create_inventory_item(state, equipped, reader.bottom_wz)
-                .await?;
-        equips.push(botom);
+            item::service::create_item(state, Some(char_id), equipped, reader.bottom_wz).await?;
+        equips.push(bottom);
         let shoes =
-            item::inventory::service::create_inventory_item(state, equipped, reader.shoes_wz)
-                .await?;
+            item::service::create_item(state, Some(char_id), equipped, reader.shoes_wz).await?;
         equips.push(shoes);
         let weapon =
-            item::inventory::service::create_inventory_item(state, equipped, reader.weapon_wz)
-                .await?;
+            item::service::create_item(state, Some(char_id), equipped, reader.weapon_wz).await?;
         equips.push(weapon);
         Ok(equips)
     }
@@ -138,7 +138,8 @@ impl CreateCharStore {
         char_id: i32,
     ) -> Result<Vec<Skill>, NetworkError> {
         let mut skill_models: Vec<SkillModel> = Vec::<SkillModel>::new();
-        let skill_wzs: Vec<i32> = skill::service::generate_skill_wzs_by_job_wz(reader.job_wz)?;
+        let skill_wzs: Vec<i32> =
+            skill::service::generate_skill_wzs_by_job_wz(reader.job_wz as i32)?;
         for skill_wz in skill_wzs {
             skill_models.push(SkillModel {
                 char_id,
@@ -162,8 +163,16 @@ impl CreateCharStore {
         reader: CreateCharReader,
     ) -> Result<Self, NetworkError> {
         let acc: Account = session.get_acc()?;
+        let channel: Channel = session.get_active_channel(state).await?;
         let world: World = session.get_active_world(state).await?;
         let map_wz = map::service::get_map_by_job_wz(reader.job_wz)?;
+        let map = map::service::get_map_by_world_channel_map_wzs(
+            state,
+            world.model.id,
+            channel.model.id,
+            map_wz,
+        )
+        .await?;
         let char_model = Self::init_char_model(
             state,
             reader.clone(),

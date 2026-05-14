@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::models::shroom::channel::wrapper::Channel;
+use crate::models::channel::wrapper::Channel;
 use crate::net::error::NetworkError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;

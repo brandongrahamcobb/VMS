@@ -17,9 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::character;
-use crate::models::character::skill::model::Skill;
 use crate::models::character::wrapper::Character;
+use crate::models::skill;
+use crate::models::skill::wrapper::Skill;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::close_attack::reader::CloseAttackReader;
 use crate::runtime::session::model::Session;
@@ -45,13 +45,12 @@ impl CloseAttackStore {
         reader: CloseAttackReader,
     ) -> Result<Self, NetworkError> {
         let char = session.get_active_char(state).await?;
-        let skill_model =
-            character::skill::query::getters::get_skill_model_by_character_id_and_skill_id(
-                state,
-                char.model.get_id()?,
-                reader.skill_id,
-            )
-            .await?;
+        let skill_model = skill::query::getters::get_skill_model_by_character_id_and_skill_id(
+            state,
+            char.model.get_id()?,
+            reader.skill_id,
+        )
+        .await?;
         let skill = skill_model.load()?;
         return Ok(Self {
             char: char.clone(),

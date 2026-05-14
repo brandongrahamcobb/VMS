@@ -18,9 +18,9 @@
  */
 use crate::models::account::wrapper::Account;
 use crate::models::character::wrapper::Character;
-use crate::models::shroom::channel::wrapper::Channel;
-use crate::models::shroom::map::wrapper::Map;
-use crate::models::shroom::world::wrapper::World;
+use crate::models::channel::wrapper::Channel;
+use crate::models::map::wrapper::Map;
+use crate::models::world::wrapper::World;
 use crate::net::packet::model::Packet;
 use crate::runtime::relay::scope::Scope;
 

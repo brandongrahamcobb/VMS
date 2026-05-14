@@ -19,16 +19,14 @@
 use crate::db::schema::character_limits;
 use crate::db::schema::characters;
 use crate::models::character::error::CharacterError;
-use crate::models::character::keybinding;
-use crate::models::character::keybinding::model::Keybinding;
-use crate::models::character::keybinding::model::KeybindingModel;
-use crate::models::character::skill;
-use crate::models::character::skill::model::Skill;
-use crate::models::character::skill::model::SkillModel;
 use crate::models::character::wrapper::Character;
 use crate::models::error::ModelError;
 use crate::models::item;
-use crate::models::item::inventory::wrapper::InventoryItem;
+use crate::models::item::wrapper::Item;
+use crate::models::keybinding;
+use crate::models::keybinding::wrapper::Keybinding;
+use crate::models::skill;
+use crate::models::skill::wrapper::Skill;
 use crate::runtime::state::SharedState;
 use diesel::prelude::*;
 use std::time::SystemTime;
@@ -79,8 +77,7 @@ impl CharacterModel {
         let char_id: i32 = self.get_id()?;
         let binds: Vec<Keybinding> =
             keybinding::service::get_keybindings_by_char_id(state, char_id).await?;
-        let items: Vec<InventoryItem> =
-            item::inventory::service::get_inventory_items_by_char_id(state, char_id).await?;
+        let items: Vec<Item> = item::service::get_items_by_char_id(state, char_id).await?;
         let skills: Vec<Skill> = skill::service::get_skills_by_char_id(state, char_id).await?;
         Ok(Character {
             model: self.clone(),
@@ -91,8 +88,8 @@ impl CharacterModel {
     }
 
     pub fn get_id(&self) -> Result<i32, ModelError> {
-        if let Some(oid) = self.id {
-            Ok(oid)
+        if let Some(id) = self.id {
+            Ok(id)
         } else {
             Err(ModelError::from(CharacterError::NoId))
         }

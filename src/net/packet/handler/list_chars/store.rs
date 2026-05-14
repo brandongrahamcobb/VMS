@@ -19,12 +19,11 @@
 
 use crate::config::settings;
 use crate::models::account::wrapper::Account;
+use crate::models::character;
 use crate::models::character::wrapper::Character;
-use crate::models::item::inventory::wrapper::InventoryItem;
-use crate::models::shroom::channel::wrapper::Channel;
-use crate::models::shroom::world::wrapper::World;
-use crate::models::shroom::{channel, world};
-use crate::models::{character, item};
+use crate::models::channel::wrapper::Channel;
+use crate::models::world::wrapper::World;
+use crate::models::{channel, world};
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::list_chars::reader::ListCharsReader;
 use crate::runtime::session::model::Session;

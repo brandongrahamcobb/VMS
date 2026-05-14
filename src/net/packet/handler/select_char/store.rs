@@ -21,7 +21,7 @@ use crate::config::settings;
 use crate::inc::helpers;
 use crate::models::character;
 use crate::models::character::wrapper::Character;
-use crate::models::shroom::channel::wrapper::Channel;
+use crate::models::channel::wrapper::Channel;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::select_char::reader::SelectCharReader;
 use crate::runtime::session::model::Session;

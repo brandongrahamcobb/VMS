@@ -17,11 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::character::keybinding::model::Keybinding;
+use crate::models::channel::wrapper::Channel;
 use crate::models::character::wrapper::Character;
-use crate::models::item::inventory::model::{CashEquipType, RegularEquipType};
-use crate::models::item::inventory::wrapper::InventoryItem;
-use crate::models::shroom::channel::wrapper::Channel;
+use crate::models::item;
+use crate::models::item::model::EquipType;
+use crate::models::item::wrapper::Item;
+use crate::models::keybinding::wrapper::Keybinding;
 use crate::net::error::NetworkError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
@@ -84,9 +85,13 @@ impl Packet {
 
     fn build_inventory_regular_part_packet(
         &mut self,
-        equip: InventoryItem,
-        regular_equip_type: RegularEquipType,
+        equip: Item,
+        equip_type: EquipType,
     ) -> Result<&mut Self, NetworkError> {
+        let regular_equip_type = match equip_type {
+            EquipType::RegularEquipType(regular_equip_type) => regular_equip_type,
+            _ => panic!("placeholder"),
+        };
         self.write_short(regular_equip_type as i16)
             .map_err(WriteError)?;
         self.build_inventory_regular_equip_meta_part_packet(equip.clone())?;
@@ -98,8 +103,7 @@ impl Packet {
     ) -> Result<&mut Self, NetworkError> {
         for item in char.items {
             if item.model.equipped {
-                let equip_type: EquipType =
-                    item::inventory::service::get_equip_type_from_wz(item.model.wz)?;
+                let equip_type: EquipType = item::service::get_equip_type_from_wz(item.model.wz)?;
                 self.build_inventory_regular_part_packet(item, equip_type)?;
             }
         }
@@ -108,11 +112,11 @@ impl Packet {
 
     fn build_inventory_regular_equip_meta_part_packet(
         &mut self,
-        equip: InventoryItem,
+        equip: Item,
     ) -> Result<&mut Self, NetworkError> {
         // Dummy values
         self.write_byte(1).map_err(WriteError)?;
-        self.write_int(equip.model.id).map_err(WriteError)?;
+        self.write_int(equip.model.get_id()?).map_err(WriteError)?;
         const NUM_EQUIP_STATS: i16 = 15;
         let is_cash = false as i16;
         self.write_byte(is_cash).map_err(WriteError)?;
@@ -137,7 +141,7 @@ impl Packet {
 
     fn build_inventory_cash_equip_meta_part_packet(
         &mut self,
-        equip: InventoryItem,
+        equip: Item,
     ) -> Result<&mut Self, NetworkError> {
         self.write_int(equip.model.wz).map_err(WriteError)?;
         Ok(self)
@@ -145,9 +149,13 @@ impl Packet {
 
     fn build_inventory_cash_part_packet(
         &mut self,
-        equip: InventoryItem,
-        cash_equip_type: CashEquipType,
+        equip: Item,
+        equip_type: EquipType,
     ) -> Result<&mut Self, NetworkError> {
+        let cash_equip_type = match equip_type {
+            EquipType::CashEquipType(cash_equip_type) => cash_equip_type,
+            _ => panic!("placeholder"),
+        };
         self.write_short(cash_equip_type as i16)
             .map_err(WriteError)?;
         self.build_inventory_cash_equip_meta_part_packet(equip.clone())?;
@@ -160,8 +168,7 @@ impl Packet {
     ) -> Result<&mut Self, NetworkError> {
         for item in char.items {
             if item.model.equipped {
-                let equip_type: EquipType =
-                    item::inventory::service::get_equip_type_from_wz(item.model.wz)?;
+                let equip_type: EquipType = item::service::get_equip_type_from_wz(item.model.wz)?;
                 self.build_inventory_cash_part_packet(item, equip_type)?;
             }
         }

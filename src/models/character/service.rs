@@ -18,9 +18,8 @@
  */
 
 use crate::models::character::wrapper::Character;
-use crate::models::character::{keybinding, skill};
 use crate::models::error::ModelError;
-use crate::models::{character, item};
+use crate::models::{character, item, keybinding, skill};
 use crate::runtime::state::SharedState;
 
 pub async fn get_char_by_id(state: &SharedState, char_id: i32) -> Result<Character, ModelError> {
@@ -31,7 +30,7 @@ pub async fn get_char_by_id(state: &SharedState, char_id: i32) -> Result<Charact
 
 pub async fn delete_character_by_id(state: &SharedState, char_id: i32) -> Result<(), ModelError> {
     character::query::setters::delete_char_by_id(state, char_id).await?;
-    item::inventory::query::setters::delete_inventory_items_by_char_id(state, char_id).await?;
+    item::query::setters::delete_items_by_char_id(state, char_id).await?;
     keybinding::query::setters::delete_keybindings_by_char_id(state, char_id).await?;
     skill::query::setters::delete_skills_by_char_id(state, char_id).await?;
     // delete associated skills shard between chars

@@ -20,8 +20,8 @@
 use crate::config::settings;
 use crate::db::error::DatabaseError;
 use crate::db::pool::DbPool;
-use crate::models::shroom::world;
-use crate::models::shroom::world::wrapper::World;
+use crate::models::world;
+use crate::models::world::wrapper::World;
 use crate::runtime::error::RuntimeError;
 use crate::runtime::session::session_store::SessionStore;
 use diesel::PgConnection;

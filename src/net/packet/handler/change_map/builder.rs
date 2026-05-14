@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::shroom::channel::wrapper::Channel;
-use crate::models::shroom::map::wrapper::Map;
+use crate::models::channel::wrapper::Channel;
+use crate::models::map::wrapper::Map;
 use crate::net::error::NetworkError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;

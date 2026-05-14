@@ -19,8 +19,8 @@
 
 use std::time::SystemTime;
 
-use crate::models::character::keybinding;
-use crate::models::character::keybinding::model::KeybindingModel;
+use crate::models::keybinding;
+use crate::models::keybinding::model::KeybindingModel;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::change_keymap::reader::ChangeKeymapReader;
 use crate::runtime::session::model::Session;

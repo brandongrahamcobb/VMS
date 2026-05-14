@@ -22,7 +22,7 @@ use crate::inc::helpers;
 use crate::models::account::wrapper::Account;
 use crate::models::character;
 use crate::models::character::wrapper::Character;
-use crate::models::shroom::channel::wrapper::Channel;
+use crate::models::channel::wrapper::Channel;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::register_pic::reader::RegisterPicReader;
 use crate::runtime::session::model::Session;

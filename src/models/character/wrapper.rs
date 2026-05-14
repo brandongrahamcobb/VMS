@@ -17,16 +17,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::character::keybinding::model::Keybinding;
 use crate::models::character::model::CharacterModel;
-use crate::models::character::skill::model::Skill;
-use crate::models::item::inventory::wrapper::InventoryItem;
+use crate::models::item::wrapper::Item;
+use crate::models::job::model::Job;
+use crate::models::keybinding::wrapper::Keybinding;
+use crate::models::skill::wrapper::Skill;
 
 #[derive(Clone)]
 pub struct Character {
     pub model: CharacterModel,
     pub binds: Vec<Keybinding>,
-    pub items: Vec<InventoryItem>,
+    pub job: Job,
+    pub items: Vec<Item>,
     pub skills: Vec<Skill>,
 }
 

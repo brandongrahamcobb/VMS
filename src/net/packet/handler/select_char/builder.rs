@@ -18,7 +18,7 @@
  */
 
 use crate::models::character::wrapper::Character;
-use crate::models::shroom::channel::wrapper::Channel;
+use crate::models::channel::wrapper::Channel;
 use crate::net::error::NetworkError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;

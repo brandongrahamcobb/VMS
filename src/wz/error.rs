@@ -17,8 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::item::equip_stats::error::EquipError;
-
 #[derive(Debug, thiserror::Error)]
 pub enum WzError {
     #[error("Requested Wz resource was not found in wz model layer: {0}")]
@@ -32,9 +30,6 @@ pub enum WzError {
 
     #[error("Wz version error in wz model layer")]
     NoVersion,
-
-    #[error("Equip error in wz model layer")]
-    EquipError(#[from] EquipError),
 
     #[error("WzDirEntry error in wz model layer")]
     EntryError,

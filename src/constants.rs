@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::shroom::world::model::WorldModel;
+use crate::models::world::model::WorldModel;
 
 pub const CASH_SHOP_MAP_ID: i32 = 193000000;
 

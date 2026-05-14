@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::shroom::world::wrapper::World;
+use crate::models::world::wrapper::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::list_worlds::reader::ListWorldsReader;
 use crate::runtime::session::model::Session;

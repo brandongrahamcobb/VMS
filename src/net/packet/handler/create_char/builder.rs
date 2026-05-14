@@ -18,7 +18,6 @@
  */
 
 use crate::models::character::wrapper::Character;
-use crate::models::item::inventory::wrapper::InventoryItem;
 use crate::net::error::NetworkError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
