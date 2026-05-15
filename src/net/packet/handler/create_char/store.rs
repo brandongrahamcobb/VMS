@@ -18,27 +18,27 @@
  */
 
 use crate::constants::{DEFAULT_ACTION, DEFAULT_KEY, DEFAULT_TYPE};
-use crate::models::account::wrapper::Account;
-use crate::models::channel::wrapper::Channel;
 use crate::models::character;
 use crate::models::character::model::CharacterModel;
 use crate::models::character::wrapper::Character;
 use crate::models::item;
+use crate::models::item::model::{Inventory, InventoryModel};
 use crate::models::item::wrapper::Item;
+use crate::models::job::model::JobModel;
+use crate::models::job::wrapper::Job;
 use crate::models::keybinding;
 use crate::models::keybinding::model::KeybindingModel;
 use crate::models::keybinding::wrapper::Keybinding;
 use crate::models::map;
-use crate::models::map::wrapper::Map;
 use crate::models::skill;
 use crate::models::skill::model::SkillModel;
 use crate::models::skill::wrapper::Skill;
-use crate::models::world::wrapper::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::create_char::reader::CreateCharReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 use itertools::izip;
+use std::collections::HashMap;
 use std::time::SystemTime;
 
 #[derive(Clone)]
@@ -50,13 +50,13 @@ impl CreateCharStore {
     async fn init_char_model(
         state: &SharedState,
         reader: CreateCharReader,
-        acc: Account,
-        map: Map,
-        world: World,
+        acc_id: i32,
+        map_wz: i32,
+        world_id: i16,
     ) -> Result<CharacterModel, NetworkError> {
         let char_models: Vec<CharacterModel> = Vec::from([CharacterModel {
             id: None,
-            acc_id: acc.model.get_id()?,
+            acc_id,
             ign: reader.ign.clone(),
             job_wz: reader.job_wz,
             face_wz: reader.face_wz,
@@ -64,8 +64,8 @@ impl CreateCharStore {
             hair_color_wz: reader.hair_color_wz,
             skin_wz: reader.skin_wz,
             gender_wz: reader.gender_wz,
-            map_wz: map.model.wz,
-            world_id: world.model.id,
+            map_wz: map_wz,
+            world_id: world_id,
             level: 1,
             exp: 0,
             strength: 4,
@@ -89,72 +89,80 @@ impl CreateCharStore {
     pub async fn init_keybindings(
         state: &SharedState,
         char_id: i32,
-    ) -> Result<Vec<Keybinding>, NetworkError> {
+    ) -> Result<HashMap<i32, Keybinding>, NetworkError> {
         let bind_models: Vec<KeybindingModel> = izip!(DEFAULT_KEY, DEFAULT_TYPE, DEFAULT_ACTION)
-            .map(
-                |(key, bind_type, action): (i32, i16, i32)| KeybindingModel {
-                    char_id,
-                    key,
-                    bind_type,
-                    action,
-                    created_at: Some(SystemTime::now()),
-                    updated_at: SystemTime::now(),
-                },
-            )
+            .map(|(key, bind_type, action)| KeybindingModel {
+                action,
+                bind_type,
+                char_id,
+                created_at: Some(SystemTime::now()),
+                key,
+                updated_at: SystemTime::now(),
+            })
             .collect();
         let bind_models =
             keybinding::query::setters::update_keybindings(state, bind_models).await?;
-        let mut binds: Vec<Keybinding> = Vec::<Keybinding>::new();
-        for bind_model in &bind_models {
-            binds.push(bind_model.load()?);
-        }
-        Ok(binds.clone())
+        Ok(bind_models
+            .into_iter()
+            .map(|b| -> Result<(i32, Keybinding), NetworkError> { Ok((b.key, b.load()?)) })
+            .collect::<Result<HashMap<i32, Keybinding>, NetworkError>>()?)
     }
 
     async fn init_equips(
         state: &SharedState,
         reader: CreateCharReader,
         char_id: i32,
-    ) -> Result<Vec<Item>, NetworkError> {
-        let mut equips: Vec<Item> = Vec::<Item>::new();
-        let equipped: bool = true;
-        let top = item::service::create_item(state, Some(char_id), equipped, reader.top_wz).await?;
-        equips.push(top);
+    ) -> Result<Inventory, NetworkError> {
+        let mut equipped_tab: HashMap<i16, Item> = HashMap::new();
+        let pos: i16 = item::service::get_item_pos_by_wz(reader.top_wz)?;
+        let top =
+            item::service::create_item(state, Some(char_id), Some(pos), reader.top_wz).await?;
+        equipped_tab.insert(pos, top);
+        let pos: i16 = item::service::get_item_pos_by_wz(reader.bottom_wz)?;
         let bottom =
-            item::service::create_item(state, Some(char_id), equipped, reader.bottom_wz).await?;
-        equips.push(bottom);
+            item::service::create_item(state, Some(char_id), Some(pos), reader.bottom_wz).await?;
+        equipped_tab.insert(pos, bottom);
+        let pos: i16 = item::service::get_item_pos_by_wz(reader.shoes_wz)?;
         let shoes =
-            item::service::create_item(state, Some(char_id), equipped, reader.shoes_wz).await?;
-        equips.push(shoes);
+            item::service::create_item(state, Some(char_id), Some(pos), reader.shoes_wz).await?;
+        equipped_tab.insert(pos, shoes);
+        let pos: i16 = item::service::get_item_pos_by_wz(reader.weapon_wz)?;
         let weapon =
-            item::service::create_item(state, Some(char_id), equipped, reader.weapon_wz).await?;
-        equips.push(weapon);
-        Ok(equips)
+            item::service::create_item(state, Some(char_id), Some(pos), reader.weapon_wz).await?;
+        equipped_tab.insert(pos, weapon);
+        let inventory: Inventory = Inventory {
+            model: InventoryModel { char_id },
+            equipped_tab: equipped_tab.clone(),
+            equip_tab: HashMap::new(),
+            use_tab: HashMap::new(),
+            setup_tab: HashMap::new(),
+            etc_tab: HashMap::new(),
+            cash_tab: HashMap::new(),
+        };
+        Ok(inventory)
     }
 
     pub async fn init_skills(
         state: &SharedState,
         reader: CreateCharReader,
         char_id: i32,
-    ) -> Result<Vec<Skill>, NetworkError> {
-        let mut skill_models: Vec<SkillModel> = Vec::<SkillModel>::new();
-        let skill_wzs: Vec<i32> =
-            skill::service::generate_skill_wzs_by_job_wz(reader.job_wz as i32)?;
-        for skill_wz in skill_wzs {
-            skill_models.push(SkillModel {
-                char_id,
-                wz: skill_wz,
-                level: 0,
-                created_at: Some(SystemTime::now()),
-                updated_at: SystemTime::now(),
-            });
-        }
+    ) -> Result<HashMap<i32, Skill>, NetworkError> {
+        let skill_models: Vec<SkillModel> =
+            skill::service::generate_skill_wzs_by_job_wz(reader.job_wz as i32)?
+                .into_iter()
+                .map(|wz| SkillModel {
+                    char_id,
+                    created_at: Some(SystemTime::now()),
+                    level: 0,
+                    updated_at: SystemTime::now(),
+                    wz,
+                })
+                .collect();
         skill::query::setters::update_skills(state, skill_models.clone()).await?;
-        let mut skills: Vec<Skill> = Vec::<Skill>::new();
-        for skill_model in skill_models {
-            skills.push(skill_model.load()?);
-        }
-        Ok(skills)
+        Ok(skill_models
+            .into_iter()
+            .map(|s| -> Result<(i32, Skill), NetworkError> { Ok((s.wz, s.load()?)) })
+            .collect::<Result<HashMap<i32, Skill>, NetworkError>>()?)
     }
 
     pub async fn store_create_char(
@@ -162,33 +170,23 @@ impl CreateCharStore {
         session: Session,
         reader: CreateCharReader,
     ) -> Result<Self, NetworkError> {
-        let acc: Account = session.get_acc()?;
-        let channel: Channel = session.get_active_channel(state).await?;
-        let world: World = session.get_active_world(state).await?;
-        let map_wz = map::service::get_map_by_job_wz(reader.job_wz)?;
-        let map = map::service::get_map_by_world_channel_map_wzs(
-            state,
-            world.model.id,
-            channel.model.id,
-            map_wz,
-        )
-        .await?;
-        let char_model = Self::init_char_model(
-            state,
-            reader.clone(),
-            acc.clone(),
-            map.clone(),
-            world.clone(),
-        )
-        .await?;
+        let acc_id: i32 = session.get_acc_id()?;
+        let world_id: i16 = session.get_world_id()?;
+        let map_wz: i32 = map::service::get_map_wz_by_job_id(reader.job_wz)?;
+        let job = Job {
+            model: JobModel { wz: reader.job_wz },
+        };
+        let char_model =
+            Self::init_char_model(state, reader.clone(), acc_id, map_wz, world_id).await?;
         let char_id = char_model.get_id()?;
-        let binds: Vec<Keybinding> = Self::init_keybindings(state, char_id).await?;
-        let items = Self::init_equips(state, reader.clone(), char_id).await?;
-        let skills = Self::init_skills(state, reader.clone(), char_id).await?;
+        let binds: HashMap<i32, Keybinding> = Self::init_keybindings(state, char_id).await?;
+        let inventory = Self::init_equips(state, reader.clone(), char_id).await?;
+        let skills: HashMap<i32, Skill> = Self::init_skills(state, reader.clone(), char_id).await?;
         let char = Character {
             model: char_model,
             binds,
-            items,
+            job,
+            inventory,
             skills,
         };
         Ok(Self { char })

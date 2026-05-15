@@ -17,7 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::character::wrapper::Character;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::move_player::reader::MovePlayerReader;
 use crate::runtime::session::model::Session;
@@ -25,10 +24,10 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct MovePlayerStore {
-    pub char: Character,
+    pub char_id: i32,
+    pub empty: bool,
     pub movement_bytes: Vec<u8>,
     pub too_short: bool,
-    pub empty: bool,
 }
 
 impl MovePlayerStore {
@@ -38,12 +37,11 @@ impl MovePlayerStore {
         reader: MovePlayerReader,
     ) -> Result<Self, NetworkError> {
         std::hint::black_box(state);
-        let char: Character = session.get_active_char(state).await?;
         Ok(Self {
-            char: char.clone(),
+            char_id: session.get_char_id()?,
+            empty: reader.empty,
             movement_bytes: reader.movement_bytes.clone(),
             too_short: reader.too_short,
-            empty: reader.empty,
         })
     }
 }

@@ -19,7 +19,7 @@
 
 #[derive(Clone)]
 pub struct MobModel {
-    pub id: i32,
+    pub id: u16,
     pub wz: i32,
     pub pos_x: i16,
     pub pos_y: i16,

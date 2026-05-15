@@ -22,13 +22,16 @@ use crate::models::character::error::CharacterError;
 use crate::models::character::wrapper::Character;
 use crate::models::error::ModelError;
 use crate::models::item;
-use crate::models::item::wrapper::Item;
+use crate::models::item::model::Inventory;
+use crate::models::job;
+use crate::models::job::wrapper::Job;
 use crate::models::keybinding;
 use crate::models::keybinding::wrapper::Keybinding;
 use crate::models::skill;
 use crate::models::skill::wrapper::Skill;
 use crate::runtime::state::SharedState;
 use diesel::prelude::*;
+use std::collections::HashMap;
 use std::time::SystemTime;
 
 #[derive(Clone, Identifiable, Insertable, Queryable, AsChangeset, Selectable)]
@@ -75,18 +78,19 @@ pub struct CharacterLimitModel {
 impl CharacterModel {
     pub async fn load(&self, state: &SharedState) -> Result<Character, ModelError> {
         let char_id: i32 = self.get_id()?;
-        let binds: Vec<Keybinding> =
-            keybinding::service::get_keybindings_by_char_id(state, char_id).await?;
-        let items: Vec<Item> = item::service::get_items_by_char_id(state, char_id).await?;
-        let skills: Vec<Skill> = skill::service::get_skills_by_char_id(state, char_id).await?;
+        let binds: HashMap<i32, Keybinding> =
+            keybinding::service::load_keybindings(state, char_id).await?;
+        let inventory: Inventory = item::service::load_inventory(state, char_id).await?;
+        let job: Job = job::service::load_job(char_id).await?;
+        let skills: HashMap<i32, Skill> = skill::service::load_skills(state, char_id).await?;
         Ok(Character {
             model: self.clone(),
             binds,
-            items,
+            inventory,
+            job,
             skills,
         })
     }
-
     pub fn get_id(&self) -> Result<i32, ModelError> {
         if let Some(id) = self.id {
             Ok(id)

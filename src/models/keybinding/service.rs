@@ -17,21 +17,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::keybinding;
-use crate::models::keybinding::model::KeybindingModel;
-use crate::models::keybinding::wrapper::Keybinding;
+use std::collections::HashMap;
+
 use crate::models::error::ModelError;
+use crate::models::keybinding;
+use crate::models::keybinding::wrapper::Keybinding;
 use crate::runtime::state::SharedState;
 
-pub async fn get_keybindings_by_char_id(
+pub async fn load_keybindings(
     state: &SharedState,
     char_id: i32,
-) -> Result<Vec<Keybinding>, ModelError> {
-    let mut keybindings: Vec<Keybinding> = Vec::<Keybinding>::new();
-    let keybinding_models: Vec<KeybindingModel> =
-        keybinding::query::getters::get_keybinding_models_by_character_id(state, char_id).await?;
-    for keybinding_model in keybinding_models {
-        keybindings.push(keybinding_model.load()?);
-    }
-    Ok(keybindings)
+) -> Result<HashMap<i32, Keybinding>, ModelError> {
+    let keybinding_models =
+        keybinding::query::getters::get_keybinding_models_by_char_id(state, char_id).await?;
+    Ok(keybinding_models
+        .into_iter()
+        .map(|k| -> Result<(i32, Keybinding), ModelError> { Ok((k.key, k.load()?)) })
+        .collect::<Result<HashMap<i32, Keybinding>, ModelError>>()?)
 }

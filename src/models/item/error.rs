@@ -21,6 +21,12 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum ItemError {
-    #[error("No id found in item model layer")]
+    #[error("No item id found in item model layer")]
     NoId,
+
+    #[error("No item position found in item model layer")]
+    NoPos,
+
+    #[error("Tab error in item model layer")]
+    TabError,
 }

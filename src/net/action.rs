@@ -16,11 +16,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::models::account::wrapper::Account;
-use crate::models::character::wrapper::Character;
-use crate::models::channel::wrapper::Channel;
-use crate::models::map::wrapper::Map;
-use crate::models::world::wrapper::World;
 use crate::net::packet::model::Packet;
 use crate::runtime::relay::scope::Scope;
 
@@ -31,9 +26,9 @@ pub enum Action {
 }
 
 pub enum SetAction {
-    SetMap { map: Map, scope: Scope },
-    SetChannel { channel: Channel, scope: Scope },
-    SetWorld { world: World, scope: Scope },
-    SetAccount { acc: Account },
-    SetChar { char: Character },
+    SetMap { map_wz: i32, scope: Scope },
+    SetChannel { channel_id: u8, scope: Scope },
+    SetWorld { world_id: i16, scope: Scope },
+    SetAccount { acc_id: i32 },
+    SetChar { char_id: i32 },
 }

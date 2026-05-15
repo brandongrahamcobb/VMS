@@ -19,9 +19,8 @@
 
 #[derive(Clone)]
 pub struct WorldModel {
-    pub id: i16,
     pub name: &'static str,
     pub flag: i16,
     pub event_message: &'static str,
-    pub port: i16,
+    pub base_port: i16,
 }

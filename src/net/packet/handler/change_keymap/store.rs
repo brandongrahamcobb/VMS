@@ -36,8 +36,7 @@ impl ChangeKeymapStore {
         session: Session,
         reader: ChangeKeymapReader,
     ) -> Result<Self, NetworkError> {
-        let char = session.get_active_char(state).await?;
-        let char_id = char.model.get_id()?;
+        let char_id = session.get_char_id()?;
         let new_binds: Vec<KeybindingModel> = izip!(
             reader.keys.clone(),
             reader.types.clone(),

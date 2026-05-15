@@ -17,12 +17,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::character::wrapper::Character;
+use std::collections::HashMap;
+
 use crate::models::channel::wrapper::Channel;
-use crate::models::map;
+use crate::models::character::wrapper::Character;
+use crate::models::error::ModelError;
+use crate::models::map::error::MapError;
 use crate::models::map::wrapper::Map;
 use crate::models::portal::wrapper::Portal;
-use crate::models::world::wrapper::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::change_map::reader::ChangeMapReader;
 use crate::runtime::session::model::Session;
@@ -30,12 +32,13 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct ChangeMapStore {
-    pub after_players: Vec<Character>,
-    pub channel: Channel,
+    pub after_map_wz: i32,
+    pub after_players: HashMap<i32, Character>,
+    pub before_players: HashMap<i32, Character>,
+    pub channel_id: u8,
     pub char: Character,
     pub died: i16,
-    pub map: Map,
-    pub portal: Portal,
+    pub pid: u8,
     pub wheel_of_destiny: i16,
 }
 
@@ -45,48 +48,30 @@ impl ChangeMapStore {
         session: Session,
         reader: ChangeMapReader,
     ) -> Result<Self, NetworkError> {
-        let died: i16 = reader.died;
-        let wheel_of_destiny: i16 = reader.wod;
-        let char: Character = session.get_active_char(state).await?;
-        let channel: Channel = session.get_active_channel(state).await?;
-        let before_map: Map = session.get_active_map(state).await?;
-        let world: World = session.get_active_world(state).await?;
-        let before_players: Vec<Character> = Vec::<Character>::new();
-        let sessions = {
-            let locked_state = state.lock().await;
-            locked_state.sessions.get_by_map_channel_world(
-                before_map.model.wz,
-                channel.model.id,
-                world.model.id,
-                session.id,
-            )
-        };
-        for s in sessions {
-            before_players.push(s.get_active_char(state).await?);
-        }
+        let channel_id: u8 = session.get_channel_id()?;
+        let channel: Channel = session.get_channel(state).await?;
+        let char: Character = session.get_char(state).await?;
+
+        let before_map: Map = session.get_map(state).await?;
         let portal: Portal = before_map.get_portal(reader.tn)?;
-        let after_map: Map = map::service::get_map_by_id(portal.model.tm)?;
-        let after_players: Vec<Character> = Vec::<Character>::new();
-        let sessions = {
-            let locked_state = state.lock().await;
-            locked_state.sessions.get_by_map_channel_world(
-                after_map.model.wz,
-                channel.model.id,
-                world.model.id,
-                session.id,
-            )
-        };
-        for s in sessions {
-            after_players.push(s.get_active_char(state).await?);
-        }
+        let before_players: HashMap<i32, Character> = before_map.chars.clone();
+        let after_map = channel
+            .maps
+            .get(&portal.model.tm)
+            .ok_or(MapError::NotFound(portal.model.tm))
+            .map_err(ModelError::from)
+            .map_err(NetworkError::from)?;
+        let after_players: HashMap<i32, Character> = after_map.chars.clone();
+
         Ok(Self {
-            after_players,
-            channel,
+            after_map_wz: after_map.model.wz,
+            after_players: after_players.clone(),
+            before_players: before_players.clone(),
+            channel_id,
             char,
-            died,
-            map: after_map.clone(),
-            portal,
-            wheel_of_destiny,
+            died: reader.died,
+            pid: portal.model.pid,
+            wheel_of_destiny: reader.wod,
         })
     }
 }

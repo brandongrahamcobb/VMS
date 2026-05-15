@@ -20,8 +20,6 @@
 use crate::constants::CASH_SHOP_MAP_ID;
 use crate::models::account::wrapper::Account;
 use crate::models::character::wrapper::Character;
-use crate::models::map;
-use crate::models::map::wrapper::Map;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::enter_cash_shop::reader::EnterCashShopReader;
 use crate::runtime::session::model::Session;
@@ -29,9 +27,9 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct EnterCashShopStore {
-    pub acc: Account,
     pub char: Character,
-    pub map: Map,
+    pub map_wz: i32,
+    pub username: String,
 }
 
 impl EnterCashShopStore {
@@ -40,11 +38,14 @@ impl EnterCashShopStore {
         session: Session,
         reader: EnterCashShopReader,
     ) -> Result<Self, NetworkError> {
-        std::hint::black_box(state);
         std::hint::black_box(reader);
-        let acc = session.get_acc()?;
-        let char = session.get_active_char(state).await?;
-        let map = map::service::get_map_by_id(CASH_SHOP_MAP_ID)?;
-        Ok(Self { acc, char, map })
+        let acc: Account = session.get_acc(state).await?;
+        let username: String = acc.model.username;
+        let char = session.get_char(state).await?;
+        Ok(Self {
+            char,
+            map_wz: CASH_SHOP_MAP_ID,
+            username: username.clone(),
+        })
     }
 }

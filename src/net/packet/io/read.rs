@@ -82,8 +82,8 @@ impl PacketReader {
 }
 
 pub trait PktRead: ReadBytesExt {
-    fn read_byte(&mut self) -> std::io::Result<i8> {
-        self.read_i8()
+    fn read_byte(&mut self) -> std::io::Result<u8> {
+        self.read_u8()
     }
 
     fn read_bytes(&mut self, length: usize) -> std::io::Result<Vec<u8>> {

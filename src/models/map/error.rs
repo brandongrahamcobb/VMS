@@ -21,8 +21,6 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum MapError {
-    #[error(
-        "Requested map was not found in map model layer. World OID: {0}, Channel OID: {1}, Map OID: {2}"
-    )]
-    NotFound(i16, i16, i32),
+    #[error("Requested map was not found in map model layer. Map ID: {0}")]
+    NotFound(i32),
 }

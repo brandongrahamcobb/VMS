@@ -53,11 +53,11 @@ impl EnterCashShopHandler {
     ) -> Result<HandlerResult, NetworkError> {
         let mut result: HandlerResult = HandlerResult::new();
         result.add_action(Action::Set(SetAction::SetMap {
-            map: store.map.clone(),
+            map_wz: store.map_wz,
             scope: Scope::Local,
         }))?;
         let packet: Packet = Packet::new_empty()
-            .build_enter_cash_shop_packet(store.acc.clone(), store.char.clone())?
+            .build_enter_cash_shop_packet(store.username.clone(), store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

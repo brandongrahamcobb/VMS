@@ -22,11 +22,8 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum ChannelError {
     #[error("Requested channel was not found in channel model layer: {0}")]
-    NotFound(i16),
-
-    #[error("Unexpected error in channel model layer")]
-    UnexpectedError,
+    NotFound(u8),
 
     #[error("No capacity in channel model layer: {0}")]
-    NoCapacity(i16),
+    NoCapacity(u8),
 }

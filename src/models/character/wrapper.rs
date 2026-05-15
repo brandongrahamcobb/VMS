@@ -17,19 +17,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use crate::models::character::model::CharacterModel;
-use crate::models::item::wrapper::Item;
-use crate::models::job::model::Job;
+use crate::models::item::model::Inventory;
+use crate::models::job::wrapper::Job;
 use crate::models::keybinding::wrapper::Keybinding;
 use crate::models::skill::wrapper::Skill;
 
 #[derive(Clone)]
 pub struct Character {
     pub model: CharacterModel,
-    pub binds: Vec<Keybinding>,
+    pub binds: HashMap<i32, Keybinding>,
     pub job: Job,
-    pub items: Vec<Item>,
-    pub skills: Vec<Skill>,
+    pub inventory: Inventory,
+    pub skills: HashMap<i32, Skill>,
 }
 
 impl Character {

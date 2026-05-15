@@ -43,8 +43,12 @@ impl LoginServer {
                     let session_id = {
                         let state = state.lock().await;
                         state.sessions.insert(Session {
-                            acc: None,
                             id: 0,
+                            acc_id: None,
+                            channel_id: None,
+                            char_id: None,
+                            map_wz: None,
+                            world_id: None,
                             tx: tx.clone(),
                         })
                     };
@@ -66,8 +70,7 @@ impl LoginServer {
                                         session
                                     };
                                     let port = {
-                                        let channel = match session.get_active_channel(&state).await
-                                        {
+                                        let channel = match session.get_channel(&state).await {
                                             Ok(channel) => channel,
                                             Err(e) => {
                                                 info!(
@@ -168,8 +171,7 @@ impl PlayerServer {
                                         session
                                     };
                                     let port = {
-                                        let channel = match session.get_active_channel(&state).await
-                                        {
+                                        let channel = match session.get_channel(&state).await {
                                             Ok(channel) => channel,
                                             Err(e) => {
                                                 info!(

@@ -18,6 +18,7 @@
  */
 
 use crate::config::error::ConfigError;
+use crate::metadata::error::WzError;
 use crate::models::account::error::AccountError;
 use crate::models::channel::error::ChannelError;
 use crate::models::character::error::CharacterError;
@@ -25,7 +26,6 @@ use crate::models::item::error::ItemError;
 use crate::models::keybinding::error::KeybindingError;
 use crate::models::map::error::MapError;
 use crate::models::world::error::WorldError;
-use crate::wz::error::WzError;
 use diesel;
 use thiserror::Error;
 

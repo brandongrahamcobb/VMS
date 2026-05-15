@@ -17,7 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::world::wrapper::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::server_status::reader::ServerStatusReader;
 use crate::runtime::session::model::Session;
@@ -25,7 +24,6 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct ServerStatusStore {
-    pub worlds: Vec<World>,
     pub status: i16,
 }
 
@@ -39,13 +37,13 @@ impl ServerStatusStore {
         std::hint::black_box(reader.clone());
         let worlds = {
             let state = state.lock().await;
-            state.worlds.clone()
+            state.worlds.read().expect("poisoned").clone()
         };
-        let status: i16 = if worlds.iter().any(|world| !world.channels.is_empty()) {
+        let status: i16 = if worlds.values().any(|world| !world.channels.is_empty()) {
             0
         } else {
             2
         };
-        Ok(Self { worlds, status })
+        Ok(Self { status })
     }
 }

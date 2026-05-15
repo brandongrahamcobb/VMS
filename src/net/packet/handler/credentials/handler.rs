@@ -70,7 +70,7 @@ impl CredentialsHandler {
                     .build_credentials_handler_failed_login_packet(code)?
                     .finish();
                 result.add_action(Action::Set(SetAction::SetAccount {
-                    acc: store.acc.clone().unwrap(),
+                    acc_id: store.acc.clone().unwrap().model.get_id()?,
                 }))?;
                 result.add_action(Action::Send {
                     packet: packet.clone(),
@@ -79,10 +79,12 @@ impl CredentialsHandler {
             }
             StatusCode::Success(_) => {
                 let packet: Packet = Packet::new_empty()
-                    .build_credentials_handler_successful_login_packet(store.acc.clone().unwrap())?
+                    .build_credentials_handler_successful_login_packet(
+                        store.acc.clone().unwrap().clone(),
+                    )?
                     .finish();
                 result.add_action(Action::Set(SetAction::SetAccount {
-                    acc: store.acc.clone().unwrap(),
+                    acc_id: store.acc.clone().unwrap().model.get_id()?,
                 }))?;
                 result.add_action(Action::Send {
                     packet: packet.clone(),

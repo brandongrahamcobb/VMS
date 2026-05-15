@@ -17,26 +17,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::metadata::error::WzError;
+use crate::models::character::wrapper::Character;
 use crate::models::error::ModelError;
+use crate::models::item::wrapper::Item;
 use crate::models::map::model::MapModel;
-use crate::models::mob::model::Mob;
+use crate::models::mob::wrapper::Mob;
 use crate::models::portal::wrapper::Portal;
-use crate::wz::error::WzError;
+use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct Map {
     pub model: MapModel,
-    pub portals: Vec<Portal>,
-    pub items: Vec<Item>,
-    pub chars: Vec<Character>,
-    pub mobs: Vec<Mob>,
+    pub chars: HashMap<i32, Character>,
+    pub items: HashMap<i32, Item>,
+    pub mobs: HashMap<u32, Mob>,
+    pub portals: HashMap<u8, Portal>,
 }
 
 impl Map {
     pub fn get_portal(&self, tn: String) -> Result<Portal, ModelError> {
         let portal: Portal = self
             .portals
-            .iter()
+            .values()
             .find(|p| p.model.pn == tn)
             .cloned()
             .ok_or(WzError::ObjectError)?;

@@ -17,13 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use crate::models::channel::wrapper::Channel;
-use crate::models::map::wrapper::Map;
 use crate::models::world::model::WorldModel;
 
 #[derive(Clone)]
 pub struct World {
-    pub model: WorldModel,
-    pub channels: Vec<Channel>,
-    pub maps: Vec<Map>,
+    pub model: &'static WorldModel,
+    pub channels: HashMap<u8, Channel>,
 }

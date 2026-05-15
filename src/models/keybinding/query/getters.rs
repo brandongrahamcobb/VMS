@@ -23,7 +23,7 @@ use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl};
 
-pub async fn get_keybinding_models_by_character_id(
+pub async fn get_keybinding_models_by_char_id(
     state: &SharedState,
     char_id: i32,
 ) -> QueryResult<Vec<KeybindingModel>> {

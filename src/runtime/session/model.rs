@@ -20,11 +20,9 @@
 use crate::models::account::wrapper::Account;
 use crate::models::channel::wrapper::Channel;
 use crate::models::character::wrapper::Character;
-use crate::models::item::wrapper::Item;
 use crate::models::map::wrapper::Map;
 use crate::models::world::wrapper::World;
-use crate::models::{channel, map, world};
-use crate::models::{character, item};
+use crate::models::{account, character};
 use crate::net::packet::model::Packet;
 use crate::runtime::session::error::SessionError;
 use crate::runtime::state::SharedState;
@@ -33,70 +31,73 @@ use tokio::sync::mpsc::UnboundedSender;
 #[derive(Clone)]
 pub struct Session {
     pub id: i32,
-    pub acc: Option<Account>,
+    pub acc_id: Option<i32>,
+    pub channel_id: Option<u8>,
+    pub char_id: Option<i32>,
+    pub map_wz: Option<i32>,
+    pub world_id: Option<i16>,
     pub tx: UnboundedSender<Packet>,
 }
 
 impl Session {
-    pub fn get_acc(&self) -> Result<Account, SessionError> {
-        let acc = if let Some(acc) = self.acc.clone() {
-            acc
-        } else {
-            return Err(SessionError::NoAccount(self.id));
-        };
+    pub async fn get_acc(&self, state: &SharedState) -> Result<Account, SessionError> {
+        let acc_id = self.get_acc_id()?;
+        let acc: Account = account::service::get_account_by_id(state, acc_id).await?;
         Ok(acc)
     }
 
-    pub async fn get_active_char(&self, state: &SharedState) -> Result<Character, SessionError> {
-        let char_id = if let Some(char_id) = self.get_acc()?.model.char_id {
-            char_id
-        } else {
-            return Err(SessionError::NoChar(self.id));
-        };
+    pub fn get_acc_id(&self) -> Result<i32, SessionError> {
+        self.acc_id.ok_or(SessionError::NoAccount(self.id))
+    }
+
+    pub async fn get_char(&self, state: &SharedState) -> Result<Character, SessionError> {
+        let char_id = self.get_char_id()?;
         let char: Character = character::service::get_char_by_id(state, char_id).await?;
         Ok(char)
     }
 
-    pub async fn get_active_channel(&self, state: &SharedState) -> Result<Channel, SessionError> {
-        let channel_id = if let Some(channel_id) = self.get_acc()?.model.channel_id {
-            channel_id
-        } else {
-            return Err(SessionError::NoChannel(self.id));
-        };
-        let channel: Channel = channel::service::get_channel_by_id(state, channel_id).await?;
-        Ok(channel)
+    pub fn get_char_id(&self) -> Result<i32, SessionError> {
+        self.char_id.ok_or(SessionError::NoChar(self.id))
     }
 
-    pub async fn get_active_map(&self, state: &SharedState) -> Result<Map, SessionError> {
-        let map_wz = if let Some(map_wz) = self.get_acc()?.model.map_wz {
-            map_wz
-        } else {
-            return Err(SessionError::NoMap(self.id));
-        };
-        let map: Map = map::service::get_map_by_wz(state, map_wz).await?;
-        Ok(map)
+    pub async fn get_channel(&self, state: &SharedState) -> Result<Channel, SessionError> {
+        self.get_world(state)
+            .await?
+            .channels
+            .get(&self.get_channel_id()?)
+            .ok_or(SessionError::NoChannel(self.id))
+            .cloned()
     }
 
-    pub async fn get_active_world(&self, state: &SharedState) -> Result<World, SessionError> {
-        let world_id = if let Some(world_id) = self.get_acc()?.model.world_id {
-            world_id
-        } else {
-            return Err(SessionError::NoWorld(self.id));
-        };
-        let world: World = world::service::get_world_by_id(state, world_id).await?;
-        Ok(world)
+    pub fn get_channel_id(&self) -> Result<u8, SessionError> {
+        self.channel_id.ok_or(SessionError::NoChannel(self.id))
     }
 
-    pub async fn get_active_inventory_items(
-        &self,
-        state: &SharedState,
-    ) -> Result<Vec<Item>, SessionError> {
-        let char_id = if let Some(char_id) = self.get_acc()?.model.char_id {
-            char_id
-        } else {
-            return Err(SessionError::NoChar(self.id));
-        };
-        let items = item::service::get_items_by_char_id(state, char_id).await?;
-        Ok(items)
+    pub async fn get_map(&self, state: &SharedState) -> Result<Map, SessionError> {
+        self.get_channel(state)
+            .await?
+            .maps
+            .get(&self.get_map_wz()?)
+            .ok_or(SessionError::NoMap(self.id))
+            .cloned()
+    }
+
+    pub fn get_map_wz(&self) -> Result<i32, SessionError> {
+        self.map_wz.ok_or(SessionError::NoMap(self.id))
+    }
+
+    pub async fn get_world(&self, state: &SharedState) -> Result<World, SessionError> {
+        let state = state.lock().await;
+        state
+            .worlds
+            .read()
+            .expect("poisoined")
+            .get(&self.get_world_id()?)
+            .ok_or(SessionError::NoWorld(self.id))
+            .cloned()
+    }
+
+    pub fn get_world_id(&self) -> Result<i16, SessionError> {
+        self.world_id.ok_or(SessionError::NoWorld(self.id))
     }
 }

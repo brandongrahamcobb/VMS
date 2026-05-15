@@ -21,9 +21,6 @@ use crate::config::settings;
 use crate::models::account::wrapper::Account;
 use crate::models::character;
 use crate::models::character::wrapper::Character;
-use crate::models::channel::wrapper::Channel;
-use crate::models::world::wrapper::World;
-use crate::models::{channel, world};
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::list_chars::reader::ListCharsReader;
 use crate::runtime::session::model::Session;
@@ -31,11 +28,11 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct ListCharsStore {
-    pub channel: Channel,
-    pub chars: Vec<Character>,
+    pub channel_id: u8,
     pub char_slots: i16,
-    pub world: World,
+    pub chars: Vec<Character>,
     pub pic_status: i16,
+    pub world_id: i16,
 }
 
 pub enum PicStatus {
@@ -50,15 +47,13 @@ impl ListCharsStore {
         session: Session,
         reader: ListCharsReader,
     ) -> Result<Self, NetworkError> {
-        let acc: Account = session.get_acc()?;
-        let channel: Channel =
-            channel::service::get_channel_by_id(state, reader.channel_id).await?;
-        let world: World = world::service::get_world_by_id(state, reader.world_id).await?;
+        let acc: Account = session.get_acc(state).await?;
+        let acc_id: i32 = session.get_acc_id()?;
         let chars: Vec<Character> = acc.chars.clone();
         let char_slots: i16 = match character::query::getters::get_char_max_by_account_and_world_id(
             state,
-            acc.model.get_id()?,
-            world.model.id,
+            acc_id,
+            reader.world_id,
         )
         .await
         {
@@ -67,7 +62,7 @@ impl ListCharsStore {
         };
         let mut pic_status: i16 = PicStatus::Disabled as i16;
         let use_pic = settings::get_pic_required()?;
-        if let Some(_) = acc.model.clone().pic {
+        if let Some(_) = acc.model.pic.clone() {
             if use_pic {
                 pic_status = PicStatus::AlreadyRegistered as i16;
             }
@@ -75,11 +70,11 @@ impl ListCharsStore {
             pic_status = PicStatus::NeedsToRegister as i16;
         };
         Ok(Self {
-            channel,
-            chars: chars.clone(),
+            channel_id: reader.channel_id,
             char_slots,
+            chars: chars.clone(),
             pic_status,
-            world,
+            world_id: reader.world_id,
         })
     }
 }

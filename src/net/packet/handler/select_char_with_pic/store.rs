@@ -19,9 +19,8 @@
 
 use crate::config::settings;
 use crate::inc::helpers;
+use crate::models::account;
 use crate::models::account::wrapper::Account;
-use crate::models::character;
-use crate::models::character::wrapper::Character;
 use crate::models::channel::wrapper::Channel;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::select_char_with_pic::reader::SelectCharWithPicReader;
@@ -30,10 +29,10 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct SelectCharWithPicStore {
-    pub char: Character,
-    pub channel: Channel,
+    pub char_id: i32,
     pub octets: [u8; 4],
     pub pic_status: bool,
+    pub port: i16,
 }
 
 impl SelectCharWithPicStore {
@@ -42,22 +41,16 @@ impl SelectCharWithPicStore {
         session: Session,
         reader: SelectCharWithPicReader,
     ) -> Result<Self, NetworkError> {
-        let acc: Account = session.get_acc()?;
-        let channel: Channel = session.get_active_channel(state).await?;
-        let char: Character =
-            character::service::get_char_by_id(state, reader.char_id).await?;
-        let acc_pic = acc.model.get_pic()?;
-        let mut pic_status = false;
-        if acc_pic == reader.pic {
-            pic_status = true;
-        }
+        let acc: Account = session.get_acc(state).await?;
+        let channel: Channel = session.get_channel(state).await?;
+        let pic_status = account::service::check_pic(acc.model.pic, reader.pic)?;
         let addr: String = settings::get_routing_address()?;
         let octets: [u8; 4] = helpers::convert_to_ip_array(addr.clone());
         Ok(Self {
-            channel,
-            char,
+            char_id: reader.char_id,
             pic_status,
             octets,
+            port: channel.model.port,
         })
     }
 }

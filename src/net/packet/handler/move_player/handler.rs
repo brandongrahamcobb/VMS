@@ -54,7 +54,7 @@ impl MovePlayerHandler {
         let mut result = HandlerResult::new();
         if !store.too_short && !store.empty {
             let packet: Packet = Packet::new_empty()
-                .build_player_move_packet(store.char.model.get_id()?, store.movement_bytes.clone())?
+                .build_player_move_packet(store.char_id, store.movement_bytes.clone())?
                 .finish();
             result.add_action(Action::Send {
                 packet: packet.clone(),

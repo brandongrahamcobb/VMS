@@ -26,13 +26,14 @@ use crate::runtime::error::RuntimeError;
 use crate::runtime::session::session_store::SessionStore;
 use diesel::PgConnection;
 use diesel::r2d2::{ConnectionManager, Pool};
-use std::sync::Arc;
+use std::collections::HashMap;
+use std::sync::{Arc, RwLock};
 use tokio::sync::Mutex;
 
 pub struct State {
     pub db: DbPool,
     pub sessions: SessionStore,
-    pub worlds: Vec<World>,
+    pub worlds: Arc<RwLock<HashMap<i16, World>>>,
 }
 
 pub type SharedState = Arc<Mutex<State>>;
@@ -49,7 +50,7 @@ impl State {
         let shared_state = State {
             db,
             sessions,
-            worlds,
+            worlds: Arc::new(RwLock::new(worlds)),
         };
         Ok(shared_state)
     }

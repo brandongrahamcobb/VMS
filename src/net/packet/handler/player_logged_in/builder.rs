@@ -17,10 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::channel::wrapper::Channel;
+use std::collections::HashMap;
+
 use crate::models::character::wrapper::Character;
-use crate::models::item;
-use crate::models::item::model::EquipType;
 use crate::models::item::wrapper::Item;
 use crate::models::keybinding::wrapper::Keybinding;
 use crate::net::error::NetworkError;
@@ -32,17 +31,17 @@ use crate::prelude::*;
 impl Packet {
     pub fn build_player_logged_in_handler_keymap_packet(
         &mut self,
-        binds: Vec<Keybinding>,
+        binds: HashMap<i32, Keybinding>,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::KeyMap as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
-        for bind in binds {
-            let bind_model = bind.model.clone();
-            let bind_type = bind_model.bind_type as i16;
-            self.write_byte(bind_type).map_err(WriteError)?;
-            let bind_action = bind_model.action as i32;
-            self.write_int(bind_action).map_err(WriteError)?;
+        let keybindings: Vec<&Keybinding> = binds.values().collect();
+        for bind in keybindings {
+            self.write_byte(bind.model.bind_type as i16)
+                .map_err(WriteError)?;
+            self.write_int(bind.model.action as i32)
+                .map_err(WriteError)?;
         }
         Ok(self)
     }
@@ -50,12 +49,11 @@ impl Packet {
     pub fn build_set_field_packet(
         &mut self,
         char: Character,
-        channel: Channel,
+        channel_id: u8,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::SetField as i16;
         self.write_short(op).map_err(WriteError)?;
-        let channel_id = channel.model.id as i32;
-        self.write_int(channel_id).map_err(WriteError)?;
+        self.write_int(channel_id as i32).map_err(WriteError)?;
         self //mode 1
             .write_byte(1)
             .map_err(WriteError)?;
@@ -86,13 +84,8 @@ impl Packet {
     fn build_inventory_regular_part_packet(
         &mut self,
         equip: Item,
-        equip_type: EquipType,
     ) -> Result<&mut Self, NetworkError> {
-        let regular_equip_type = match equip_type {
-            EquipType::RegularEquipType(regular_equip_type) => regular_equip_type,
-            _ => panic!("placeholder"),
-        };
-        self.write_short(regular_equip_type as i16)
+        self.write_short(equip.model.get_pos()?)
             .map_err(WriteError)?;
         self.build_inventory_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -101,11 +94,9 @@ impl Packet {
         &mut self,
         char: Character,
     ) -> Result<&mut Self, NetworkError> {
-        for item in char.items {
-            if item.model.equipped {
-                let equip_type: EquipType = item::service::get_equip_type_from_wz(item.model.wz)?;
-                self.build_inventory_regular_part_packet(item, equip_type)?;
-            }
+        let equipped: Vec<&Item> = char.inventory.equipped_tab.values().collect();
+        for equip in equipped {
+            self.build_inventory_regular_part_packet(equip.clone())?;
         }
         Ok(self)
     }
@@ -147,16 +138,8 @@ impl Packet {
         Ok(self)
     }
 
-    fn build_inventory_cash_part_packet(
-        &mut self,
-        equip: Item,
-        equip_type: EquipType,
-    ) -> Result<&mut Self, NetworkError> {
-        let cash_equip_type = match equip_type {
-            EquipType::CashEquipType(cash_equip_type) => cash_equip_type,
-            _ => panic!("placeholder"),
-        };
-        self.write_short(cash_equip_type as i16)
+    fn build_inventory_cash_part_packet(&mut self, equip: Item) -> Result<&mut Self, NetworkError> {
+        self.write_short(equip.model.get_pos()?)
             .map_err(WriteError)?;
         self.build_inventory_cash_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -166,11 +149,9 @@ impl Packet {
         &mut self,
         char: Character,
     ) -> Result<&mut Self, NetworkError> {
-        for item in char.items {
-            if item.model.equipped {
-                let equip_type: EquipType = item::service::get_equip_type_from_wz(item.model.wz)?;
-                self.build_inventory_cash_part_packet(item, equip_type)?;
-            }
+        let equipped: Vec<&Item> = char.inventory.equipped_tab.values().collect();
+        for equip in equipped {
+            self.build_inventory_cash_part_packet(equip.clone())?;
         }
         Ok(self)
     }

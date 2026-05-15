@@ -23,7 +23,7 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum WorldError {
     #[error("Requested world was not found in world model layer: {0}")]
-    NotFound(i16),
+    NotFound(i8),
 
     #[error("Config error in world model layer")]
     ConfigError(#[from] ConfigError),
@@ -32,11 +32,14 @@ pub enum WorldError {
     NoWorlds,
 
     #[error("No event message in world model layer: {0}")]
-    NoEventMessage(i16),
+    NoEventMessage(i8),
 
     #[error("No name in world model layer: {0}")]
-    NoName(i16),
+    NoName(i8),
 
     #[error("No flag in world model layer: {0}")]
-    NoFlag(i16),
+    NoFlag(i8),
+
+    #[error("World count exceeds the avaiable worlds in model layer")]
+    CountExceedsAvailable,
 }

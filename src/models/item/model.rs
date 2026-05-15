@@ -22,15 +22,48 @@ use crate::models::error::ModelError;
 use crate::models::item::error::ItemError;
 use crate::models::item::wrapper::Item;
 use diesel::prelude::*;
+use std::collections::HashMap;
 use std::time::SystemTime;
+
+#[derive(Clone)]
+pub struct InventoryModel {
+    pub char_id: i32,
+}
+
+#[derive(Clone)]
+pub struct Inventory {
+    pub model: InventoryModel,
+    pub equipped_tab: HashMap<i16, Item>,
+    pub equip_tab: HashMap<i16, Item>,
+    pub use_tab: HashMap<i16, Item>,
+    pub setup_tab: HashMap<i16, Item>,
+    pub etc_tab: HashMap<i16, Item>,
+    pub cash_tab: HashMap<i16, Item>,
+}
+
+#[derive(num_derive::FromPrimitive)]
+pub enum InventoryTab {
+    Equip = 1,
+    Use = 2,
+    Setup = 3,
+    Etc = 4,
+    Cash = 5,
+}
+
+pub enum EquipType {
+    Android,
+    Cash,
+    Pet,
+    Regular,
+}
 
 #[derive(Clone, Insertable, Queryable, AsChangeset, Selectable)]
 #[diesel(table_name = items)]
 pub struct ItemModel {
     pub id: Option<i32>,
     pub char_id: Option<i32>,
-    pub equipped: bool,
     pub wz: i32,
+    pub pos: Option<i16>,
     pub strength: i32,
     pub dexterity: i32,
     pub intelligence: i32,
@@ -56,6 +89,7 @@ impl ItemModel {
             model: self.clone(),
         })
     }
+
     pub fn get_id(&self) -> Result<i32, ModelError> {
         if let Some(id) = self.id {
             Ok(id)
@@ -63,24 +97,27 @@ impl ItemModel {
             Err(ModelError::from(ItemError::NoId))
         }
     }
+
+    pub fn get_pos(&self) -> Result<i16, ModelError> {
+        if let Some(pos) = self.pos {
+            Ok(pos)
+        } else {
+            Err(ModelError::from(ItemError::NoPos))
+        }
+    }
 }
 
-pub enum EquipType {
-    AndroidEquipType(AndroidEquipType),
-    CashEquipType(CashEquipType),
-    PetEquipType(PetEquipType),
-    RegularEquipType(RegularEquipType),
-}
-
+#[derive(num_derive::FromPrimitive)]
 pub enum AndroidEquipType {
-    AndroidHat = 201,
-    AndroidFace = 202,
-    AndroidTop = 203,
-    AndroidBottom = 204,
-    AndroidGloves = 205,
-    AndroidCape = 206,
+    Hat = 201,
+    Face = 202,
+    Top = 203,
+    Bottom = 204,
+    Gloves = 205,
+    Cape = 206,
 }
 
+#[derive(num_derive::FromPrimitive)]
 pub enum RegularEquipType {
     Hat = 1,
     FaceAcc = 2,
@@ -113,6 +150,7 @@ pub enum RegularEquipType {
     Heart = 59,
 }
 
+#[derive(num_derive::FromPrimitive)]
 pub enum CashEquipType {
     Hat = 101,
     FaceAcc = 102,
@@ -130,6 +168,7 @@ pub enum CashEquipType {
     RingFour = 116,
 }
 
+#[derive(num_derive::FromPrimitive)]
 pub enum PetEquipType {
     AccOne = 301,
     AccTwo = 302,

@@ -53,7 +53,7 @@ impl DeleteCharHandler {
     ) -> Result<HandlerResult, NetworkError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet = Packet::new_empty()
-            .build_delete_char_packet(store.char.clone(), store.pic_status)?
+            .build_delete_char_packet(store.char_id, store.pic_status)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

@@ -19,17 +19,15 @@
 
 use crate::config::settings;
 use crate::models::account::wrapper::Account;
-use crate::models::character;
-use crate::models::character::wrapper::Character;
+use crate::models::{account, character};
 use crate::net::error::NetworkError;
-use crate::net::packet::handler::delete_char;
 use crate::net::packet::handler::delete_char::reader::DeleteCharReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct DeleteCharStore {
-    pub char: Character,
+    pub char_id: i32,
     pub pic_status: bool,
 }
 
@@ -39,16 +37,18 @@ impl DeleteCharStore {
         session: Session,
         reader: DeleteCharReader,
     ) -> Result<Self, NetworkError> {
-        let acc: Account = session.get_acc()?;
-        let char: Character = character::service::get_char_by_id(state, reader.char_id).await?;
+        let acc: Account = session.get_acc(state).await?;
         let use_pic = settings::get_pic_required()?;
         let mut pic_status = false;
         if use_pic {
-            pic_status = delete_char::service::check_pic(acc.model.clone(), reader.pic)?;
+            pic_status = account::service::check_pic(acc.model.pic, reader.pic)?;
         }
         if !pic_status {
             character::query::setters::delete_char_by_id(state, reader.char_id).await?;
         }
-        Ok(Self { char, pic_status })
+        Ok(Self {
+            char_id: reader.char_id,
+            pic_status,
+        })
     }
 }

@@ -17,8 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::channel::wrapper::Channel;
-use crate::models::map::wrapper::Map;
 use crate::net::error::NetworkError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
@@ -28,14 +26,13 @@ use crate::prelude::*;
 impl Packet {
     pub fn build_set_field_change_map_packet(
         &mut self,
-        channel: Channel,
-        map: Map,
-        pid: i16,
+        channel_id: u8,
+        map_wz: i32,
+        pid: u8,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::SetField as i16;
         self.write_short(op).map_err(WriteError)?;
-        let channel_id = channel.model.id as i32;
-        self.write_int(channel_id).map_err(WriteError)?;
+        self.write_int(channel_id as i32).map_err(WriteError)?;
         self //mode 1
             .write_byte(0)
             .map_err(WriteError)?;
@@ -44,8 +41,8 @@ impl Packet {
             .map_err(WriteError)?;
         let skip: Vec<u8> = vec![0; 3];
         self.write_bytes(skip).map_err(WriteError)?;
-        self.write_int(map.model.wz).map_err(WriteError)?;
-        self.write_byte(pid).map_err(WriteError)?;
+        self.write_int(map_wz).map_err(WriteError)?;
+        self.write_byte(pid as i16).map_err(WriteError)?;
         Ok(self)
     }
 }

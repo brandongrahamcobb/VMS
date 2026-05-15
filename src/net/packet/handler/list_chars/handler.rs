@@ -55,17 +55,17 @@ impl ListCharsHandler {
         let packet: Packet = Packet::new_empty()
             .build_list_chars_packet(
                 store.chars,
-                store.channel.model.id,
+                store.channel_id,
                 store.char_slots,
                 store.pic_status,
             )?
             .finish();
         result.add_action(Action::Set(SetAction::SetChannel {
-            channel: store.channel.clone(),
+            channel_id: store.channel_id,
             scope: Scope::Local,
         }))?;
         result.add_action(Action::Set(SetAction::SetWorld {
-            world: store.world.clone(),
+            world_id: store.world_id,
             scope: Scope::Local,
         }))?;
         result.add_action(Action::Send {

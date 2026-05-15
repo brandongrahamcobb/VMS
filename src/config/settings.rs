@@ -17,7 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use crate::config::error::ConfigError;
-use crate::constants::WorldID;
 use config::Config;
 
 pub fn get_settings() -> Result<Config, ConfigError> {
@@ -134,30 +133,24 @@ pub fn get_gender_required() -> Result<bool, ConfigError> {
     Ok(gender_req)
 }
 
-pub fn get_channel_world_pairs() -> Result<Vec<(i16, i16)>, ConfigError> {
+pub fn get_channel_count() -> Result<i8, ConfigError> {
     let settings = get_settings()?;
-    let mut list = Vec::new();
-    let worlds = [
-        ("scania", WorldID::SCANIA),
-        ("bera", WorldID::BERA),
-        ("broa", WorldID::BROA),
-        ("windia", WorldID::WINDIA),
-        ("khaini", WorldID::KHAINI),
-        ("mardia", WorldID::MARDIA),
-        ("yellonde", WorldID::YELLONDE),
-        ("bellocan", WorldID::BELLOCAN),
-    ];
-    for (name, id) in worlds {
-        if settings.get_bool(name)? {
-            let key = format!("{name}_channel_count");
-            let count: i16 = settings
-                .get_int(&key)?
-                .try_into()
-                .map_err(|e| ConfigError::IntConversion(e))?;
-            list.push((id as i16, count));
-        }
-    }
-    Ok(list)
+    let key = format!("channel_count");
+    let count: i8 = settings
+        .get_int(&key)?
+        .try_into()
+        .map_err(|e| ConfigError::IntConversion(e))?;
+    Ok(count)
+}
+
+pub fn get_world_count() -> Result<i8, ConfigError> {
+    let settings = get_settings()?;
+    let key = format!("world_count");
+    let count: i8 = settings
+        .get_int(&key)?
+        .try_into()
+        .map_err(|e| ConfigError::IntConversion(e))?;
+    Ok(count)
 }
 
 pub fn get_channel_capacity() -> Result<i16, ConfigError> {

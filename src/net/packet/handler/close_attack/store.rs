@@ -17,9 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::character::wrapper::Character;
 use crate::models::skill;
-use crate::models::skill::wrapper::Skill;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::close_attack::reader::CloseAttackReader;
 use crate::runtime::session::model::Session;
@@ -28,8 +26,9 @@ use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct CloseAttackStore {
-    pub char: Character,
-    pub skill: Skill,
+    pub char_id: i32,
+    pub skill_level: i16,
+    pub skill_wz: i32,
     pub count: i16,
     pub display: i16,
     pub toleft: i16,
@@ -44,17 +43,17 @@ impl CloseAttackStore {
         session: Session,
         reader: CloseAttackReader,
     ) -> Result<Self, NetworkError> {
-        let char = session.get_active_char(state).await?;
+        let char_id: i32 = session.get_char_id()?;
         let skill_model = skill::query::getters::get_skill_model_by_character_id_and_skill_id(
             state,
-            char.model.get_id()?,
+            char_id,
             reader.skill_id,
         )
         .await?;
-        let skill = skill_model.load()?;
         return Ok(Self {
-            char: char.clone(),
-            skill: skill.clone(),
+            char_id,
+            skill_level: skill_model.level,
+            skill_wz: skill_model.wz,
             count: reader.count,
             display: reader.display,
             toleft: reader.toleft,

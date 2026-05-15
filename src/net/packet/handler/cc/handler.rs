@@ -52,7 +52,7 @@ impl ChangeChannelHandler {
     ) -> Result<HandlerResult, NetworkError> {
         let mut result: HandlerResult = HandlerResult::new();
         result.add_action(Action::Set(SetAction::SetChannel {
-            channel: store.channel.clone(),
+            channel_id: store.channel_id,
             scope: Scope::Local,
         }))?;
         let packet: Packet = Packet::new_empty()
@@ -69,7 +69,7 @@ impl ChangeChannelHandler {
             packet: packet.clone(),
             scope: Scope::Map(MapScope::SameChannelSameWorld),
         })?;
-        for player in store.after_players {
+        for (_, player) in store.after_players {
             let packet: Packet = Packet::new_empty()
                 .build_spawn_player_packet(player.clone())?
                 .finish();
@@ -79,7 +79,7 @@ impl ChangeChannelHandler {
             })?;
         }
         let packet: Packet = Packet::new_empty()
-            .build_channel_change_packet(store.channel.clone(), store.octets.clone())?
+            .build_channel_change_packet(store.octets.clone(), store.port)?
             .finish();
         result.add_action(Action::Break {
             packet: packet.clone(),

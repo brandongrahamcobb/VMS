@@ -50,12 +50,7 @@ impl ChatTextHandler {
     fn build_chat_text_result(&self, store: ChatTextStore) -> Result<HandlerResult, NetworkError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
-            .build_chat_text_packet(
-                store.acc.clone(),
-                store.char.clone(),
-                store.msg.clone(),
-                store.show,
-            )?
+            .build_chat_text_packet(store.admin, store.char_id, store.msg.clone(), store.show)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

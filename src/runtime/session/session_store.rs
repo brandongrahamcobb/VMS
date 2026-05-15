@@ -19,84 +19,62 @@
 
 use crate::runtime::session::model::Session;
 use core::sync::atomic::AtomicI32;
+use std::collections::HashMap;
 use std::sync::RwLock;
 use std::sync::atomic::Ordering;
 
 pub struct SessionStore {
     pub next_id: AtomicI32,
-    pub sessions: RwLock<Vec<Session>>,
+    pub sessions: RwLock<HashMap<i32, Session>>,
 }
 
 impl SessionStore {
     pub fn new() -> Self {
         Self {
             next_id: AtomicI32::new(1),
-            sessions: RwLock::new(Vec::<Session>::new()),
+            sessions: RwLock::new(HashMap::new()),
         }
     }
 
     pub fn insert(&self, mut session: Session) -> i32 {
         let id = self.next_id.fetch_add(1, Ordering::Relaxed);
         session.id = id;
-        self.sessions.write().expect("poisoned").push(session);
+        self.sessions.write().expect("poisoned").insert(id, session);
         id
     }
 
     pub fn get(&self, id: i32) -> Option<Session> {
-        self.sessions
-            .read()
-            .expect("poisoned")
-            .iter()
-            .find(|session| session.id == id)
-            .cloned()
+        self.sessions.read().expect("poisoned").get(&id).cloned()
     }
 
     pub fn update(&self, id: i32, f: impl FnOnce(&mut Session)) {
         let mut sessions = self.sessions.write().expect("poisoned");
-        if let Some(session) = sessions.iter_mut().find(|session| session.id == id) {
+        if let Some(session) = sessions.get_mut(&id) {
             f(session);
         }
     }
 
     pub fn remove(&self, id: i32) {
-        self.sessions
-            .write()
-            .expect("poisoned")
-            .retain(|session| session.id != id);
+        self.sessions.write().expect("poisoned").remove(&id);
     }
 
-    pub fn get_by_channel(&self, channel_id: i16, exclude: i32) -> Vec<Session> {
+    pub fn get_by_channel(&self, channel_id: u8, exclude: i32) -> Vec<Session> {
         self.sessions
             .read()
             .expect("poisoned")
-            .iter()
-            .filter(|session| {
-                session.id != exclude
-                    && session
-                        .acc
-                        .as_ref()
-                        .is_some_and(|acc| acc.model.channel_id == Some(channel_id))
-            })
+            .values()
+            .filter(|s| s.id != exclude && s.channel_id == Some(channel_id))
             .cloned()
             .collect()
     }
 
-    pub fn get_by_channel_world(
-        &self,
-        channel_id: i16,
-        world_id: i16,
-        exclude: i32,
-    ) -> Vec<Session> {
+    pub fn get_by_channel_world(&self, channel_id: u8, world_id: i16, exclude: i32) -> Vec<Session> {
         self.sessions
             .read()
             .expect("poisoned")
-            .iter()
-            .filter(|session| {
-                session.id != exclude
-                    && session.acc.as_ref().is_some_and(|acc| {
-                        acc.model.channel_id == Some(channel_id)
-                            && acc.model.world_id == Some(world_id)
-                    })
+            .values()
+            .filter(|s| {
+                s.id != exclude && s.channel_id == Some(channel_id) && s.world_id == Some(world_id)
             })
             .cloned()
             .collect()
@@ -106,14 +84,8 @@ impl SessionStore {
         self.sessions
             .read()
             .expect("poisoned")
-            .iter()
-            .filter(|session| {
-                session.id != exclude
-                    && session
-                        .acc
-                        .as_ref()
-                        .is_some_and(|acc| acc.model.map_wz == Some(map_wz))
-            })
+            .values()
+            .filter(|s| s.id != exclude && s.map_wz == Some(map_wz))
             .cloned()
             .collect()
     }
@@ -121,21 +93,19 @@ impl SessionStore {
     pub fn get_by_map_channel_world(
         &self,
         map_wz: i32,
-        channel_id: i16,
+        channel_id: u8,
         world_id: i16,
         exclude: i32,
     ) -> Vec<Session> {
         self.sessions
             .read()
             .expect("poisoned")
-            .iter()
-            .filter(|session| {
-                session.id != exclude
-                    && session.acc.as_ref().is_some_and(|acc| {
-                        acc.model.channel_id == Some(channel_id)
-                            && acc.model.map_wz == Some(map_wz)
-                            && acc.model.world_id == Some(world_id)
-                    })
+            .values()
+            .filter(|s| {
+                s.id != exclude
+                    && s.map_wz == Some(map_wz)
+                    && s.channel_id == Some(channel_id)
+                    && s.world_id == Some(world_id)
             })
             .cloned()
             .collect()
@@ -145,13 +115,8 @@ impl SessionStore {
         self.sessions
             .read()
             .expect("poisoned")
-            .iter()
-            .filter(|session| {
-                session.id != exclude
-                    && session.acc.as_ref().is_some_and(|acc| {
-                        acc.model.map_wz == Some(map_wz) && acc.model.world_id == Some(world_id)
-                    })
-            })
+            .values()
+            .filter(|s| s.id != exclude && s.map_wz == Some(map_wz) && s.world_id == Some(world_id))
             .cloned()
             .collect()
     }
@@ -160,14 +125,8 @@ impl SessionStore {
         self.sessions
             .read()
             .expect("poisoned")
-            .iter()
-            .filter(|session| {
-                session.id != exclude
-                    && session
-                        .acc
-                        .as_ref()
-                        .is_some_and(|acc| acc.model.world_id == Some(world_id))
-            })
+            .values()
+            .filter(|s| s.id != exclude && s.world_id == Some(world_id))
             .cloned()
             .collect()
     }
@@ -176,8 +135,8 @@ impl SessionStore {
         self.sessions
             .read()
             .expect("poisoned")
-            .iter()
-            .filter(|session| session.id != exclude)
+            .values()
+            .filter(|s| s.id != exclude)
             .cloned()
             .collect()
     }

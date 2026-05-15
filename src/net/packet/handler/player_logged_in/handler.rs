@@ -62,14 +62,14 @@ impl PlayerLoggedInHandler {
             scope: Scope::Local,
         })?;
         let packet: Packet = Packet::new_empty()
-            .build_set_field_packet(store.char.clone(), store.channel.clone())?
+            .build_set_field_packet(store.char.clone(), store.channel_id)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
         })?;
         result.add_action(Action::Set(SetAction::SetMap {
-            map: store.map.clone(),
+            map_wz: store.map_wz,
             scope: Scope::Local,
         }))?;
         let packet: Packet = Packet::new_empty()
@@ -79,7 +79,7 @@ impl PlayerLoggedInHandler {
             packet: packet.clone(),
             scope: Scope::Map(MapScope::SameChannelSameWorld),
         })?;
-        for player in store.after_players {
+        for (_, player) in store.after_players {
             let packet: Packet = Packet::new_empty()
                 .build_spawn_player_packet(player.clone())?
                 .finish();

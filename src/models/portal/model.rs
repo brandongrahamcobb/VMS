@@ -22,7 +22,7 @@ use crate::models::portal::wrapper::Portal;
 
 #[derive(Clone)]
 pub struct PortalModel {
-    pub pid: i16,
+    pub pid: u8,
     pub pn: String,
     pub tm: i32,
     pub tn: String,

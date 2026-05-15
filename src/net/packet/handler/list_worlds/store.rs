@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use crate::models::world::wrapper::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::list_worlds::reader::ListWorldsReader;
@@ -25,7 +27,7 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct ListWorldsStore {
-    pub worlds: Vec<World>,
+    pub worlds: HashMap<i16, World>,
 }
 
 impl ListWorldsStore {
@@ -38,7 +40,7 @@ impl ListWorldsStore {
         std::hint::black_box(reader.clone());
         let worlds = {
             let state = state.lock().await;
-            state.worlds.clone()
+            state.worlds.read().expect("poisoned").clone()
         };
         Ok(Self { worlds })
     }

@@ -60,20 +60,20 @@ pub trait RuntimeRelay: Sized {
                     execute::manager::send(state, &session, &packet, &scope).await?
                 }
                 Action::Set(set_action) => match set_action {
-                    SetAction::SetMap { map, scope } => {
-                        execute::manager::set_map(state, &session, &map, &scope).await?
+                    SetAction::SetMap { map_wz, scope } => {
+                        execute::manager::set_map(state, &session, &scope, *map_wz).await?
                     }
-                    SetAction::SetChannel { channel, scope } => {
-                        execute::manager::set_channel(state, &session, &channel, &scope).await?
+                    SetAction::SetChannel { channel_id, scope } => {
+                        execute::manager::set_channel(state, &session, &scope, *channel_id).await?
                     }
-                    SetAction::SetWorld { world, scope } => {
-                        execute::manager::set_world(state, &session, &world, &scope).await?
+                    SetAction::SetWorld { world_id, scope } => {
+                        execute::manager::set_world(state, &session, &scope, *world_id).await?
                     }
-                    SetAction::SetAccount { acc } => {
-                        execute::manager::set_acc(state, &session, &acc).await?
+                    SetAction::SetAccount { acc_id } => {
+                        execute::manager::set_acc(state, &session, *acc_id).await?
                     }
-                    SetAction::SetChar { char } => {
-                        execute::manager::set_char(state, &session, &char).await?
+                    SetAction::SetChar { char_id } => {
+                        execute::manager::set_char(state, &session, *char_id).await?
                     }
                 },
             }

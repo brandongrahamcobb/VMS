@@ -53,14 +53,10 @@ impl RegisterPicHandler {
     ) -> Result<HandlerResult, NetworkError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
-            .build_select_char_packet(
-                store.channel.clone(),
-                store.char.clone(),
-                store.octets,
-            )?
+            .build_select_char_packet(store.char_id, store.octets, store.port)?
             .finish();
         result.add_action(Action::Set(SetAction::SetChar {
-            char: store.char.clone(),
+            char_id: store.char_id,
         }))?;
         result.add_action(Action::Break {
             packet: packet.clone(),

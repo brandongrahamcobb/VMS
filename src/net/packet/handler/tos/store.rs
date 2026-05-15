@@ -36,7 +36,7 @@ impl TosStore {
         reader: TosReader,
     ) -> Result<Self, NetworkError> {
         let accepted: bool = reader.confirmed == 0x01;
-        let acc: Account = session.get_acc()?;
+        let acc: Account = session.get_acc(state).await?;
         if accepted {
             acc.accept_tos(state).await?;
         }

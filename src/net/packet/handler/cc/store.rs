@@ -17,13 +17,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use crate::config::settings;
 use crate::inc::helpers;
-use crate::models::character::wrapper::Character;
-use crate::models::channel;
 use crate::models::channel::wrapper::Channel;
+use crate::models::character::wrapper::Character;
+use crate::models::error::ModelError;
+use crate::models::map::error::MapError;
 use crate::models::map::wrapper::Map;
-use crate::models::world::wrapper::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::cc::reader::ChangeChannelReader;
 use crate::runtime::session::model::Session;
@@ -31,10 +33,11 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct ChangeChannelStore {
-    pub after_players: Vec<Character>,
+    pub after_players: HashMap<i32, Character>,
+    pub channel_id: u8,
     pub char: Character,
-    pub channel: Channel,
     pub octets: [u8; 4],
+    pub port: i16,
 }
 
 impl ChangeChannelStore {
@@ -43,31 +46,28 @@ impl ChangeChannelStore {
         session: Session,
         reader: ChangeChannelReader,
     ) -> Result<Self, NetworkError> {
-        let channel: Channel =
-            channel::service::get_channel_by_id(state, reader.channel_id).await?;
-        let map: Map = session.get_active_map(state).await?;
-        let world: World = session.get_active_world(state).await?;
-        let addr = settings::get_routing_address()?;
-        let octets = helpers::convert_to_ip_array(addr);
-        let char = session.get_active_char(state).await?;
-        let mut after_players: Vec<Character> = Vec::<Character>::new();
-        let sessions = {
-            let state = state.lock().await;
-            state.sessions.get_by_map_channel_world(
-                map.model.wz,
-                channel.model.id,
-                world.model.id,
-                session.id,
-            )
-        };
-        for s in sessions {
-            after_players.push(s.get_active_char(state).await?);
-        }
+        let channel_id: u8 = reader.channel_id;
+        let map_wz: i32 = session.get_map_wz()?;
+        let channel: Channel = session.get_channel(state).await?;
+        let after_map: &Map = channel
+            .maps
+            .get(&map_wz)
+            .ok_or(MapError::NotFound(map_wz))
+            .map_err(ModelError::from)
+            .map_err(NetworkError::from)?;
+        let after_players: HashMap<i32, Character> = after_map.chars.clone();
+
+        let char: Character = session.get_char(state).await?;
+        let addr: String = settings::get_routing_address()?;
+        let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
+        let port: i16 = channel.model.port;
+
         Ok(Self {
             after_players,
+            channel_id,
             char,
-            channel,
             octets,
+            port,
         })
     }
 }

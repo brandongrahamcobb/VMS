@@ -17,47 +17,193 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::metadata;
+use crate::metadata::error::WzError;
 use crate::models::error::ModelError;
 use crate::models::item;
-use crate::models::item::model::{EquipType, ItemModel, RegularEquipType};
+use crate::models::item::error::ItemError;
+use crate::models::item::model::{
+    AndroidEquipType, CashEquipType, EquipType, Inventory, InventoryModel, InventoryTab, ItemModel,
+    PetEquipType, RegularEquipType,
+};
 use crate::models::item::wrapper::Item;
 use crate::runtime::state::SharedState;
-use crate::wz;
-use crate::wz::error::WzError;
 use serde_json::Value;
+use std::collections::HashMap;
 use std::time::SystemTime;
+
+pub async fn load_inventory(state: &SharedState, char_id: i32) -> Result<Inventory, ModelError> {
+    let items = item::service::get_items_by_char_id(state, char_id).await?;
+    let mut equipped_tab: HashMap<i16, Item> = HashMap::new();
+    let mut equip_tab: HashMap<i16, Item> = HashMap::new();
+    let mut use_tab: HashMap<i16, Item> = HashMap::new();
+    let mut setup_tab: HashMap<i16, Item> = HashMap::new();
+    let mut etc_tab: HashMap<i16, Item> = HashMap::new();
+    let mut cash_tab: HashMap<i16, Item> = HashMap::new();
+    for (_, item) in items {
+        let pos: i16 = item
+            .model
+            .pos
+            .ok_or(ItemError::NoPos)
+            .map_err(ModelError::from)?;
+        let equipped: bool = get_equipped_by_pos(pos)?;
+        if equipped {
+            let equip_type = get_equip_type_from_wz(item.model.wz)?;
+            match equip_type {
+                EquipType::Android => {
+                    let android_equip_type = get_android_equip_type_from_wz(item.model.wz)?;
+                    equipped_tab.insert(android_equip_type as i16, item);
+                }
+                EquipType::Cash => {
+                    let cash_equip_type = get_cash_equip_type_from_wz(item.model.wz)?;
+                    equipped_tab.insert(cash_equip_type as i16, item);
+                }
+                EquipType::Pet => {
+                    let pet_equip_type = get_pet_equip_type_from_wz(item.model.wz)?;
+                    equipped_tab.insert(pet_equip_type as i16, item);
+                }
+                EquipType::Regular => {
+                    let regular_equip_type = get_regular_equip_type_from_wz(item.model.wz)?;
+                    equipped_tab.insert(regular_equip_type as i16, item);
+                }
+            }
+        } else {
+            let inventory_tab: InventoryTab = get_inventory_tab_from_wz(item.model.wz)?;
+            match inventory_tab {
+                InventoryTab::Equip => {
+                    equip_tab.insert(pos, item);
+                }
+                InventoryTab::Use => {
+                    use_tab.insert(pos, item);
+                }
+                InventoryTab::Setup => {
+                    setup_tab.insert(pos, item);
+                }
+                InventoryTab::Cash => {
+                    cash_tab.insert(pos, item);
+                }
+                InventoryTab::Etc => {
+                    etc_tab.insert(pos, item);
+                }
+            }
+        }
+    }
+    let inventory: Inventory = Inventory {
+        model: InventoryModel { char_id },
+        equipped_tab: equipped_tab.clone(),
+        equip_tab: equip_tab.clone(),
+        use_tab: use_tab.clone(),
+        setup_tab: setup_tab.clone(),
+        etc_tab: etc_tab.clone(),
+        cash_tab: cash_tab.clone(),
+    };
+    Ok(inventory)
+}
 
 pub async fn get_items_by_char_id(
     state: &SharedState,
     char_id: i32,
-) -> Result<Vec<Item>, ModelError> {
-    let mut items: Vec<Item> = Vec::<Item>::new();
+) -> Result<HashMap<i32, Item>, ModelError> {
+    let mut items: HashMap<i32, Item> = HashMap::new();
     let item_models = item::query::getters::get_item_models_by_char_id(state, char_id).await?;
     for item_model in item_models {
-        items.push(item_model.load()?)
+        items.insert(item_model.get_id()?, item_model.load()?);
     }
     Ok(items)
 }
 
-pub fn get_equip_type_from_wz(wz_id: i32) -> Result<EquipType, ModelError> {
-    let category = wz::service::get_img_root(wz_id, "Item.wz");
-    dbg!(category);
-    Ok(EquipType::RegularEquipType(RegularEquipType::Hat))
+pub fn get_item_pos_by_wz(wz: i32) -> Result<i16, ModelError> {
+    let equip_type = get_equip_type_from_wz(wz)?;
+    let pos: i16 = match equip_type {
+        EquipType::Android => {
+            let android_equip_type = get_android_equip_type_from_wz(wz)?;
+            android_equip_type as i16
+        }
+        EquipType::Cash => {
+            let cash_equip_type = get_cash_equip_type_from_wz(wz)?;
+            cash_equip_type as i16
+        }
+        EquipType::Pet => {
+            let pet_equip_type = get_pet_equip_type_from_wz(wz)?;
+            pet_equip_type as i16
+        }
+        EquipType::Regular => {
+            let regular_equip_type = get_regular_equip_type_from_wz(wz)?;
+            regular_equip_type as i16
+        }
+    };
+    Ok(pos)
 }
+
+pub fn get_equipped_by_pos(pos: i16) -> Result<bool, ModelError> {
+    let equipped = matches!(
+        pos,
+        1..=59 | 101..=116 | 201..=206 | 301..=303
+    );
+    Ok(equipped)
+}
+
+pub fn get_inventory_tab_from_wz(wz: i32) -> Result<InventoryTab, ModelError> {
+    let filename = String::from("Item.wz");
+    let root = metadata::service::get_img_root(wz, &filename)?;
+    let map = root.get("info").ok_or(WzError::ObjectError).ok();
+    dbg!(map);
+    Ok(InventoryTab::Equip)
+}
+
+pub fn get_equip_type_from_wz(wz: i32) -> Result<EquipType, ModelError> {
+    let filename = String::from("Item.wz");
+    let root = metadata::service::get_img_root(wz, &filename)?;
+    let map = root.get("info").ok_or(WzError::ObjectError).ok();
+    dbg!(map);
+    Ok(EquipType::Regular) //placeholder
+}
+
+pub fn get_android_equip_type_from_wz(wz: i32) -> Result<AndroidEquipType, ModelError> {
+    let filename = String::from("Item.wz");
+    let root = metadata::service::get_img_root(wz, &filename)?;
+    let map = root.get("info").ok_or(WzError::ObjectError).ok();
+    dbg!(map);
+    Ok(AndroidEquipType::Hat)
+} // placeholder
+
+pub fn get_cash_equip_type_from_wz(wz: i32) -> Result<CashEquipType, ModelError> {
+    let filename = String::from("Item.wz");
+    let root = metadata::service::get_img_root(wz, &filename)?;
+    let map = root.get("info").ok_or(WzError::ObjectError).ok();
+    dbg!(map);
+    Ok(CashEquipType::Hat)
+} // placeholder
+
+pub fn get_pet_equip_type_from_wz(wz: i32) -> Result<PetEquipType, ModelError> {
+    let filename = String::from("Item.wz");
+    let root = metadata::service::get_img_root(wz, &filename)?;
+    let map = root.get("info").ok_or(WzError::ObjectError).ok();
+    dbg!(map);
+    Ok(PetEquipType::AccOne)
+} // placeholder
+
+pub fn get_regular_equip_type_from_wz(wz: i32) -> Result<RegularEquipType, ModelError> {
+    let filename = String::from("Item.wz");
+    let root = metadata::service::get_img_root(wz, &filename)?;
+    let map = root.get("info").ok_or(WzError::ObjectError).ok();
+    dbg!(map);
+    Ok(RegularEquipType::Hat)
+} // placeholder
 
 pub async fn create_item(
     state: &SharedState,
     char_id: Option<i32>,
-    equipped: bool,
+    pos: Option<i16>,
     item_wz: i32,
 ) -> Result<Item, ModelError> {
     let filename = String::from("Character.wz");
-    let root = wz::service::get_img_root(item_wz, &filename)?;
+    let root = metadata::service::get_img_root(item_wz, &filename)?;
     let item_model = ItemModel {
         id: None,
         char_id,
-        equipped,
         wz: item_wz,
+        pos,
         strength: get_equip_stats_from_wz(&root, "incSTR").unwrap_or(0),
         dexterity: get_equip_stats_from_wz(&root, "incDEX").unwrap_or(0),
         intelligence: get_equip_stats_from_wz(&root, "incINT").unwrap_or(0),

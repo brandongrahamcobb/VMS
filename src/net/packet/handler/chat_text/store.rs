@@ -17,8 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::account::wrapper::Account;
-use crate::models::character::wrapper::Character;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::chat_text::reader::ChatTextReader;
 use crate::runtime::session::model::Session;
@@ -26,8 +24,8 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct ChatTextStore {
-    pub acc: Account,
-    pub char: Character,
+    pub admin: bool,
+    pub char_id: i32,
     pub is_empty: bool,
     pub msg: String,
     pub show: i16,
@@ -39,11 +37,11 @@ impl ChatTextStore {
         session: Session,
         reader: ChatTextReader,
     ) -> Result<Self, NetworkError> {
-        let acc = session.get_acc()?;
-        let char = session.get_active_char(state).await?;
+        let acc = session.get_acc(state).await?;
+        let char_id = session.get_char_id()?;
         return Ok(Self {
-            acc,
-            char,
+            admin: acc.model.admin,
+            char_id,
             is_empty: reader.is_empty,
             msg: reader.msg.clone(),
             show: reader.show,

@@ -31,11 +31,6 @@ use std::time::SystemTime;
 #[diesel(table_name = accounts)]
 pub struct AccountModel {
     pub id: Option<i32>,
-    pub session_id: i32,
-    pub world_id: Option<i16>,
-    pub map_wz: Option<i32>,
-    pub channel_id: Option<i16>,
-    pub char_id: Option<i32>,
     pub username: String,
     pub password: String,
     pub pin: Option<String>,
@@ -71,30 +66,6 @@ impl AccountModel {
             Ok(oid)
         } else {
             Err(ModelError::from(AccountError::NoId))
-        }
-    }
-
-    pub fn get_active_world_id(&self) -> Result<i16, ModelError> {
-        if let Some(world_id) = self.world_id {
-            Ok(world_id)
-        } else {
-            Err(ModelError::from(AccountError::NoWorldId))
-        }
-    }
-
-    pub fn get_active_channel_id(&self) -> Result<i16, ModelError> {
-        if let Some(channel_id) = self.channel_id {
-            Ok(channel_id)
-        } else {
-            Err(ModelError::from(AccountError::NoChannelId))
-        }
-    }
-
-    pub fn get_active_char_id(&self) -> Result<i32, ModelError> {
-        if let Some(char_id) = self.char_id {
-            Ok(char_id)
-        } else {
-            Err(ModelError::from(AccountError::NoCharId))
         }
     }
 

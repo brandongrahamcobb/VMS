@@ -17,14 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
 use std::time::SystemTime;
 
 use crate::models::character::wrapper::Character;
 use crate::models::keybinding::model::{KeybindType, KeybindingModel};
 use crate::models::keybinding::wrapper::Keybinding;
-use crate::models::channel::wrapper::Channel;
 use crate::models::map::wrapper::Map;
-use crate::models::world::wrapper::World;
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::player_logged_in::reader::PlayerLoggedInReader;
 use crate::runtime::session::model::Session;
@@ -32,11 +31,11 @@ use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct PlayerLoggedInStore {
-    pub after_players: Vec<Character>,
-    pub binds: Vec<Keybinding>,
-    pub channel: Channel,
+    pub after_players: HashMap<i32, Character>,
+    pub binds: HashMap<i32, Keybinding>,
+    pub channel_id: u8,
     pub char: Character,
-    pub map: Map,
+    pub map_wz: i32,
 }
 
 impl PlayerLoggedInStore {
@@ -45,49 +44,33 @@ impl PlayerLoggedInStore {
         session: Session,
         _reader: PlayerLoggedInReader,
     ) -> Result<Self, NetworkError> {
-        let channel: Channel = session.get_active_channel(state).await?;
-        let char: Character = session.get_active_char(state).await?;
-        let map: Map = session.get_active_map(state).await?;
-        let world: World = session.get_active_world(state).await?;
-        let mut after_players: Vec<Character> = Vec::<Character>::new();
-        let sessions = {
-            let state = state.lock().await;
-            state.sessions.get_by_map_channel_world(
-                map.model.wz,
-                channel.model.id,
-                world.model.id,
-                session.id,
-            )
-        };
-        for s in sessions {
-            after_players.push(s.get_active_char(state).await?);
-        }
-        let mut binds: Vec<Keybinding> = Vec::with_capacity(90);
-        for key in 0..90 {
-            binds.push(
-                KeybindingModel {
-                    char_id: char.model.get_id()?,
-                    key: key,
-                    bind_type: KeybindType::Nil as i16,
-                    action: 0,
-                    created_at: Some(SystemTime::now()),
-                    updated_at: SystemTime::now(),
-                }
-                .load()?,
-            )
-        }
-        for bind in char.binds.clone() {
-            let idx = bind.model.key as usize;
-            if idx < 90 {
-                binds[idx] = bind.clone();
-            }
-        }
+        let channel_id: u8 = session.get_channel_id()?;
+        let char_id: i32 = session.get_char_id()?;
+        let char: Character = session.get_char(state).await?;
+        let map: Map = session.get_map(state).await?;
+        let after_players: HashMap<i32, Character> = map.chars;
+        let binds: HashMap<i32, Keybinding> = (0..90)
+            .map(|key| {
+                Ok((
+                    key,
+                    KeybindingModel {
+                        action: 0,
+                        bind_type: KeybindType::Nil as i16,
+                        char_id,
+                        created_at: Some(SystemTime::now()),
+                        key,
+                        updated_at: SystemTime::now(),
+                    }
+                    .load()?,
+                ))
+            })
+            .collect::<Result<HashMap<i32, Keybinding>, NetworkError>>()?;
         Ok(Self {
             after_players,
             binds,
-            channel,
+            channel_id,
             char,
-            map,
+            map_wz: map.model.wz,
         })
     }
 }

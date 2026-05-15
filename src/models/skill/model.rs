@@ -18,6 +18,8 @@
  */
 
 use crate::db::schema::skills;
+use crate::models::error::ModelError;
+use crate::models::skill::wrapper::Skill;
 use diesel::prelude::*;
 use std::time::SystemTime;
 
@@ -29,4 +31,12 @@ pub struct SkillModel {
     pub level: i16,
     pub created_at: Option<SystemTime>,
     pub updated_at: SystemTime,
+}
+
+impl SkillModel {
+    pub fn load(&self) -> Result<Skill, ModelError> {
+        Ok(Skill {
+            model: self.clone(),
+        })
+    }
 }

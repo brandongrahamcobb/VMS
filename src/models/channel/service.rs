@@ -17,53 +17,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use crate::config::settings;
-use crate::models::error::ModelError;
-use crate::models::channel::error::ChannelError;
 use crate::models::channel::model::ChannelModel;
 use crate::models::channel::wrapper::Channel;
-use crate::models::map;
-use crate::models::map::wrapper::Map;
-use crate::runtime::state::SharedState;
+use crate::models::error::ModelError;
 
-pub async fn get_channel_by_id(
-    state: &SharedState,
-    channel_id: i16,
-) -> Result<Channel, ModelError> {
-    let worlds = {
-        let state = state.lock().await;
-        state.worlds.clone()
-    };
-    for world in worlds {
-        for channel in &world.channels {
-            if channel.model.id == channel_id {
-                return Ok(channel.clone());
-            }
-        }
-        return Err(ModelError::from(ChannelError::NotFound(channel_id)));
-    }
-    Err(ModelError::from(ChannelError::UnexpectedError))
-}
-
-pub fn load_channels(channel_count: i16, world_port: i16) -> Result<Vec<Channel>, ModelError> {
-    let mut channels: Vec<Channel> = Vec::new();
-    let capacity: i16 = settings::get_channel_capacity()?;
-    let flag: i16 = settings::get_channel_flag()?;
-    let mut id = 0;
-    for i in 0..channel_count {
-        let port = world_port + 1 + i;
-        let channel_model = ChannelModel {
-            capacity,
-            id,
-            flag,
-            port,
-        };
-        let maps: Vec<Map> = map::service::load_maps()?;
-        channels.push(Channel {
-            model: channel_model,
-            maps: maps.clone(),
-        });
-        id += 1;
-    }
-    Ok(channels)
+pub fn load_channels(
+    count: i8,
+    world_id: i16,
+    base_port: i16,
+) -> Result<HashMap<u8, Channel>, ModelError> {
+    (0..count)
+        .map(|id| {
+            let port = base_port + (world_id as i16 * count as i16) + id as i16;
+            let flag = settings::get_channel_flag()?;
+            let capacity = settings::get_channel_capacity()?;
+            Ok((
+                id as u8,
+                Channel {
+                    model: ChannelModel {
+                        capacity,
+                        world_id,
+                        port,
+                        flag,
+                    },
+                    maps: HashMap::new(),
+                },
+            ))
+        })
+        .collect()
 }

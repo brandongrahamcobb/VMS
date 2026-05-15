@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 /* map/model.rs
  * The purpose of this module is to provide a map model and its methods.
  *
@@ -18,12 +20,10 @@
  */
 use crate::models::error::ModelError;
 use crate::models::map::wrapper::Map;
-// use crate::models::mob::model::{Mob, MobModel};
-use crate::models::portal::model::PortalModel;
+use crate::models::mob::wrapper::Mob;
 use crate::models::portal::wrapper::Portal;
+use crate::models::{mob, portal};
 use crate::runtime::state::SharedState;
-// use crate::models::{mob, portal};
-use crate::models::portal;
 
 #[derive(Clone)]
 pub struct MapModel {
@@ -32,20 +32,14 @@ pub struct MapModel {
 
 impl MapModel {
     pub async fn load(&self, _state: &SharedState) -> Result<Map, ModelError> {
-        let p_models: Vec<PortalModel> = portal::service::get_portal_models_by_map_wz(self.wz)?;
-        let mut portals: Vec<Portal> = Vec::<Portal>::new();
-        for p_model in p_models {
-            portals.push(p_model.load()?);
-        }
-        // let mob_models: Vec<MobModel> = mob::service::get_mob_models_by_map_wz(self.wz)?;
-        // let mobs: Vec<Mob> = Vec::<Mob>::new();
-        // for mob_model in mob_models {
-        //     mobs.push(mob_model.load()?);
-        // }
+        let portals: HashMap<u8, Portal> = portal::service::load_portals(self.wz)?;
+        let mobs: HashMap<u32, Mob> = mob::service::load_mobs(self.wz)?;
         Ok(Map {
+            chars: HashMap::new(),
+            items: HashMap::new(),
             model: self.clone(),
+            mobs: mobs.clone(),
             portals: portals.clone(),
-            // mobs: Vec::new(), //placeholder
         })
     }
 }

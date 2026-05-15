@@ -71,76 +71,56 @@ pub const MAX_PACKET_LENGTH: i16 = i16::MAX;
 
 pub const HEADER_SIZE: u8 = 4;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum WorldID {
-    SCANIA = 0,
-    BERA = 1,
-    BROA = 2,
-    WINDIA = 3,
-    KHAINI = 4,
-    MARDIA = 5,
-    YELLONDE = 6,
-    BELLOCAN = 7,
-}
-
 const EVENT_MESSAGE: &str = "";
 const FLAG: i16 = 0;
 
 pub const WORLDS: &[WorldModel] = &[
     WorldModel {
-        id: 0,
         name: "Scania",
         event_message: EVENT_MESSAGE,
         flag: FLAG,
-        port: 8585,
+        base_port: 8585,
     },
     WorldModel {
-        id: 1,
         name: "Bera",
         event_message: EVENT_MESSAGE,
         flag: FLAG,
-        port: 8686,
+        base_port: 8686,
     },
     WorldModel {
-        id: 2,
         name: "Broa",
         event_message: EVENT_MESSAGE,
         flag: FLAG,
-        port: 8787,
+        base_port: 8787,
     },
     WorldModel {
-        id: 3,
         name: "Windia",
         event_message: EVENT_MESSAGE,
         flag: FLAG,
-        port: 8888,
+        base_port: 8888,
     },
     WorldModel {
-        id: 4,
         name: "Khaini",
         event_message: EVENT_MESSAGE,
         flag: FLAG,
-        port: 8989,
+        base_port: 8989,
     },
     WorldModel {
-        id: 5,
         name: "Mardia",
         event_message: EVENT_MESSAGE,
         flag: FLAG,
-        port: 9090,
+        base_port: 9090,
     },
     WorldModel {
-        id: 6,
         name: "Yellonde",
         event_message: EVENT_MESSAGE,
         flag: FLAG,
-        port: 9191,
+        base_port: 9191,
     },
     WorldModel {
-        id: 7,
         name: "Bellocan",
         event_message: EVENT_MESSAGE,
         flag: FLAG,
-        port: 9292,
+        base_port: 9292,
     },
 ];

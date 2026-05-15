@@ -67,7 +67,7 @@ impl ListWorldsHandler {
             scope: Scope::Local,
         })?;
         let packet: Packet = Packet::new_empty()
-            .build_list_worlds_handler_recommended_worlds_packet()?
+            .build_list_worlds_handler_recommended_worlds_packet(store.worlds.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

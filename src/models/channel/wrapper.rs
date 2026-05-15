@@ -17,11 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use crate::models::channel::model::ChannelModel;
 use crate::models::map::wrapper::Map;
 
 #[derive(Clone)]
 pub struct Channel {
     pub model: ChannelModel,
-    pub maps: Vec<Map>,
+    pub maps: HashMap<i32, Map>,
 }

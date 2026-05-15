@@ -43,9 +43,9 @@ pub async fn simply_send_to_map(
             let sessions = {
                 let locked_state = state.lock().await;
                 locked_state.sessions.get_by_map_channel_world(
-                    session.get_active_map(state).await?.model.wz,
-                    session.get_active_channel(state).await?.model.id,
-                    session.get_active_world(state).await?.model.id,
+                    session.get_map_wz()?,
+                    session.get_channel_id()?,
+                    session.get_world_id()?,
                     session.id,
                 )
             };
@@ -57,8 +57,8 @@ pub async fn simply_send_to_map(
             let sessions = {
                 let locked_state = state.lock().await;
                 locked_state.sessions.get_by_map_world(
-                    session.get_active_map(state).await?.model.wz,
-                    session.get_active_world(state).await?.model.id,
+                    session.get_map_wz()?,
+                    session.get_world_id()?,
                     session.id,
                 )
             };
@@ -71,7 +71,7 @@ pub async fn simply_send_to_map(
                 let locked_state = state.lock().await;
                 locked_state
                     .sessions
-                    .get_by_map(session.get_active_map(state).await?.model.wz, session.id)
+                    .get_by_map(session.get_map_wz()?, session.id)
             };
             for s in sessions {
                 s.tx.send(packet.clone())?;
@@ -92,8 +92,8 @@ pub async fn simply_send_to_channel(
             let sessions = {
                 let locked_state = state.lock().await;
                 locked_state.sessions.get_by_channel_world(
-                    session.get_active_channel(state).await?.model.id,
-                    session.get_active_world(state).await?.model.id,
+                    session.get_channel_id()?,
+                    session.get_world_id()?,
                     session.id,
                 )
             };
@@ -104,10 +104,9 @@ pub async fn simply_send_to_channel(
         ChannelScope::AllWorlds => {
             let sessions = {
                 let locked_state = state.lock().await;
-                locked_state.sessions.get_by_channel(
-                    session.get_active_channel(state).await?.model.id,
-                    session.id,
-                )
+                locked_state
+                    .sessions
+                    .get_by_channel(session.get_channel_id()?, session.id)
             };
             for s in sessions {
                 s.tx.send(packet.clone())?;
@@ -126,7 +125,7 @@ pub async fn simply_send_to_world(
         let locked_state = state.lock().await;
         locked_state
             .sessions
-            .get_by_world(session.get_active_world(state).await?.model.id, session.id)
+            .get_by_world(session.get_world_id()?, session.id)
     };
     for s in sessions {
         s.tx.send(packet.clone())?;

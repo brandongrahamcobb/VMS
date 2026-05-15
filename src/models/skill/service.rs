@@ -17,23 +17,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
+use crate::metadata;
 use crate::models::error::ModelError;
 use crate::models::skill;
-use crate::models::skill::model::SkillModel;
 use crate::models::skill::wrapper::Skill;
 use crate::runtime::state::SharedState;
-use crate::wz;
-
-impl SkillModel {
-    pub fn load(&self) -> Result<Skill, ModelError> {
-        Ok(Skill {
-            model: self.clone(),
-        })
-    }
-}
 
 pub fn generate_skill_wzs_by_job_wz(job_wz: i32) -> Result<Vec<i32>, ModelError> {
-    let root = wz::service::get_img_root(job_wz, "Skill.wz")?;
+    let root = metadata::service::get_img_root(job_wz, "Skill.wz")?;
     let mut ids: Vec<i32> = root
         .get("skill")
         .and_then(|s| s.as_object())
@@ -46,15 +39,13 @@ pub fn generate_skill_wzs_by_job_wz(job_wz: i32) -> Result<Vec<i32>, ModelError>
     Ok(ids)
 }
 
-pub async fn get_skills_by_char_id(
+pub async fn load_skills(
     state: &SharedState,
     char_id: i32,
-) -> Result<Vec<Skill>, ModelError> {
-    let mut skills: Vec<Skill> = Vec::<Skill>::new();
-    let skill_models: Vec<SkillModel> =
-        skill::query::getters::get_skill_models_by_char_id(state, char_id).await?;
-    for skill_model in skill_models {
-        skills.push(skill_model.load()?);
-    }
-    Ok(skills)
+) -> Result<HashMap<i32, Skill>, ModelError> {
+    let skill_models = skill::query::getters::get_skill_models_by_char_id(state, char_id).await?;
+    Ok(skill_models
+        .into_iter()
+        .map(|s| -> Result<(i32, Skill), ModelError> { Ok((s.wz, s.load()?)) })
+        .collect::<Result<HashMap<i32, Skill>, ModelError>>()?)
 }

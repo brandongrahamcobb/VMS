@@ -20,11 +20,6 @@
 diesel::table! {
     accounts (id) {
         id -> Nullable<Int4>,
-        session_id -> Int4,
-        world_id -> Nullable<Int2>,
-        map_wz -> Nullable<Int4>,
-        channel_id -> Nullable<Int2>,
-        char_id -> Nullable<Int4>,
         username -> Text,
         password -> Text,
         pin -> Nullable<Text>,
@@ -106,8 +101,8 @@ diesel::table! {
     items (id) {
         id -> Nullable<Int4>,
         char_id -> Nullable<Int4>,
-        equipped -> Bool,
         wz -> Int4,
+        pos -> Nullable<Int2>,
         strength -> Int4,
         dexterity -> Int4,
         intelligence -> Int4,

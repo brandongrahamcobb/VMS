@@ -17,11 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::account::wrapper::Account;
-use crate::models::character::wrapper::Character;
-use crate::models::channel::wrapper::Channel;
-use crate::models::map::wrapper::Map;
-use crate::models::world::wrapper::World;
 use crate::net::packet::model::Packet;
 use crate::runtime::error::RuntimeError;
 use crate::runtime::relay::execute::{set_channel, set_map, set_world, simple};
@@ -77,19 +72,21 @@ pub async fn send(
 pub async fn set_map(
     state: &SharedState,
     session: &Session,
-    map: &Map,
     scope: &Scope,
+    map_wz: i32,
 ) -> Result<(), RuntimeError> {
     match scope {
         Scope::Local => {
-            set_map::set_map_locally(state, session, map).await?;
+            set_map::set_map_locally(state, session, map_wz).await?;
         }
-        Scope::Map(map_scope) => set_map::set_map_for_map(state, session, map, map_scope).await?,
+        Scope::Map(map_scope) => {
+            set_map::set_map_for_map(state, session, map_scope, map_wz).await?
+        }
         Scope::Channel(channel_scope) => {
-            set_map::set_map_for_channel(state, session, map, channel_scope).await?
+            set_map::set_map_for_channel(state, session, channel_scope, map_wz).await?
         }
-        Scope::World => set_map::set_map_for_world(state, session, map).await?,
-        Scope::Global => set_map::set_map_globally(state, session, map).await?,
+        Scope::World => set_map::set_map_for_world(state, session, map_wz).await?,
+        Scope::Global => set_map::set_map_globally(state, session, map_wz).await?,
     }
     Ok(())
 }
@@ -97,21 +94,21 @@ pub async fn set_map(
 pub async fn set_channel(
     state: &SharedState,
     session: &Session,
-    channel: &Channel,
     scope: &Scope,
+    channel_id: u8,
 ) -> Result<(), RuntimeError> {
     match scope {
         Scope::Local => {
-            set_channel::set_channel_locally(state, session, channel).await?;
+            set_channel::set_channel_locally(state, session, channel_id).await?;
         }
         Scope::Map(map_scope) => {
-            set_channel::set_channel_for_map(state, session, channel, map_scope).await?
+            set_channel::set_channel_for_map(state, session, map_scope, channel_id).await?
         }
         Scope::Channel(channel_scope) => {
-            set_channel::set_channel_for_channel(state, session, channel, channel_scope).await?
+            set_channel::set_channel_for_channel(state, session, channel_scope, channel_id).await?
         }
-        Scope::World => set_channel::set_channel_for_world(state, session, channel).await?,
-        Scope::Global => set_channel::set_channel_globally(state, session, channel).await?,
+        Scope::World => set_channel::set_channel_for_world(state, session, channel_id).await?,
+        Scope::Global => set_channel::set_channel_globally(state, session, channel_id).await?,
     }
     Ok(())
 }
@@ -119,21 +116,21 @@ pub async fn set_channel(
 pub async fn set_world(
     state: &SharedState,
     session: &Session,
-    world: &World,
     scope: &Scope,
+    world_id: i16,
 ) -> Result<(), RuntimeError> {
     match scope {
         Scope::Local => {
-            set_world::set_world_locally(state, session, world).await?;
+            set_world::set_world_locally(state, session, world_id).await?;
         }
         Scope::Map(map_scope) => {
-            set_world::set_world_for_map(state, session, world, map_scope).await?
+            set_world::set_world_for_map(state, session, map_scope, world_id).await?
         }
         Scope::Channel(channel_scope) => {
-            set_world::set_world_for_channel(state, session, world, channel_scope).await?
+            set_world::set_world_for_channel(state, session, channel_scope, world_id).await?
         }
-        Scope::World => set_world::set_world_for_world(state, session, world).await?,
-        Scope::Global => set_world::set_world_globally(state, session, world).await?,
+        Scope::World => set_world::set_world_for_world(state, session, world_id).await?,
+        Scope::Global => set_world::set_world_globally(state, session, world_id).await?,
     }
     Ok(())
 }
@@ -141,11 +138,11 @@ pub async fn set_world(
 pub async fn set_acc(
     state: &SharedState,
     session: &Session,
-    acc: &Account,
+    acc_id: i32,
 ) -> Result<(), RuntimeError> {
     let state = state.lock().await;
     state.sessions.update(session.id, |s| {
-        s.acc = Some(acc.clone());
+        s.acc_id = Some(acc_id);
     });
     Ok(())
 }
@@ -153,13 +150,11 @@ pub async fn set_acc(
 pub async fn set_char(
     state: &SharedState,
     session: &Session,
-    char: &Character,
+    char_id: i32,
 ) -> Result<(), RuntimeError> {
-    let mut acc: Account = session.get_acc()?;
-    acc.model.char_id = char.model.id;
     let state = state.lock().await;
     state.sessions.update(session.id, |s| {
-        s.acc = Some(acc.clone());
+        s.char_id = Some(char_id);
     });
     Ok(())
 }

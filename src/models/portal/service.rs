@@ -17,18 +17,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
+use crate::metadata;
+use crate::metadata::error::WzError;
 use crate::models::error::ModelError;
 use crate::models::portal::model::PortalModel;
 use crate::models::portal::wrapper::Portal;
-use crate::wz;
-use crate::wz::error::WzError;
 
-pub fn get_portal_models_by_map_wz(map_wz: i32) -> Result<Vec<PortalModel>, ModelError> {
-    let root = wz::service::get_img_root(map_wz, "Map.wz")?;
+pub fn load_portals(map_wz: i32) -> Result<HashMap<u8, Portal>, ModelError> {
+    let root = metadata::service::get_img_root(map_wz, "Map.wz")?;
     let wz_portals = root.get("portal").and_then(|p| p.as_object()).unwrap();
-    let mut portal_models: Vec<PortalModel> = Vec::<PortalModel>::new();
+    let mut portals: HashMap<u8, Portal> = HashMap::new();
     for (key, target) in wz_portals {
-        let pid = key.parse::<i16>().unwrap_or(0);
+        let pid = key.parse::<u8>().unwrap_or(0);
         let pn = target
             .get("pn")
             .and_then(|v| v.as_str())
@@ -44,12 +46,7 @@ pub fn get_portal_models_by_map_wz(map_wz: i32) -> Result<Vec<PortalModel>, Mode
             .and_then(|v| v.as_str())
             .unwrap_or("sp")
             .to_string();
-        portal_models.push(PortalModel { pid, pn, tm, tn });
+        portals.insert(pid, (PortalModel { pid, pn, tm, tn }).load()?);
     }
-    Ok(portal_models)
-}
-
-pub fn load_portals(_map_wz: i32) -> Result<Vec<Portal>, ModelError> {
-    let portals: Vec<Portal> = Vec::<Portal>::new();
     Ok(portals)
 }

@@ -18,8 +18,6 @@
  */
 
 use crate::models::character::wrapper::Character;
-use crate::models::item;
-use crate::models::item::model::EquipType;
 use crate::models::item::wrapper::Item;
 use crate::net::error::NetworkError;
 use crate::net::packet::io::error::IOError::WriteError;
@@ -31,13 +29,13 @@ impl Packet {
     pub fn build_list_chars_packet(
         &mut self,
         chars: Vec<Character>,
-        channel_id: i16,
+        channel_id: u8,
         char_slots: i16,
         pic_status: i16,
     ) -> Result<&mut Self, NetworkError> {
         let op = SendOpcode::CharList as i16;
         self.write_short(op).map_err(WriteError)?;
-        self.write_byte(channel_id).map_err(WriteError)?;
+        self.write_byte(channel_id as i16).map_err(WriteError)?;
         self.write_byte(chars.len() as i16).map_err(WriteError)?;
         for char in chars {
             self.build_look_part_packet(char.clone())?;
@@ -63,31 +61,15 @@ impl Packet {
         Ok(self)
     }
 
-    fn build_look_regular_part_packet(
-        &mut self,
-        equip: Item,
-        equip_type: EquipType,
-    ) -> Result<&mut Self, NetworkError> {
-        let regular_equip_type = match equip_type {
-            EquipType::RegularEquipType(regular_equip_type) => regular_equip_type,
-            _ => panic!("placeholder"),
-        };
-        self.write_byte(regular_equip_type as i16)
+    fn build_look_regular_part_packet(&mut self, equip: Item) -> Result<&mut Self, NetworkError> {
+        self.write_byte(equip.model.get_pos()?)
             .map_err(WriteError)?;
         self.build_look_regular_equip_meta_part_packet(equip.clone())?;
         Ok(self)
     }
 
-    fn build_look_cash_part_packet(
-        &mut self,
-        equip: Item,
-        equip_type: EquipType,
-    ) -> Result<&mut Self, NetworkError> {
-        let cash_equip_type = match equip_type {
-            EquipType::CashEquipType(cash_equip_type) => cash_equip_type,
-            _ => panic!("placeholder"),
-        };
-        self.write_byte(cash_equip_type as i16)
+    fn build_look_cash_part_packet(&mut self, equip: Item) -> Result<&mut Self, NetworkError> {
+        self.write_byte(equip.model.get_pos()?)
             .map_err(WriteError)?;
         self.build_look_cash_equip_meta_part_packet(equip.clone())?;
         Ok(self)
@@ -97,12 +79,9 @@ impl Packet {
         &mut self,
         char: Character,
     ) -> Result<&mut Self, NetworkError> {
-        for item in char.items {
-            if item.model.equipped {
-                let equip_type: EquipType =
-                    item::service::get_equip_type_from_wz(item.model.wz)?;
-                self.build_look_regular_part_packet(item, equip_type)?;
-            }
+        let equipped: Vec<&Item> = char.inventory.equipped_tab.values().collect();
+        for equip in equipped {
+            self.build_look_regular_part_packet(equip.clone())?;
         }
         Ok(self)
     }
@@ -111,12 +90,9 @@ impl Packet {
         &mut self,
         char: Character,
     ) -> Result<&mut Self, NetworkError> {
-        for item in char.items {
-            if item.model.equipped {
-                let equip_type: EquipType =
-                    item::service::get_equip_type_from_wz(item.model.wz)?;
-                self.build_look_cash_part_packet(item.clone(), equip_type)?;
-            }
+        let equipped: Vec<&Item> = char.inventory.equipped_tab.values().collect();
+        for equip in equipped {
+            self.build_look_cash_part_packet(equip.clone())?;
         }
         Ok(self)
     }

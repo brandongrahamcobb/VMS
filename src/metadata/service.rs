@@ -18,8 +18,8 @@
  */
 
 use crate::config::settings;
+use crate::metadata::error::WzError;
 use crate::models::error::ModelError;
-use crate::wz::error::WzError;
 use serde_json;
 use shroom_img::value::Object;
 use shroom_wz::reader::WzReader;

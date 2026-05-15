@@ -42,12 +42,10 @@ pub async fn get_account_model_by_username(
         .first::<AccountModel>(&mut conn)
 }
 
-pub async fn get_account_models_by_channel_world_ids_map_wz(
+pub async fn get_account_model_by_id(
     state: &SharedState,
-    channel_id: i16,
-    map_wz: i32,
-    world_id: i16,
-) -> QueryResult<Vec<AccountModel>> {
+    acc_id: i32,
+) -> QueryResult<AccountModel> {
     let db = {
         let state = state.lock().await;
         state.db.clone()
@@ -59,128 +57,6 @@ pub async fn get_account_models_by_channel_world_ids_map_wz(
         )
     })?;
     accounts::table
-        .filter(accounts::world_id.eq(world_id))
-        .filter(accounts::channel_id.eq(channel_id))
-        .filter(accounts::map_wz.eq(map_wz))
-        .get_results::<AccountModel>(&mut conn)
-}
-
-pub async fn get_account_models_by_channel_world_ids(
-    state: &SharedState,
-    channel_id: i16,
-    world_id: i16,
-) -> QueryResult<Vec<AccountModel>> {
-    let db = {
-        let state = state.lock().await;
-        state.db.clone()
-    };
-    let mut conn = db.get().map_err(|e| {
-        diesel::result::Error::DatabaseError(
-            diesel::result::DatabaseErrorKind::UnableToSendCommand,
-            Box::new(e.to_string()),
-        )
-    })?;
-    accounts::table
-        .filter(accounts::world_id.eq(world_id))
-        .filter(accounts::channel_id.eq(channel_id))
-        .get_results::<AccountModel>(&mut conn)
-}
-
-pub async fn get_account_models_by_map_wz_world_id(
-    state: &SharedState,
-    map_wz: i32,
-    world_id: i16,
-) -> QueryResult<Vec<AccountModel>> {
-    let db = {
-        let state = state.lock().await;
-        state.db.clone()
-    };
-    let mut conn = db.get().map_err(|e| {
-        diesel::result::Error::DatabaseError(
-            diesel::result::DatabaseErrorKind::UnableToSendCommand,
-            Box::new(e.to_string()),
-        )
-    })?;
-    accounts::table
-        .filter(accounts::world_id.eq(world_id))
-        .filter(accounts::map_wz.eq(map_wz))
-        .get_results::<AccountModel>(&mut conn)
-}
-
-pub async fn get_account_models_by_map_wz(
-    state: &SharedState,
-    map_wz: i32,
-) -> QueryResult<Vec<AccountModel>> {
-    let db = {
-        let state = state.lock().await;
-        state.db.clone()
-    };
-    let mut conn = db.get().map_err(|e| {
-        diesel::result::Error::DatabaseError(
-            diesel::result::DatabaseErrorKind::UnableToSendCommand,
-            Box::new(e.to_string()),
-        )
-    })?;
-    accounts::table
-        .filter(accounts::map_wz.eq(map_wz))
-        .get_results::<AccountModel>(&mut conn)
-}
-
-pub async fn get_account_models_by_channel_id_map_wz(
-    state: &SharedState,
-    channel_id: i16,
-    world_id: i16,
-) -> QueryResult<Vec<AccountModel>> {
-    let db = {
-        let state = state.lock().await;
-        state.db.clone()
-    };
-    let mut conn = db.get().map_err(|e| {
-        diesel::result::Error::DatabaseError(
-            diesel::result::DatabaseErrorKind::UnableToSendCommand,
-            Box::new(e.to_string()),
-        )
-    })?;
-    accounts::table
-        .filter(accounts::world_id.eq(world_id))
-        .filter(accounts::channel_id.eq(channel_id))
-        .get_results::<AccountModel>(&mut conn)
-}
-
-pub async fn get_account_models_by_channel_id(
-    state: &SharedState,
-    channel_id: i16,
-) -> QueryResult<Vec<AccountModel>> {
-    let db = {
-        let state = state.lock().await;
-        state.db.clone()
-    };
-    let mut conn = db.get().map_err(|e| {
-        diesel::result::Error::DatabaseError(
-            diesel::result::DatabaseErrorKind::UnableToSendCommand,
-            Box::new(e.to_string()),
-        )
-    })?;
-    accounts::table
-        .filter(accounts::channel_id.eq(channel_id))
-        .get_results::<AccountModel>(&mut conn)
-}
-
-pub async fn get_account_models_by_world_id(
-    state: &SharedState,
-    world_id: i16,
-) -> QueryResult<Vec<AccountModel>> {
-    let db = {
-        let state = state.lock().await;
-        state.db.clone()
-    };
-    let mut conn = db.get().map_err(|e| {
-        diesel::result::Error::DatabaseError(
-            diesel::result::DatabaseErrorKind::UnableToSendCommand,
-            Box::new(e.to_string()),
-        )
-    })?;
-    accounts::table
-        .filter(accounts::world_id.eq(world_id))
-        .get_results::<AccountModel>(&mut conn)
+        .filter(accounts::id.eq(acc_id))
+        .first::<AccountModel>(&mut conn)
 }
