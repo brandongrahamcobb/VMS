@@ -17,16 +17,42 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::account;
 use crate::models::account::model::AccountModel;
+use crate::models::account::{self, error::AccountError};
 use crate::models::character::wrapper::Character;
 use crate::models::error::ModelError;
 use crate::runtime::state::SharedState;
+use bcrypt::{DEFAULT_COST, hash, verify};
 
 #[derive(Clone)]
 pub struct Account {
     pub model: AccountModel,
     pub chars: Vec<Character>,
+}
+
+#[derive(Clone)]
+pub enum StatusCode {
+    Failed(FailedCode),
+    Pending(PendingCode),
+    Success(SuccessCode),
+}
+
+#[derive(Clone)]
+pub enum PendingCode {
+    PendingTOS = 23,
+}
+
+#[derive(Clone)]
+pub enum SuccessCode {
+    Success = 0,
+}
+
+#[derive(Clone)]
+pub enum FailedCode {
+    Banned = 2,
+    InvalidCredentials = 4,
+    UnknownCredentials = 5,
+    Playing = 7,
 }
 
 impl Account {
@@ -39,5 +65,35 @@ impl Account {
         account::query::setters::set_pic_by_account_id(state, self.model.get_id()?, pic.clone())
             .await?;
         Ok(self.clone())
+    }
+
+    pub fn authenticate(&self, pw: String) -> Result<bool, ModelError> {
+        let hash = hash(self.model.password.clone(), DEFAULT_COST)
+            .map_err(AccountError::CryptError)
+            .map_err(ModelError::from)?;
+        Ok(verify(&pw, &hash)
+            .map_err(AccountError::CryptError)
+            .map_err(ModelError::from)?)
+    }
+
+    pub fn check_if_playing(&self, all_acc_ids: Vec<i32>) -> Result<bool, ModelError> {
+        let acc_id: i32 = self.model.get_id()?;
+        Ok(all_acc_ids.contains(&acc_id))
+    }
+
+    pub async fn get_status_code_by_account(
+        &self,
+        all_acc_ids: Vec<i32>,
+    ) -> Result<StatusCode, ModelError> {
+        if self.model.banned {
+            return Ok(StatusCode::Failed(FailedCode::Banned));
+        }
+        if !self.model.accepted_tos {
+            return Ok(StatusCode::Pending(PendingCode::PendingTOS));
+        }
+        if self.check_if_playing(all_acc_ids)? {
+            return Ok(StatusCode::Failed(FailedCode::Playing));
+        }
+        return Ok(StatusCode::Success(SuccessCode::Success));
     }
 }

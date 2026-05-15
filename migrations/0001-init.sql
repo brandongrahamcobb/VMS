@@ -6,7 +6,7 @@ CREATE TABLE accounts (
     pic TEXT NULL,
     last_login_at TIMESTAMP NULL,
     character_slots SMALLINT NOT NULL DEFAULT 8,
-    gender_wz_id SMALLINT NOT NULL,
+    gender_wz SMALLINT NOT NULL,
     accepted_tos BOOLEAN NOT NULL DEFAULT FALSE,
     banned BOOLEAN NOT NULL DEFAULT FALSE,
     admin BOOLEAN NOT NULL DEFAULT FALSE,
@@ -17,7 +17,8 @@ CREATE TABLE accounts (
 CREATE TABLE characters (
     id SERIAL PRIMARY KEY,
     acc_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
-    world_oid SMALLINT NOT NULL,
+    world_id SMALLINT NOT NULL,
+    map_wz INTEGER NOT NULL,
     ign TEXT NOT NULL,
     level SMALLINT NOT NULL DEFAULT 1,
     exp INTEGER NOT NULL DEFAULT 0,
@@ -32,19 +33,21 @@ CREATE TABLE characters (
     ap SMALLINT NOT NULL DEFAULT 0,
     fame SMALLINT NOT NULL DEFAULT 0,
     meso INTEGER NOT NULL DEFAULT 0,
-    job_wz_id SMALLINT NOT NULL,
-    face_wz_id INTEGER NOT NULL,
-    hair_wz_id INTEGER NOT NULL,
-    hair_color_wz_id INTEGER NOT NULL,
-    skin_wz_id INTEGER NOT NULL,
-    gender_wz_id SMALLINT NOT NULL,
-    map_wz_id INTEGER NOT NULL,
+    job_wz SMALLINT NOT NULL,
+    face_wz INTEGER NOT NULL,
+    hair_wz INTEGER NOT NULL,
+    hair_color_wz INTEGER NOT NULL,
+    skin_wz INTEGER NOT NULL,
+    gender_wz SMALLINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE equip_stats (
+CREATE TABLE equip_items (
     id SERIAL PRIMARY KEY,
+    char_id INTEGER NULL REFERENCES characters(id) ON DELETE CASCADE,
+    wz INTEGER NOT NULL,
+    ipos SMALLINT NULL,
     strength INTEGER NOT NULL DEFAULT 0,
     dexterity INTEGER NOT NULL DEFAULT 0,
     intelligence INTEGER NOT NULL DEFAULT 0,
@@ -64,17 +67,53 @@ CREATE TABLE equip_stats (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE cash_nonequip_items (
+    id SERIAL PRIMARY KEY,
+    char_id INTEGER NULL REFERENCES characters(id) ON DELETE CASCADE,
+    wz INTEGER NOT NULL,
+    ipos SMALLINT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE etc_items (
+    id SERIAL PRIMARY KEY,
+    char_id INTEGER NULL REFERENCES characters(id) ON DELETE CASCADE,
+    wz INTEGER NOT NULL,
+    ipos SMALLINT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE use_items (
+    id SERIAL PRIMARY KEY,
+    char_id INTEGER NULL REFERENCES characters(id) ON DELETE CASCADE,
+    wz INTEGER NOT NULL,
+    ipos SMALLINT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE setup_items (
+    id SERIAL PRIMARY KEY,
+    char_id INTEGER NULL REFERENCES characters(id) ON DELETE CASCADE,
+    wz INTEGER NOT NULL,
+    ipos SMALLINT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE character_limits (
-    acc_oid INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
-    world_oid SMALLINT NOT NULL,
+    acc_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+    world_id SMALLINT NOT NULL,
     char_max SMALLINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    PRIMARY KEY (acc_oid, world_oid)
+    PRIMARY KEY (acc_id, world_id)
 );
 
 CREATE TABLE keybindings (
-    char_oid INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+    char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
     key INTEGER NOT NULL,
     bind_type SMALLINT NOT NULL,
     action INTEGER NOT NULL,
@@ -83,8 +122,8 @@ CREATE TABLE keybindings (
 );
 
 CREATE TABLE skills (
-    char_oid INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
-    wz_id INTEGER NOT NULL,
+    char_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+    wz INTEGER NOT NULL,
     level SMALLINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
@@ -97,10 +136,10 @@ ALTER TABLE characters
 ADD CONSTRAINT characters_unique UNIQUE (ign);
 
 ALTER TABLE keybindings
-ADD CONSTRAINT keybindings_unique UNIQUE (char_oid, key);
+ADD CONSTRAINT keybindings_unique UNIQUE (char_id, key);
 
 ALTER TABLE skills
-ADD CONSTRAINT skills_unique UNIQUE (char_oid, wz_id);
+ADD CONSTRAINT skills_unique UNIQUE (char_id, wz);
 
 
 

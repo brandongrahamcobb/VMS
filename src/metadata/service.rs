@@ -18,8 +18,7 @@
  */
 
 use crate::config::settings;
-use crate::metadata::error::WzError;
-use crate::models::error::ModelError;
+use crate::metadata::error::MetadataError;
 use serde_json;
 use shroom_img::value::Object;
 use shroom_wz::reader::WzReader;
@@ -28,111 +27,165 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufReader;
 
-pub fn load_wz_reader(filename: &str) -> Result<WzReader<BufReader<File>>, ModelError> {
+fn load_wz_reader(filename: &str) -> Result<WzReader<BufReader<File>>, MetadataError> {
     let path: String = settings::get_wz_path()?;
     let base = std::path::Path::new(&path).join("Base.wz");
     let file = std::path::Path::new(&path).join(filename);
     let version = try_detect_file_versions(&base)
-        .map_err(WzError::BinRwError)?
+        .map_err(MetadataError::BinRwError)?
         .into_iter()
         .next()
-        .ok_or(WzError::NoVersion)?;
+        .ok_or(MetadataError::NoVersion)?;
     let wz_ctx = WzContext::global(version).shared();
-    let reader = WzReader::open(&file, wz_ctx).map_err(WzError::AnyHowError)?;
+    let reader = WzReader::open(&file, wz_ctx).map_err(MetadataError::AnyHowError)?;
     Ok(reader)
 }
 
-fn build_index(
-    wz: &mut WzReader<BufReader<File>>,
-    dir: &WzDir,
-    prefix: String,
-    map: &mut HashMap<i32, String>,
-) -> Result<(), ModelError> {
-    for entry in dir.0.iter() {
+fn wz_resolve_img<F, T>(wz: i32, wz_name: &str, f: F) -> Result<T, MetadataError>
+where
+    F: FnOnce(&Object, &[&str], &str) -> Result<T, MetadataError>,
+{
+    let mut wz_reader = load_wz_reader(wz_name)?;
+    let resolver = WzResolver::new(&mut wz_reader)?;
+    let path = resolver.resolve(wz)?;
+    let parts: Vec<&str> = path.split('/').collect();
+    let root = wz_reader
+        .read_root_dir()
+        .map_err(MetadataError::AnyHowError)?;
+    let mut node = root;
+    for (i, part) in parts.iter().enumerate() {
+        let entry = node.get(part).ok_or(MetadataError::EntryError)?;
         match entry {
-            WzDirEntry::Dir(sub) => {
-                let name = &sub.name.0;
-                let path = if prefix.is_empty() {
-                    name.to_string()
-                } else {
-                    format!("{}/{}", prefix, name)
-                };
-                let sub_dir = wz.read_dir_node(&sub).map_err(WzError::AnyHowError)?;
-                build_index(wz, &sub_dir, path, map)?;
+            WzDirEntry::Dir(dir) => {
+                node = wz_reader
+                    .read_dir_node(&dir)
+                    .map_err(MetadataError::AnyHowError)?;
             }
             WzDirEntry::Img(img) => {
-                let name = &img.name.0;
-                let path = if prefix.is_empty() {
-                    name.to_string()
-                } else {
-                    format!("{}/{}", prefix, name)
-                };
-                if let Some(id) = name.strip_suffix(".img") {
-                    if let Ok(id_num) = id.parse::<i32>() {
-                        map.insert(id_num, path);
-                    }
-                }
+                let mut img_reader = wz_reader
+                    .img_reader(&img)
+                    .map_err(MetadataError::AnyHowError)?;
+                let obj =
+                    Object::from_reader(&mut img_reader).map_err(MetadataError::BinRwError)?;
+                return f(&obj, &parts[..=i], wz_name);
             }
-            _ => {}
+            _ => return Err(MetadataError::EntryError),
         }
     }
-    Ok(())
+    Err(MetadataError::PartError)
 }
 
-pub struct WzResolver {
+pub fn wz_to_tree(wz: i32, wz_name: &str) -> Result<serde_json::Value, MetadataError> {
+    wz_resolve_img(wz, wz_name, |obj, dir_parts, wz_name| {
+        let prop = obj.as_property().ok_or(MetadataError::EntryError)?;
+        let keys: serde_json::Value = prop
+            .0
+            .keys()
+            .map(|k| k.to_string())
+            .collect::<Vec<_>>()
+            .into();
+        let full = dir_parts
+            .iter()
+            .rev()
+            .fold(keys, |acc, segment| serde_json::json!({ *segment: acc }));
+        Ok(serde_json::json!({ wz_name: full }))
+    })
+}
+
+pub fn wz_to_img(wz: i32, wz_name: &str) -> Result<serde_json::Value, MetadataError> {
+    wz_resolve_img(wz, wz_name, |obj, _dir_parts, _wz_name| {
+        Ok(obj.to_json_value())
+    })
+}
+
+pub fn wz_debug_dir(wz_name: &str, dir_path: &str) -> Result<serde_json::Value, MetadataError> {
+    let mut wz_reader = load_wz_reader(wz_name)?;
+    let parts: Vec<&str> = dir_path.split('/').filter(|s| !s.is_empty()).collect();
+    let root = wz_reader
+        .read_root_dir()
+        .map_err(MetadataError::AnyHowError)?;
+    let mut node = root;
+    for part in &parts {
+        let entry = node.get(part).ok_or(MetadataError::EntryError)?;
+        match entry {
+            WzDirEntry::Dir(dir) => {
+                node = wz_reader
+                    .read_dir_node(&dir)
+                    .map_err(MetadataError::AnyHowError)?;
+            }
+            _ => return Err(MetadataError::EntryError),
+        }
+    }
+    let keys: serde_json::Value = node
+        .0
+        .iter()
+        .filter_map(|entry| match entry {
+            WzDirEntry::Dir(d) => Some(format!("{}/", d.name.0)),
+            WzDirEntry::Img(i) => Some(i.name.0.to_string()),
+            _ => None,
+        })
+        .collect::<Vec<_>>()
+        .into();
+    Ok(keys)
+}
+
+struct WzResolver {
     map: HashMap<i32, String>,
 }
 
 impl WzResolver {
-    pub fn new(wz_reader: &mut WzReader<BufReader<File>>) -> Result<Self, ModelError> {
-        let dir = wz_reader
-            .read_root_dir()
-            .map_err(WzError::AnyHowError)
-            .map_err(ModelError::from)?;
+    pub fn new(wz_reader: &mut WzReader<BufReader<File>>) -> Result<Self, MetadataError> {
         let mut map = HashMap::new();
-        build_index(wz_reader, &dir, String::new(), &mut map)?;
+        let root = wz_reader
+            .read_root_dir()
+            .map_err(MetadataError::AnyHowError)?;
+        Self::scan(wz_reader, &root, String::new(), &mut map)?;
         Ok(Self { map })
     }
 
-    pub fn resolve(&self, id: i32) -> Result<String, ModelError> {
-        Ok(self.map.get(&id).cloned().ok_or(WzError::NotFound(id))?)
-    }
-}
-
-pub fn get_img_root(id: i32, wz_name: &str) -> Result<serde_json::Value, ModelError> {
-    let mut wz = load_wz_reader(wz_name)?;
-    let resolver = WzResolver::new(&mut wz)?;
-    let path = resolver.resolve(id)?;
-    let parts: Vec<&str> = path.split('/').collect();
-    let root = wz
-        .read_root_dir()
-        .map_err(WzError::AnyHowError)
-        .map_err(ModelError::from)?;
-    let mut node = root;
-    for part in &parts {
-        let entry = node
-            .get(part)
-            .ok_or(WzError::EntryError)
-            .map_err(ModelError::from)?;
-        node = match entry {
-            WzDirEntry::Dir(d) => wz
-                .read_dir_node(&d)
-                .map_err(WzError::AnyHowError)
-                .map_err(ModelError::from)?,
-            WzDirEntry::Img(img) => {
-                let img_hdr = img;
-                let mut img = wz
-                    .img_reader(&img_hdr)
-                    .map_err(WzError::AnyHowError)
-                    .map_err(ModelError::from)?;
-                let root_obj = Object::from_reader(&mut img)
-                    .map_err(WzError::BinRwError)
-                    .map_err(ModelError::from)?;
-                let root_obj = root_obj.as_property().unwrap();
-                return Ok(root_obj.to_json_value());
+    fn scan(
+        wz_reader: &mut WzReader<BufReader<File>>,
+        dir: &WzDir,
+        prefix: String,
+        map: &mut HashMap<i32, String>,
+    ) -> Result<(), MetadataError> {
+        for entry in dir.0.iter() {
+            match entry {
+                WzDirEntry::Dir(sub) => {
+                    let name = &sub.name.0;
+                    let path = if prefix.is_empty() {
+                        name.to_string()
+                    } else {
+                        format!("{}/{}", prefix, name)
+                    };
+                    let sub_dir = wz_reader
+                        .read_dir_node(&sub)
+                        .map_err(MetadataError::AnyHowError)?;
+                    Self::scan(wz_reader, &sub_dir, path, map)?;
+                }
+                WzDirEntry::Img(img) => {
+                    let name = &img.name.0;
+                    let path = if prefix.is_empty() {
+                        name.to_string()
+                    } else {
+                        format!("{}/{}", prefix, name)
+                    };
+                    if let Some(id) = name.strip_suffix(".img") {
+                        if let Ok(id_num) = id.parse::<i32>() {
+                            map.insert(id_num, path);
+                        }
+                    }
+                }
+                _ => {}
             }
-            _ => return Err(ModelError::from(WzError::EntryError)),
-        };
+        }
+        Ok(())
     }
-    Err(ModelError::from(WzError::PartError))
+
+    pub fn resolve(&self, id: i32) -> Result<String, MetadataError> {
+        self.map
+            .get(&id)
+            .cloned()
+            .ok_or(MetadataError::NotFound(id).into())
+    }
 }

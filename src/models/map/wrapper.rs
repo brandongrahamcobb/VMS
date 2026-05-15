@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::metadata::error::WzError;
+use crate::metadata::error::MetadataError;
 use crate::models::character::wrapper::Character;
 use crate::models::error::ModelError;
 use crate::models::item::wrapper::Item;
@@ -42,7 +42,7 @@ impl Map {
             .values()
             .find(|p| p.model.pn == tn)
             .cloned()
-            .ok_or(WzError::ObjectError)?;
+            .ok_or(MetadataError::ObjectError)?;
         Ok(portal)
     }
 }

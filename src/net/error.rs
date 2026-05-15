@@ -26,7 +26,6 @@ use crate::net::packet::error::PacketError;
 use crate::net::packet::io::error::IOError;
 use crate::net::packet::model::Packet;
 use crate::runtime::session::error::SessionError;
-use bcrypt::BcryptError;
 use core::num::ParseIntError;
 use std::time::SystemTimeError;
 use thiserror::Error;
@@ -52,9 +51,6 @@ pub enum NetworkError {
     #[error("Integer conversion error in network layer")]
     IntConversion(#[from] std::num::TryFromIntError),
 
-    #[error("Bcrypt error in network layer")]
-    CryptError(#[from] BcryptError),
-
     #[error("Session error in network layer")]
     SessionError(#[from] SessionError),
 
@@ -73,9 +69,9 @@ pub enum NetworkError {
     #[error("Character error in network layer")]
     CharacterError(#[from] CharacterError),
 
-    #[error("Failed UnboundedSender error in runtime layer")]
+    #[error("Failed UnboundedSender error in network layer")]
     UnboundedSenderError(#[from] SendError<Packet>),
 
-    #[error("Parse int error in runtime layer")]
+    #[error("Parse int error in network layer")]
     ParseIntError(#[from] ParseIntError),
 }

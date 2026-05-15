@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use bcrypt::BcryptError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -47,4 +48,7 @@ pub enum AccountError {
 
     #[error("No created at time found in account model layer: {0}")]
     NoCreatedAt(i32),
+
+    #[error("Bcrypt error in account model layer")]
+    CryptError(#[from] BcryptError),
 }

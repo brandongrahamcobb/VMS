@@ -24,7 +24,7 @@ use crate::models::error::ModelError;
 use crate::models::mob::wrapper::Mob;
 
 pub fn load_mobs(map_wz: i32) -> Result<HashMap<u32, Mob>, ModelError> {
-    let root = metadata::service::get_img_root(map_wz, "Mob.wz")?;
-    dbg!(root);
+    let filename: String = String::from("Mob.wz");
+    let json = metadata::service::wz_to_img(map_wz, &filename)?;
     Ok(HashMap::new())
 }

@@ -22,8 +22,7 @@ use crate::models::character;
 use crate::models::character::model::CharacterModel;
 use crate::models::character::wrapper::Character;
 use crate::models::item;
-use crate::models::item::model::{Inventory, InventoryModel};
-use crate::models::item::wrapper::Item;
+use crate::models::item::wrapper::Inventory;
 use crate::models::job::model::JobModel;
 use crate::models::job::wrapper::Job;
 use crate::models::keybinding;
@@ -113,32 +112,19 @@ impl CreateCharStore {
         reader: CreateCharReader,
         char_id: i32,
     ) -> Result<Inventory, NetworkError> {
-        let mut equipped_tab: HashMap<i16, Item> = HashMap::new();
-        let pos: i16 = item::service::get_item_pos_by_wz(reader.top_wz)?;
-        let top =
-            item::service::create_item(state, Some(char_id), Some(pos), reader.top_wz).await?;
-        equipped_tab.insert(pos, top);
-        let pos: i16 = item::service::get_item_pos_by_wz(reader.bottom_wz)?;
-        let bottom =
-            item::service::create_item(state, Some(char_id), Some(pos), reader.bottom_wz).await?;
-        equipped_tab.insert(pos, bottom);
-        let pos: i16 = item::service::get_item_pos_by_wz(reader.shoes_wz)?;
-        let shoes =
-            item::service::create_item(state, Some(char_id), Some(pos), reader.shoes_wz).await?;
-        equipped_tab.insert(pos, shoes);
-        let pos: i16 = item::service::get_item_pos_by_wz(reader.weapon_wz)?;
-        let weapon =
-            item::service::create_item(state, Some(char_id), Some(pos), reader.weapon_wz).await?;
-        equipped_tab.insert(pos, weapon);
-        let inventory: Inventory = Inventory {
-            model: InventoryModel { char_id },
-            equipped_tab: equipped_tab.clone(),
-            equip_tab: HashMap::new(),
-            use_tab: HashMap::new(),
-            setup_tab: HashMap::new(),
-            etc_tab: HashMap::new(),
-            cash_tab: HashMap::new(),
-        };
+        let mut inventory: Inventory = item::service::load_inventory(state, char_id).await?;
+        let top = item::service::create_item(state, reader.top_wz).await?;
+        let top = inventory.pick_up(state, top.clone()).await?;
+        inventory.equip(state, top.clone()).await?;
+        let bottom = item::service::create_item(state, reader.bottom_wz).await?;
+        let bottom = inventory.pick_up(state, bottom.clone()).await?;
+        inventory.equip(state, bottom.clone()).await?;
+        let shoes = item::service::create_item(state, reader.shoes_wz).await?;
+        let shoes = inventory.pick_up(state, shoes.clone()).await?;
+        inventory.equip(state, shoes.clone()).await?;
+        let weapon = item::service::create_item(state, reader.weapon_wz).await?;
+        let weapon = inventory.pick_up(state, weapon.clone()).await?;
+        inventory.equip(state, weapon.clone()).await?;
         Ok(inventory)
     }
 

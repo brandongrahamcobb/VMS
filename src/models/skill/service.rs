@@ -26,8 +26,9 @@ use crate::models::skill::wrapper::Skill;
 use crate::runtime::state::SharedState;
 
 pub fn generate_skill_wzs_by_job_wz(job_wz: i32) -> Result<Vec<i32>, ModelError> {
-    let root = metadata::service::get_img_root(job_wz, "Skill.wz")?;
-    let mut ids: Vec<i32> = root
+    let filename: String = String::from("Skill.wz");
+    let json = metadata::service::wz_to_img(job_wz, &filename)?;
+    let mut ids: Vec<i32> = json
         .get("skill")
         .and_then(|s| s.as_object())
         .unwrap_or(&serde_json::Map::new())

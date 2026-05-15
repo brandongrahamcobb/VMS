@@ -20,7 +20,7 @@
 use std::collections::HashMap;
 
 use crate::models::character::wrapper::Character;
-use crate::models::item::wrapper::Item;
+use crate::models::item::wrapper::{EquipItem, Item};
 use crate::models::keybinding::wrapper::Keybinding;
 use crate::net::error::NetworkError;
 use crate::net::packet::io::error::IOError::WriteError;
@@ -81,33 +81,47 @@ impl Packet {
         Ok(self)
     }
 
-    fn build_inventory_regular_part_packet(
+    pub fn build_inventory_cash_equipment_part_packet(
         &mut self,
-        equip: Item,
+        char: Character,
     ) -> Result<&mut Self, NetworkError> {
-        self.write_short(equip.model.get_pos()?)
-            .map_err(WriteError)?;
-        self.build_inventory_regular_equip_meta_part_packet(equip.clone())?;
+        let equipped: HashMap<i16, Item> = char.inventory.equipped_tab;
+        for (ipos, equip) in equipped {
+            match equip {
+                Item::CashEquip(i) => {
+                    self.write_short(ipos).map_err(WriteError)?;
+                    self.write_int(i.model.wz).map_err(WriteError)?;
+                }
+                _ => (),
+            }
+        }
         Ok(self)
     }
+
     pub fn build_inventory_regular_equipment_part_packet(
         &mut self,
         char: Character,
     ) -> Result<&mut Self, NetworkError> {
-        let equipped: Vec<&Item> = char.inventory.equipped_tab.values().collect();
-        for equip in equipped {
-            self.build_inventory_regular_part_packet(equip.clone())?;
+        let equipped: HashMap<i16, Item> = char.inventory.equipped_tab;
+        for (ipos, equip) in equipped {
+            match equip {
+                Item::Equip(i) => {
+                    self.write_short(ipos).map_err(WriteError)?;
+                    self.build_inventory_regular_equip_meta_part_packet(i.clone())?;
+                }
+                _ => (),
+            }
         }
         Ok(self)
     }
 
     fn build_inventory_regular_equip_meta_part_packet(
         &mut self,
-        equip: Item,
+        equip: EquipItem,
     ) -> Result<&mut Self, NetworkError> {
         // Dummy values
         self.write_byte(1).map_err(WriteError)?;
-        self.write_int(equip.model.get_id()?).map_err(WriteError)?;
+        self.write_int(equip.model.wz).map_err(WriteError)?;
         const NUM_EQUIP_STATS: i16 = 15;
         let is_cash = false as i16;
         self.write_byte(is_cash).map_err(WriteError)?;
@@ -127,32 +141,6 @@ impl Packet {
         self.write_int(0).map_err(WriteError)?;
         self.write_long(0).map_err(WriteError)?;
         self.write_bytes(vec![0u8; 12]).map_err(WriteError)?;
-        Ok(self)
-    }
-
-    fn build_inventory_cash_equip_meta_part_packet(
-        &mut self,
-        equip: Item,
-    ) -> Result<&mut Self, NetworkError> {
-        self.write_int(equip.model.wz).map_err(WriteError)?;
-        Ok(self)
-    }
-
-    fn build_inventory_cash_part_packet(&mut self, equip: Item) -> Result<&mut Self, NetworkError> {
-        self.write_short(equip.model.get_pos()?)
-            .map_err(WriteError)?;
-        self.build_inventory_cash_equip_meta_part_packet(equip.clone())?;
-        Ok(self)
-    }
-
-    pub fn build_inventory_cash_equipment_part_packet(
-        &mut self,
-        char: Character,
-    ) -> Result<&mut Self, NetworkError> {
-        let equipped: Vec<&Item> = char.inventory.equipped_tab.values().collect();
-        for equip in equipped {
-            self.build_inventory_cash_part_packet(equip.clone())?;
-        }
         Ok(self)
     }
 

@@ -17,26 +17,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::config::error::ConfigError;
+
 #[derive(Debug, thiserror::Error)]
-pub enum WzError {
-    #[error("Requested Wz resource was not found in wz model layer: {0}")]
+pub enum MetadataError {
+    #[error("Requested metadata resource was not found in metadata model layer: {0}")]
     NotFound(i32),
 
-    #[error("Wz anyhow error in wz model layer")]
+    #[error("Metadata anyhow error in metadata model layer")]
     AnyHowError(#[from] anyhow::Error),
 
-    #[error("Wz binrw error in wz model layer")]
+    #[error("Wz binrw error in metadata model layer")]
     BinRwError(#[from] binrw::error::Error),
 
-    #[error("Wz version error in wz model layer")]
+    #[error("Wz version error in metadata model layer")]
     NoVersion,
 
-    #[error("WzDirEntry error in wz model layer")]
+    #[error("WzDirEntry error in metadata model layer")]
     EntryError,
 
-    #[error("Wz part error in wz model layer")]
+    #[error("Wz part error in metadata model layer")]
     PartError,
 
-    #[error("Wz Object error in wz model layer")]
+    #[error("Wz Object error in metadata model layer")]
     ObjectError,
+
+    #[error("Config error in model layer")]
+    ConfigError(#[from] ConfigError),
 }

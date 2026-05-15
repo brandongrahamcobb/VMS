@@ -41,7 +41,7 @@ pub async fn get_account_by_id(state: &SharedState, acc_id: i32) -> Result<Accou
 }
 
 pub fn check_pic(acc_pic: Option<String>, pic: String) -> Result<bool, ModelError> {
-    if acc_pic != Some(pic) {
+    if acc_pic == Some(pic) {
         return Ok(true);
     } else {
         return Ok(false);

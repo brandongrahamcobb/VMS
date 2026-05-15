@@ -18,39 +18,40 @@
  */
 
 use crate::config::error::ConfigError;
-use crate::metadata::error::WzError;
+use crate::metadata::error::MetadataError;
 use crate::models::account::error::AccountError;
 use crate::models::channel::error::ChannelError;
 use crate::models::character::error::CharacterError;
 use crate::models::item::error::ItemError;
 use crate::models::keybinding::error::KeybindingError;
 use crate::models::map::error::MapError;
+use crate::models::portal::error::PortalError;
 use crate::models::world::error::WorldError;
 use diesel;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum ModelError {
-    #[error("Account model error in model layer")]
+    #[error("Account error in model layer")]
     AccountError(#[from] AccountError),
 
-    #[error("Character model error in model layer")]
+    #[error("Character error in model layer")]
     CharacterError(#[from] CharacterError),
 
-    #[error("Channel model error in model layer")]
+    #[error("Channel error in model layer")]
     ChannelError(#[from] ChannelError),
 
-    #[error("Keybinding model error in model layer")]
+    #[error("Keybinding error in model layer")]
     KeybindingError(#[from] KeybindingError),
 
-    #[error("World model error in model layer")]
+    #[error("World error in model layer")]
     WorldError(#[from] WorldError),
 
     #[error("Config error in model layer")]
     ConfigError(#[from] ConfigError),
 
-    #[error("Wz error in model layer")]
-    WzError(#[from] WzError),
+    #[error("Metadata error in model layer")]
+    MetadataError(#[from] MetadataError),
 
     #[error("Diesel error in model layer")]
     DieselError(#[from] diesel::result::Error),
@@ -60,4 +61,7 @@ pub enum ModelError {
 
     #[error("Item error in model layer")]
     ItemError(#[from] ItemError),
+
+    #[error("Portal error in model layer")]
+    PortalError(#[from] PortalError),
 }

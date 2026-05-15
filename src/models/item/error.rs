@@ -29,4 +29,10 @@ pub enum ItemError {
 
     #[error("Tab error in item model layer")]
     TabError,
+
+    #[error("No islot found in item model layer")]
+    InvalidISlot,
+
+    #[error("No cash field found in item model layer")]
+    InvalidCash,
 }

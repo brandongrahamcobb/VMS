@@ -19,10 +19,9 @@
 
 use crate::models::account;
 use crate::models::account::wrapper::Account;
+use crate::models::account::wrapper::{FailedCode, StatusCode};
 use crate::net::error::NetworkError;
-use crate::net::packet::handler::credentials;
 use crate::net::packet::handler::credentials::reader::CredentialsReader;
-use crate::net::packet::handler::credentials::service::{FailedCode, StatusCode};
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
@@ -35,16 +34,21 @@ pub struct CredentialsStore {
 impl CredentialsStore {
     pub async fn store_credentials(
         state: &SharedState,
-        _session: Session,
+        session: Session,
         reader: CredentialsReader,
     ) -> Result<Self, NetworkError> {
         match account::service::get_account_by_username(state, reader.username.clone()).await {
             Ok(acc) => {
-                let status = if credentials::service::authenticate(
-                    acc.model.password.clone(),
-                    reader.pw.clone(),
-                )? {
-                    credentials::service::get_status_code_by_account(&acc).await?
+                let status = if acc.authenticate(reader.pw.clone())? {
+                    let sessions = {
+                        let state = state.lock().await;
+                        state.sessions.get_all(session.id)
+                    };
+                    let mut acc_ids: Vec<i32> = Vec::<i32>::new();
+                    for s in sessions {
+                        acc_ids.push(s.get_acc_id()?);
+                    }
+                    acc.get_status_code_by_account(acc_ids.clone()).await?
                 } else {
                     StatusCode::Failed(FailedCode::InvalidCredentials)
                 };

@@ -20,7 +20,7 @@
 use std::collections::HashMap;
 
 use crate::models::character::model::CharacterModel;
-use crate::models::item::model::Inventory;
+use crate::models::item::wrapper::Inventory;
 use crate::models::job::wrapper::Job;
 use crate::models::keybinding::wrapper::Keybinding;
 use crate::models::skill::wrapper::Skill;

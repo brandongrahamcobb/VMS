@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use crate::models::character::wrapper::Character;
 use crate::models::item::wrapper::Item;
 use crate::net::error::NetworkError;
@@ -45,33 +47,20 @@ impl Packet {
         Ok(self)
     }
 
-    fn build_look_regular_equip_meta_part_packet(
+    pub fn build_look_cash_equipment_part_packet(
         &mut self,
-        equip: Item,
+        char: Character,
     ) -> Result<&mut Self, NetworkError> {
-        self.write_int(equip.model.wz).map_err(WriteError)?;
-        Ok(self)
-    }
-
-    fn build_look_cash_equip_meta_part_packet(
-        &mut self,
-        equip: Item,
-    ) -> Result<&mut Self, NetworkError> {
-        self.write_int(equip.model.wz).map_err(WriteError)?;
-        Ok(self)
-    }
-
-    fn build_look_regular_part_packet(&mut self, equip: Item) -> Result<&mut Self, NetworkError> {
-        self.write_byte(equip.model.get_pos()?)
-            .map_err(WriteError)?;
-        self.build_look_regular_equip_meta_part_packet(equip.clone())?;
-        Ok(self)
-    }
-
-    fn build_look_cash_part_packet(&mut self, equip: Item) -> Result<&mut Self, NetworkError> {
-        self.write_byte(equip.model.get_pos()?)
-            .map_err(WriteError)?;
-        self.build_look_cash_equip_meta_part_packet(equip.clone())?;
+        let equipped: HashMap<i16, Item> = char.inventory.equipped_tab;
+        for (ipos, equip) in equipped {
+            match equip {
+                Item::CashEquip(i) => {
+                    self.write_byte(ipos).map_err(WriteError)?;
+                    self.write_int(i.model.wz).map_err(WriteError)?;
+                }
+                _ => (),
+            }
+        }
         Ok(self)
     }
 
@@ -79,20 +68,15 @@ impl Packet {
         &mut self,
         char: Character,
     ) -> Result<&mut Self, NetworkError> {
-        let equipped: Vec<&Item> = char.inventory.equipped_tab.values().collect();
-        for equip in equipped {
-            self.build_look_regular_part_packet(equip.clone())?;
-        }
-        Ok(self)
-    }
-
-    pub fn build_look_cash_equipment_part_packet(
-        &mut self,
-        char: Character,
-    ) -> Result<&mut Self, NetworkError> {
-        let equipped: Vec<&Item> = char.inventory.equipped_tab.values().collect();
-        for equip in equipped {
-            self.build_look_cash_part_packet(equip.clone())?;
+        let equipped: HashMap<i16, Item> = char.inventory.equipped_tab;
+        for (ipos, equip) in equipped {
+            match equip {
+                Item::Equip(i) => {
+                    self.write_byte(ipos).map_err(WriteError)?;
+                    self.write_int(i.model.wz).map_err(WriteError)?;
+                }
+                _ => (),
+            }
         }
         Ok(self)
     }

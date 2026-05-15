@@ -22,7 +22,7 @@ use crate::models::character::error::CharacterError;
 use crate::models::character::wrapper::Character;
 use crate::models::error::ModelError;
 use crate::models::item;
-use crate::models::item::model::Inventory;
+use crate::models::item::wrapper::Inventory;
 use crate::models::job;
 use crate::models::job::wrapper::Job;
 use crate::models::keybinding;
@@ -81,7 +81,7 @@ impl CharacterModel {
         let binds: HashMap<i32, Keybinding> =
             keybinding::service::load_keybindings(state, char_id).await?;
         let inventory: Inventory = item::service::load_inventory(state, char_id).await?;
-        let job: Job = job::service::load_job(char_id).await?;
+        let job: Job = job::service::load_job(state, char_id).await?;
         let skills: HashMap<i32, Skill> = skill::service::load_skills(state, char_id).await?;
         Ok(Character {
             model: self.clone(),

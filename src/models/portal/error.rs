@@ -1,5 +1,5 @@
-/* job/model.rs
- * The purpose of this module is to provide a job model.
+/* portal/error.rs
+ * The purpose of this module is to provide errors related to portals.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,17 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::{error::ModelError, job::wrapper::Job};
+use thiserror::Error;
 
-#[derive(Clone)]
-pub struct JobModel {
-    pub wz: i16,
-}
-
-impl JobModel {
-    pub fn load(&self) -> Result<Job, ModelError> {
-        Ok(Job {
-            model: self.clone(),
-        })
-    }
+#[derive(Debug, Error)]
+pub enum PortalError {
+    #[error("No target map found in portal model layer")]
+    NoTargetMap,
 }

@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::db::schema::items;
-use crate::models::item::model::ItemModel;
+
+use crate::db::schema::{cash_nonequip_items, equip_items, etc_items, setup_items, use_items};
 use crate::runtime::state::SharedState;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, QueryResult, RunQueryDsl};
@@ -33,33 +33,17 @@ pub async fn delete_items_by_char_id(state: &SharedState, char_id: i32) -> Query
             Box::new(e.to_string()),
         )
     })?;
-    diesel::delete(items::table.filter(items::char_id.eq(char_id))).execute(&mut conn)
-}
-
-pub async fn update_items(
-    state: &SharedState,
-    item_models: Vec<ItemModel>,
-) -> QueryResult<Vec<ItemModel>> {
-    let db = {
-        let state = state.lock().await;
-        state.db.clone()
-    };
-    let mut conn = db.get().map_err(|e| {
-        diesel::result::Error::DatabaseError(
-            diesel::result::DatabaseErrorKind::UnableToSendCommand,
-            Box::new(e.to_string()),
-        )
-    })?;
-    let mut results: Vec<ItemModel> = Vec::<ItemModel>::new();
-    for item_model in &item_models {
-        results.push(
-            diesel::insert_into(items::table)
-                .values(item_model)
-                .on_conflict(items::id)
-                .do_update()
-                .set(item_model)
-                .get_result::<ItemModel>(&mut conn)?,
-        )
-    }
-    Ok(results)
+    let mut deleted: usize = 0;
+    deleted +=
+        diesel::delete(cash_nonequip_items::table.filter(cash_nonequip_items::char_id.eq(char_id)))
+            .execute(&mut conn)?;
+    deleted += diesel::delete(equip_items::table.filter(equip_items::char_id.eq(char_id)))
+        .execute(&mut conn)?;
+    deleted += diesel::delete(etc_items::table.filter(etc_items::char_id.eq(char_id)))
+        .execute(&mut conn)?;
+    deleted += diesel::delete(setup_items::table.filter(setup_items::char_id.eq(char_id)))
+        .execute(&mut conn)?;
+    deleted += diesel::delete(use_items::table.filter(use_items::char_id.eq(char_id)))
+        .execute(&mut conn)?;
+    Ok(deleted)
 }

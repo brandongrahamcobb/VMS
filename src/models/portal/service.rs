@@ -20,14 +20,15 @@
 use std::collections::HashMap;
 
 use crate::metadata;
-use crate::metadata::error::WzError;
 use crate::models::error::ModelError;
+use crate::models::portal::error::PortalError;
 use crate::models::portal::model::PortalModel;
 use crate::models::portal::wrapper::Portal;
 
 pub fn load_portals(map_wz: i32) -> Result<HashMap<u8, Portal>, ModelError> {
-    let root = metadata::service::get_img_root(map_wz, "Map.wz")?;
-    let wz_portals = root.get("portal").and_then(|p| p.as_object()).unwrap();
+    let filename: String = String::from("Map.wz");
+    let json = metadata::service::wz_to_img(map_wz, &filename)?;
+    let wz_portals = json.get("portal").and_then(|p| p.as_object()).unwrap();
     let mut portals: HashMap<u8, Portal> = HashMap::new();
     for (key, target) in wz_portals {
         let pid = key.parse::<u8>().unwrap_or(0);
@@ -40,7 +41,7 @@ pub fn load_portals(map_wz: i32) -> Result<HashMap<u8, Portal>, ModelError> {
             .get("tm")
             .and_then(|v| v.as_i64())
             .map(|v| v as i32)
-            .ok_or(WzError::ObjectError)?;
+            .ok_or(PortalError::NoTargetMap)?;
         let tn = target
             .get("tn")
             .and_then(|v| v.as_str())

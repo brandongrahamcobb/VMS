@@ -17,10 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::models::account::wrapper::StatusCode;
 use crate::net::action::{Action, SetAction};
 use crate::net::error::NetworkError;
 use crate::net::packet::handler::credentials::reader::CredentialsReader;
-use crate::net::packet::handler::credentials::service::StatusCode;
 use crate::net::packet::handler::credentials::store::CredentialsStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
