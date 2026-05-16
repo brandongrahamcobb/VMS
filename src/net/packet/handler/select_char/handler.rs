@@ -37,19 +37,19 @@ impl SelectCharHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, SelectCharError> {
         let reader: SelectCharReader = SelectCharReader::read_select_char_packet(packet)?;
         let store: SelectCharStore =
-            SelectCharStore::store_select_char(state, session.clone(), reader).await?;
-        let result: HandlerResult = self.build_select_char_result(store)?;
+            SelectCharStore::store_select_char(state, session, &reader).await?;
+        let result: HandlerResult = self.build_select_char_result(&store)?;
         Ok(result)
     }
 
     fn build_select_char_result(
         &self,
-        store: SelectCharStore,
+        store: &SelectCharStore,
     ) -> Result<HandlerResult, SelectCharError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()

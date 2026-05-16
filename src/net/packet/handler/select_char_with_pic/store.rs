@@ -36,8 +36,8 @@ pub struct SelectCharWithPicStore {
 impl SelectCharWithPicStore {
     pub async fn store_select_char_with_pic(
         state: &SharedState,
-        session: Session,
-        reader: SelectCharWithPicReader,
+        session: &Session,
+        reader: &SelectCharWithPicReader,
     ) -> Result<Self, SelectCharWithPicError> {
         let world_id: i16 = session.get_world_id()?;
         let channel_id: u8 = session.get_channel_id()?;
@@ -49,7 +49,7 @@ impl SelectCharWithPicStore {
         };
         let acc_id: i32 = session.get_acc_id()?;
         let acc: Account = account::service::get_account_by_id(state, acc_id).await?;
-        let pic_status = account::service::check_pic(acc.model.pic, reader.pic)?;
+        let pic_status = account::service::check_pic(acc.model.pic, reader.pic.clone())?;
         let addr: String = settings::get_routing_address()?;
         let octets: [u8; 4] = helpers::convert_to_ip_array(addr.clone());
         Ok(Self {

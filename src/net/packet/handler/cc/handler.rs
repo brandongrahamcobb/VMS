@@ -36,19 +36,19 @@ impl ChangeChannelHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, ChangeChannelError> {
         let reader: ChangeChannelReader = ChangeChannelReader::read_change_channel_packet(packet)?;
         let store: ChangeChannelStore =
-            ChangeChannelStore::store_change_channel(state, session, reader).await?;
-        let result: HandlerResult = self.build_change_channel_result(store).await?;
+            ChangeChannelStore::store_change_channel(state, session, &reader).await?;
+        let result: HandlerResult = self.build_change_channel_result(&store).await?;
         Ok(result)
     }
 
     async fn build_change_channel_result(
         &self,
-        store: ChangeChannelStore,
+        store: &ChangeChannelStore,
     ) -> Result<HandlerResult, ChangeChannelError> {
         let mut result: HandlerResult = HandlerResult::new();
         result.add_action(Action::Set(SetAction::SetChannel {

@@ -37,19 +37,19 @@ impl CloseAttackHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, CloseAttackError> {
         let reader: CloseAttackReader = CloseAttackReader::read_close_attack_packet(packet)?;
         let store: CloseAttackStore =
-            CloseAttackStore::store_close_attack(state, session.clone(), reader).await?;
-        let result = self.build_close_attack_result(store)?;
+            CloseAttackStore::store_close_attack(state, session, &reader).await?;
+        let result = self.build_close_attack_result(&store)?;
         Ok(result)
     }
 
     fn build_close_attack_result(
         &self,
-        store: CloseAttackStore,
+        store: &CloseAttackStore,
     ) -> Result<HandlerResult, CloseAttackError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet = Packet::new_empty()

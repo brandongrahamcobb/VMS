@@ -35,19 +35,19 @@ impl PartySearchHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, PartySearchError> {
         let reader: PartySearchReader = PartySearchReader::read_party_search_packet(packet)?;
         let store: PartySearchStore =
-            PartySearchStore::store_party_search(state, session, reader)?;
-        let result: HandlerResult = self.build_party_search_result(store)?;
+            PartySearchStore::store_party_search(state, session, &reader)?;
+        let result: HandlerResult = self.build_party_search_result(&store)?;
         Ok(result)
     }
 
     fn build_party_search_result(
         &self,
-        store: PartySearchStore,
+        store: &PartySearchStore,
     ) -> Result<HandlerResult, PartySearchError> {
         // Not implemented
         std::hint::black_box(store);

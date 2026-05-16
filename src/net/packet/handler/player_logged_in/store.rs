@@ -38,8 +38,8 @@ pub struct PlayerLoggedInStore {
 impl PlayerLoggedInStore {
     pub async fn store_player_logged_in(
         state: &SharedState,
-        session: Session,
-        _reader: PlayerLoggedInReader,
+        session: &Session,
+        _reader: &PlayerLoggedInReader,
     ) -> Result<Self, PlayerLoggedInError> {
         let char_id: i32 = session.get_char_id()?;
         let char: Character = character::service::get_char_by_id(state, char_id).await?;

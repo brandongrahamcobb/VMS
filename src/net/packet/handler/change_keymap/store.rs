@@ -33,8 +33,8 @@ pub struct ChangeKeymapStore;
 impl ChangeKeymapStore {
     pub async fn store_change_keymap(
         state: &SharedState,
-        session: Session,
-        reader: ChangeKeymapReader,
+        session: &Session,
+        reader: &ChangeKeymapReader,
     ) -> Result<Self, ChangeKeymapError> {
         let char_id = session.get_char_id()?;
         let new_binds: Vec<KeybindingModel> = izip!(

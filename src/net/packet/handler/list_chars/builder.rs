@@ -27,7 +27,7 @@ use crate::prelude::*;
 impl Packet {
     pub fn build_list_chars_packet(
         &mut self,
-        chars: Vec<Character>,
+        chars: &Vec<Character>,
         channel_id: u8,
         char_slots: i16,
         pic_status: i16,
@@ -36,7 +36,7 @@ impl Packet {
         self.write_short(op).map_err(WriteError)?;
         self.write_byte(channel_id as i16).map_err(WriteError)?;
         self.write_byte(chars.len() as i16).map_err(WriteError)?;
-        for char in chars {
+        for char in chars.iter() {
             self.build_look_part_packet(&char)?;
         }
         self.write_byte(pic_status).map_err(WriteError)?;

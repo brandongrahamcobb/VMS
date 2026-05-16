@@ -75,84 +75,84 @@ impl RuntimeRelay for LoginRelay {
             x if x == RecvOpcode::RequestLogin as i16 => {
                 let handler = CredentialsHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::LoginStarted as i16 => {
                 let handler = LoginStartHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::AcceptTOS as i16 => {
                 let handler = TosHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::ServerListRequest as i16 => {
                 let handler = ListWorldsHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::ServerStatusRequest as i16 => {
                 let handler = ServerStatusHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::CharListRequest as i16 => {
                 let handler = ListCharsHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::CreateChar as i16 => {
                 let handler = CreateCharHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::CheckCharName as i16 => {
                 let handler = CheckCharNameHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::DeleteChar as i16 => {
                 let handler = DeleteCharHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::CharSelect as i16 => {
                 let handler = SelectCharHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::RegisterPic as i16 => {
                 let handler = RegisterPicHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::CharSelectWithPic as i16 => {
                 let handler = SelectCharWithPicHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }

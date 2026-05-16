@@ -37,24 +37,24 @@ impl ListCharsHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, ListCharsError> {
         let reader: ListCharsReader = ListCharsReader::read_list_chars_packet(packet)?;
         let store: ListCharsStore =
-            ListCharsStore::store_list_chars(state, session.clone(), reader).await?;
-        let result: HandlerResult = self.build_list_chars_result(store)?;
+            ListCharsStore::store_list_chars(state, session, &reader).await?;
+        let result: HandlerResult = self.build_list_chars_result(&store)?;
         Ok(result)
     }
 
     fn build_list_chars_result(
         &self,
-        store: ListCharsStore,
+        store: &ListCharsStore,
     ) -> Result<HandlerResult, ListCharsError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_list_chars_packet(
-                store.chars,
+                &store.chars,
                 store.channel_id,
                 store.char_slots,
                 store.pic_status,

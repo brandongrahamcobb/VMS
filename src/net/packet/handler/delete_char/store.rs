@@ -34,15 +34,15 @@ pub struct DeleteCharStore {
 impl DeleteCharStore {
     pub async fn store_delete_char(
         state: &SharedState,
-        session: Session,
-        reader: DeleteCharReader,
+        session: &Session,
+        reader: &DeleteCharReader,
     ) -> Result<Self, DeleteCharError> {
         let acc_id: i32 = session.get_acc_id()?;
         let acc: Account = account::service::get_account_by_id(state, acc_id).await?;
         let use_pic = settings::get_pic_required()?;
         let mut pic_status = false;
         if use_pic {
-            pic_status = account::service::check_pic(acc.model.pic, reader.pic)?;
+            pic_status = account::service::check_pic(acc.model.pic, reader.pic.clone())?;
         }
         if !pic_status {
             character::query::setters::delete_char_by_id(state, reader.char_id)

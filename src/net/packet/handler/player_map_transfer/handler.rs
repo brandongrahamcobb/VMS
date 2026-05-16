@@ -35,24 +35,20 @@ impl PlayerMapTransferHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, PlayerMapTransferError> {
         let reader: PlayerMapTransferReader =
             PlayerMapTransferReader::read_player_map_transfer_packet(packet)?;
-        let store: PlayerMapTransferStore = PlayerMapTransferStore::store_player_map_transfer(
-            state,
-            session.clone(),
-            reader,
-        )
-        .await?;
-        let result: HandlerResult = self.build_player_map_transfer(store)?;
+        let store: PlayerMapTransferStore =
+            PlayerMapTransferStore::store_player_map_transfer(state, session, &reader).await?;
+        let result: HandlerResult = self.build_player_map_transfer(&store)?;
         Ok(result)
     }
 
     fn build_player_map_transfer(
         &self,
-        store: PlayerMapTransferStore,
+        store: &PlayerMapTransferStore,
     ) -> Result<HandlerResult, PlayerMapTransferError> {
         // Not implemented
         std::hint::black_box(store);

@@ -29,8 +29,8 @@ pub struct ServerStatusStore {
 impl ServerStatusStore {
     pub async fn store_server_status(
         state: &SharedState,
-        session: Session,
-        reader: ServerStatusReader,
+        session: &Session,
+        reader: &ServerStatusReader,
     ) -> Result<Self, ServerStatusError> {
         std::hint::black_box(session);
         std::hint::black_box(reader);

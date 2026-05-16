@@ -37,21 +37,20 @@ impl PlayerLoggedInHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, PlayerLoggedInError> {
         let reader: PlayerLoggedInReader =
             PlayerLoggedInReader::read_player_logged_in_packet(packet)?;
         let store: PlayerLoggedInStore =
-            PlayerLoggedInStore::store_player_logged_in(state, session.clone(), reader)
-                .await?;
-        let result: HandlerResult = self.build_player_logged_in_result(store)?;
+            PlayerLoggedInStore::store_player_logged_in(state, session, &reader).await?;
+        let result: HandlerResult = self.build_player_logged_in_result(&store)?;
         Ok(result)
     }
 
     fn build_player_logged_in_result(
         &self,
-        store: PlayerLoggedInStore,
+        store: &PlayerLoggedInStore,
     ) -> Result<HandlerResult, PlayerLoggedInError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()

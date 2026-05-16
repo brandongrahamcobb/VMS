@@ -35,19 +35,19 @@ impl ChangeKeymapHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, ChangeKeymapError> {
         let reader: ChangeKeymapReader = ChangeKeymapReader::read_change_keymap_packet(packet)?;
         let store: ChangeKeymapStore =
-            ChangeKeymapStore::store_change_keymap(state, session.clone(), reader).await?;
-        let result: HandlerResult = self.build_change_keymap_result(store)?;
+            ChangeKeymapStore::store_change_keymap(state, session, &reader).await?;
+        let result: HandlerResult = self.build_change_keymap_result(&store)?;
         Ok(result)
     }
 
     fn build_change_keymap_result(
         &self,
-        store: ChangeKeymapStore,
+        store: &ChangeKeymapStore,
     ) -> Result<HandlerResult, ChangeKeymapError> {
         // no packet neccessary
         std::hint::black_box(store);

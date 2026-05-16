@@ -37,19 +37,19 @@ impl MovePlayerHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, MovePlayerError> {
         let reader: MovePlayerReader = MovePlayerReader::read_move_player_packet(packet)?;
         let store: MovePlayerStore =
-            MovePlayerStore::store_move_player(state, session, reader).await?;
-        let result: HandlerResult = self.build_move_player_result(store)?;
+            MovePlayerStore::store_move_player(state, session, &reader).await?;
+        let result: HandlerResult = self.build_move_player_result(&store)?;
         Ok(result)
     }
 
     fn build_move_player_result(
         &self,
-        store: MovePlayerStore,
+        store: &MovePlayerStore,
     ) -> Result<HandlerResult, MovePlayerError> {
         let mut result = HandlerResult::new();
         if !store.too_short && !store.empty {

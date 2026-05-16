@@ -37,17 +37,17 @@ impl ChangeMapHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, ChangeMapError> {
         let reader: ChangeMapReader = ChangeMapReader::read_change_map_packet(packet)?;
         let store: ChangeMapStore =
-            ChangeMapStore::store_change_map(state, session.clone(), reader).await?;
-        let result: HandlerResult = self.build_change_map(store)?;
+            ChangeMapStore::store_change_map(state, session, &reader).await?;
+        let result: HandlerResult = self.build_change_map(&store)?;
         Ok(result)
     }
 
-    fn build_change_map(&self, store: ChangeMapStore) -> Result<HandlerResult, ChangeMapError> {
+    fn build_change_map(&self, store: &ChangeMapStore) -> Result<HandlerResult, ChangeMapError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_despawn_player_packet(&store.char)?

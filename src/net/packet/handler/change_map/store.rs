@@ -36,8 +36,8 @@ pub struct ChangeMapStore {
 impl ChangeMapStore {
     pub async fn store_change_map(
         state: &SharedState,
-        session: Session,
-        reader: ChangeMapReader,
+        session: &Session,
+        reader: &ChangeMapReader,
     ) -> Result<Self, ChangeMapError> {
         let world_id: i16 = session.get_world_id()?;
         let channel_id: u8 = session.get_channel_id()?;
@@ -46,7 +46,8 @@ impl ChangeMapStore {
             let state = state.lock().await;
             state
                 .with_map(world_id, channel_id, map_wz, |map| {
-                    map.get_portal(reader.tn).map(|p| (p.model.tm, p.model.pid))
+                    map.get_portal(reader.tn.clone())
+                        .map(|p| (p.model.tm, p.model.pid))
                 })
                 .await??
         };

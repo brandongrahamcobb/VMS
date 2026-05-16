@@ -37,19 +37,19 @@ impl ServerStatusHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, ServerStatusError> {
         let reader: ServerStatusReader = ServerStatusReader::read_server_status_packet(packet)?;
         let store: ServerStatusStore =
-            ServerStatusStore::store_server_status(state, session, reader).await?;
-        let result: HandlerResult = self.build_server_status_result(store)?;
+            ServerStatusStore::store_server_status(state, session, &reader).await?;
+        let result: HandlerResult = self.build_server_status_result(&store)?;
         Ok(result)
     }
 
     fn build_server_status_result(
         &self,
-        store: ServerStatusStore,
+        store: &ServerStatusStore,
     ) -> Result<HandlerResult, ServerStatusError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()

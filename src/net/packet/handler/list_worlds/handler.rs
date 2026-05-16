@@ -37,19 +37,19 @@ impl ListWorldsHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, ListWorldsError> {
         let reader: ListWorldsReader = ListWorldsReader::read_list_worlds_packet(packet)?;
         let store: ListWorldsStore =
-            ListWorldsStore::store_list_worlds(state, session, reader).await?;
-        let result: HandlerResult = self.build_list_worlds_result(store).await?;
+            ListWorldsStore::store_list_worlds(state, session, &reader).await?;
+        let result: HandlerResult = self.build_list_worlds_result(&store).await?;
         Ok(result)
     }
 
     async fn build_list_worlds_result(
         &self,
-        store: ListWorldsStore,
+        store: &ListWorldsStore,
     ) -> Result<HandlerResult, ListWorldsError> {
         let worlds = store.worlds_arc.read().await;
         let mut result: HandlerResult = HandlerResult::new();

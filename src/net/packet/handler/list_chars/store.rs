@@ -43,8 +43,8 @@ pub enum PicStatus {
 impl ListCharsStore {
     pub async fn store_list_chars(
         state: &SharedState,
-        session: Session,
-        reader: ListCharsReader,
+        session: &Session,
+        reader: &ListCharsReader,
     ) -> Result<Self, ListCharsError> {
         let acc_id: i32 = session.get_acc_id()?;
         let acc: Account = account::service::get_account_by_id(state, acc_id).await?;

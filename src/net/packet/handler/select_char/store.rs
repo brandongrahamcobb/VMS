@@ -33,8 +33,8 @@ pub struct SelectCharStore {
 impl SelectCharStore {
     pub async fn store_select_char(
         state: &SharedState,
-        session: Session,
-        reader: SelectCharReader,
+        session: &Session,
+        reader: &SelectCharReader,
     ) -> Result<Self, SelectCharError> {
         let world_id: i16 = session.get_world_id()?;
         let channel_id: u8 = session.get_channel_id()?;

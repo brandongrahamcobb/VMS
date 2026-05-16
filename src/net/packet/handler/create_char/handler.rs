@@ -37,19 +37,19 @@ impl CreateCharHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, CreateCharError> {
         let reader: CreateCharReader = CreateCharReader::read_create_character_packet(packet)?;
         let store: CreateCharStore =
-            CreateCharStore::store_create_char(state, session.clone(), reader).await?;
-        let result: HandlerResult = self.build_create_char_result(store)?;
+            CreateCharStore::store_create_char(state, session, &reader).await?;
+        let result: HandlerResult = self.build_create_char_result(&store)?;
         Ok(result)
     }
 
     fn build_create_char_result(
         &self,
-        store: CreateCharStore,
+        store: &CreateCharStore,
     ) -> Result<HandlerResult, CreateCharError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()

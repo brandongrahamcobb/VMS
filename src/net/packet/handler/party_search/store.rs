@@ -27,8 +27,8 @@ pub struct PartySearchStore;
 impl PartySearchStore {
     pub fn store_party_search(
         state: &SharedState,
-        session: Session,
-        reader: PartySearchReader,
+        session: &Session,
+        reader: &PartySearchReader,
     ) -> Result<Self, PartySearchError> {
         std::hint::black_box(state);
         std::hint::black_box(session);

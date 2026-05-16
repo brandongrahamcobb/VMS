@@ -33,8 +33,8 @@ pub struct ListWorldsStore {
 impl ListWorldsStore {
     pub async fn store_list_worlds(
         state: &SharedState,
-        session: Session,
-        reader: ListWorldsReader,
+        session: &Session,
+        reader: &ListWorldsReader,
     ) -> Result<Self, ListWorldsError> {
         std::hint::black_box(session);
         std::hint::black_box(reader);

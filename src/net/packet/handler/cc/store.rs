@@ -36,8 +36,8 @@ pub struct ChangeChannelStore {
 impl ChangeChannelStore {
     pub async fn store_change_channel(
         state: &SharedState,
-        session: Session,
-        reader: ChangeChannelReader,
+        session: &Session,
+        reader: &ChangeChannelReader,
     ) -> Result<Self, ChangeChannelError> {
         let char_id = session.get_char_id()?;
         let char: Character = character::service::get_char_by_id(state, char_id).await?;

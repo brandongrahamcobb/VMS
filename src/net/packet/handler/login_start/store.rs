@@ -27,8 +27,8 @@ pub struct LoginStartStore;
 impl LoginStartStore {
     pub async fn store_login_start(
         state: &SharedState,
-        session: Session,
-        reader: LoginStartReader,
+        session: &Session,
+        reader: &LoginStartReader,
     ) -> Result<Self, LoginStartError> {
         std::hint::black_box(state);
         std::hint::black_box(session);

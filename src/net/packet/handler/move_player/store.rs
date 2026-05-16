@@ -32,8 +32,8 @@ pub struct MovePlayerStore {
 impl MovePlayerStore {
     pub async fn store_move_player(
         state: &SharedState,
-        session: Session,
-        reader: MovePlayerReader,
+        session: &Session,
+        reader: &MovePlayerReader,
     ) -> Result<Self, MovePlayerError> {
         std::hint::black_box(state);
         Ok(Self {

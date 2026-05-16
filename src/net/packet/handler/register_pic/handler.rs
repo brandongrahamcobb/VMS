@@ -37,19 +37,19 @@ impl RegisterPicHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, RegisterPicError> {
         let reader: RegisterPicReader = RegisterPicReader::read_register_pic_packet(packet)?;
         let store: RegisterPicStore =
-            RegisterPicStore::store_register_pic(state, session.clone(), reader).await?;
-        let result = self.build_register_pic_result(store)?;
+            RegisterPicStore::store_register_pic(state, session, &reader).await?;
+        let result = self.build_register_pic_result(&store)?;
         Ok(result)
     }
 
     fn build_register_pic_result(
         &self,
-        store: RegisterPicStore,
+        store: &RegisterPicStore,
     ) -> Result<HandlerResult, RegisterPicError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()

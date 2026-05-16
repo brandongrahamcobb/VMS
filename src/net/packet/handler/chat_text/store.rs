@@ -35,8 +35,8 @@ pub struct ChatTextStore {
 impl ChatTextStore {
     pub async fn store_chat_text(
         state: &SharedState,
-        session: Session,
-        reader: ChatTextReader,
+        session: &Session,
+        reader: &ChatTextReader,
     ) -> Result<Self, ChatTextError> {
         let acc_id: i32 = session.get_acc_id()?;
         let acc: Account = account::service::get_account_by_id(state, acc_id).await?;

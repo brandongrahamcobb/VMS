@@ -158,7 +158,7 @@ impl CreateCharStore {
 
     pub async fn init_skills(
         state: &SharedState,
-        reader: CreateCharReader,
+        reader: &CreateCharReader,
         char_id: i32,
     ) -> Result<HashMap<i32, Skill>, CreateCharError> {
         let skill_models: Vec<SkillModel> =
@@ -183,8 +183,8 @@ impl CreateCharStore {
 
     pub async fn store_create_char(
         state: &SharedState,
-        session: Session,
-        reader: CreateCharReader,
+        session: &Session,
+        reader: &CreateCharReader,
     ) -> Result<Self, CreateCharError> {
         let acc_id: i32 = session.get_acc_id()?;
         let world_id: i16 = session.get_world_id()?;
@@ -192,10 +192,10 @@ impl CreateCharStore {
         let job = Job {
             model: JobModel { wz: reader.job_wz },
         };
-        let char_model = Self::init_char_model(state, &reader, acc_id, map_wz, world_id).await?;
+        let char_model = Self::init_char_model(state, reader, acc_id, map_wz, world_id).await?;
         let char_id = char_model.get_id()?;
         let binds: HashMap<i32, Keybinding> = Self::init_keybindings(state, char_id).await?;
-        let inventory = Self::init_equips(state, &reader, char_id).await?;
+        let inventory = Self::init_equips(state, reader, char_id).await?;
         let skills: HashMap<i32, Skill> = Self::init_skills(state, reader, char_id).await?;
         let char = Character {
             model: char_model,

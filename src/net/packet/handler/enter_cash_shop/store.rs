@@ -35,8 +35,8 @@ pub struct EnterCashShopStore {
 impl EnterCashShopStore {
     pub async fn store_enter_cash_shop(
         state: &SharedState,
-        session: Session,
-        reader: EnterCashShopReader,
+        session: &Session,
+        reader: &EnterCashShopReader,
     ) -> Result<Self, EnterCashShopError> {
         std::hint::black_box(reader);
         let acc_id: i32 = session.get_acc_id()?;

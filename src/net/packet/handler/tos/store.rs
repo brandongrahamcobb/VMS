@@ -32,8 +32,8 @@ pub struct TosStore {
 impl TosStore {
     pub async fn store_tos(
         state: &SharedState,
-        session: Session,
-        reader: TosReader,
+        session: &Session,
+        reader: &TosReader,
     ) -> Result<Self, TosError> {
         let accepted: bool = reader.confirmed == 0x01;
         let acc_id: i32 = session.get_acc_id()?;

@@ -37,19 +37,19 @@ impl EnterCashShopHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, EnterCashShopError> {
         let reader: EnterCashShopReader = EnterCashShopReader::read_enter_cash_shop_packet(packet)?;
         let store: EnterCashShopStore =
-            EnterCashShopStore::store_enter_cash_shop(state, session.clone(), reader).await?;
-        let result: HandlerResult = self.build_enter_cash_shop_result(store)?;
+            EnterCashShopStore::store_enter_cash_shop(state, session, &reader).await?;
+        let result: HandlerResult = self.build_enter_cash_shop_result(&store)?;
         Ok(result)
     }
 
     fn build_enter_cash_shop_result(
         &self,
-        store: EnterCashShopStore,
+        store: &EnterCashShopStore,
     ) -> Result<HandlerResult, EnterCashShopError> {
         let mut result: HandlerResult = HandlerResult::new();
         result.add_action(Action::Set(SetAction::SetMap {

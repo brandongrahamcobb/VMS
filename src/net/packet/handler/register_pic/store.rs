@@ -35,8 +35,8 @@ pub struct RegisterPicStore {
 impl RegisterPicStore {
     pub async fn store_register_pic(
         state: &SharedState,
-        session: Session,
-        reader: RegisterPicReader,
+        session: &Session,
+        reader: &RegisterPicReader,
     ) -> Result<Self, RegisterPicError> {
         let world_id: i16 = session.get_world_id()?;
         let channel_id: u8 = session.get_channel_id()?;

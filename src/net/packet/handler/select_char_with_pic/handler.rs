@@ -37,24 +37,20 @@ impl SelectCharWithPicHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, SelectCharWithPicError> {
         let reader: SelectCharWithPicReader =
             SelectCharWithPicReader::read_select_char_with_pic_packet(packet)?;
-        let store: SelectCharWithPicStore = SelectCharWithPicStore::store_select_char_with_pic(
-            state,
-            session.clone(),
-            reader,
-        )
-        .await?;
-        let result: HandlerResult = self.build_select_char_with_pic_result(store)?;
+        let store: SelectCharWithPicStore =
+            SelectCharWithPicStore::store_select_char_with_pic(state, session, &reader).await?;
+        let result: HandlerResult = self.build_select_char_with_pic_result(&store)?;
         Ok(result)
     }
 
     fn build_select_char_with_pic_result(
         &self,
-        store: SelectCharWithPicStore,
+        store: &SelectCharWithPicStore,
     ) -> Result<HandlerResult, SelectCharWithPicError> {
         let mut result: HandlerResult = HandlerResult::new();
         if store.pic_status {

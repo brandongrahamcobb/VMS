@@ -27,8 +27,8 @@ pub struct PlayerMapTransferStore;
 impl PlayerMapTransferStore {
     pub async fn store_player_map_transfer(
         state: &SharedState,
-        session: Session,
-        reader: PlayerMapTransferReader,
+        session: &Session,
+        reader: &PlayerMapTransferReader,
     ) -> Result<Self, PlayerMapTransferError> {
         std::hint::black_box(state);
         std::hint::black_box(session);

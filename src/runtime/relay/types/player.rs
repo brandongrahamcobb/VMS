@@ -73,70 +73,70 @@ impl RuntimeRelay for PlayerRelay {
             x if x == RecvOpcode::PlayerLoggedIn as i16 => {
                 let handler = PlayerLoggedInHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::ChangeChannel as i16 => {
                 let handler = ChangeChannelHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::PartySearch as i16 => {
                 let handler = PartySearchHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::PlayerMapTransfer as i16 => {
                 let handler = PlayerMapTransferHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::PlayerMove as i16 => {
                 let handler = MovePlayerHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::EnterCashShop as i16 => {
                 let handler = EnterCashShopHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::ChangeKeymap as i16 => {
                 let handler = ChangeKeymapHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::CloseAttack as i16 => {
                 let handler = CloseAttackHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::AllChat as i16 => {
                 let handler = ChatTextHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::ChangeMap as i16 => {
                 let handler = ChangeMapHandler::new();
                 Ok(handler
-                    .handle(state, session.clone(), packet)
+                    .handle(state, &session, packet)
                     .await
                     .map_err(PacketHandlerError::from)?)
             }

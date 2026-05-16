@@ -31,8 +31,8 @@ pub struct CheckCharNameStore {
 impl CheckCharNameStore {
     pub async fn store_check_char_name(
         state: &SharedState,
-        session: Session,
-        reader: CheckCharNameReader,
+        session: &Session,
+        reader: &CheckCharNameReader,
     ) -> Result<Self, CheckCharNameError> {
         std::hint::black_box(session);
         let exists = character::query::getters::get_char_model_by_name(state, reader.ign.clone())

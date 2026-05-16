@@ -40,8 +40,8 @@ pub struct CloseAttackStore {
 impl CloseAttackStore {
     pub async fn store_close_attack(
         state: &SharedState,
-        session: Session,
-        reader: CloseAttackReader,
+        session: &Session,
+        reader: &CloseAttackReader,
     ) -> Result<Self, CloseAttackError> {
         let char_id: i32 = session.get_char_id()?;
         let skill_model = skill::query::getters::get_skill_model_by_character_id_and_skill_id(

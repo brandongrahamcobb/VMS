@@ -37,17 +37,19 @@ impl ChatTextHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, ChatTextError> {
         let reader: ChatTextReader = ChatTextReader::read_chat_text_packet(packet)?;
-        let store: ChatTextStore =
-            ChatTextStore::store_chat_text(state, session.clone(), reader).await?;
-        let result: HandlerResult = self.build_chat_text_result(store)?;
+        let store: ChatTextStore = ChatTextStore::store_chat_text(state, session, &reader).await?;
+        let result: HandlerResult = self.build_chat_text_result(&store)?;
         Ok(result)
     }
 
-    fn build_chat_text_result(&self, store: ChatTextStore) -> Result<HandlerResult, ChatTextError> {
+    fn build_chat_text_result(
+        &self,
+        store: &ChatTextStore,
+    ) -> Result<HandlerResult, ChatTextError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_chat_text_packet(store.admin, store.char_id, store.msg.clone(), store.show)?

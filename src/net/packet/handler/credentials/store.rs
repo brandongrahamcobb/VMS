@@ -33,8 +33,8 @@ pub struct CredentialsStore {
 impl CredentialsStore {
     pub async fn store_credentials(
         state: &SharedState,
-        session: Session,
-        reader: CredentialsReader,
+        session: &Session,
+        reader: &CredentialsReader,
     ) -> Result<Self, CredentialsError> {
         match account::service::get_account_by_username(state, reader.username.clone()).await {
             Ok(acc) => {

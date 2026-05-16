@@ -37,20 +37,19 @@ impl CheckCharNameHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, CheckCharNameError> {
         let reader: CheckCharNameReader = CheckCharNameReader::read_check_char_name_packet(packet)?;
         let store: CheckCharNameStore =
-            CheckCharNameStore::store_check_char_name(state, session.clone(), reader)
-                .await?;
-        let result = self.build_check_char_name_result(store)?;
+            CheckCharNameStore::store_check_char_name(state, session, &reader).await?;
+        let result = self.build_check_char_name_result(&store)?;
         Ok(result)
     }
 
     fn build_check_char_name_result(
         &self,
-        store: CheckCharNameStore,
+        store: &CheckCharNameStore,
     ) -> Result<HandlerResult, CheckCharNameError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()

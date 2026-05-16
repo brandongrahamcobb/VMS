@@ -37,16 +37,16 @@ impl TosHandler {
     pub async fn handle(
         &self,
         state: &SharedState,
-        session: Session,
+        session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, TosError> {
         let reader: TosReader = TosReader::read_tos_packet(packet)?;
-        let store: TosStore = TosStore::store_tos(state, session.clone(), reader).await?;
-        let result: HandlerResult = self.build_tos_result(store)?;
+        let store: TosStore = TosStore::store_tos(state, session, &reader).await?;
+        let result: HandlerResult = self.build_tos_result(&store)?;
         Ok(result)
     }
 
-    fn build_tos_result(&self, store: TosStore) -> Result<HandlerResult, TosError> {
+    fn build_tos_result(&self, store: &TosStore) -> Result<HandlerResult, TosError> {
         let mut result: HandlerResult = HandlerResult::new();
         if store.accepted {
             let packet: Packet = Packet::new_empty()
