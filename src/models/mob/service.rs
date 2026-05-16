@@ -25,23 +25,23 @@ use crate::models::mob::model::MobModel;
 use crate::models::mob::wrapper::Mob;
 
 pub fn load_mobs(map_wz: i32) -> Result<HashMap<u32, Mob>, MobError> {
-    // let mobs: HashMap<i32, Mob> = HashMap::new();
-    // let filename: String = String::from("Map.wz");
-    // let json = metadata::service::wz_to_img(map_wz, &filename)?;
-    // let filename: String = String::from("Mob.wz");
-    // if let Some(life) = json["life"].as_object() {
-    //     for (key, value) in life {
-    //         if let Some(m) = value["type"].as_str() {
-    //             if m == "m" {
-    //                 let id: i32 =
-    //                     value["id"].as_str().unwrap().parse::<i32>().unwrap();
-    //                 let json = metadata::service::wz_to_img(id, &filename)?;
-    //                 let mob_model: MobModel = MobModel {
-    //                     id:
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+    let mobs: HashMap<i32, Mob> = HashMap::new();
+    let filename: String = String::from("Map.wz");
+    let json = metadata::service::wz_to_img(map_wz, &filename)?;
+    let filename: String = String::from("Mob.wz");
+    if let Some(life) = json["life"].as_object() {
+        for (key, value) in life {
+            if let Some(m) = value["type"].as_str() {
+                if m == "m" {
+                    let id: i32 =
+                        value["id"].as_str().unwrap().parse::<i32>().unwrap();
+                    let json = metadata::service::wz_to_img(id, &filename)?;
+                    let mob_model: MobModel = MobModel {
+                        id:
+                    }
+                }
+            }
+        }
+    }
     Ok(HashMap::new())
 }

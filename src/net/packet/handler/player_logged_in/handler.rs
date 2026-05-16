@@ -43,7 +43,7 @@ impl PlayerLoggedInHandler {
         let reader: PlayerLoggedInReader =
             PlayerLoggedInReader::read_player_logged_in_packet(packet)?;
         let store: PlayerLoggedInStore =
-            PlayerLoggedInStore::store_player_logged_in(state, session.clone(), reader.clone())
+            PlayerLoggedInStore::store_player_logged_in(state, session.clone(), reader)
                 .await?;
         let result: HandlerResult = self.build_player_logged_in_result(store)?;
         Ok(result)

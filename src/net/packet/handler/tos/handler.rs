@@ -41,7 +41,7 @@ impl TosHandler {
         packet: &Packet,
     ) -> Result<HandlerResult, TosError> {
         let reader: TosReader = TosReader::read_tos_packet(packet)?;
-        let store: TosStore = TosStore::store_tos(state, session.clone(), reader.clone()).await?;
+        let store: TosStore = TosStore::store_tos(state, session.clone(), reader).await?;
         let result: HandlerResult = self.build_tos_result(store)?;
         Ok(result)
     }

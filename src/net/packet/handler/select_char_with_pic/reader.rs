@@ -23,7 +23,7 @@ use crate::net::packet::model::Packet;
 use crate::prelude::*;
 use std::io::Cursor;
 
-#[derive(Clone)]
+
 pub struct SelectCharWithPicReader {
     pub char_id: i32,
     pub mac: String,

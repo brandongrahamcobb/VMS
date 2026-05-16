@@ -37,7 +37,7 @@ impl ListWorldsStore {
         reader: ListWorldsReader,
     ) -> Result<Self, ListWorldsError> {
         std::hint::black_box(session);
-        std::hint::black_box(reader.clone());
+        std::hint::black_box(reader);
         let worlds_arc = {
             let state = state.lock().await;
             state.worlds.clone()

@@ -43,7 +43,7 @@ impl CredentialsHandler {
     ) -> Result<HandlerResult, CredentialsError> {
         let reader: CredentialsReader = CredentialsReader::read_credentials_packet(packet)?;
         let store: CredentialsStore =
-            CredentialsStore::store_credentials(state, session.clone(), reader.clone()).await?;
+            CredentialsStore::store_credentials(state, session.clone(), reader).await?;
         let result: HandlerResult = self.build_credentials_result(store)?;
         Ok(result)
     }

@@ -22,7 +22,7 @@ use crate::net::packet::model::Packet;
 
 const MOVEMENT_HEADER_LEN: usize = 9;
 
-#[derive(Clone)]
+
 pub struct MovePlayerReader {
     pub movement_bytes: Vec<u8>,
     pub too_short: bool,

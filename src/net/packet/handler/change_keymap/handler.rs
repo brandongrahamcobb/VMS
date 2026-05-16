@@ -40,7 +40,7 @@ impl ChangeKeymapHandler {
     ) -> Result<HandlerResult, ChangeKeymapError> {
         let reader: ChangeKeymapReader = ChangeKeymapReader::read_change_keymap_packet(packet)?;
         let store: ChangeKeymapStore =
-            ChangeKeymapStore::store_change_keymap(state, session.clone(), reader.clone()).await?;
+            ChangeKeymapStore::store_change_keymap(state, session.clone(), reader).await?;
         let result: HandlerResult = self.build_change_keymap_result(store)?;
         Ok(result)
     }

@@ -24,7 +24,7 @@ use crate::net::packet::model::Packet;
 use crate::prelude::*;
 use std::io::Cursor;
 
-#[derive(Clone)]
+
 pub struct CredentialsReader {
     pub username: String,
     pub pw: String,

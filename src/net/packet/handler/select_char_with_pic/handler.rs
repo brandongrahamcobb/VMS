@@ -45,7 +45,7 @@ impl SelectCharWithPicHandler {
         let store: SelectCharWithPicStore = SelectCharWithPicStore::store_select_char_with_pic(
             state,
             session.clone(),
-            reader.clone(),
+            reader,
         )
         .await?;
         let result: HandlerResult = self.build_select_char_with_pic_result(store)?;

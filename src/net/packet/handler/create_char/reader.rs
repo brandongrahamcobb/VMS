@@ -23,7 +23,7 @@ use crate::net::packet::model::Packet;
 use crate::prelude::*;
 use std::io::Cursor;
 
-#[derive(Clone)]
+
 pub struct CreateCharReader {
     pub ign: String,
     pub job_wz: i16,

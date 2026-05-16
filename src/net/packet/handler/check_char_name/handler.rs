@@ -42,7 +42,7 @@ impl CheckCharNameHandler {
     ) -> Result<HandlerResult, CheckCharNameError> {
         let reader: CheckCharNameReader = CheckCharNameReader::read_check_char_name_packet(packet)?;
         let store: CheckCharNameStore =
-            CheckCharNameStore::store_check_char_name(state, session.clone(), reader.clone())
+            CheckCharNameStore::store_check_char_name(state, session.clone(), reader)
                 .await?;
         let result = self.build_check_char_name_result(store)?;
         Ok(result)

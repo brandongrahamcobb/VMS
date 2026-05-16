@@ -41,7 +41,7 @@ impl ChangeChannelHandler {
     ) -> Result<HandlerResult, ChangeChannelError> {
         let reader: ChangeChannelReader = ChangeChannelReader::read_change_channel_packet(packet)?;
         let store: ChangeChannelStore =
-            ChangeChannelStore::store_change_channel(state, session, reader.clone()).await?;
+            ChangeChannelStore::store_change_channel(state, session, reader).await?;
         let result: HandlerResult = self.build_change_channel_result(store).await?;
         Ok(result)
     }

@@ -23,7 +23,7 @@ use crate::net::packet::model::Packet;
 use crate::prelude::*;
 use std::io::Cursor;
 
-#[derive(Clone)]
+
 pub struct ChangeMapReader {
     pub died: i16,
     pub tm: i32,

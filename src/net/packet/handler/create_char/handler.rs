@@ -42,7 +42,7 @@ impl CreateCharHandler {
     ) -> Result<HandlerResult, CreateCharError> {
         let reader: CreateCharReader = CreateCharReader::read_create_character_packet(packet)?;
         let store: CreateCharStore =
-            CreateCharStore::store_create_char(state, session.clone(), reader.clone()).await?;
+            CreateCharStore::store_create_char(state, session.clone(), reader).await?;
         let result: HandlerResult = self.build_create_char_result(store)?;
         Ok(result)
     }

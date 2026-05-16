@@ -42,7 +42,7 @@ impl CloseAttackHandler {
     ) -> Result<HandlerResult, CloseAttackError> {
         let reader: CloseAttackReader = CloseAttackReader::read_close_attack_packet(packet)?;
         let store: CloseAttackStore =
-            CloseAttackStore::store_close_attack(state, session.clone(), reader.clone()).await?;
+            CloseAttackStore::store_close_attack(state, session.clone(), reader).await?;
         let result = self.build_close_attack_result(store)?;
         Ok(result)
     }

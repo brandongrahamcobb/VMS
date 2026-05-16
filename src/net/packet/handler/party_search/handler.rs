@@ -40,7 +40,7 @@ impl PartySearchHandler {
     ) -> Result<HandlerResult, PartySearchError> {
         let reader: PartySearchReader = PartySearchReader::read_party_search_packet(packet)?;
         let store: PartySearchStore =
-            PartySearchStore::store_party_search(state, session, reader.clone())?;
+            PartySearchStore::store_party_search(state, session, reader)?;
         let result: HandlerResult = self.build_party_search_result(store)?;
         Ok(result)
     }

@@ -42,7 +42,7 @@ impl ChatTextHandler {
     ) -> Result<HandlerResult, ChatTextError> {
         let reader: ChatTextReader = ChatTextReader::read_chat_text_packet(packet)?;
         let store: ChatTextStore =
-            ChatTextStore::store_chat_text(state, session.clone(), reader.clone()).await?;
+            ChatTextStore::store_chat_text(state, session.clone(), reader).await?;
         let result: HandlerResult = self.build_chat_text_result(store)?;
         Ok(result)
     }

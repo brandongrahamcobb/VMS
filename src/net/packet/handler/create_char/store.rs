@@ -49,7 +49,7 @@ pub struct CreateCharStore {
 impl CreateCharStore {
     async fn init_char_model(
         state: &SharedState,
-        reader: CreateCharReader,
+        reader: &CreateCharReader,
         acc_id: i32,
         map_wz: i32,
         world_id: i16,
@@ -113,7 +113,7 @@ impl CreateCharStore {
 
     async fn init_equips(
         state: &SharedState,
-        reader: CreateCharReader,
+        reader: &CreateCharReader,
         char_id: i32,
     ) -> Result<Inventory, CreateCharError> {
         let mut inventory: Inventory = item::service::load_inventory(state, char_id).await?;
@@ -192,12 +192,11 @@ impl CreateCharStore {
         let job = Job {
             model: JobModel { wz: reader.job_wz },
         };
-        let char_model =
-            Self::init_char_model(state, reader.clone(), acc_id, map_wz, world_id).await?;
+        let char_model = Self::init_char_model(state, &reader, acc_id, map_wz, world_id).await?;
         let char_id = char_model.get_id()?;
         let binds: HashMap<i32, Keybinding> = Self::init_keybindings(state, char_id).await?;
-        let inventory = Self::init_equips(state, reader.clone(), char_id).await?;
-        let skills: HashMap<i32, Skill> = Self::init_skills(state, reader.clone(), char_id).await?;
+        let inventory = Self::init_equips(state, &reader, char_id).await?;
+        let skills: HashMap<i32, Skill> = Self::init_skills(state, reader, char_id).await?;
         let char = Character {
             model: char_model,
             binds,

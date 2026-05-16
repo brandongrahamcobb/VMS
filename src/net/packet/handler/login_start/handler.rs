@@ -40,7 +40,7 @@ impl LoginStartHandler {
     ) -> Result<HandlerResult, LoginStartError> {
         let reader: LoginStartReader = LoginStartReader::read_login_start_packet(packet)?;
         let store: LoginStartStore =
-            LoginStartStore::store_login_start(state, session.clone(), reader.clone()).await?;
+            LoginStartStore::store_login_start(state, session.clone(), reader).await?;
         let result = self.build_login_start_result(store)?;
         Ok(result)
     }

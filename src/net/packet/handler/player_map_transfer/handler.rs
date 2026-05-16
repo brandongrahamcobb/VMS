@@ -43,7 +43,7 @@ impl PlayerMapTransferHandler {
         let store: PlayerMapTransferStore = PlayerMapTransferStore::store_player_map_transfer(
             state,
             session.clone(),
-            reader.clone(),
+            reader,
         )
         .await?;
         let result: HandlerResult = self.build_player_map_transfer(store)?;

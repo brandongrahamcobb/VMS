@@ -42,7 +42,7 @@ impl MovePlayerHandler {
     ) -> Result<HandlerResult, MovePlayerError> {
         let reader: MovePlayerReader = MovePlayerReader::read_move_player_packet(packet)?;
         let store: MovePlayerStore =
-            MovePlayerStore::store_move_player(state, session, reader.clone()).await?;
+            MovePlayerStore::store_move_player(state, session, reader).await?;
         let result: HandlerResult = self.build_move_player_result(store)?;
         Ok(result)
     }

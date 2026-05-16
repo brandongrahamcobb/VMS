@@ -24,7 +24,7 @@ use crate::prelude::*;
 use std::collections::HashMap;
 use std::io::Cursor;
 
-#[derive(Clone)]
+
 pub struct CloseAttackReader {
     pub count: i16,
     pub skill_id: i32,

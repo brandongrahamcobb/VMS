@@ -42,7 +42,7 @@ impl RegisterPicHandler {
     ) -> Result<HandlerResult, RegisterPicError> {
         let reader: RegisterPicReader = RegisterPicReader::read_register_pic_packet(packet)?;
         let store: RegisterPicStore =
-            RegisterPicStore::store_register_pic(state, session.clone(), reader.clone()).await?;
+            RegisterPicStore::store_register_pic(state, session.clone(), reader).await?;
         let result = self.build_register_pic_result(store)?;
         Ok(result)
     }

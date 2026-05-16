@@ -22,7 +22,7 @@ use crate::net::packet::model::Packet;
 use crate::prelude::*;
 use std::io::Cursor;
 
-#[derive(Clone)]
+
 pub struct ChangeChannelReader {
     pub channel_id: u8,
     pub tick: i32,

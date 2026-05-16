@@ -23,7 +23,7 @@ use crate::net::packet::model::Packet;
 use crate::prelude::*;
 use std::io::Cursor;
 
-#[derive(Clone)]
+
 pub struct ChangeKeymapReader {
     pub keys: Vec<i32>,
     pub types: Vec<i16>,

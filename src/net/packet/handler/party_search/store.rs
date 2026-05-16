@@ -32,7 +32,7 @@ impl PartySearchStore {
     ) -> Result<Self, PartySearchError> {
         std::hint::black_box(state);
         std::hint::black_box(session);
-        std::hint::black_box(reader.clone());
+        std::hint::black_box(reader);
         Ok(Self)
     }
 }

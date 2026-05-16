@@ -42,7 +42,7 @@ impl ChangeMapHandler {
     ) -> Result<HandlerResult, ChangeMapError> {
         let reader: ChangeMapReader = ChangeMapReader::read_change_map_packet(packet)?;
         let store: ChangeMapStore =
-            ChangeMapStore::store_change_map(state, session.clone(), reader.clone()).await?;
+            ChangeMapStore::store_change_map(state, session.clone(), reader).await?;
         let result: HandlerResult = self.build_change_map(store)?;
         Ok(result)
     }

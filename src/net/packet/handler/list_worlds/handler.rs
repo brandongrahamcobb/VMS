@@ -42,7 +42,7 @@ impl ListWorldsHandler {
     ) -> Result<HandlerResult, ListWorldsError> {
         let reader: ListWorldsReader = ListWorldsReader::read_list_worlds_packet(packet)?;
         let store: ListWorldsStore =
-            ListWorldsStore::store_list_worlds(state, session, reader.clone()).await?;
+            ListWorldsStore::store_list_worlds(state, session, reader).await?;
         let result: HandlerResult = self.build_list_worlds_result(store).await?;
         Ok(result)
     }
