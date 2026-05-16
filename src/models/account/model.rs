@@ -56,7 +56,7 @@ impl AccountModel {
         }
         let acc = Account {
             model: self.clone(),
-            chars: chars.clone(),
+            chars,
         };
         Ok(acc)
     }

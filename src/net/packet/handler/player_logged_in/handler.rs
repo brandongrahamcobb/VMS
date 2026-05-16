@@ -45,7 +45,7 @@ impl PlayerLoggedInHandler {
         let store: PlayerLoggedInStore =
             PlayerLoggedInStore::store_player_logged_in(state, session.clone(), reader.clone())
                 .await?;
-        let result: HandlerResult = self.build_player_logged_in_result(store.clone())?;
+        let result: HandlerResult = self.build_player_logged_in_result(store)?;
         Ok(result)
     }
 
@@ -55,14 +55,14 @@ impl PlayerLoggedInHandler {
     ) -> Result<HandlerResult, PlayerLoggedInError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
-            .build_player_logged_in_handler_keymap_packet(store.binds.clone())?
+            .build_player_logged_in_handler_keymap_packet(&store.binds)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
         });
         let packet: Packet = Packet::new_empty()
-            .build_set_field_packet(store.char.clone(), store.channel_id)?
+            .build_set_field_packet(&store.char, store.channel_id)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
@@ -73,22 +73,13 @@ impl PlayerLoggedInHandler {
             scope: Scope::Local,
         }));
         let packet: Packet = Packet::new_empty()
-            .build_spawn_player_packet(store.char.clone())?
+            .build_spawn_player_packet(&store.char)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Map(MapScope::SameChannelSameWorld),
         });
-        for (_, player) in store.after_players {
-            let packet: Packet = Packet::new_empty()
-                .build_spawn_player_packet(player.clone())?
-                .finish();
-            result.add_action(Action::Send {
-                packet: packet.clone(),
-                scope: Scope::Local,
-            });
-        }
-
+        result.add_action(Action::Retrieve);
         Ok(result)
     }
 }

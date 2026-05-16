@@ -23,10 +23,11 @@ use crate::net::packet::handler::list_worlds::reader::ListWorldsReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
-#[derive(Clone)]
 pub struct ListWorldsStore {
-    pub worlds: HashMap<i16, World>,
+    pub worlds_arc: Arc<RwLock<HashMap<i16, World>>>,
 }
 
 impl ListWorldsStore {
@@ -37,10 +38,10 @@ impl ListWorldsStore {
     ) -> Result<Self, ListWorldsError> {
         std::hint::black_box(session);
         std::hint::black_box(reader.clone());
-        let worlds = {
+        let worlds_arc = {
             let state = state.lock().await;
-            state.worlds.read().await.clone()
+            state.worlds.clone()
         };
-        Ok(Self { worlds })
+        Ok(Self { worlds_arc })
     }
 }

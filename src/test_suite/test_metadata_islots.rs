@@ -15,10 +15,10 @@ mod tests {
             // "Base.wz",
             // "Effect.wz",
             // "Item.wz",
-            // "Map.wz",
+            "Map.wz",
             // "Morph.wz",
             // "Quest.wz",
-            "Skill.wz",
+            // "Skill.wz",
             // "String.wz",
             // "UI.wz",
             // "Character.wz",
@@ -34,10 +34,24 @@ mod tests {
             // for wz in (..=5200000).step_by(1) {
             //     let wz_cat = wz / 10000;
             // match metadata::service::wz_debug_dir(filename, "Cash") {
-            match metadata::service::wz_debug_dir(&filename, "") {
+            match metadata::service::wz_to_img(100010100, &filename) {
                 Ok(json) => {
+                    // println!("{}", serde_json::to_string_pretty(&json["life"]).unwrap());
+                    let filename: String = String::from("Mob.wz");
+                    if let Some(life) = json["life"].as_object() {
+                        for (key, value) in life {
+                            if let Some(m) = value["type"].as_str() {
+                                if m == "m" {
+                                    let id: i32 =
+                                        value["id"].as_str().unwrap().parse::<i32>().unwrap();
+                                    let json = metadata::service::wz_to_img(id, &filename)?;
+                                    println!("{}", serde_json::to_string_pretty(&json).unwrap());
+                                }
+                            }
+                        }
+                    }
+
                     // let item_key = format!("{:08}", wz);
-                    println!("{}", serde_json::to_string_pretty(&json).unwrap());
                     // if let Some(info) = &json["info"].as_str() {
                     //     dbg!(&info);
                     // }

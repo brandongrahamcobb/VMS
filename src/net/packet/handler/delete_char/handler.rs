@@ -43,7 +43,7 @@ impl DeleteCharHandler {
         let reader: DeleteCharReader = DeleteCharReader::read_delete_char_packet(packet)?;
         let store: DeleteCharStore =
             DeleteCharStore::store_delete_char(state, session.clone(), reader.clone()).await?;
-        let result: HandlerResult = self.build_delete_char_result(store.clone())?;
+        let result: HandlerResult = self.build_delete_char_result(store)?;
         Ok(result)
     }
 

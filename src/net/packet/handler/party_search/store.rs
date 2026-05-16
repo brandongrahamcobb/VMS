@@ -22,7 +22,6 @@ use crate::net::packet::handler::party_search::reader::PartySearchReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
-#[derive(Clone)]
 pub struct PartySearchStore;
 
 impl PartySearchStore {

@@ -24,7 +24,6 @@ use crate::models::character::wrapper::Character;
 use crate::runtime::state::SharedState;
 use bcrypt::{DEFAULT_COST, hash, verify};
 
-#[derive(Clone)]
 pub struct Account {
     pub model: AccountModel,
     pub chars: Vec<Character>,
@@ -56,18 +55,18 @@ pub enum FailedCode {
 }
 
 impl Account {
-    pub async fn accept_tos(&self, state: &SharedState) -> Result<Self, AccountError> {
+    pub async fn accept_tos(&self, state: &SharedState) -> Result<(), AccountError> {
         account::query::setters::accept_tos_by_account_id(state, self.model.get_id()?)
             .await
             .map_err(|e| DatabaseError::DieselError(e))?;
-        Ok(self.clone())
+        Ok(())
     }
 
-    pub async fn set_pic(&self, state: &SharedState, pic: String) -> Result<Self, AccountError> {
+    pub async fn set_pic(&self, state: &SharedState, pic: String) -> Result<(), AccountError> {
         account::query::setters::set_pic_by_account_id(state, self.model.get_id()?, pic.clone())
             .await
             .map_err(|e| DatabaseError::DieselError(e))?;
-        Ok(self.clone())
+        Ok(())
     }
 
     pub fn authenticate(&self, pw: String) -> Result<bool, AccountError> {

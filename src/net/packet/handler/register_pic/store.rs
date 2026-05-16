@@ -26,7 +26,6 @@ use crate::net::packet::handler::register_pic::reader::RegisterPicReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
-#[derive(Clone)]
 pub struct RegisterPicStore {
     pub char_id: i32,
     pub octets: [u8; 4],
@@ -41,9 +40,11 @@ impl RegisterPicStore {
     ) -> Result<Self, RegisterPicError> {
         let world_id: i16 = session.get_world_id()?;
         let channel_id: u8 = session.get_channel_id()?;
-        let channel = {
+        let port = {
             let state = state.lock().await;
-            state.get_channel(world_id, channel_id).await?
+            state
+                .with_channel(world_id, channel_id, |channel| channel.model.port)
+                .await?
         };
         let acc_id: i32 = session.get_acc_id()?;
         let acc: Account = account::service::get_account_by_id(state, acc_id).await?;
@@ -53,7 +54,7 @@ impl RegisterPicStore {
         Ok(Self {
             char_id: reader.char_id,
             octets,
-            port: channel.model.port,
+            port,
         })
     }
 }

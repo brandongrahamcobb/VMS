@@ -68,12 +68,12 @@ pub async fn load_inventory(state: &SharedState, char_id: i32) -> Result<Invento
         cash_tab.insert(cash_nonequip_item.get_ipos()?, cash_nonequip_item);
     }
     let inventory: Inventory = Inventory {
-        equipped_tab: equipped_tab.clone(),
-        equip_tab: equip_tab.clone(),
-        use_tab: use_tab.clone(),
-        setup_tab: setup_tab.clone(),
-        etc_tab: etc_tab.clone(),
-        cash_tab: cash_tab.clone(),
+        equipped_tab,
+        equip_tab,
+        use_tab,
+        setup_tab,
+        etc_tab,
+        cash_tab,
     };
     Ok(inventory)
 }

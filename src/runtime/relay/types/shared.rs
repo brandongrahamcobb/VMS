@@ -58,6 +58,7 @@ pub trait RuntimeRelay: Sized {
                         .await
                         .map_err(RelayTypeError::from);
                 }
+                Action::Retrieve => execute::manager::retrieve(state, &session).await?,
                 Action::Send { packet, scope } => {
                     execute::manager::send(state, &session, &packet, &scope).await?
                 }

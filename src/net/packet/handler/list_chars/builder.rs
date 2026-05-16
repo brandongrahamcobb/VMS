@@ -37,16 +37,16 @@ impl Packet {
         self.write_byte(channel_id as i16).map_err(WriteError)?;
         self.write_byte(chars.len() as i16).map_err(WriteError)?;
         for char in chars {
-            self.build_look_part_packet(char.clone())?;
+            self.build_look_part_packet(&char)?;
         }
         self.write_byte(pic_status).map_err(WriteError)?;
         self.write_int(char_slots as i32).map_err(WriteError)?;
         Ok(self)
     }
 
-    fn build_look_part_packet(&mut self, char: Character) -> Result<&mut Self, ListCharsError> {
-        self.build_list_char_meta_part_packet(char.clone())?;
-        self.build_look_meta_part_packet(char.clone())?;
+    fn build_look_part_packet(&mut self, char: &Character) -> Result<&mut Self, ListCharsError> {
+        self.build_list_char_meta_part_packet(char)?;
+        self.build_look_meta_part_packet(char)?;
         self.write_byte(0).map_err(WriteError)?;
         // Disable rank.
         self.write_byte(0).map_err(WriteError)?;

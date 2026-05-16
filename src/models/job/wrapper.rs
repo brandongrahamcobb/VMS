@@ -19,7 +19,6 @@
 
 use crate::models::job::model::JobModel;
 
-#[derive(Clone)]
 pub struct Job {
     pub model: JobModel,
 }

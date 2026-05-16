@@ -84,16 +84,22 @@ impl LoginServer {
                                             );
                                             return;
                                         };
-                                        let Ok(channel) =
-                                            state.get_channel(world_id, channel_id).await
-                                        else {
-                                            info!(
-                                                "Expected a game state world and channel for transitioning to player server. Session ID: {}",
-                                                id
-                                            );
-                                            return;
+                                        let port = match state
+                                            .with_channel(world_id, channel_id, |channel| {
+                                                channel.model.port
+                                            })
+                                            .await
+                                        {
+                                            Ok(port) => port,
+                                            Err(_) => {
+                                                info!(
+                                                    "Expected a game state world and channel for transitioning to player server. Session ID: {}",
+                                                    id
+                                                );
+                                                return;
+                                            }
                                         };
-                                        channel.model.port
+                                        port
                                     };
                                     tokio::spawn(PlayerServer::accept(state, id, port));
                                     tokio::task::yield_now().await;
@@ -195,16 +201,22 @@ impl PlayerServer {
                                             );
                                             return;
                                         };
-                                        let Ok(channel) =
-                                            state.get_channel(world_id, channel_id).await
-                                        else {
-                                            info!(
-                                                "Expected a game state world and channel for transitioning between player servers. Session ID: {}",
-                                                id
-                                            );
-                                            return;
+                                        let port = match state
+                                            .with_channel(world_id, channel_id, |channel| {
+                                                channel.model.port
+                                            })
+                                            .await
+                                        {
+                                            Ok(port) => port,
+                                            Err(_) => {
+                                                info!(
+                                                    "Expected a game state world and channel for transitioning to player server. Session ID: {}",
+                                                    id
+                                                );
+                                                return;
+                                            }
                                         };
-                                        channel.model.port
+                                        port
                                     };
                                     tokio::spawn(PlayerServer::accept(state.clone(), id, port));
                                     tokio::task::yield_now().await;

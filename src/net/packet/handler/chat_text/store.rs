@@ -24,7 +24,6 @@ use crate::net::packet::handler::chat_text::reader::ChatTextReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
-#[derive(Clone)]
 pub struct ChatTextStore {
     pub admin: bool,
     pub char_id: i32,

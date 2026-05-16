@@ -39,7 +39,7 @@ impl Packet {
 
     pub fn build_list_worlds_handler_recommended_worlds_packet(
         &mut self,
-        worlds: HashMap<i16, World>,
+        worlds: &HashMap<i16, World>,
     ) -> Result<&mut Self, ListWorldsError> {
         let recommended_world_names = settings::get_recommended_worlds()?;
         let op = SendOpcode::RecommendedWorlds as i16;
@@ -48,10 +48,10 @@ impl Packet {
         if count != 0 {
             self.write_byte(0).map_err(WriteError)?;
             self.write_byte(count).map_err(WriteError)?;
-            for (id, world) in worlds {
+            for (id, world) in worlds.iter() {
                 for world_name in recommended_world_names.clone() {
                     if world.model.name == world_name.clone() {
-                        self.write_int(id as i32).map_err(WriteError)?;
+                        self.write_int(*id as i32).map_err(WriteError)?;
                         self.write_str(world_name).map_err(WriteError)?;
                         self.write_int(0).map_err(WriteError)?;
                     }
@@ -67,12 +67,12 @@ impl Packet {
 
     pub fn build_list_worlds_handler_servers_packet(
         &mut self,
-        worlds: HashMap<i16, World>,
+        worlds: &HashMap<i16, World>,
     ) -> Result<&mut Self, ListWorldsError> {
         let op = SendOpcode::ServerList as i16;
         self.write_short(op).map_err(WriteError)?;
-        for (world_id, world) in worlds {
-            self.write_byte(world_id as i16).map_err(WriteError)?;
+        for (world_id, world) in worlds.iter() {
+            self.write_byte(*world_id as i16).map_err(WriteError)?;
             self.write_str_with_length(world.model.name.to_string())
                 .map_err(WriteError)?;
             self.write_byte(world.model.flag).map_err(WriteError)?;
@@ -85,15 +85,15 @@ impl Packet {
             self.write_byte(0).map_err(WriteError)?;
             let channels_length = world.channels.len() as i16;
             self.write_byte(channels_length).map_err(WriteError)?;
-            for (channel_id, channel) in world.channels.clone() {
+            for (channel_id, channel) in world.channels.iter() {
                 let channel_name = String::from("Placeholder");
                 self.write_str_with_length(channel_name)
                     .map_err(WriteError)?;
                 let channel_capacity = channel.model.capacity as i32;
                 self.write_int(channel_capacity).map_err(WriteError)?;
                 self.write_byte(1).map_err(WriteError)?;
-                self.write_byte(channel_id as i16).map_err(WriteError)?;
-                self.write_byte(world_id as i16).map_err(WriteError)?;
+                self.write_byte(*channel_id as i16).map_err(WriteError)?;
+                self.write_byte(*world_id as i16).map_err(WriteError)?;
             }
             self.write_short(0).map_err(WriteError)?;
         }

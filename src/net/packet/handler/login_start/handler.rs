@@ -41,7 +41,7 @@ impl LoginStartHandler {
         let reader: LoginStartReader = LoginStartReader::read_login_start_packet(packet)?;
         let store: LoginStartStore =
             LoginStartStore::store_login_start(state, session.clone(), reader.clone()).await?;
-        let result = self.build_login_start_result(store.clone())?;
+        let result = self.build_login_start_result(store)?;
         Ok(result)
     }
 

@@ -22,7 +22,6 @@ use std::collections::HashMap;
 use crate::models::channel::wrapper::Channel;
 use crate::models::world::model::WorldModel;
 
-#[derive(Clone)]
 pub struct World {
     pub model: &'static WorldModel,
     pub channels: HashMap<u8, Channel>,

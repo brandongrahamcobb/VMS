@@ -25,7 +25,6 @@ use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 use std::collections::HashMap;
 
-#[derive(Clone)]
 pub struct CloseAttackStore {
     pub char_id: i32,
     pub skill_level: i16,

@@ -21,6 +21,7 @@ use crate::runtime::relay::scope::Scope;
 
 pub enum Action {
     Break { packet: Packet, scope: Scope },
+    Retrieve,
     Set(SetAction),
     Send { packet: Packet, scope: Scope },
 }

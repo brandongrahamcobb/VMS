@@ -19,7 +19,6 @@
 
 use crate::models::keybinding::model::KeybindingModel;
 
-#[derive(Clone)]
 pub struct Keybinding {
     pub model: KeybindingModel,
 }

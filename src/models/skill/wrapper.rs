@@ -19,7 +19,6 @@
 
 use crate::models::skill::model::SkillModel;
 
-#[derive(Clone)]
 pub struct Skill {
     pub model: SkillModel,
 }

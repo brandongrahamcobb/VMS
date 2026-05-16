@@ -18,6 +18,7 @@
  */
 
 use crate::models::map::error::MapError;
+use crate::net::packet::codec::spawn_player::error::CodecSpawnPlayerError;
 use crate::net::packet::model::Packet;
 use crate::runtime::error::StateError;
 use crate::runtime::session::error::SessionError;
@@ -37,4 +38,7 @@ pub enum ExecuteError {
 
     #[error("Failed UnboundedSender error in execution layer")]
     UnboundedSenderError(#[from] SendError<Packet>),
+
+    #[error("Codec spawn player error in execution layer")]
+    CodecSpawnPlayerError(#[from] CodecSpawnPlayerError),
 }

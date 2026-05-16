@@ -22,7 +22,6 @@ use crate::net::packet::handler::move_player::reader::MovePlayerReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
-#[derive(Clone)]
 pub struct MovePlayerStore {
     pub char_id: i32,
     pub empty: bool,

@@ -48,7 +48,7 @@ impl SelectCharWithPicHandler {
             reader.clone(),
         )
         .await?;
-        let result: HandlerResult = self.build_select_char_with_pic_result(store.clone())?;
+        let result: HandlerResult = self.build_select_char_with_pic_result(store)?;
         Ok(result)
     }
 

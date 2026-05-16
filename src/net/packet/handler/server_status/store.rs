@@ -22,7 +22,6 @@ use crate::net::packet::handler::server_status::reader::ServerStatusReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
-#[derive(Clone)]
 pub struct ServerStatusStore {
     pub status: i16,
 }
@@ -35,11 +34,16 @@ impl ServerStatusStore {
     ) -> Result<Self, ServerStatusError> {
         std::hint::black_box(session);
         std::hint::black_box(reader.clone());
-        let worlds = {
+        let worlds_arc = {
             let state = state.lock().await;
-            state.worlds.read().await.clone()
+            state.worlds.clone()
         };
-        let status: i16 = if worlds.values().any(|world| !world.channels.is_empty()) {
+        let status: i16 = if worlds_arc
+            .read()
+            .await
+            .values()
+            .any(|world| !world.channels.is_empty())
+        {
             0
         } else {
             2

@@ -23,6 +23,7 @@ use crate::models::character;
 use crate::models::character::model::CharacterModel;
 use crate::models::character::wrapper::Character;
 use crate::models::item;
+use crate::models::item::error::ItemError;
 use crate::models::item::wrapper::Inventory;
 use crate::models::job::model::JobModel;
 use crate::models::job::wrapper::Job;
@@ -41,7 +42,6 @@ use itertools::izip;
 use std::collections::HashMap;
 use std::time::SystemTime;
 
-#[derive(Clone)]
 pub struct CreateCharStore {
     pub char: Character,
 }
@@ -118,17 +118,41 @@ impl CreateCharStore {
     ) -> Result<Inventory, CreateCharError> {
         let mut inventory: Inventory = item::service::load_inventory(state, char_id).await?;
         let top = item::service::create_item(state, reader.top_wz).await?;
-        let top = inventory.pick_up(state, top.clone()).await?;
-        inventory.equip(state, top.clone()).await?;
+        let top = {
+            let pos = inventory.pick_up(state, top).await?;
+            inventory
+                .equip_tab
+                .remove(&pos)
+                .ok_or(ItemError::InvalidISlot)?
+        };
+        inventory.equip(state, top).await?;
         let bottom = item::service::create_item(state, reader.bottom_wz).await?;
-        let bottom = inventory.pick_up(state, bottom.clone()).await?;
-        inventory.equip(state, bottom.clone()).await?;
+        let bottom = {
+            let pos = inventory.pick_up(state, bottom).await?;
+            inventory
+                .equip_tab
+                .remove(&pos)
+                .ok_or(ItemError::InvalidISlot)?
+        };
+        inventory.equip(state, bottom).await?;
         let shoes = item::service::create_item(state, reader.shoes_wz).await?;
-        let shoes = inventory.pick_up(state, shoes.clone()).await?;
-        inventory.equip(state, shoes.clone()).await?;
+        let shoes = {
+            let pos = inventory.pick_up(state, shoes).await?;
+            inventory
+                .equip_tab
+                .remove(&pos)
+                .ok_or(ItemError::InvalidISlot)?
+        };
+        inventory.equip(state, shoes).await?;
         let weapon = item::service::create_item(state, reader.weapon_wz).await?;
-        let weapon = inventory.pick_up(state, weapon.clone()).await?;
-        inventory.equip(state, weapon.clone()).await?;
+        let weapon = {
+            let pos = inventory.pick_up(state, weapon).await?;
+            inventory
+                .equip_tab
+                .remove(&pos)
+                .ok_or(ItemError::InvalidISlot)?
+        };
+        inventory.equip(state, weapon).await?;
         Ok(inventory)
     }
 

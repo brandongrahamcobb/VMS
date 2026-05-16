@@ -44,7 +44,7 @@ impl CheckCharNameHandler {
         let store: CheckCharNameStore =
             CheckCharNameStore::store_check_char_name(state, session.clone(), reader.clone())
                 .await?;
-        let result = self.build_check_char_name_result(store.clone())?;
+        let result = self.build_check_char_name_result(store)?;
         Ok(result)
     }
 

@@ -43,7 +43,7 @@ impl ServerStatusHandler {
         let reader: ServerStatusReader = ServerStatusReader::read_server_status_packet(packet)?;
         let store: ServerStatusStore =
             ServerStatusStore::store_server_status(state, session, reader.clone()).await?;
-        let result: HandlerResult = self.build_server_status_result(store.clone())?;
+        let result: HandlerResult = self.build_server_status_result(store)?;
         Ok(result)
     }
 

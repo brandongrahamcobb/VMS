@@ -19,6 +19,7 @@
 
 use crate::config::error::ConfigError;
 use crate::db::error::DatabaseError;
+use crate::models::map::error::MapError;
 use crate::models::world::error::WorldError;
 use thiserror::Error;
 use tokio::task::JoinError;
@@ -63,4 +64,7 @@ pub enum StateError {
 
     #[error("World model error in game state layer")]
     WorldError(#[from] WorldError),
+
+    #[error("Map model error in game state layer")]
+    MapError(#[from] MapError),
 }

@@ -24,7 +24,6 @@ use crate::net::packet::handler::select_char::reader::SelectCharReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
-#[derive(Clone)]
 pub struct SelectCharStore {
     pub char_id: i32,
     pub octets: [u8; 4],
@@ -39,16 +38,18 @@ impl SelectCharStore {
     ) -> Result<Self, SelectCharError> {
         let world_id: i16 = session.get_world_id()?;
         let channel_id: u8 = session.get_channel_id()?;
-        let channel = {
+        let port = {
             let state = state.lock().await;
-            state.get_channel(world_id, channel_id).await?
+            state
+                .with_channel(world_id, channel_id, |channel| channel.model.port)
+                .await?
         };
         let addr: String = settings::get_routing_address()?;
         let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
         Ok(Self {
             char_id: reader.char_id,
             octets,
-            port: channel.model.port,
+            port,
         })
     }
 }

@@ -44,7 +44,7 @@ impl CredentialsHandler {
         let reader: CredentialsReader = CredentialsReader::read_credentials_packet(packet)?;
         let store: CredentialsStore =
             CredentialsStore::store_credentials(state, session.clone(), reader.clone()).await?;
-        let result: HandlerResult = self.build_credentials_result(store.clone())?;
+        let result: HandlerResult = self.build_credentials_result(store)?;
         Ok(result)
     }
 
@@ -70,7 +70,7 @@ impl CredentialsHandler {
                     .build_credentials_handler_failed_login_packet(code)?
                     .finish();
                 result.add_action(Action::Set(SetAction::SetAccount {
-                    acc_id: store.acc.clone().unwrap().model.get_id()?,
+                    acc_id: store.acc.unwrap().model.get_id()?,
                 }));
                 result.add_action(Action::Send {
                     packet: packet.clone(),
@@ -78,13 +78,12 @@ impl CredentialsHandler {
                 });
             }
             StatusCode::Success(_) => {
+                let acc = store.acc.unwrap();
                 let packet: Packet = Packet::new_empty()
-                    .build_credentials_handler_successful_login_packet(
-                        store.acc.clone().unwrap().clone(),
-                    )?
+                    .build_credentials_handler_successful_login_packet(&acc)?
                     .finish();
                 result.add_action(Action::Set(SetAction::SetAccount {
-                    acc_id: store.acc.clone().unwrap().model.get_id()?,
+                    acc_id: acc.model.get_id()?,
                 }));
                 result.add_action(Action::Send {
                     packet: packet.clone(),

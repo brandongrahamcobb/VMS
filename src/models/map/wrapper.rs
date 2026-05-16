@@ -26,7 +26,6 @@ use crate::models::mob::wrapper::Mob;
 use crate::models::portal::wrapper::Portal;
 use std::collections::HashMap;
 
-#[derive(Clone)]
 pub struct Map {
     pub model: MapModel,
     pub chars: HashMap<i32, Character>,
@@ -36,12 +35,11 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn get_portal(&self, tn: String) -> Result<Portal, MapError> {
-        let portal: Portal = self
+    pub fn get_portal(&self, tn: String) -> Result<&Portal, MapError> {
+        let portal: &Portal = self
             .portals
             .values()
             .find(|p| p.model.pn == tn)
-            .cloned()
             .ok_or(MetadataError::ObjectError)?;
         Ok(portal)
     }

@@ -28,7 +28,6 @@ use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 use itertools::izip;
 
-#[derive(Clone)]
 pub struct ChangeKeymapStore;
 
 impl ChangeKeymapStore {

@@ -43,17 +43,18 @@ impl ListWorldsHandler {
         let reader: ListWorldsReader = ListWorldsReader::read_list_worlds_packet(packet)?;
         let store: ListWorldsStore =
             ListWorldsStore::store_list_worlds(state, session, reader.clone()).await?;
-        let result: HandlerResult = self.build_list_worlds_result(store.clone())?;
+        let result: HandlerResult = self.build_list_worlds_result(store).await?;
         Ok(result)
     }
 
-    fn build_list_worlds_result(
+    async fn build_list_worlds_result(
         &self,
         store: ListWorldsStore,
     ) -> Result<HandlerResult, ListWorldsError> {
+        let worlds = store.worlds_arc.read().await;
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
-            .build_list_worlds_handler_servers_packet(store.worlds.clone())?
+            .build_list_worlds_handler_servers_packet(&worlds)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
@@ -67,7 +68,7 @@ impl ListWorldsHandler {
             scope: Scope::Local,
         });
         let packet: Packet = Packet::new_empty()
-            .build_list_worlds_handler_recommended_worlds_packet(store.worlds.clone())?
+            .build_list_worlds_handler_recommended_worlds_packet(&worlds)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

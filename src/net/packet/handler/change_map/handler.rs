@@ -43,14 +43,14 @@ impl ChangeMapHandler {
         let reader: ChangeMapReader = ChangeMapReader::read_change_map_packet(packet)?;
         let store: ChangeMapStore =
             ChangeMapStore::store_change_map(state, session.clone(), reader.clone()).await?;
-        let result: HandlerResult = self.build_change_map(store.clone())?;
+        let result: HandlerResult = self.build_change_map(store)?;
         Ok(result)
     }
 
     fn build_change_map(&self, store: ChangeMapStore) -> Result<HandlerResult, ChangeMapError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
-            .build_despawn_player_packet(store.char.clone())?
+            .build_despawn_player_packet(&store.char)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
@@ -68,21 +68,13 @@ impl ChangeMapHandler {
             scope: Scope::Local,
         }));
         let packet: Packet = Packet::new_empty()
-            .build_spawn_player_packet(store.char.clone())?
+            .build_spawn_player_packet(&store.char)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Map(MapScope::SameChannelSameWorld),
         });
-        for (_, player) in store.after_players {
-            let packet: Packet = Packet::new_empty()
-                .build_spawn_player_packet(player.clone())?
-                .finish();
-            result.add_action(Action::Send {
-                packet: packet.clone(),
-                scope: Scope::Local,
-            });
-        }
+        result.add_action(Action::Retrieve);
         Ok(result)
     }
 }

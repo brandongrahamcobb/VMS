@@ -46,7 +46,7 @@ impl PlayerMapTransferHandler {
             reader.clone(),
         )
         .await?;
-        let result: HandlerResult = self.build_player_map_transfer(store.clone())?;
+        let result: HandlerResult = self.build_player_map_transfer(store)?;
         Ok(result)
     }
 

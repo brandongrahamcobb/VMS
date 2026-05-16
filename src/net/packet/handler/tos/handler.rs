@@ -42,7 +42,7 @@ impl TosHandler {
     ) -> Result<HandlerResult, TosError> {
         let reader: TosReader = TosReader::read_tos_packet(packet)?;
         let store: TosStore = TosStore::store_tos(state, session.clone(), reader.clone()).await?;
-        let result: HandlerResult = self.build_tos_result(store.clone())?;
+        let result: HandlerResult = self.build_tos_result(store)?;
         Ok(result)
     }
 
@@ -50,7 +50,7 @@ impl TosHandler {
         let mut result: HandlerResult = HandlerResult::new();
         if store.accepted {
             let packet: Packet = Packet::new_empty()
-                .build_credentials_handler_successful_login_packet(store.acc.clone())?
+                .build_credentials_handler_successful_login_packet(&store.acc)?
                 .finish();
             result.add_action(Action::Send {
                 packet: packet.clone(),

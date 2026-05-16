@@ -28,7 +28,7 @@ impl Packet {
     pub fn build_enter_cash_shop_packet(
         &mut self,
         username: String,
-        char: Character,
+        char: &Character,
     ) -> Result<&mut Self, EnterCashShopError> {
         let op = SendOpcode::SetCashShop as i16;
         self.write_short(op).map_err(WriteError)?;
@@ -36,7 +36,7 @@ impl Packet {
         self.write_long(0).map_err(WriteError)?;
         // Flag
         self.write_byte(0).map_err(WriteError)?;
-        self.build_player_logged_in_meta_part_packet(char.clone())?;
+        self.build_player_logged_in_meta_part_packet(char)?;
         self.build_cash_shop_meta(username.clone())?;
         Ok(self)
     }

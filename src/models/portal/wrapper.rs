@@ -19,7 +19,6 @@
 
 use crate::models::portal::model::PortalModel;
 
-#[derive(Clone)]
 pub struct Portal {
     pub model: PortalModel,
 }

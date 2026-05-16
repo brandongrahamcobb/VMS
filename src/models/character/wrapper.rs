@@ -25,7 +25,6 @@ use crate::models::job::wrapper::Job;
 use crate::models::keybinding::wrapper::Keybinding;
 use crate::models::skill::wrapper::Skill;
 
-#[derive(Clone)]
 pub struct Character {
     pub model: CharacterModel,
     pub binds: HashMap<i32, Keybinding>,

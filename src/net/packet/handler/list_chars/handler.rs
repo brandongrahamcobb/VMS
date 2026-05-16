@@ -43,7 +43,7 @@ impl ListCharsHandler {
         let reader: ListCharsReader = ListCharsReader::read_list_chars_packet(packet)?;
         let store: ListCharsStore =
             ListCharsStore::store_list_chars(state, session.clone(), reader.clone()).await?;
-        let result: HandlerResult = self.build_list_chars_result(store.clone())?;
+        let result: HandlerResult = self.build_list_chars_result(store)?;
         Ok(result)
     }
 

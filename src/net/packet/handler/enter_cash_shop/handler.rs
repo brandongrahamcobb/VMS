@@ -43,7 +43,7 @@ impl EnterCashShopHandler {
         let reader: EnterCashShopReader = EnterCashShopReader::read_enter_cash_shop_packet(packet)?;
         let store: EnterCashShopStore =
             EnterCashShopStore::store_enter_cash_shop(state, session.clone(), reader).await?;
-        let result: HandlerResult = self.build_enter_cash_shop_result(store.clone())?;
+        let result: HandlerResult = self.build_enter_cash_shop_result(store)?;
         Ok(result)
     }
 
@@ -57,14 +57,14 @@ impl EnterCashShopHandler {
             scope: Scope::Local,
         }));
         let packet: Packet = Packet::new_empty()
-            .build_enter_cash_shop_packet(store.username.clone(), store.char.clone())?
+            .build_enter_cash_shop_packet(store.username.clone(), &store.char)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
         });
         let packet: Packet = Packet::new_empty()
-            .build_despawn_player_packet(store.char.clone())?
+            .build_despawn_player_packet(&store.char)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

@@ -41,7 +41,7 @@ impl Packet {
 
     pub fn build_credentials_handler_successful_login_packet(
         &mut self,
-        acc: Account,
+        acc: &Account,
     ) -> Result<&mut Self, CodecLoginError> {
         let pin_required = settings::get_pin_required()? as i16;
         let opcode = SendOpcode::AccountStatus as i16;

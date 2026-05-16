@@ -41,7 +41,7 @@ impl PartySearchHandler {
         let reader: PartySearchReader = PartySearchReader::read_party_search_packet(packet)?;
         let store: PartySearchStore =
             PartySearchStore::store_party_search(state, session, reader.clone())?;
-        let result: HandlerResult = self.build_party_search_result(store.clone())?;
+        let result: HandlerResult = self.build_party_search_result(store)?;
         Ok(result)
     }
 

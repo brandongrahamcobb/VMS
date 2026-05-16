@@ -25,11 +25,8 @@ use crate::net::packet::handler::cc::error::ChangeChannelError;
 use crate::net::packet::handler::cc::reader::ChangeChannelReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
-use std::collections::HashMap;
 
-#[derive(Clone)]
 pub struct ChangeChannelStore {
-    pub after_players: HashMap<i32, Character>,
     pub channel_id: u8,
     pub char: Character,
     pub octets: [u8; 4],
@@ -46,21 +43,15 @@ impl ChangeChannelStore {
         let char: Character = character::service::get_char_by_id(state, char_id).await?;
         let world_id: i16 = session.get_world_id()?;
         let channel_id: u8 = reader.channel_id;
-        let map_wz: i32 = session.get_map_wz()?;
-        let channel = {
+        let port = {
             let state = state.lock().await;
-            state.get_channel(world_id, channel_id).await?
+            state
+                .with_channel(world_id, channel_id, |channel| channel.model.port)
+                .await?
         };
-        let after_map = {
-            let state = state.lock().await;
-            state.get_map(world_id, channel_id, map_wz).await?
-        };
-        let after_players: HashMap<i32, Character> = after_map.chars.clone();
         let addr: String = settings::get_routing_address()?;
         let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
-        let port: i16 = channel.model.port;
         Ok(Self {
-            after_players,
             channel_id,
             char,
             octets,

@@ -42,7 +42,7 @@ impl ChangeChannelHandler {
         let reader: ChangeChannelReader = ChangeChannelReader::read_change_channel_packet(packet)?;
         let store: ChangeChannelStore =
             ChangeChannelStore::store_change_channel(state, session, reader.clone()).await?;
-        let result: HandlerResult = self.build_change_channel_result(store.clone()).await?;
+        let result: HandlerResult = self.build_change_channel_result(store).await?;
         Ok(result)
     }
 
@@ -56,28 +56,19 @@ impl ChangeChannelHandler {
             scope: Scope::Local,
         }));
         let packet: Packet = Packet::new_empty()
-            .build_despawn_player_packet(store.char.clone())?
+            .build_despawn_player_packet(&store.char)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Map(MapScope::SameChannelSameWorld),
         });
         let packet: Packet = Packet::new_empty()
-            .build_spawn_player_packet(store.char.clone())?
+            .build_spawn_player_packet(&store.char)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Map(MapScope::SameChannelSameWorld),
         });
-        for (_, player) in store.after_players {
-            let packet: Packet = Packet::new_empty()
-                .build_spawn_player_packet(player.clone())?
-                .finish();
-            result.add_action(Action::Send {
-                packet: packet.clone(),
-                scope: Scope::Local,
-            });
-        }
         let packet: Packet = Packet::new_empty()
             .build_channel_change_packet(store.octets.clone(), store.port)?
             .finish();
@@ -85,6 +76,7 @@ impl ChangeChannelHandler {
             packet: packet.clone(),
             scope: Scope::Local,
         });
+        result.add_action(Action::Retrieve);
         Ok(result)
     }
 }

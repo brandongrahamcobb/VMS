@@ -27,7 +27,7 @@ use crate::prelude::*;
 impl Packet {
     pub fn build_despawn_player_packet(
         &mut self,
-        char: Character,
+        char: &Character,
     ) -> Result<&mut Self, CodecDespawnPlayerError> {
         let op = SendOpcode::DespawnPlayer as i16;
         self.write_short(op).map_err(WriteError)?;

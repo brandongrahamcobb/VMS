@@ -23,7 +23,6 @@ use crate::net::packet::handler::check_char_name::reader::CheckCharNameReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
-#[derive(Clone)]
 pub struct CheckCharNameStore {
     pub exists: bool,
     pub ign: String,

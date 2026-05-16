@@ -22,7 +22,6 @@ use crate::net::packet::handler::player_map_transfer::reader::PlayerMapTransferR
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
-#[derive(Clone)]
 pub struct PlayerMapTransferStore;
 
 impl PlayerMapTransferStore {

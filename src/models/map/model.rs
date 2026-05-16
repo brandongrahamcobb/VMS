@@ -37,8 +37,8 @@ impl MapModel {
             chars: HashMap::new(),
             items: HashMap::new(),
             model: self.clone(),
-            mobs: mobs.clone(),
-            portals: portals.clone(),
+            mobs,
+            portals,
         })
     }
 }

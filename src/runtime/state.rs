@@ -22,8 +22,8 @@ use crate::db::error::DatabaseError;
 use crate::db::pool::DbPool;
 use crate::models::channel::wrapper::Channel;
 use crate::models::map::wrapper::Map;
-use crate::models::world;
 use crate::models::world::wrapper::World;
+use crate::models::{map, world};
 use crate::runtime::error::StateError;
 use crate::runtime::session::session_store::SessionStore;
 use diesel::PgConnection;
@@ -57,54 +57,96 @@ impl State {
         Ok(shared_state)
     }
 
-    pub async fn get_world(&self, world_id: i16) -> Result<World, StateError> {
-        self.worlds
-            .read()
-            .await
-            .get(&world_id)
-            .ok_or(StateError::NoWorld(world_id))
-            .cloned()
+    pub async fn with_world<F, R>(&self, world_id: i16, f: F) -> Result<R, StateError>
+    where
+        F: FnOnce(&World) -> R,
+    {
+        let worlds = self.worlds.read().await;
+        let world = worlds.get(&world_id).ok_or(StateError::NoWorld(world_id))?;
+        Ok(f(world))
     }
 
-    pub async fn get_channel(&self, world_id: i16, channel_id: u8) -> Result<Channel, StateError> {
-        self.get_world(world_id)
-            .await?
+    pub async fn with_channel<F, R>(
+        &self,
+        world_id: i16,
+        channel_id: u8,
+        f: F,
+    ) -> Result<R, StateError>
+    where
+        F: FnOnce(&Channel) -> R,
+    {
+        self.with_world(world_id, |world| {
+            world
+                .channels
+                .get(&channel_id)
+                .map(f)
+                .ok_or(StateError::NoChannel(channel_id))
+        })
+        .await?
+    }
+
+    pub async fn with_mut_channel<F, R>(
+        &self,
+        world_id: i16,
+        channel_id: u8,
+        f: F,
+    ) -> Result<R, StateError>
+    where
+        F: FnOnce(&mut Channel) -> R,
+    {
+        let mut worlds = self.worlds.write().await;
+        let world = worlds
+            .get_mut(&world_id)
+            .ok_or(StateError::NoWorld(world_id))?;
+        let channel = world
             .channels
-            .get(&channel_id)
-            .ok_or(StateError::NoChannel(channel_id))
-            .cloned()
+            .get_mut(&channel_id)
+            .ok_or(StateError::NoChannel(channel_id))?;
+        Ok(f(channel))
     }
 
-    pub async fn get_map(
+    pub async fn with_map<F, R>(
         &self,
         world_id: i16,
         channel_id: u8,
         map_wz: i32,
-    ) -> Result<Map, StateError> {
-        self.get_channel(world_id, channel_id)
-            .await?
-            .maps
-            .get(&map_wz)
-            .ok_or(StateError::NoMap(map_wz))
-            .cloned()
+        f: F,
+    ) -> Result<R, StateError>
+    where
+        F: FnOnce(&Map) -> R,
+    {
+        self.with_channel(world_id, channel_id, |channel| {
+            channel
+                .maps
+                .get(&map_wz)
+                .map(f)
+                .ok_or(StateError::NoMap(map_wz))
+        })
+        .await?
     }
 
     pub async fn insert_map(
         &self,
         world_id: i16,
         channel_id: u8,
-        map: Map,
+        map_wz: i32,
     ) -> Result<(), StateError> {
-        self.worlds
-            .write()
-            .await
-            .get_mut(&world_id)
-            .ok_or(StateError::NoWorld(world_id))?
-            .channels
-            .get_mut(&channel_id)
-            .ok_or(StateError::NoChannel(channel_id))?
-            .maps
-            .insert(map.model.wz, map);
+        let exists = self
+            .with_channel(world_id, channel_id, |channel| {
+                if !channel.maps.contains_key(&map_wz) {
+                    true
+                } else {
+                    false
+                }
+            })
+            .await?;
+        if !exists {
+            let map = map::service::load_map(map_wz)?;
+            self.with_mut_channel(world_id, channel_id, |channel| {
+                channel.maps.insert(map_wz, map);
+            })
+            .await?;
+        }
         Ok(())
     }
 
@@ -114,16 +156,10 @@ impl State {
         channel_id: u8,
         map_wz: i32,
     ) -> Result<(), StateError> {
-        self.worlds
-            .write()
-            .await
-            .get_mut(&world_id)
-            .ok_or(StateError::NoWorld(world_id))?
-            .channels
-            .get_mut(&channel_id)
-            .ok_or(StateError::NoChannel(channel_id))?
-            .maps
-            .remove(&map_wz);
+        self.with_mut_channel(world_id, channel_id, |channel| {
+            channel.maps.remove(&map_wz);
+        })
+        .await?;
         Ok(())
     }
 }

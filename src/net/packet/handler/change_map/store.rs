@@ -19,18 +19,13 @@
 
 use crate::models::character;
 use crate::models::character::wrapper::Character;
-use crate::models::portal::wrapper::Portal;
 use crate::net::packet::handler::change_map::error::ChangeMapError;
 use crate::net::packet::handler::change_map::reader::ChangeMapReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
-use std::collections::HashMap;
 
-#[derive(Clone)]
 pub struct ChangeMapStore {
     pub after_map_wz: i32,
-    pub after_players: HashMap<i32, Character>,
-    pub before_players: HashMap<i32, Character>,
     pub channel_id: u8,
     pub char: Character,
     pub died: i16,
@@ -47,29 +42,22 @@ impl ChangeMapStore {
         let world_id: i16 = session.get_world_id()?;
         let channel_id: u8 = session.get_channel_id()?;
         let map_wz: i32 = session.get_map_wz()?;
-        let before_map = {
+        let (tm, pid): (i32, u8) = {
             let state = state.lock().await;
-            state.get_map(world_id, channel_id, map_wz).await?
+            state
+                .with_map(world_id, channel_id, map_wz, |map| {
+                    map.get_portal(reader.tn).map(|p| (p.model.tm, p.model.pid))
+                })
+                .await??
         };
-        let before_players: HashMap<i32, Character> = before_map.chars.clone();
-        let portal: Portal = before_map.get_portal(reader.tn)?;
-        let after_map = {
-            let state = state.lock().await;
-            state.get_map(world_id, channel_id, portal.model.tm).await?
-        };
-        let after_players: HashMap<i32, Character> = after_map.chars.clone();
-
         let char_id = session.get_char_id()?;
         let char: Character = character::service::get_char_by_id(state, char_id).await?;
-
         Ok(Self {
-            after_map_wz: after_map.model.wz,
-            after_players: after_players.clone(),
-            before_players: before_players.clone(),
+            after_map_wz: tm,
             channel_id,
             char,
             died: reader.died,
-            pid: portal.model.pid,
+            pid: pid,
             wheel_of_destiny: reader.wod,
         })
     }

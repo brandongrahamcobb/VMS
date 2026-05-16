@@ -26,7 +26,6 @@ use crate::net::packet::handler::enter_cash_shop::reader::EnterCashShopReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
-#[derive(Clone)]
 pub struct EnterCashShopStore {
     pub char: Character,
     pub map_wz: i32,

@@ -43,4 +43,7 @@ pub enum ItemError {
 
     #[error("Metadata error in item model layer")]
     MetadataError(#[from] MetadataError),
+
+    #[error("Inventory full error in item model layer")]
+    InventoryFull,
 }

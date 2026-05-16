@@ -26,7 +26,6 @@ use crate::net::packet::handler::delete_char::reader::DeleteCharReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
-#[derive(Clone)]
 pub struct DeleteCharStore {
     pub char_id: i32,
     pub pic_status: bool,

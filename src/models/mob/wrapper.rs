@@ -19,7 +19,6 @@
 
 use crate::models::mob::model::MobModel;
 
-#[derive(Clone)]
 pub struct Mob {
     pub model: MobModel,
 }

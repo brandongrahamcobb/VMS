@@ -41,7 +41,7 @@ impl ChangeKeymapHandler {
         let reader: ChangeKeymapReader = ChangeKeymapReader::read_change_keymap_packet(packet)?;
         let store: ChangeKeymapStore =
             ChangeKeymapStore::store_change_keymap(state, session.clone(), reader.clone()).await?;
-        let result: HandlerResult = self.build_change_keymap_result(store.clone())?;
+        let result: HandlerResult = self.build_change_keymap_result(store)?;
         Ok(result)
     }
 

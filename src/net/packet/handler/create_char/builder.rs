@@ -27,21 +27,21 @@ use crate::prelude::*;
 impl Packet {
     pub fn build_create_char_packet(
         &mut self,
-        char: Character,
+        char: &Character,
     ) -> Result<&mut Self, CreateCharError> {
         let op = SendOpcode::NewChar as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
-        self.build_new_character_look_part_packet(char.clone())?;
+        self.build_new_character_look_part_packet(char)?;
         Ok(self)
     }
 
     fn build_new_character_look_part_packet(
         &mut self,
-        char: Character,
+        char: &Character,
     ) -> Result<&mut Self, CreateCharError> {
-        self.build_list_char_meta_part_packet(char.clone())?;
-        self.build_new_character_look_meta_part_packet(char.clone())?;
+        self.build_list_char_meta_part_packet(char)?;
+        self.build_new_character_look_meta_part_packet(char)?;
         self.write_byte(0).map_err(WriteError)?;
         // Disable rank.
         self.write_byte(0).map_err(WriteError)?;
@@ -50,7 +50,7 @@ impl Packet {
 
     fn build_new_character_look_meta_part_packet(
         &mut self,
-        char: Character,
+        char: &Character,
     ) -> Result<&mut Self, CreateCharError> {
         let gender_wz = char.model.gender_wz as i16;
         self.write_byte(gender_wz).map_err(WriteError)?;
@@ -60,9 +60,9 @@ impl Packet {
         self.write_byte(0) // megaphone
             .map_err(WriteError)?;
         self.write_int(char.model.hair_wz).map_err(WriteError)?;
-        self.build_look_regular_equipment_part_packet(char.clone())?;
+        self.build_look_regular_equipment_part_packet(char)?;
         self.write_byte(0xFF).map_err(WriteError)?;
-        self.build_look_cash_equipment_part_packet(char.clone())?;
+        self.build_look_cash_equipment_part_packet(char)?;
         self.write_byte(0xFF).map_err(WriteError)?;
         self.write_int(0) //maskedequips -111
             .map_err(WriteError)?;

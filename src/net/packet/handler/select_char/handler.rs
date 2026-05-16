@@ -43,7 +43,7 @@ impl SelectCharHandler {
         let reader: SelectCharReader = SelectCharReader::read_select_char_packet(packet)?;
         let store: SelectCharStore =
             SelectCharStore::store_select_char(state, session.clone(), reader.clone()).await?;
-        let result: HandlerResult = self.build_select_char_result(store.clone())?;
+        let result: HandlerResult = self.build_select_char_result(store)?;
         Ok(result)
     }
 

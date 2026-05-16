@@ -17,8 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-
 use crate::models::character::wrapper::Character;
 use crate::models::item::wrapper::{EquipItem, Item};
 use crate::net::packet::codec::spawn_player::error::CodecSpawnPlayerError;
@@ -30,7 +28,7 @@ use crate::prelude::*;
 impl Packet {
     pub fn build_spawn_player_packet(
         &mut self,
-        char: Character,
+        char: &Character,
     ) -> Result<&mut Self, CodecSpawnPlayerError> {
         let op = SendOpcode::SpawnPlayer as i16;
         self.write_short(op).map_err(WriteError)?;
@@ -73,7 +71,7 @@ impl Packet {
         let skip = vec![0u8; 61];
         self.write_bytes(skip).map_err(WriteError)?;
         self.write_short(char.model.job_wz).map_err(WriteError)?;
-        self.build_look_meta_part_packet(char.clone())?;
+        self.build_look_meta_part_packet(char)?;
         let count = 5110000;
         self.write_int(count).map_err(WriteError)?;
         let item_effect = 0; // 0 not sure
@@ -136,13 +134,12 @@ impl Packet {
 
     pub fn build_look_cash_equipment_part_packet(
         &mut self,
-        char: Character,
+        char: &Character,
     ) -> Result<&mut Self, CodecSpawnPlayerError> {
-        let equipped: HashMap<i16, Item> = char.inventory.equipped_tab;
-        for (ipos, equip) in equipped {
+        for (ipos, equip) in char.inventory.equipped_tab.iter() {
             match equip {
                 Item::CashEquip(i) => {
-                    self.write_byte(ipos).map_err(WriteError)?;
+                    self.write_byte(*ipos).map_err(WriteError)?;
                     self.write_int(i.model.wz).map_err(WriteError)?;
                 }
                 _ => (),
@@ -153,13 +150,12 @@ impl Packet {
 
     pub fn build_look_regular_equipment_part_packet(
         &mut self,
-        char: Character,
+        char: &Character,
     ) -> Result<&mut Self, CodecSpawnPlayerError> {
-        let equipped: HashMap<i16, Item> = char.inventory.equipped_tab;
-        for (ipos, equip) in equipped {
+        for (ipos, equip) in char.inventory.equipped_tab.iter() {
             match equip {
                 Item::Equip(i) => {
-                    self.write_byte(ipos).map_err(WriteError)?;
+                    self.write_byte(*ipos).map_err(WriteError)?;
                     self.write_int(i.model.wz).map_err(WriteError)?;
                 }
                 _ => (),
@@ -170,7 +166,7 @@ impl Packet {
 
     pub fn build_list_char_meta_part_packet(
         &mut self,
-        char: Character,
+        char: &Character,
     ) -> Result<&mut Self, CodecSpawnPlayerError> {
         self.write_int(char.model.get_id()?).map_err(WriteError)?;
         self.write_str(char.model.ign.clone()).map_err(WriteError)?;
@@ -213,7 +209,7 @@ impl Packet {
 
     pub fn build_look_meta_part_packet(
         &mut self,
-        char: Character,
+        char: &Character,
     ) -> Result<&mut Self, CodecSpawnPlayerError> {
         self.write_byte(char.model.gender_wz as i16)
             .map_err(WriteError)?;
@@ -223,9 +219,9 @@ impl Packet {
         self.write_byte(0) // megaphone
             .map_err(WriteError)?;
         self.write_int(char.model.hair_wz).map_err(WriteError)?;
-        self.build_look_regular_equipment_part_packet(char.clone())?;
+        self.build_look_regular_equipment_part_packet(char)?;
         self.write_byte(0xFF).map_err(WriteError)?;
-        self.build_look_cash_equipment_part_packet(char.clone())?;
+        self.build_look_cash_equipment_part_packet(char)?;
         self.write_byte(0xFF).map_err(WriteError)?;
         self.write_int(0) //maskedequips -111
             .map_err(WriteError)?;
@@ -238,7 +234,7 @@ impl Packet {
 
     pub fn build_player_logged_in_meta_part_packet(
         &mut self,
-        char: Character,
+        char: &Character,
     ) -> Result<&mut Self, CodecSpawnPlayerError> {
         let level = char.model.level as i16;
         self.write_byte(level).map_err(WriteError)?;
@@ -265,7 +261,7 @@ impl Packet {
         let bl_capacity = 25;
         self.write_byte(bl_capacity).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
-        self.build_inventory_part_packet(char.clone())?
+        self.build_inventory_part_packet(char)?
             .build_skills_part_packet()?
             .build_quests_part_packet()?
             .build_minigames_part_packet()?
@@ -348,13 +344,12 @@ impl Packet {
 
     pub fn build_inventory_cash_equipment_part_packet(
         &mut self,
-        char: Character,
+        char: &Character,
     ) -> Result<&mut Self, CodecSpawnPlayerError> {
-        let equipped: HashMap<i16, Item> = char.inventory.equipped_tab;
-        for (ipos, equip) in equipped {
+        for (ipos, equip) in char.inventory.equipped_tab.iter() {
             match equip {
                 Item::CashEquip(i) => {
-                    self.write_short(ipos).map_err(WriteError)?;
+                    self.write_short(*ipos).map_err(WriteError)?;
                     self.write_int(i.model.wz).map_err(WriteError)?;
                 }
                 _ => (),
@@ -365,14 +360,13 @@ impl Packet {
 
     pub fn build_inventory_regular_equipment_part_packet(
         &mut self,
-        char: Character,
+        char: &Character,
     ) -> Result<&mut Self, CodecSpawnPlayerError> {
-        let equipped: HashMap<i16, Item> = char.inventory.equipped_tab;
-        for (ipos, equip) in equipped {
+        for (ipos, equip) in char.inventory.equipped_tab.iter() {
             match equip {
                 Item::Equip(i) => {
-                    self.write_short(ipos).map_err(WriteError)?;
-                    self.build_inventory_regular_equip_meta_part_packet(i.clone())?;
+                    self.write_short(*ipos).map_err(WriteError)?;
+                    self.build_inventory_regular_equip_meta_part_packet(&i)?;
                 }
                 _ => (),
             }
@@ -382,7 +376,7 @@ impl Packet {
 
     fn build_inventory_regular_equip_meta_part_packet(
         &mut self,
-        equip: EquipItem,
+        equip: &EquipItem,
     ) -> Result<&mut Self, CodecSpawnPlayerError> {
         // Dummy values
         self.write_byte(1).map_err(WriteError)?;
@@ -411,7 +405,7 @@ impl Packet {
 
     pub fn build_inventory_part_packet(
         &mut self,
-        char: Character,
+        char: &Character,
     ) -> Result<&mut Self, CodecSpawnPlayerError> {
         self.write_int(char.model.meso).map_err(WriteError)?;
         // Dummy values
@@ -419,8 +413,8 @@ impl Packet {
         self.write_bytes(vec![0u8; 5]).map_err(WriteError)?;
         // Time?
         self.write_long(0).map_err(WriteError)?;
-        self.build_inventory_regular_equipment_part_packet(char.clone())?;
-        self.build_inventory_cash_equipment_part_packet(char.clone())?;
+        self.build_inventory_regular_equipment_part_packet(char)?;
+        self.build_inventory_cash_equipment_part_packet(char)?;
         // End of equipment equipped (all id's) MUST BE ENDED WITH A SHORT 0
         self.write_short(0).map_err(WriteError)?;
         // Start of equipment inventory (negative id's) MUST BE ENDED WITH A SHORT 0

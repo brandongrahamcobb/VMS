@@ -29,7 +29,7 @@ use std::collections::HashMap;
 impl Packet {
     pub fn build_player_logged_in_handler_keymap_packet(
         &mut self,
-        binds: HashMap<i32, Keybinding>,
+        binds: &HashMap<i32, Keybinding>,
     ) -> Result<&mut Self, PlayerLoggedInError> {
         let op = SendOpcode::KeyMap as i16;
         self.write_short(op).map_err(WriteError)?;
@@ -46,7 +46,7 @@ impl Packet {
 
     pub fn build_set_field_packet(
         &mut self,
-        char: Character,
+        char: &Character,
         channel_id: u8,
     ) -> Result<&mut Self, PlayerLoggedInError> {
         let op = SendOpcode::SetField as i16;
@@ -75,7 +75,7 @@ impl Packet {
         self.write_long(0).map_err(WriteError)?;
         self.write_long(0).map_err(WriteError)?;
         self.write_long(0).map_err(WriteError)?;
-        self.build_player_logged_in_meta_part_packet(char.clone())?;
+        self.build_player_logged_in_meta_part_packet(char)?;
         Ok(self)
     }
 }

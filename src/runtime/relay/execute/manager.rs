@@ -17,7 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::map;
 use crate::net::packet::model::Packet;
 use crate::runtime::relay::execute::error::ExecuteError;
 use crate::runtime::relay::execute::{set_channel, set_map, set_world, simple};
@@ -70,6 +69,31 @@ pub async fn send(
     Ok(())
 }
 
+pub async fn retrieve(state: &SharedState, session: &Session) -> Result<(), ExecuteError> {
+    let world_id: i16 = session.get_world_id()?;
+    let channel_id: u8 = session.get_channel_id()?;
+    let map_wz: i32 = session.get_map_wz()?;
+    let packets: Vec<Packet> = {
+        let state = state.lock().await;
+        state
+            .with_map(world_id, channel_id, map_wz, |map| {
+                map.chars
+                    .values()
+                    .map(|player| {
+                        let mut packet = Packet::new_empty();
+                        packet.build_spawn_player_packet(player)?;
+                        Ok(packet.finish())
+                    })
+                    .collect::<Result<Vec<Packet>, ExecuteError>>()
+            })
+            .await??
+    };
+    for packet in packets {
+        session.tx.send(packet)?;
+    }
+    Ok(())
+}
+
 pub async fn set_map(
     state: &SharedState,
     session: &Session,
@@ -80,11 +104,7 @@ pub async fn set_map(
     let channel_id: u8 = session.get_channel_id()?;
     {
         let state = state.lock().await;
-        let channel = state.get_channel(world_id, channel_id).await?;
-        if !channel.maps.contains_key(&map_wz) {
-            let map = map::service::load_map(map_wz)?;
-            state.insert_map(world_id, channel_id, map).await?;
-        }
+        state.insert_map(world_id, channel_id, map_wz).await?;
     }
     match scope {
         Scope::Local => {

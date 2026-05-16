@@ -28,9 +28,7 @@ use crate::runtime::state::SharedState;
 use std::collections::HashMap;
 use std::time::SystemTime;
 
-#[derive(Clone)]
 pub struct PlayerLoggedInStore {
-    pub after_players: HashMap<i32, Character>,
     pub binds: HashMap<i32, Keybinding>,
     pub channel_id: u8,
     pub char: Character,
@@ -45,15 +43,7 @@ impl PlayerLoggedInStore {
     ) -> Result<Self, PlayerLoggedInError> {
         let char_id: i32 = session.get_char_id()?;
         let char: Character = character::service::get_char_by_id(state, char_id).await?;
-        let world_id: i16 = session.get_world_id()?;
         let channel_id: u8 = session.get_channel_id()?;
-        let map = {
-            let state = state.lock().await;
-            state
-                .get_map(world_id, channel_id, char.model.map_wz)
-                .await?
-        };
-        let after_players: HashMap<i32, Character> = map.chars;
         let binds: HashMap<i32, Keybinding> = (0..90)
             .map(|key| {
                 Ok((
@@ -70,12 +60,12 @@ impl PlayerLoggedInStore {
                 ))
             })
             .collect::<Result<HashMap<i32, Keybinding>, PlayerLoggedInError>>()?;
+        let map_wz = char.model.map_wz;
         Ok(Self {
-            after_players,
             binds,
             channel_id,
             char,
-            map_wz: map.model.wz,
+            map_wz,
         })
     }
 }

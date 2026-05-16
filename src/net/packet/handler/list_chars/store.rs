@@ -26,7 +26,6 @@ use crate::net::packet::handler::list_chars::reader::ListCharsReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
-#[derive(Clone)]
 pub struct ListCharsStore {
     pub channel_id: u8,
     pub char_slots: i16,
@@ -49,7 +48,6 @@ impl ListCharsStore {
     ) -> Result<Self, ListCharsError> {
         let acc_id: i32 = session.get_acc_id()?;
         let acc: Account = account::service::get_account_by_id(state, acc_id).await?;
-        let chars: Vec<Character> = acc.chars.clone();
         let char_slots: i16 = match character::query::getters::get_char_max_by_account_and_world_id(
             state,
             acc_id,
@@ -72,7 +70,7 @@ impl ListCharsStore {
         Ok(Self {
             channel_id: reader.channel_id,
             char_slots,
-            chars: chars.clone(),
+            chars: acc.chars,
             pic_status,
             world_id: reader.world_id,
         })
