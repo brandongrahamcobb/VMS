@@ -17,9 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::net::packet::handler::error::PacketHandlerError;
 use crate::net::packet::io::{read::PacketReader, write::PacketWriter};
 use crate::net::packet::model::Packet;
-use crate::runtime::error::RuntimeError;
+use crate::runtime::relay::error::RelayError;
 use crate::runtime::relay::model::Runtime;
 use crate::runtime::relay::types::shared::RuntimeRelay;
 use crate::runtime::state::SharedState;
@@ -34,7 +35,7 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
         stream: TcpStream,
         session_id: i32,
         rx: UnboundedReceiver<Packet>,
-    ) -> Result<Self, RuntimeError> {
+    ) -> Result<Self, RelayError> {
         let (recv_iv, send_iv) = {
             let mut recv_iv = [0u8; 4];
             let mut send_iv = [0u8; 4];
@@ -45,7 +46,8 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
         };
         let packet: Packet = Packet::new_empty()
             .build_handshake_packet(recv_iv, send_iv)
-            .await?
+            .await
+            .map_err(PacketHandlerError::from)?
             .finish();
         let (read_half, write_half) = stream.into_split();
         let pkt_reader = PacketReader::new(read_half, &recv_iv)?;
@@ -60,7 +62,7 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
         })
     }
 
-    pub async fn run(mut self) -> Result<Option<(Self, Packet)>, RuntimeError> {
+    pub async fn run(mut self) -> Result<Option<(Self, Packet)>, RelayError> {
         loop {
             tokio::select! {
                 packet = self.pkt_reader.read_packet() => {

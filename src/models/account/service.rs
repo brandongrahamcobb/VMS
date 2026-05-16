@@ -17,30 +17,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::db::error::DatabaseError;
 use crate::models::account;
+use crate::models::account::error::AccountError;
 use crate::models::account::model::AccountModel;
 use crate::models::account::wrapper::Account;
-use crate::models::error::ModelError;
 use crate::runtime::state::SharedState;
 
 pub async fn get_account_by_username(
     state: &SharedState,
     username: String,
-) -> Result<Account, ModelError> {
+) -> Result<Account, AccountError> {
     let acc_model: AccountModel =
-        account::query::getters::get_account_model_by_username(state, username.clone()).await?;
+        account::query::getters::get_account_model_by_username(state, username.clone())
+            .await
+            .map_err(|e| DatabaseError::DieselError(e))?;
     let acc = acc_model.load(state).await?;
     Ok(acc)
 }
 
-pub async fn get_account_by_id(state: &SharedState, acc_id: i32) -> Result<Account, ModelError> {
-    let acc_model: AccountModel =
-        account::query::getters::get_account_model_by_id(state, acc_id).await?;
+pub async fn get_account_by_id(state: &SharedState, acc_id: i32) -> Result<Account, AccountError> {
+    let acc_model: AccountModel = account::query::getters::get_account_model_by_id(state, acc_id)
+        .await
+        .map_err(|e| DatabaseError::DieselError(e))?;
     let acc = acc_model.load(state).await?;
     Ok(acc)
 }
 
-pub fn check_pic(acc_pic: Option<String>, pic: String) -> Result<bool, ModelError> {
+pub fn check_pic(acc_pic: Option<String>, pic: String) -> Result<bool, AccountError> {
     if acc_pic == Some(pic) {
         return Ok(true);
     } else {

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::tos::error::TosError;
 use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::model::Packet;
 use crate::prelude::*;
@@ -29,7 +29,7 @@ pub struct TosReader {
 }
 
 impl TosReader {
-    pub fn read_tos_packet(packet: &Packet) -> Result<Self, NetworkError> {
+    pub fn read_tos_packet(packet: &Packet) -> Result<Self, TosError> {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let _op = pkt_reader.read_short().map_err(ReadError)?;
         let confirmed = pkt_reader.read_byte().map_err(ReadError)? as i16;

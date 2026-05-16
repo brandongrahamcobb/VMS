@@ -18,7 +18,7 @@
  */
 
 use crate::net::action::Action;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::move_player::error::MovePlayerError;
 use crate::net::packet::handler::move_player::reader::MovePlayerReader;
 use crate::net::packet::handler::move_player::store::MovePlayerStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -39,7 +39,7 @@ impl MovePlayerHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, MovePlayerError> {
         let reader: MovePlayerReader = MovePlayerReader::read_move_player_packet(packet)?;
         let store: MovePlayerStore =
             MovePlayerStore::store_move_player(state, session, reader.clone()).await?;
@@ -50,7 +50,7 @@ impl MovePlayerHandler {
     fn build_move_player_result(
         &self,
         store: MovePlayerStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, MovePlayerError> {
         let mut result = HandlerResult::new();
         if !store.too_short && !store.empty {
             let packet: Packet = Packet::new_empty()
@@ -59,11 +59,11 @@ impl MovePlayerHandler {
             result.add_action(Action::Send {
                 packet: packet.clone(),
                 scope: Scope::Local,
-            })?;
+            });
             result.add_action(Action::Send {
                 packet: packet.clone(),
                 scope: Scope::Map(MapScope::SameChannelSameWorld),
-            })?;
+            });
         }
         Ok(result)
     }

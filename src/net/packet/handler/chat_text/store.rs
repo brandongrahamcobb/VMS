@@ -17,7 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::models::account;
+use crate::models::account::wrapper::Account;
+use crate::net::packet::handler::chat_text::error::ChatTextError;
 use crate::net::packet::handler::chat_text::reader::ChatTextReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -36,8 +38,9 @@ impl ChatTextStore {
         state: &SharedState,
         session: Session,
         reader: ChatTextReader,
-    ) -> Result<Self, NetworkError> {
-        let acc = session.get_acc(state).await?;
+    ) -> Result<Self, ChatTextError> {
+        let acc_id: i32 = session.get_acc_id()?;
+        let acc: Account = account::service::get_account_by_id(state, acc_id).await?;
         let char_id = session.get_char_id()?;
         return Ok(Self {
             admin: acc.model.admin,

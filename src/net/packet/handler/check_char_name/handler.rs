@@ -18,7 +18,7 @@
  */
 
 use crate::net::action::Action;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::check_char_name::error::CheckCharNameError;
 use crate::net::packet::handler::check_char_name::reader::CheckCharNameReader;
 use crate::net::packet::handler::check_char_name::store::CheckCharNameStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -39,7 +39,7 @@ impl CheckCharNameHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, CheckCharNameError> {
         let reader: CheckCharNameReader = CheckCharNameReader::read_check_char_name_packet(packet)?;
         let store: CheckCharNameStore =
             CheckCharNameStore::store_check_char_name(state, session.clone(), reader.clone())
@@ -51,7 +51,7 @@ impl CheckCharNameHandler {
     fn build_check_char_name_result(
         &self,
         store: CheckCharNameStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, CheckCharNameError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_check_char_name_packet(store.exists, store.ign.clone())?
@@ -59,7 +59,7 @@ impl CheckCharNameHandler {
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
-        })?;
+        });
         Ok(result)
     }
 }

@@ -18,7 +18,7 @@
  */
 
 use crate::net::packet::model::Packet;
-use crate::runtime::error::RuntimeError;
+use crate::runtime::relay::execute::error::ExecuteError;
 use crate::runtime::relay::scope::{ChannelScope, MapScope};
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -27,7 +27,7 @@ pub async fn simply_send_locally(
     _state: &SharedState,
     session: &Session,
     packet: &Packet,
-) -> Result<(), RuntimeError> {
+) -> Result<(), ExecuteError> {
     session.tx.send(packet.clone())?;
     Ok(())
 }
@@ -37,7 +37,7 @@ pub async fn simply_send_to_map(
     session: &Session,
     packet: &Packet,
     map_scope: &MapScope,
-) -> Result<(), RuntimeError> {
+) -> Result<(), ExecuteError> {
     match map_scope {
         MapScope::SameChannelSameWorld => {
             let sessions = {
@@ -86,7 +86,7 @@ pub async fn simply_send_to_channel(
     session: &Session,
     packet: &Packet,
     channel_scope: &ChannelScope,
-) -> Result<(), RuntimeError> {
+) -> Result<(), ExecuteError> {
     match channel_scope {
         ChannelScope::SameWorld => {
             let sessions = {
@@ -120,7 +120,7 @@ pub async fn simply_send_to_world(
     state: &SharedState,
     session: &Session,
     packet: &Packet,
-) -> Result<(), RuntimeError> {
+) -> Result<(), ExecuteError> {
     let sessions = {
         let locked_state = state.lock().await;
         locked_state
@@ -137,7 +137,7 @@ pub async fn simply_send_globally(
     state: &SharedState,
     session: &Session,
     packet: &Packet,
-) -> Result<(), RuntimeError> {
+) -> Result<(), ExecuteError> {
     let sessions = {
         let locked_state = state.lock().await;
         locked_state.sessions.get_all(session.id)

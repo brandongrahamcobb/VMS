@@ -18,8 +18,8 @@
  */
 
 use crate::net::action::Action;
-use crate::net::error::NetworkError;
 use crate::net::packet::handler::result::HandlerResult;
+use crate::net::packet::handler::tos::error::TosError;
 use crate::net::packet::handler::tos::reader::TosReader;
 use crate::net::packet::handler::tos::store::TosStore;
 use crate::net::packet::model::Packet;
@@ -39,14 +39,14 @@ impl TosHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, TosError> {
         let reader: TosReader = TosReader::read_tos_packet(packet)?;
         let store: TosStore = TosStore::store_tos(state, session.clone(), reader.clone()).await?;
         let result: HandlerResult = self.build_tos_result(store.clone())?;
         Ok(result)
     }
 
-    fn build_tos_result(&self, store: TosStore) -> Result<HandlerResult, NetworkError> {
+    fn build_tos_result(&self, store: TosStore) -> Result<HandlerResult, TosError> {
         let mut result: HandlerResult = HandlerResult::new();
         if store.accepted {
             let packet: Packet = Packet::new_empty()
@@ -55,7 +55,7 @@ impl TosHandler {
             result.add_action(Action::Send {
                 packet: packet.clone(),
                 scope: Scope::Local,
-            })?;
+            });
         }
         Ok(result)
     }

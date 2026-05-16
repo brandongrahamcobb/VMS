@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::login_start::error::LoginStartError;
 use crate::net::packet::handler::login_start::reader::LoginStartReader;
 use crate::net::packet::handler::login_start::store::LoginStartStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -37,7 +37,7 @@ impl LoginStartHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, LoginStartError> {
         let reader: LoginStartReader = LoginStartReader::read_login_start_packet(packet)?;
         let store: LoginStartStore =
             LoginStartStore::store_login_start(state, session.clone(), reader.clone()).await?;
@@ -48,7 +48,7 @@ impl LoginStartHandler {
     fn build_login_start_result(
         &self,
         store: LoginStartStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, LoginStartError> {
         // not implemented
         std::hint::black_box(store);
         let result: HandlerResult = HandlerResult::new();

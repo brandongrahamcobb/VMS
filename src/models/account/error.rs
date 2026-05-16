@@ -17,38 +17,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::db::error::DatabaseError;
+use crate::models::character::error::CharacterError;
 use bcrypt::BcryptError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum AccountError {
-    #[error("Requested account was not found in account model layer: {0}")]
-    NotFound(i16),
-
-    #[error("Missing field in account model layer: {0}")]
-    MissingField(i32),
-
     #[error("No pic found in account model layer: {0}")]
     NoPic(i32),
 
     #[error("No id found in account model layer")]
     NoId,
 
-    #[error("No channel id found in account model layer")]
-    NoChannelId,
-
-    #[error("No character id found in account model layer")]
-    NoCharId,
-
-    #[error("No map wz found in account model layer")]
-    NoMapWz,
-
-    #[error("No world id found in account model layer")]
-    NoWorldId,
-
     #[error("No created at time found in account model layer: {0}")]
     NoCreatedAt(i32),
 
     #[error("Bcrypt error in account model layer")]
     CryptError(#[from] BcryptError),
+
+    #[error("Character model error in account model layer")]
+    CharacterError(#[from] CharacterError),
+
+    #[error("Database error in account model layer")]
+    DatabaseError(#[from] DatabaseError),
 }

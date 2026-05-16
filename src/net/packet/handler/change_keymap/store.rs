@@ -19,9 +19,10 @@
 
 use std::time::SystemTime;
 
+use crate::db::error::DatabaseError;
 use crate::models::keybinding;
 use crate::models::keybinding::model::KeybindingModel;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::change_keymap::error::ChangeKeymapError;
 use crate::net::packet::handler::change_keymap::reader::ChangeKeymapReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -35,7 +36,7 @@ impl ChangeKeymapStore {
         state: &SharedState,
         session: Session,
         reader: ChangeKeymapReader,
-    ) -> Result<Self, NetworkError> {
+    ) -> Result<Self, ChangeKeymapError> {
         let char_id = session.get_char_id()?;
         let new_binds: Vec<KeybindingModel> = izip!(
             reader.keys.clone(),
@@ -53,7 +54,9 @@ impl ChangeKeymapStore {
             },
         )
         .collect();
-        keybinding::query::setters::update_keybindings(state, new_binds.clone()).await?;
+        keybinding::query::setters::update_keybindings(state, new_binds.clone())
+            .await
+            .map_err(|e| DatabaseError::DieselError(e))?;
         return Ok(Self);
     }
 }

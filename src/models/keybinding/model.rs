@@ -18,8 +18,8 @@
  */
 
 use crate::db::schema::keybindings;
+use crate::models::keybinding::error::KeybindingError;
 use crate::models::keybinding::wrapper::Keybinding;
-use crate::models::error::ModelError;
 use diesel::prelude::*;
 use std::time::SystemTime;
 
@@ -48,7 +48,7 @@ pub enum KeybindType {
 }
 
 impl KeybindingModel {
-    pub fn load(&self) -> Result<Keybinding, ModelError> {
+    pub fn load(&self) -> Result<Keybinding, KeybindingError> {
         Ok(Keybinding {
             model: self.clone(),
         })

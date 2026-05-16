@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::move_player::error::MovePlayerError;
 use crate::net::packet::handler::move_player::reader::MovePlayerReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -35,7 +35,7 @@ impl MovePlayerStore {
         state: &SharedState,
         session: Session,
         reader: MovePlayerReader,
-    ) -> Result<Self, NetworkError> {
+    ) -> Result<Self, MovePlayerError> {
         std::hint::black_box(state);
         Ok(Self {
             char_id: session.get_char_id()?,

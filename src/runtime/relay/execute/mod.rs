@@ -1,3 +1,4 @@
+pub mod error;
 pub mod manager;
 pub mod set_channel;
 pub mod set_map;

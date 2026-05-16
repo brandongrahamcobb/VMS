@@ -18,7 +18,7 @@
  */
 
 use crate::net::action::{Action, SetAction};
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::change_map::error::ChangeMapError;
 use crate::net::packet::handler::change_map::reader::ChangeMapReader;
 use crate::net::packet::handler::change_map::store::ChangeMapStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -39,7 +39,7 @@ impl ChangeMapHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, ChangeMapError> {
         let reader: ChangeMapReader = ChangeMapReader::read_change_map_packet(packet)?;
         let store: ChangeMapStore =
             ChangeMapStore::store_change_map(state, session.clone(), reader.clone()).await?;
@@ -47,7 +47,7 @@ impl ChangeMapHandler {
         Ok(result)
     }
 
-    fn build_change_map(&self, store: ChangeMapStore) -> Result<HandlerResult, NetworkError> {
+    fn build_change_map(&self, store: ChangeMapStore) -> Result<HandlerResult, ChangeMapError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_despawn_player_packet(store.char.clone())?
@@ -55,25 +55,25 @@ impl ChangeMapHandler {
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Map(MapScope::SameChannelSameWorld),
-        })?;
+        });
         let packet: Packet = Packet::new_empty()
             .build_set_field_change_map_packet(store.channel_id, store.after_map_wz, store.pid)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
-        })?;
+        });
         result.add_action(Action::Set(SetAction::SetMap {
             map_wz: store.after_map_wz,
             scope: Scope::Local,
-        }))?;
+        }));
         let packet: Packet = Packet::new_empty()
             .build_spawn_player_packet(store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Map(MapScope::SameChannelSameWorld),
-        })?;
+        });
         for (_, player) in store.after_players {
             let packet: Packet = Packet::new_empty()
                 .build_spawn_player_packet(player.clone())?
@@ -81,7 +81,7 @@ impl ChangeMapHandler {
             result.add_action(Action::Send {
                 packet: packet.clone(),
                 scope: Scope::Local,
-            })?;
+            });
         }
         Ok(result)
     }

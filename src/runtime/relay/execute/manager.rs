@@ -17,8 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::models::map;
 use crate::net::packet::model::Packet;
-use crate::runtime::error::RuntimeError;
+use crate::runtime::relay::execute::error::ExecuteError;
 use crate::runtime::relay::execute::{set_channel, set_map, set_world, simple};
 use crate::runtime::relay::scope::Scope;
 use crate::runtime::session::model::Session;
@@ -30,7 +31,7 @@ pub async fn end(
     session: &Session,
     packet: &Packet,
     scope: &Scope,
-) -> Result<ControlFlow<Packet>, RuntimeError> {
+) -> Result<ControlFlow<Packet>, ExecuteError> {
     match scope {
         Scope::Local => {
             return Ok(ControlFlow::Break(packet.clone()));
@@ -52,7 +53,7 @@ pub async fn send(
     session: &Session,
     packet: &Packet,
     scope: &Scope,
-) -> Result<(), RuntimeError> {
+) -> Result<(), ExecuteError> {
     match scope {
         Scope::Local => {
             session.tx.send(packet.clone())?;
@@ -74,7 +75,17 @@ pub async fn set_map(
     session: &Session,
     scope: &Scope,
     map_wz: i32,
-) -> Result<(), RuntimeError> {
+) -> Result<(), ExecuteError> {
+    let world_id: i16 = session.get_world_id()?;
+    let channel_id: u8 = session.get_channel_id()?;
+    {
+        let state = state.lock().await;
+        let channel = state.get_channel(world_id, channel_id).await?;
+        if !channel.maps.contains_key(&map_wz) {
+            let map = map::service::load_map(map_wz)?;
+            state.insert_map(world_id, channel_id, map).await?;
+        }
+    }
     match scope {
         Scope::Local => {
             set_map::set_map_locally(state, session, map_wz).await?;
@@ -96,7 +107,7 @@ pub async fn set_channel(
     session: &Session,
     scope: &Scope,
     channel_id: u8,
-) -> Result<(), RuntimeError> {
+) -> Result<(), ExecuteError> {
     match scope {
         Scope::Local => {
             set_channel::set_channel_locally(state, session, channel_id).await?;
@@ -118,7 +129,7 @@ pub async fn set_world(
     session: &Session,
     scope: &Scope,
     world_id: i16,
-) -> Result<(), RuntimeError> {
+) -> Result<(), ExecuteError> {
     match scope {
         Scope::Local => {
             set_world::set_world_locally(state, session, world_id).await?;
@@ -139,7 +150,7 @@ pub async fn set_acc(
     state: &SharedState,
     session: &Session,
     acc_id: i32,
-) -> Result<(), RuntimeError> {
+) -> Result<(), ExecuteError> {
     let state = state.lock().await;
     state.sessions.update(session.id, |s| {
         s.acc_id = Some(acc_id);
@@ -151,7 +162,7 @@ pub async fn set_char(
     state: &SharedState,
     session: &Session,
     char_id: i32,
-) -> Result<(), RuntimeError> {
+) -> Result<(), ExecuteError> {
     let state = state.lock().await;
     state.sessions.update(session.id, |s| {
         s.char_id = Some(char_id);

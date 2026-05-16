@@ -20,7 +20,8 @@
 use crate::constants::CASH_SHOP_MAP_ID;
 use crate::models::account::wrapper::Account;
 use crate::models::character::wrapper::Character;
-use crate::net::error::NetworkError;
+use crate::models::{account, character};
+use crate::net::packet::handler::enter_cash_shop::error::EnterCashShopError;
 use crate::net::packet::handler::enter_cash_shop::reader::EnterCashShopReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -37,11 +38,13 @@ impl EnterCashShopStore {
         state: &SharedState,
         session: Session,
         reader: EnterCashShopReader,
-    ) -> Result<Self, NetworkError> {
+    ) -> Result<Self, EnterCashShopError> {
         std::hint::black_box(reader);
-        let acc: Account = session.get_acc(state).await?;
+        let acc_id: i32 = session.get_acc_id()?;
+        let acc: Account = account::service::get_account_by_id(state, acc_id).await?;
         let username: String = acc.model.username;
-        let char = session.get_char(state).await?;
+        let char_id = session.get_char_id()?;
+        let char: Character = character::service::get_char_by_id(state, char_id).await?;
         Ok(Self {
             char,
             map_wz: CASH_SHOP_MAP_ID,

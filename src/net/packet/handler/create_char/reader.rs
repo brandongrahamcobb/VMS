@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::create_char::error::CreateCharError;
 use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::model::Packet;
 use crate::prelude::*;
@@ -39,7 +39,7 @@ pub struct CreateCharReader {
 }
 
 impl CreateCharReader {
-    pub fn read_create_character_packet(packet: &Packet) -> Result<Self, NetworkError> {
+    pub fn read_create_character_packet(packet: &Packet) -> Result<Self, CreateCharError> {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let _op = pkt_reader.read_short().map_err(ReadError)?;
         let ign = pkt_reader.read_str_with_length().map_err(ReadError)?;

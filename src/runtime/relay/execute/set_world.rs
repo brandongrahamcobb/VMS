@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::runtime::error::RuntimeError;
+use crate::runtime::relay::execute::error::ExecuteError;
 use crate::runtime::relay::scope::{ChannelScope, MapScope};
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -26,7 +26,7 @@ pub async fn set_world_locally(
     state: &SharedState,
     session: &Session,
     world_id: i16,
-) -> Result<(), RuntimeError> {
+) -> Result<(), ExecuteError> {
     let locked_state = state.lock().await;
     locked_state.sessions.update(session.id, |s| {
         s.world_id = Some(world_id);
@@ -39,7 +39,7 @@ pub async fn set_world_for_map(
     session: &Session,
     map_scope: &MapScope,
     world_id: i16,
-) -> Result<(), RuntimeError> {
+) -> Result<(), ExecuteError> {
     match map_scope {
         MapScope::SameChannelSameWorld => {
             let sessions = {
@@ -97,7 +97,7 @@ pub async fn set_world_for_channel(
     session: &Session,
     channel_scope: &ChannelScope,
     world_id: i16,
-) -> Result<(), RuntimeError> {
+) -> Result<(), ExecuteError> {
     match channel_scope {
         ChannelScope::SameWorld => {
             let sessions = {
@@ -137,7 +137,7 @@ pub async fn set_world_for_world(
     state: &SharedState,
     session: &Session,
     world_id: i16,
-) -> Result<(), RuntimeError> {
+) -> Result<(), ExecuteError> {
     let sessions = {
         let locked_state = state.lock().await;
         locked_state
@@ -157,7 +157,7 @@ pub async fn set_world_globally(
     state: &SharedState,
     session: &Session,
     world_id: i16,
-) -> Result<(), RuntimeError> {
+) -> Result<(), ExecuteError> {
     let sessions = {
         let locked_state = state.lock().await;
         locked_state.sessions.get_all(session.id)

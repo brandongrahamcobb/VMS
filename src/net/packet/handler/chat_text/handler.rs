@@ -18,7 +18,7 @@
  */
 
 use crate::net::action::Action;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::chat_text::error::ChatTextError;
 use crate::net::packet::handler::chat_text::reader::ChatTextReader;
 use crate::net::packet::handler::chat_text::store::ChatTextStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -39,7 +39,7 @@ impl ChatTextHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, ChatTextError> {
         let reader: ChatTextReader = ChatTextReader::read_chat_text_packet(packet)?;
         let store: ChatTextStore =
             ChatTextStore::store_chat_text(state, session.clone(), reader.clone()).await?;
@@ -47,7 +47,7 @@ impl ChatTextHandler {
         Ok(result)
     }
 
-    fn build_chat_text_result(&self, store: ChatTextStore) -> Result<HandlerResult, NetworkError> {
+    fn build_chat_text_result(&self, store: ChatTextStore) -> Result<HandlerResult, ChatTextError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_chat_text_packet(store.admin, store.char_id, store.msg.clone(), store.show)?
@@ -55,11 +55,11 @@ impl ChatTextHandler {
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
-        })?;
+        });
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Map(MapScope::SameChannelSameWorld),
-        })?;
+        });
         Ok(result)
     }
 }

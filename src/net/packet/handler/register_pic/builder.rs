@@ -1,5 +1,5 @@
 /* register_pic/builder.rs
- * The purpose of this module is to build an outgoing PIC registration packet.
+ * The purpose of this module is to build an outgoing pic registration packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,14 +17,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::register_pic::error::RegisterPicError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
 
 impl Packet {
-    pub fn build_register_pic_packet(&mut self) -> Result<&mut Self, NetworkError> {
+    pub fn build_register_pic_packet(&mut self) -> Result<&mut Self, RegisterPicError> {
         let op = SendOpcode::CheckSpwResult as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_byte(1) // 0 for failure

@@ -1,5 +1,5 @@
-/* handler/error.rs
- * The purpose of this module is to provide errors related to handlers.
+/* login/error.rs
+ * The purpose of this module is to provide errors related to credentials.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,28 +17,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::error::ModelError;
-use crate::net::packet::handler::error::HandlerError;
+use core::num::TryFromIntError;
+use std::time::SystemTimeError;
+
+use crate::config::error::ConfigError;
+use crate::models::account::error::AccountError;
 use crate::net::packet::io::error::IOError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum PacketError {
-    #[error("Packet handler error in packet layer")]
-    HandlerError(#[from] HandlerError),
-
-    #[error("Packet io error in packet layer")]
+pub enum CodecLoginError {
+    #[error("Packet io error in codec login layer")]
     IOError(#[from] IOError),
 
-    #[error("Invalid packet header in packet layer")]
-    InvalidHeader,
+    #[error("Configuration error in codec login layer")]
+    ConfigError(#[from] ConfigError),
 
-    #[error("Invalid packet length in packet layer: {0}")]
-    InvalidPacketLength(i16),
+    #[error("Account model error in codec login layer")]
+    AccountError(#[from] AccountError),
 
-    #[error("Empty packet in packet layer")]
-    EmptyPacket,
+    #[error("System time error in codec login layer")]
+    SystemTimeError(#[from] SystemTimeError),
 
-    #[error("Model error in packet layer")]
-    ModelError(#[from] ModelError),
+    #[error("Try from int rror in codec login layer")]
+    TryFromIntError(#[from] TryFromIntError),
 }

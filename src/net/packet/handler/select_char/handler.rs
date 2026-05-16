@@ -18,8 +18,8 @@
  */
 
 use crate::net::action::{Action, SetAction};
-use crate::net::error::NetworkError;
 use crate::net::packet::handler::result::HandlerResult;
+use crate::net::packet::handler::select_char::error::SelectCharError;
 use crate::net::packet::handler::select_char::reader::SelectCharReader;
 use crate::net::packet::handler::select_char::store::SelectCharStore;
 use crate::net::packet::model::Packet;
@@ -39,7 +39,7 @@ impl SelectCharHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, SelectCharError> {
         let reader: SelectCharReader = SelectCharReader::read_select_char_packet(packet)?;
         let store: SelectCharStore =
             SelectCharStore::store_select_char(state, session.clone(), reader.clone()).await?;
@@ -50,18 +50,18 @@ impl SelectCharHandler {
     fn build_select_char_result(
         &self,
         store: SelectCharStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, SelectCharError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_select_char_packet(store.char_id, store.octets, store.port)?
             .finish();
         result.add_action(Action::Set(SetAction::SetChar {
             char_id: store.char_id,
-        }))?;
+        }));
         result.add_action(Action::Break {
             packet: packet.clone(),
             scope: Scope::Local,
-        })?;
+        });
         Ok(result)
     }
 }

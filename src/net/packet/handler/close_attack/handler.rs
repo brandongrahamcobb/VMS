@@ -18,7 +18,7 @@
  */
 
 use crate::net::action::Action;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::close_attack::error::CloseAttackError;
 use crate::net::packet::handler::close_attack::reader::CloseAttackReader;
 use crate::net::packet::handler::close_attack::store::CloseAttackStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -39,7 +39,7 @@ impl CloseAttackHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, CloseAttackError> {
         let reader: CloseAttackReader = CloseAttackReader::read_close_attack_packet(packet)?;
         let store: CloseAttackStore =
             CloseAttackStore::store_close_attack(state, session.clone(), reader.clone()).await?;
@@ -50,7 +50,7 @@ impl CloseAttackHandler {
     fn build_close_attack_result(
         &self,
         store: CloseAttackStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, CloseAttackError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet = Packet::new_empty()
             .build_close_attack_packet(
@@ -68,11 +68,11 @@ impl CloseAttackHandler {
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
-        })?;
+        });
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Map(MapScope::SameChannelSameWorld),
-        })?;
+        });
         Ok(result)
     }
 }

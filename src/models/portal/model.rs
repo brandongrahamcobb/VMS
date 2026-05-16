@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::error::ModelError;
+use crate::models::portal::error::PortalError;
 use crate::models::portal::wrapper::Portal;
 
 #[derive(Clone)]
@@ -29,7 +29,7 @@ pub struct PortalModel {
 }
 
 impl PortalModel {
-    pub fn load(&self) -> Result<Portal, ModelError> {
+    pub fn load(&self) -> Result<Portal, PortalError> {
         Ok(Portal {
             model: self.clone(),
         })

@@ -17,10 +17,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::metadata::error::MetadataError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum PortalError {
     #[error("No target map found in portal model layer")]
     NoTargetMap,
+
+    #[error("Metadata error portal model layer")]
+    MetadataError(#[from] MetadataError),
 }

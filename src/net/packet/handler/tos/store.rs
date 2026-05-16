@@ -17,8 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::models::account;
 use crate::models::account::wrapper::Account;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::tos::error::TosError;
 use crate::net::packet::handler::tos::reader::TosReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -34,9 +35,10 @@ impl TosStore {
         state: &SharedState,
         session: Session,
         reader: TosReader,
-    ) -> Result<Self, NetworkError> {
+    ) -> Result<Self, TosError> {
         let accepted: bool = reader.confirmed == 0x01;
-        let acc: Account = session.get_acc(state).await?;
+        let acc_id: i32 = session.get_acc_id()?;
+        let acc: Account = account::service::get_account_by_id(state, acc_id).await?;
         if accepted {
             acc.accept_tos(state).await?;
         }

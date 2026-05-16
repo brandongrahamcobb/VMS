@@ -19,8 +19,8 @@
 
 use crate::metadata::error::MetadataError;
 use crate::models::character::wrapper::Character;
-use crate::models::error::ModelError;
 use crate::models::item::wrapper::Item;
+use crate::models::map::error::MapError;
 use crate::models::map::model::MapModel;
 use crate::models::mob::wrapper::Mob;
 use crate::models::portal::wrapper::Portal;
@@ -36,7 +36,7 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn get_portal(&self, tn: String) -> Result<Portal, ModelError> {
+    pub fn get_portal(&self, tn: String) -> Result<Portal, MapError> {
         let portal: Portal = self
             .portals
             .values()

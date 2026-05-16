@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::change_keymap::error::ChangeKeymapError;
 use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::model::Packet;
 use crate::prelude::*;
@@ -31,7 +31,7 @@ pub struct ChangeKeymapReader {
 }
 
 impl ChangeKeymapReader {
-    pub fn read_change_keymap_packet(packet: &Packet) -> Result<Self, NetworkError> {
+    pub fn read_change_keymap_packet(packet: &Packet) -> Result<Self, ChangeKeymapError> {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let _op = pkt_reader.read_short().map_err(ReadError)?;
         let _mode = pkt_reader.read_int().map_err(ReadError)?;

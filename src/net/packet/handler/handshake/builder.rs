@@ -18,8 +18,7 @@
  */
 
 use crate::config::settings;
-use crate::net::error::NetworkError;
-
+use crate::net::packet::handler::handshake::error::HandshakeError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::prelude::*;
@@ -29,7 +28,7 @@ impl Packet {
         &mut self,
         recv_iv: [u8; 4],
         send_iv: [u8; 4],
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, HandshakeError> {
         let version = settings::get_version()?; // should not be in here
         self.write_short(0x0E).map_err(WriteError)?;
         self.write_short(version).map_err(WriteError)?;

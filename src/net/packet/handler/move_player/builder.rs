@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::move_player::error::MovePlayerError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
@@ -28,7 +28,7 @@ impl Packet {
         &mut self,
         char_id: i32,
         movement_bytes: Vec<u8>,
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, MovePlayerError> {
         let op = SendOpcode::MovePlayer as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_int(char_id).map_err(WriteError)?;

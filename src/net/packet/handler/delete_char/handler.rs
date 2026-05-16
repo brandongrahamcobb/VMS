@@ -18,7 +18,7 @@
  */
 
 use crate::net::action::Action;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::delete_char::error::DeleteCharError;
 use crate::net::packet::handler::delete_char::reader::DeleteCharReader;
 use crate::net::packet::handler::delete_char::store::DeleteCharStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -39,7 +39,7 @@ impl DeleteCharHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, DeleteCharError> {
         let reader: DeleteCharReader = DeleteCharReader::read_delete_char_packet(packet)?;
         let store: DeleteCharStore =
             DeleteCharStore::store_delete_char(state, session.clone(), reader.clone()).await?;
@@ -50,7 +50,7 @@ impl DeleteCharHandler {
     fn build_delete_char_result(
         &self,
         store: DeleteCharStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, DeleteCharError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet = Packet::new_empty()
             .build_delete_char_packet(store.char_id, store.pic_status)?
@@ -58,7 +58,7 @@ impl DeleteCharHandler {
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
-        })?;
+        });
         Ok(result)
     }
 }

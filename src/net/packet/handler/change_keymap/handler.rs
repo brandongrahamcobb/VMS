@@ -17,8 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// use crate::net::action::Action;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::change_keymap::error::ChangeKeymapError;
 use crate::net::packet::handler::change_keymap::reader::ChangeKeymapReader;
 use crate::net::packet::handler::change_keymap::store::ChangeKeymapStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -38,7 +37,7 @@ impl ChangeKeymapHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, ChangeKeymapError> {
         let reader: ChangeKeymapReader = ChangeKeymapReader::read_change_keymap_packet(packet)?;
         let store: ChangeKeymapStore =
             ChangeKeymapStore::store_change_keymap(state, session.clone(), reader.clone()).await?;
@@ -49,7 +48,7 @@ impl ChangeKeymapHandler {
     fn build_change_keymap_result(
         &self,
         store: ChangeKeymapStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, ChangeKeymapError> {
         // no packet neccessary
         std::hint::black_box(store);
         let result: HandlerResult = HandlerResult::new();

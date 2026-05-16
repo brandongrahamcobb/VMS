@@ -1,3 +1,4 @@
+use crate::net::packet::handler::cc::error::ChangeChannelError;
 /* cc/reader.rs
  * The purpose of this module is to read an incoming channel change packet.
  *
@@ -16,7 +17,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::net::error::NetworkError;
 use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::model::Packet;
 use crate::prelude::*;
@@ -29,7 +29,7 @@ pub struct ChangeChannelReader {
 }
 
 impl ChangeChannelReader {
-    pub fn read_change_channel_packet(packet: &Packet) -> Result<Self, NetworkError> {
+    pub fn read_change_channel_packet(packet: &Packet) -> Result<Self, ChangeChannelError> {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let _op = pkt_reader.read_short().map_err(ReadError)?;
         let channel_id = pkt_reader.read_byte().map_err(ReadError)?;

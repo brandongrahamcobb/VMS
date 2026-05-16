@@ -19,8 +19,21 @@
 
 use thiserror::Error;
 
+use crate::metadata::error::MetadataError;
+use crate::models::mob::error::MobError;
+use crate::models::portal::error::PortalError;
+
 #[derive(Debug, Error)]
 pub enum MapError {
     #[error("Requested map was not found in map model layer. Map ID: {0}")]
     NotFound(i32),
+
+    #[error("Metadata error map model layer")]
+    MetadataError(#[from] MetadataError),
+
+    #[error("Mob model error map model layer")]
+    MobError(#[from] MobError),
+
+    #[error("Portal model error map model layer")]
+    PortalError(#[from] PortalError),
 }

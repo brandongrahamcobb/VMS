@@ -17,14 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-
-use crate::models::error::ModelError;
+use crate::models::map::error::MapError;
 use crate::models::map::model::MapModel;
 use crate::models::map::wrapper::Map;
 use crate::models::{mob, portal};
+use std::collections::HashMap;
 
-pub fn get_map_wz_by_job_id(job_id: i16) -> Result<i32, ModelError> {
+pub fn get_map_wz_by_job_id(job_id: i16) -> Result<i32, MapError> {
     match job_id {
         1 => Ok(10000),
         1000 => Ok(130000000),
@@ -33,7 +32,7 @@ pub fn get_map_wz_by_job_id(job_id: i16) -> Result<i32, ModelError> {
     }
 }
 
-pub fn load_map(map_wz: i32) -> Result<Map, ModelError> {
+pub fn load_map(map_wz: i32) -> Result<Map, MapError> {
     let mobs = mob::service::load_mobs(map_wz)?;
     let portals = portal::service::load_portals(map_wz)?;
     Ok(Map {

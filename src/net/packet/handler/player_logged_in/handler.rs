@@ -18,7 +18,7 @@
  */
 
 use crate::net::action::{Action, SetAction};
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::player_logged_in::error::PlayerLoggedInError;
 use crate::net::packet::handler::player_logged_in::reader::PlayerLoggedInReader;
 use crate::net::packet::handler::player_logged_in::store::PlayerLoggedInStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -39,7 +39,7 @@ impl PlayerLoggedInHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, PlayerLoggedInError> {
         let reader: PlayerLoggedInReader =
             PlayerLoggedInReader::read_player_logged_in_packet(packet)?;
         let store: PlayerLoggedInStore =
@@ -52,7 +52,7 @@ impl PlayerLoggedInHandler {
     fn build_player_logged_in_result(
         &self,
         store: PlayerLoggedInStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, PlayerLoggedInError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_player_logged_in_handler_keymap_packet(store.binds.clone())?
@@ -60,25 +60,25 @@ impl PlayerLoggedInHandler {
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
-        })?;
+        });
         let packet: Packet = Packet::new_empty()
             .build_set_field_packet(store.char.clone(), store.channel_id)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
-        })?;
+        });
         result.add_action(Action::Set(SetAction::SetMap {
             map_wz: store.map_wz,
             scope: Scope::Local,
-        }))?;
+        }));
         let packet: Packet = Packet::new_empty()
             .build_spawn_player_packet(store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Map(MapScope::SameChannelSameWorld),
-        })?;
+        });
         for (_, player) in store.after_players {
             let packet: Packet = Packet::new_empty()
                 .build_spawn_player_packet(player.clone())?
@@ -86,7 +86,7 @@ impl PlayerLoggedInHandler {
             result.add_action(Action::Send {
                 packet: packet.clone(),
                 scope: Scope::Local,
-            })?;
+            });
         }
 
         Ok(result)

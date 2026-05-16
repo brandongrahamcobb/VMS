@@ -17,18 +17,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::error::ModelError;
 use crate::models::item::error::ItemError;
 
 pub trait ItemModel {
     fn id(&self) -> Option<i32>;
     fn ipos(&self) -> Option<i16>;
 
-    fn get_id(&self) -> Result<i32, ModelError> {
-        self.id().ok_or(ModelError::from(ItemError::NoId))
+    fn get_id(&self) -> Result<i32, ItemError> {
+        self.id().ok_or(ItemError::NoId)
     }
 
-    fn get_ipos(&self) -> Result<i16, ModelError> {
-        self.ipos().ok_or(ModelError::from(ItemError::NoPos))
+    fn get_ipos(&self) -> Result<i16, ItemError> {
+        self.ipos().ok_or(ItemError::NoPos)
     }
 }

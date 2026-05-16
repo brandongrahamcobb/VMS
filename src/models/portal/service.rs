@@ -20,12 +20,11 @@
 use std::collections::HashMap;
 
 use crate::metadata;
-use crate::models::error::ModelError;
 use crate::models::portal::error::PortalError;
 use crate::models::portal::model::PortalModel;
 use crate::models::portal::wrapper::Portal;
 
-pub fn load_portals(map_wz: i32) -> Result<HashMap<u8, Portal>, ModelError> {
+pub fn load_portals(map_wz: i32) -> Result<HashMap<u8, Portal>, PortalError> {
     let filename: String = String::from("Map.wz");
     let json = metadata::service::wz_to_img(map_wz, &filename)?;
     let wz_portals = json.get("portal").and_then(|p| p.as_object()).unwrap();

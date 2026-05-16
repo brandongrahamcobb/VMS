@@ -18,9 +18,10 @@
  */
 
 use crate::config::settings;
+use crate::db::error::DatabaseError;
 use crate::models::account::wrapper::Account;
 use crate::models::{account, character};
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::delete_char::error::DeleteCharError;
 use crate::net::packet::handler::delete_char::reader::DeleteCharReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -36,15 +37,18 @@ impl DeleteCharStore {
         state: &SharedState,
         session: Session,
         reader: DeleteCharReader,
-    ) -> Result<Self, NetworkError> {
-        let acc: Account = session.get_acc(state).await?;
+    ) -> Result<Self, DeleteCharError> {
+        let acc_id: i32 = session.get_acc_id()?;
+        let acc: Account = account::service::get_account_by_id(state, acc_id).await?;
         let use_pic = settings::get_pic_required()?;
         let mut pic_status = false;
         if use_pic {
             pic_status = account::service::check_pic(acc.model.pic, reader.pic)?;
         }
         if !pic_status {
-            character::query::setters::delete_char_by_id(state, reader.char_id).await?;
+            character::query::setters::delete_char_by_id(state, reader.char_id)
+                .await
+                .map_err(|e| DatabaseError::DieselError(e))?;
         }
         Ok(Self {
             char_id: reader.char_id,

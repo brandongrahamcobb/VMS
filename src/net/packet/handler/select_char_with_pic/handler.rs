@@ -18,8 +18,8 @@
  */
 
 use crate::net::action::{Action, SetAction};
-use crate::net::error::NetworkError;
 use crate::net::packet::handler::result::HandlerResult;
+use crate::net::packet::handler::select_char_with_pic::error::SelectCharWithPicError;
 use crate::net::packet::handler::select_char_with_pic::reader::SelectCharWithPicReader;
 use crate::net::packet::handler::select_char_with_pic::store::SelectCharWithPicStore;
 use crate::net::packet::model::Packet;
@@ -39,7 +39,7 @@ impl SelectCharWithPicHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, SelectCharWithPicError> {
         let reader: SelectCharWithPicReader =
             SelectCharWithPicReader::read_select_char_with_pic_packet(packet)?;
         let store: SelectCharWithPicStore = SelectCharWithPicStore::store_select_char_with_pic(
@@ -55,19 +55,19 @@ impl SelectCharWithPicHandler {
     fn build_select_char_with_pic_result(
         &self,
         store: SelectCharWithPicStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, SelectCharWithPicError> {
         let mut result: HandlerResult = HandlerResult::new();
         if store.pic_status {
             result.add_action(Action::Set(SetAction::SetChar {
                 char_id: store.char_id,
-            }))?;
+            }));
             let packet: Packet = Packet::new_empty()
                 .build_select_char_packet(store.char_id, store.octets, store.port)?
                 .finish();
             result.add_action(Action::Break {
                 packet: packet.clone(),
                 scope: Scope::Local,
-            })?;
+            });
         } else {
             let packet: Packet = Packet::new_empty()
                 .build_select_char_handler_failed_pic_packet()?
@@ -75,7 +75,7 @@ impl SelectCharWithPicHandler {
             result.add_action(Action::Send {
                 packet: packet.clone(),
                 scope: Scope::Local,
-            })?;
+            });
         };
         Ok(result)
     }

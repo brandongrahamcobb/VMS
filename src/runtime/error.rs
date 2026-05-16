@@ -19,12 +19,8 @@
 
 use crate::config::error::ConfigError;
 use crate::db::error::DatabaseError;
-use crate::models::error::ModelError;
-use crate::net::error::NetworkError;
-use crate::net::packet::model::Packet;
-use crate::runtime::session::error::SessionError;
+use crate::models::world::error::WorldError;
 use thiserror::Error;
-use tokio::sync::mpsc::error::SendError;
 use tokio::task::JoinError;
 
 #[derive(Debug, Error)]
@@ -32,60 +28,39 @@ pub enum RuntimeError {
     #[error("Config error in runtime layer")]
     ConfigError(#[from] ConfigError),
 
-    #[error("Network error in runtime layer")]
-    NetworkError(#[from] NetworkError),
-
     #[error("Concurrency join error in runtime layer")]
     JoinError(#[from] JoinError),
 
     #[error("Unexpected end of output in runtime layer")]
     UnexpectedOf(#[from] std::io::Error),
 
-    #[error("Failed to connect to server in runtime layer")]
-    FailedServerConnection(#[from] RuntimeServerConnectionError),
-
-    #[error("Failed to create relay in runtime layer")]
-    FailedRelayCreation(#[from] RuntimeRelayCreationError),
-
-    #[error("Unexpected error in runtime layer")]
-    UnexpectedError,
-
     #[error("Environment loading error in runtime layer")]
     DotenvError(#[from] dotenvy::Error),
-
-    #[error("Session error in runtime layer")]
-    SessionError(#[from] SessionError),
-
-    #[error("Unsupported opcode error in runtime layer: {0} {1}")]
-    UnsupportedOpcodeError(i16, String),
-
-    #[error("Model error in runtime layer")]
-    ModelError(#[from] ModelError),
-
-    #[error("Database error in runtime layer")]
-    DieselError(#[from] diesel::result::Error),
 
     #[error("Failed database in runtime layer")]
     DatabaseError(#[from] DatabaseError),
 
-    #[error("Failed UnboundedSender error in runtime layer")]
-    UnboundedSenderError(#[from] SendError<Packet>),
+    #[error("State error in runtime layer")]
+    StateError(#[from] StateError),
 }
 
 #[derive(Debug, Error)]
-pub enum RuntimeServerConnectionError {
-    #[error("Failed login server connection: {0}")]
-    FailedLoginServerConnection(String),
+pub enum StateError {
+    #[error("Map not found in game state layer: {0}")]
+    NoMap(i32),
 
-    #[error("Failed world server connection: {0}")]
-    FailedWorldServerConnection(String),
-}
+    #[error("Channel not found in game state layer: {0}")]
+    NoChannel(u8),
 
-#[derive(Debug, Error)]
-pub enum RuntimeRelayCreationError {
-    #[error("Failed to create login relay: {0}")]
-    FailedLoginRelayCreation(String),
+    #[error("World not found in game state layer: {0}")]
+    NoWorld(i16),
 
-    #[error("Failed to create world relay: {0}")]
-    FailedWorldRelayCreation(String),
+    #[error("Config error in game state layer")]
+    ConfigError(#[from] ConfigError),
+
+    #[error("Failed database in game state layer")]
+    DatabaseError(#[from] DatabaseError),
+
+    #[error("World model error in game state layer")]
+    WorldError(#[from] WorldError),
 }

@@ -19,9 +19,9 @@
 
 use crate::config::settings;
 use crate::models::account::wrapper::Account;
-use crate::models::character;
 use crate::models::character::wrapper::Character;
-use crate::net::error::NetworkError;
+use crate::models::{account, character};
+use crate::net::packet::handler::list_chars::error::ListCharsError;
 use crate::net::packet::handler::list_chars::reader::ListCharsReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -46,9 +46,9 @@ impl ListCharsStore {
         state: &SharedState,
         session: Session,
         reader: ListCharsReader,
-    ) -> Result<Self, NetworkError> {
-        let acc: Account = session.get_acc(state).await?;
+    ) -> Result<Self, ListCharsError> {
         let acc_id: i32 = session.get_acc_id()?;
+        let acc: Account = account::service::get_account_by_id(state, acc_id).await?;
         let chars: Vec<Character> = acc.chars.clone();
         let char_slots: i16 = match character::query::getters::get_char_max_by_account_and_world_id(
             state,

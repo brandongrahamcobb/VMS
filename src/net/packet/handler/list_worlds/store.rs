@@ -17,13 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-
 use crate::models::world::wrapper::World;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::list_worlds::error::ListWorldsError;
 use crate::net::packet::handler::list_worlds::reader::ListWorldsReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
+use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct ListWorldsStore {
@@ -35,12 +34,12 @@ impl ListWorldsStore {
         state: &SharedState,
         session: Session,
         reader: ListWorldsReader,
-    ) -> Result<Self, NetworkError> {
+    ) -> Result<Self, ListWorldsError> {
         std::hint::black_box(session);
         std::hint::black_box(reader.clone());
         let worlds = {
             let state = state.lock().await;
-            state.worlds.read().expect("poisoned").clone()
+            state.worlds.read().await.clone()
         };
         Ok(Self { worlds })
     }

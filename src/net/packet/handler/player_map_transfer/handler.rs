@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::player_map_transfer::error::PlayerMapTransferError;
 use crate::net::packet::handler::player_map_transfer::reader::PlayerMapTransferReader;
 use crate::net::packet::handler::player_map_transfer::store::PlayerMapTransferStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -37,7 +37,7 @@ impl PlayerMapTransferHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, PlayerMapTransferError> {
         let reader: PlayerMapTransferReader =
             PlayerMapTransferReader::read_player_map_transfer_packet(packet)?;
         let store: PlayerMapTransferStore = PlayerMapTransferStore::store_player_map_transfer(
@@ -53,7 +53,7 @@ impl PlayerMapTransferHandler {
     fn build_player_map_transfer(
         &self,
         store: PlayerMapTransferStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, PlayerMapTransferError> {
         // Not implemented
         std::hint::black_box(store);
         let result: HandlerResult = HandlerResult::new();

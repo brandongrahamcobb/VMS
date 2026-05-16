@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 /* map/model.rs
  * The purpose of this module is to provide a map model and its methods.
  *
@@ -18,12 +16,13 @@ use std::collections::HashMap;
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::models::error::ModelError;
+use crate::models::map::error::MapError;
 use crate::models::map::wrapper::Map;
 use crate::models::mob::wrapper::Mob;
 use crate::models::portal::wrapper::Portal;
 use crate::models::{mob, portal};
 use crate::runtime::state::SharedState;
+use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct MapModel {
@@ -31,7 +30,7 @@ pub struct MapModel {
 }
 
 impl MapModel {
-    pub async fn load(&self, _state: &SharedState) -> Result<Map, ModelError> {
+    pub async fn load(&self, _state: &SharedState) -> Result<Map, MapError> {
         let portals: HashMap<u8, Portal> = portal::service::load_portals(self.wz)?;
         let mobs: HashMap<u32, Mob> = mob::service::load_mobs(self.wz)?;
         Ok(Map {

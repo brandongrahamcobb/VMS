@@ -17,22 +17,39 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::db::error::DatabaseError;
+use crate::models::character::error::CharacterError;
 use crate::models::character::wrapper::Character;
-use crate::models::error::ModelError;
 use crate::models::{character, item, keybinding, skill};
 use crate::runtime::state::SharedState;
 
-pub async fn get_char_by_id(state: &SharedState, char_id: i32) -> Result<Character, ModelError> {
-    let char_model = character::query::getters::get_char_model_by_id(state, char_id).await?;
+pub async fn get_char_by_id(
+    state: &SharedState,
+    char_id: i32,
+) -> Result<Character, CharacterError> {
+    let char_model = character::query::getters::get_char_model_by_id(state, char_id)
+        .await
+        .map_err(|e| DatabaseError::DieselError(e))?;
     let char = char_model.load(state).await?;
     Ok(char)
 }
 
-pub async fn delete_character_by_id(state: &SharedState, char_id: i32) -> Result<(), ModelError> {
-    character::query::setters::delete_char_by_id(state, char_id).await?;
-    item::query::setters::delete_items_by_char_id(state, char_id).await?;
-    keybinding::query::setters::delete_keybindings_by_char_id(state, char_id).await?;
-    skill::query::setters::delete_skills_by_char_id(state, char_id).await?;
+pub async fn delete_character_by_id(
+    state: &SharedState,
+    char_id: i32,
+) -> Result<(), CharacterError> {
+    character::query::setters::delete_char_by_id(state, char_id)
+        .await
+        .map_err(|e| DatabaseError::DieselError(e))?;
+    item::query::setters::delete_items_by_char_id(state, char_id)
+        .await
+        .map_err(|e| DatabaseError::DieselError(e))?;
+    keybinding::query::setters::delete_keybindings_by_char_id(state, char_id)
+        .await
+        .map_err(|e| DatabaseError::DieselError(e))?;
+    skill::query::setters::delete_skills_by_char_id(state, char_id)
+        .await
+        .map_err(|e| DatabaseError::DieselError(e))?;
     // delete associated skills shard between chars
     Ok(())
 }

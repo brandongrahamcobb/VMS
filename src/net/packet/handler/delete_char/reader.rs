@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::delete_char::error::DeleteCharError;
 use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::model::Packet;
 use crate::prelude::*;
@@ -30,7 +30,7 @@ pub struct DeleteCharReader {
 }
 
 impl DeleteCharReader {
-    pub fn read_delete_char_packet(packet: &Packet) -> Result<Self, NetworkError> {
+    pub fn read_delete_char_packet(packet: &Packet) -> Result<Self, DeleteCharError> {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let _op = pkt_reader.read_short().map_err(ReadError)?;
         let pic = pkt_reader.read_str_with_length().map_err(ReadError)?;

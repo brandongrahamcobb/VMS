@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::login_start::error::LoginStartError;
 use crate::net::packet::handler::login_start::reader::LoginStartReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -30,7 +30,7 @@ impl LoginStartStore {
         state: &SharedState,
         session: Session,
         reader: LoginStartReader,
-    ) -> Result<Self, NetworkError> {
+    ) -> Result<Self, LoginStartError> {
         std::hint::black_box(state);
         std::hint::black_box(session);
         std::hint::black_box(reader.clone());

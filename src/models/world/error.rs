@@ -18,28 +18,17 @@
  */
 
 use crate::config::error::ConfigError;
+use crate::models::channel::error::ChannelError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum WorldError {
-    #[error("Requested world was not found in world model layer: {0}")]
-    NotFound(i8),
-
     #[error("Config error in world model layer")]
     ConfigError(#[from] ConfigError),
 
-    #[error("No worlds error in world model layer")]
-    NoWorlds,
-
-    #[error("No event message in world model layer: {0}")]
-    NoEventMessage(i8),
-
-    #[error("No name in world model layer: {0}")]
-    NoName(i8),
-
-    #[error("No flag in world model layer: {0}")]
-    NoFlag(i8),
-
     #[error("World count exceeds the avaiable worlds in model layer")]
     CountExceedsAvailable,
+
+    #[error("Channel model error in world mdoel layer")]
+    ChannelError(#[from] ChannelError),
 }

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::move_player::error::MovePlayerError;
 use crate::net::packet::model::Packet;
 
 const MOVEMENT_HEADER_LEN: usize = 9;
@@ -30,7 +30,7 @@ pub struct MovePlayerReader {
 }
 
 impl MovePlayerReader {
-    pub fn read_move_player_packet(packet: &Packet) -> Result<Self, NetworkError> {
+    pub fn read_move_player_packet(packet: &Packet) -> Result<Self, MovePlayerError> {
         let mut too_short: bool = false;
         if packet.bytes.len() <= 2 + MOVEMENT_HEADER_LEN {
             too_short = true;

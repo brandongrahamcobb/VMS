@@ -17,20 +17,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-
 use crate::config::settings;
 use crate::constants::WORLDS;
 use crate::models::channel;
-use crate::models::error::ModelError;
 use crate::models::world::error::WorldError;
 use crate::models::world::wrapper::World;
+use std::collections::HashMap;
 
-pub fn load_worlds() -> Result<HashMap<i16, World>, ModelError> {
+pub fn load_worlds() -> Result<HashMap<i16, World>, WorldError> {
     let count = settings::get_world_count()? as usize;
     WORLDS
         .get(..count)
-        .ok_or(ModelError::from(WorldError::CountExceedsAvailable))?
+        .ok_or(WorldError::CountExceedsAvailable)?
         .iter()
         .enumerate()
         .map(|(id, model)| {

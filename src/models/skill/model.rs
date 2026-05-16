@@ -18,7 +18,7 @@
  */
 
 use crate::db::schema::skills;
-use crate::models::error::ModelError;
+use crate::models::skill::error::SkillError;
 use crate::models::skill::wrapper::Skill;
 use diesel::prelude::*;
 use std::time::SystemTime;
@@ -34,7 +34,7 @@ pub struct SkillModel {
 }
 
 impl SkillModel {
-    pub fn load(&self) -> Result<Skill, ModelError> {
+    pub fn load(&self) -> Result<Skill, SkillError> {
         Ok(Skill {
             model: self.clone(),
         })

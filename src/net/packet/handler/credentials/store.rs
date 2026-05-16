@@ -20,7 +20,7 @@
 use crate::models::account;
 use crate::models::account::wrapper::Account;
 use crate::models::account::wrapper::{FailedCode, StatusCode};
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::credentials::error::CredentialsError;
 use crate::net::packet::handler::credentials::reader::CredentialsReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -36,7 +36,7 @@ impl CredentialsStore {
         state: &SharedState,
         session: Session,
         reader: CredentialsReader,
-    ) -> Result<Self, NetworkError> {
+    ) -> Result<Self, CredentialsError> {
         match account::service::get_account_by_username(state, reader.username.clone()).await {
             Ok(acc) => {
                 let status = if acc.authenticate(reader.pw.clone())? {

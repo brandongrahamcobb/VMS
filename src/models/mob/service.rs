@@ -20,10 +20,10 @@
 use std::collections::HashMap;
 
 use crate::metadata;
-use crate::models::error::ModelError;
+use crate::models::mob::error::MobError;
 use crate::models::mob::wrapper::Mob;
 
-pub fn load_mobs(map_wz: i32) -> Result<HashMap<u32, Mob>, ModelError> {
+pub fn load_mobs(map_wz: i32) -> Result<HashMap<u32, Mob>, MobError> {
     let filename: String = String::from("Mob.wz");
     let json = metadata::service::wz_to_img(map_wz, &filename)?;
     Ok(HashMap::new())

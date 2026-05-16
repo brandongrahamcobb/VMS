@@ -21,6 +21,7 @@ use crate::net::packet::handler::check_char_name::handler::CheckCharNameHandler;
 use crate::net::packet::handler::create_char::handler::CreateCharHandler;
 use crate::net::packet::handler::credentials::handler::CredentialsHandler;
 use crate::net::packet::handler::delete_char::handler::DeleteCharHandler;
+use crate::net::packet::handler::error::PacketHandlerError;
 use crate::net::packet::handler::list_chars::handler::ListCharsHandler;
 use crate::net::packet::handler::list_worlds::handler::ListWorldsHandler;
 use crate::net::packet::handler::login_start::handler::LoginStartHandler;
@@ -33,15 +34,15 @@ use crate::net::packet::handler::tos::handler::TosHandler;
 use crate::net::packet::model::Packet;
 use crate::op::recv::RecvOpcode;
 use crate::prelude::*;
-use crate::runtime::error::RuntimeError;
 use crate::runtime::relay::model::LoginRelay;
+use crate::runtime::relay::types::error::RelayTypeError;
 use crate::runtime::relay::types::shared::RuntimeRelay;
 use crate::runtime::session::error::SessionError;
 use crate::runtime::state::SharedState;
 use tracing::debug;
 
 impl RuntimeRelay for LoginRelay {
-    async fn new(session_id: i32) -> Result<Self, RuntimeError> {
+    async fn new(session_id: i32) -> Result<Self, RelayTypeError> {
         Ok(Self { session_id })
     }
 
@@ -53,7 +54,7 @@ impl RuntimeRelay for LoginRelay {
         &mut self,
         state: &SharedState,
         packet: &Packet,
-    ) -> Result<HandlerResult, RuntimeError> {
+    ) -> Result<HandlerResult, RelayTypeError> {
         let session = {
             let state = state.lock().await;
             state
@@ -62,7 +63,7 @@ impl RuntimeRelay for LoginRelay {
                 .ok_or(SessionError::NotFound(self.session_id()))?
         };
         let op = packet.opcode();
-        let en = RecvOpcode::from_i16(op).ok_or(RuntimeError::UnsupportedOpcodeError(
+        let en = RecvOpcode::from_i16(op).ok_or(RelayTypeError::UnsupportedOpcodeError(
             op,
             String::from("not expected during authentication"),
         ));
@@ -73,53 +74,89 @@ impl RuntimeRelay for LoginRelay {
         match op {
             x if x == RecvOpcode::RequestLogin as i16 => {
                 let handler = CredentialsHandler::new();
-                Ok(handler.handle(state, session.clone(), packet).await?)
+                Ok(handler
+                    .handle(state, session.clone(), packet)
+                    .await
+                    .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::LoginStarted as i16 => {
                 let handler = LoginStartHandler::new();
-                Ok(handler.handle(state, session.clone(), packet).await?)
+                Ok(handler
+                    .handle(state, session.clone(), packet)
+                    .await
+                    .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::AcceptTOS as i16 => {
                 let handler = TosHandler::new();
-                Ok(handler.handle(state, session.clone(), packet).await?)
+                Ok(handler
+                    .handle(state, session.clone(), packet)
+                    .await
+                    .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::ServerListRequest as i16 => {
                 let handler = ListWorldsHandler::new();
-                Ok(handler.handle(state, session.clone(), packet).await?)
+                Ok(handler
+                    .handle(state, session.clone(), packet)
+                    .await
+                    .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::ServerStatusRequest as i16 => {
                 let handler = ServerStatusHandler::new();
-                Ok(handler.handle(state, session.clone(), packet).await?)
+                Ok(handler
+                    .handle(state, session.clone(), packet)
+                    .await
+                    .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::CharListRequest as i16 => {
                 let handler = ListCharsHandler::new();
-                Ok(handler.handle(state, session.clone(), packet).await?)
+                Ok(handler
+                    .handle(state, session.clone(), packet)
+                    .await
+                    .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::CreateChar as i16 => {
                 let handler = CreateCharHandler::new();
-                Ok(handler.handle(state, session.clone(), packet).await?)
+                Ok(handler
+                    .handle(state, session.clone(), packet)
+                    .await
+                    .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::CheckCharName as i16 => {
                 let handler = CheckCharNameHandler::new();
-                Ok(handler.handle(state, session.clone(), packet).await?)
+                Ok(handler
+                    .handle(state, session.clone(), packet)
+                    .await
+                    .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::DeleteChar as i16 => {
                 let handler = DeleteCharHandler::new();
-                Ok(handler.handle(state, session.clone(), packet).await?)
+                Ok(handler
+                    .handle(state, session.clone(), packet)
+                    .await
+                    .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::CharSelect as i16 => {
                 let handler = SelectCharHandler::new();
-                Ok(handler.handle(state, session.clone(), packet).await?)
+                Ok(handler
+                    .handle(state, session.clone(), packet)
+                    .await
+                    .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::RegisterPic as i16 => {
                 let handler = RegisterPicHandler::new();
-                Ok(handler.handle(state, session.clone(), packet).await?)
+                Ok(handler
+                    .handle(state, session.clone(), packet)
+                    .await
+                    .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::CharSelectWithPic as i16 => {
                 let handler = SelectCharWithPicHandler::new();
-                Ok(handler.handle(state, session.clone(), packet).await?)
+                Ok(handler
+                    .handle(state, session.clone(), packet)
+                    .await
+                    .map_err(PacketHandlerError::from)?)
             }
-            _ => Err(RuntimeError::UnsupportedOpcodeError(
+            _ => Err(RelayTypeError::UnsupportedOpcodeError(
                 op,
                 String::from("expected after authentication"),
             )),

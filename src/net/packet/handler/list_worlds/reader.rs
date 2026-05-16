@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::list_worlds::error::ListWorldsError;
 use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::model::Packet;
 use crate::prelude::*;
@@ -27,7 +27,7 @@ use std::io::Cursor;
 pub struct ListWorldsReader;
 
 impl ListWorldsReader {
-    pub fn read_list_worlds_packet(packet: &Packet) -> Result<Self, NetworkError> {
+    pub fn read_list_worlds_packet(packet: &Packet) -> Result<Self, ListWorldsError> {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let _op = pkt_reader.read_short().map_err(ReadError)?;
         Ok(Self)

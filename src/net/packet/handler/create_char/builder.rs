@@ -18,14 +18,17 @@
  */
 
 use crate::models::character::wrapper::Character;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::create_char::error::CreateCharError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
 
 impl Packet {
-    pub fn build_create_char_packet(&mut self, char: Character) -> Result<&mut Self, NetworkError> {
+    pub fn build_create_char_packet(
+        &mut self,
+        char: Character,
+    ) -> Result<&mut Self, CreateCharError> {
         let op = SendOpcode::NewChar as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
@@ -36,7 +39,7 @@ impl Packet {
     fn build_new_character_look_part_packet(
         &mut self,
         char: Character,
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, CreateCharError> {
         self.build_list_char_meta_part_packet(char.clone())?;
         self.build_new_character_look_meta_part_packet(char.clone())?;
         self.write_byte(0).map_err(WriteError)?;
@@ -48,7 +51,7 @@ impl Packet {
     fn build_new_character_look_meta_part_packet(
         &mut self,
         char: Character,
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, CreateCharError> {
         let gender_wz = char.model.gender_wz as i16;
         self.write_byte(gender_wz).map_err(WriteError)?;
         let skin_wz = char.model.skin_wz as i16;

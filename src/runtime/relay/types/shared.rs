@@ -20,15 +20,15 @@
 use crate::net::action::{Action, SetAction};
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::error::RuntimeError;
 use crate::runtime::relay::execute;
+use crate::runtime::relay::types::error::RelayTypeError;
 use crate::runtime::session::error::SessionError;
 use crate::runtime::state::SharedState;
 use core::ops::ControlFlow;
 
 #[allow(async_fn_in_trait)]
 pub trait RuntimeRelay: Sized {
-    async fn new(session_id: i32) -> Result<Self, RuntimeError>;
+    async fn new(session_id: i32) -> Result<Self, RelayTypeError>;
 
     fn session_id(&self) -> i32;
 
@@ -36,13 +36,13 @@ pub trait RuntimeRelay: Sized {
         &mut self,
         state: &SharedState,
         packet: &Packet,
-    ) -> Result<HandlerResult, RuntimeError>;
+    ) -> Result<HandlerResult, RelayTypeError>;
 
     async fn execute(
         &mut self,
         state: &SharedState,
         result: HandlerResult,
-    ) -> Result<ControlFlow<Packet>, RuntimeError> {
+    ) -> Result<ControlFlow<Packet>, RelayTypeError> {
         let model = &result.model;
         for action in model {
             let session = {
@@ -54,7 +54,9 @@ pub trait RuntimeRelay: Sized {
             };
             match action {
                 Action::Break { packet, scope } => {
-                    return execute::manager::end(state, &session, &packet, &scope).await;
+                    return execute::manager::end(state, &session, &packet, &scope)
+                        .await
+                        .map_err(RelayTypeError::from);
                 }
                 Action::Send { packet, scope } => {
                     execute::manager::send(state, &session, &packet, &scope).await?

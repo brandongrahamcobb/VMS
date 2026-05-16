@@ -17,9 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
-
 use crate::net::packet::handler::close_attack;
+use crate::net::packet::handler::close_attack::error::CloseAttackError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
@@ -38,7 +37,7 @@ impl Packet {
         stance: i16,
         speed: i16,
         mob_damages: HashMap<i32, Vec<i32>>,
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, CloseAttackError> {
         let op = SendOpcode::AttackedClose as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_int(char_id).map_err(WriteError)?;

@@ -50,9 +50,6 @@ pub enum SessionError {
     #[error("Failed to retrieve map in session layer: {0}")]
     NoMap(i32),
 
-    #[error("Missing field in session layer: {0}")]
-    MissingField(i32),
-
     #[error("Model error in session layer: {0}")]
     ModelError(#[from] ModelError),
 }

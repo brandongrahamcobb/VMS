@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::chat_text::error::ChatTextError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
@@ -30,7 +30,7 @@ impl Packet {
         char_id: i32,
         msg: String,
         show: i16,
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, ChatTextError> {
         let op = SendOpcode::ChatText as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_int(char_id).map_err(WriteError)?;

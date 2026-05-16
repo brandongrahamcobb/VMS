@@ -18,6 +18,7 @@
  */
 
 use crate::constants::{DEFAULT_ACTION, DEFAULT_KEY, DEFAULT_TYPE};
+use crate::db::error::DatabaseError;
 use crate::models::character;
 use crate::models::character::model::CharacterModel;
 use crate::models::character::wrapper::Character;
@@ -32,7 +33,7 @@ use crate::models::map;
 use crate::models::skill;
 use crate::models::skill::model::SkillModel;
 use crate::models::skill::wrapper::Skill;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::create_char::error::CreateCharError;
 use crate::net::packet::handler::create_char::reader::CreateCharReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -52,7 +53,7 @@ impl CreateCharStore {
         acc_id: i32,
         map_wz: i32,
         world_id: i16,
-    ) -> Result<CharacterModel, NetworkError> {
+    ) -> Result<CharacterModel, CreateCharError> {
         let char_models: Vec<CharacterModel> = Vec::from([CharacterModel {
             id: None,
             acc_id,
@@ -81,14 +82,16 @@ impl CreateCharStore {
             created_at: Some(SystemTime::now()),
             updated_at: SystemTime::now(),
         }]);
-        let char_models = character::query::setters::update_characters(state, char_models).await?;
+        let char_models = character::query::setters::update_characters(state, char_models)
+            .await
+            .map_err(|e| DatabaseError::DieselError(e))?;
         Ok(char_models[0].clone())
     }
 
     pub async fn init_keybindings(
         state: &SharedState,
         char_id: i32,
-    ) -> Result<HashMap<i32, Keybinding>, NetworkError> {
+    ) -> Result<HashMap<i32, Keybinding>, CreateCharError> {
         let bind_models: Vec<KeybindingModel> = izip!(DEFAULT_KEY, DEFAULT_TYPE, DEFAULT_ACTION)
             .map(|(key, bind_type, action)| KeybindingModel {
                 action,
@@ -99,19 +102,20 @@ impl CreateCharStore {
                 updated_at: SystemTime::now(),
             })
             .collect();
-        let bind_models =
-            keybinding::query::setters::update_keybindings(state, bind_models).await?;
+        let bind_models = keybinding::query::setters::update_keybindings(state, bind_models)
+            .await
+            .map_err(|e| DatabaseError::DieselError(e))?;
         Ok(bind_models
             .into_iter()
-            .map(|b| -> Result<(i32, Keybinding), NetworkError> { Ok((b.key, b.load()?)) })
-            .collect::<Result<HashMap<i32, Keybinding>, NetworkError>>()?)
+            .map(|b| -> Result<(i32, Keybinding), CreateCharError> { Ok((b.key, b.load()?)) })
+            .collect::<Result<HashMap<i32, Keybinding>, CreateCharError>>()?)
     }
 
     async fn init_equips(
         state: &SharedState,
         reader: CreateCharReader,
         char_id: i32,
-    ) -> Result<Inventory, NetworkError> {
+    ) -> Result<Inventory, CreateCharError> {
         let mut inventory: Inventory = item::service::load_inventory(state, char_id).await?;
         let top = item::service::create_item(state, reader.top_wz).await?;
         let top = inventory.pick_up(state, top.clone()).await?;
@@ -132,7 +136,7 @@ impl CreateCharStore {
         state: &SharedState,
         reader: CreateCharReader,
         char_id: i32,
-    ) -> Result<HashMap<i32, Skill>, NetworkError> {
+    ) -> Result<HashMap<i32, Skill>, CreateCharError> {
         let skill_models: Vec<SkillModel> =
             skill::service::generate_skill_wzs_by_job_wz(reader.job_wz as i32)?
                 .into_iter()
@@ -144,18 +148,20 @@ impl CreateCharStore {
                     wz,
                 })
                 .collect();
-        skill::query::setters::update_skills(state, skill_models.clone()).await?;
+        skill::query::setters::update_skills(state, skill_models.clone())
+            .await
+            .map_err(|e| DatabaseError::DieselError(e))?;
         Ok(skill_models
             .into_iter()
-            .map(|s| -> Result<(i32, Skill), NetworkError> { Ok((s.wz, s.load()?)) })
-            .collect::<Result<HashMap<i32, Skill>, NetworkError>>()?)
+            .map(|s| -> Result<(i32, Skill), CreateCharError> { Ok((s.wz, s.load()?)) })
+            .collect::<Result<HashMap<i32, Skill>, CreateCharError>>()?)
     }
 
     pub async fn store_create_char(
         state: &SharedState,
         session: Session,
         reader: CreateCharReader,
-    ) -> Result<Self, NetworkError> {
+    ) -> Result<Self, CreateCharError> {
         let acc_id: i32 = session.get_acc_id()?;
         let world_id: i16 = session.get_world_id()?;
         let map_wz: i32 = map::service::get_map_wz_by_job_id(reader.job_wz)?;

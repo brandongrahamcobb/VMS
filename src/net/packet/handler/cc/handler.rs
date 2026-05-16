@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use crate::net::action::{Action, SetAction};
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::cc::error::ChangeChannelError;
 use crate::net::packet::handler::cc::reader::ChangeChannelReader;
 use crate::net::packet::handler::cc::store::ChangeChannelStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -38,7 +38,7 @@ impl ChangeChannelHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, ChangeChannelError> {
         let reader: ChangeChannelReader = ChangeChannelReader::read_change_channel_packet(packet)?;
         let store: ChangeChannelStore =
             ChangeChannelStore::store_change_channel(state, session, reader.clone()).await?;
@@ -49,26 +49,26 @@ impl ChangeChannelHandler {
     async fn build_change_channel_result(
         &self,
         store: ChangeChannelStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, ChangeChannelError> {
         let mut result: HandlerResult = HandlerResult::new();
         result.add_action(Action::Set(SetAction::SetChannel {
             channel_id: store.channel_id,
             scope: Scope::Local,
-        }))?;
+        }));
         let packet: Packet = Packet::new_empty()
             .build_despawn_player_packet(store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Map(MapScope::SameChannelSameWorld),
-        })?;
+        });
         let packet: Packet = Packet::new_empty()
             .build_spawn_player_packet(store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Map(MapScope::SameChannelSameWorld),
-        })?;
+        });
         for (_, player) in store.after_players {
             let packet: Packet = Packet::new_empty()
                 .build_spawn_player_packet(player.clone())?
@@ -76,7 +76,7 @@ impl ChangeChannelHandler {
             result.add_action(Action::Send {
                 packet: packet.clone(),
                 scope: Scope::Local,
-            })?;
+            });
         }
         let packet: Packet = Packet::new_empty()
             .build_channel_change_packet(store.octets.clone(), store.port)?
@@ -84,7 +84,7 @@ impl ChangeChannelHandler {
         result.add_action(Action::Break {
             packet: packet.clone(),
             scope: Scope::Local,
-        })?;
+        });
         Ok(result)
     }
 }

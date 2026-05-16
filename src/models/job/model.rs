@@ -17,7 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::{error::ModelError, job::wrapper::Job};
+use crate::models::job::error::JobError;
+use crate::models::job::wrapper::Job;
 
 #[derive(Clone)]
 pub struct JobModel {
@@ -25,7 +26,7 @@ pub struct JobModel {
 }
 
 impl JobModel {
-    pub fn load(&self) -> Result<Job, ModelError> {
+    pub fn load(&self) -> Result<Job, JobError> {
         Ok(Job {
             model: self.clone(),
         })

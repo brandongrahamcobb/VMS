@@ -17,10 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::db::error::DatabaseError;
 use crate::models::account::model::AccountModel;
 use crate::models::account::{self, error::AccountError};
 use crate::models::character::wrapper::Character;
-use crate::models::error::ModelError;
 use crate::runtime::state::SharedState;
 use bcrypt::{DEFAULT_COST, hash, verify};
 
@@ -56,27 +56,27 @@ pub enum FailedCode {
 }
 
 impl Account {
-    pub async fn accept_tos(&self, state: &SharedState) -> Result<Self, ModelError> {
-        account::query::setters::accept_tos_by_account_id(state, self.model.get_id()?).await?;
+    pub async fn accept_tos(&self, state: &SharedState) -> Result<Self, AccountError> {
+        account::query::setters::accept_tos_by_account_id(state, self.model.get_id()?)
+            .await
+            .map_err(|e| DatabaseError::DieselError(e))?;
         Ok(self.clone())
     }
 
-    pub async fn set_pic(&self, state: &SharedState, pic: String) -> Result<Self, ModelError> {
+    pub async fn set_pic(&self, state: &SharedState, pic: String) -> Result<Self, AccountError> {
         account::query::setters::set_pic_by_account_id(state, self.model.get_id()?, pic.clone())
-            .await?;
+            .await
+            .map_err(|e| DatabaseError::DieselError(e))?;
         Ok(self.clone())
     }
 
-    pub fn authenticate(&self, pw: String) -> Result<bool, ModelError> {
-        let hash = hash(self.model.password.clone(), DEFAULT_COST)
-            .map_err(AccountError::CryptError)
-            .map_err(ModelError::from)?;
-        Ok(verify(&pw, &hash)
-            .map_err(AccountError::CryptError)
-            .map_err(ModelError::from)?)
+    pub fn authenticate(&self, pw: String) -> Result<bool, AccountError> {
+        let hash =
+            hash(self.model.password.clone(), DEFAULT_COST).map_err(AccountError::CryptError)?;
+        Ok(verify(&pw, &hash).map_err(AccountError::CryptError)?)
     }
 
-    pub fn check_if_playing(&self, all_acc_ids: Vec<i32>) -> Result<bool, ModelError> {
+    pub fn check_if_playing(&self, all_acc_ids: Vec<i32>) -> Result<bool, AccountError> {
         let acc_id: i32 = self.model.get_id()?;
         Ok(all_acc_ids.contains(&acc_id))
     }
@@ -84,7 +84,7 @@ impl Account {
     pub async fn get_status_code_by_account(
         &self,
         all_acc_ids: Vec<i32>,
-    ) -> Result<StatusCode, ModelError> {
+    ) -> Result<StatusCode, AccountError> {
         if self.model.banned {
             return Ok(StatusCode::Failed(FailedCode::Banned));
         }

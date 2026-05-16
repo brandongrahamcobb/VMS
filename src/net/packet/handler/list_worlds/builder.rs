@@ -21,7 +21,7 @@ use std::collections::HashMap;
 
 use crate::config::settings;
 use crate::models::world::wrapper::World;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::list_worlds::error::ListWorldsError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
@@ -30,7 +30,7 @@ use crate::prelude::*;
 impl Packet {
     pub fn build_list_worlds_handler_last_connected_world_packet(
         &mut self,
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, ListWorldsError> {
         let op = SendOpcode::LastConnectedWorld as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_int(0).map_err(WriteError)?;
@@ -40,7 +40,7 @@ impl Packet {
     pub fn build_list_worlds_handler_recommended_worlds_packet(
         &mut self,
         worlds: HashMap<i16, World>,
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, ListWorldsError> {
         let recommended_world_names = settings::get_recommended_worlds()?;
         let op = SendOpcode::RecommendedWorlds as i16;
         self.write_short(op).map_err(WriteError)?;
@@ -68,7 +68,7 @@ impl Packet {
     pub fn build_list_worlds_handler_servers_packet(
         &mut self,
         worlds: HashMap<i16, World>,
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, ListWorldsError> {
         let op = SendOpcode::ServerList as i16;
         self.write_short(op).map_err(WriteError)?;
         for (world_id, world) in worlds {

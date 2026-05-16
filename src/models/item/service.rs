@@ -17,9 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::db::error::DatabaseError;
 use crate::metadata;
 use crate::metadata::error::MetadataError;
-use crate::models::error::ModelError;
 use crate::models::item;
 use crate::models::item::cash_nonequip_model::CashNonEquipItemModel;
 use crate::models::item::constants::{CASH_EQUIP_SLOTS, InventoryTab, OTHER_EQUIP_SLOTS};
@@ -35,7 +35,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::time::SystemTime;
 
-pub async fn load_inventory(state: &SharedState, char_id: i32) -> Result<Inventory, ModelError> {
+pub async fn load_inventory(state: &SharedState, char_id: i32) -> Result<Inventory, ItemError> {
     let mut equipped_tab: HashMap<i16, Item> = HashMap::new();
     let equipped_items = item::service::get_equipped_items_by_char_id(state, char_id).await?;
     for equipped_item in equipped_items {
@@ -78,7 +78,7 @@ pub async fn load_inventory(state: &SharedState, char_id: i32) -> Result<Invento
     Ok(inventory)
 }
 
-pub fn get_equip_ipos_by_wz(wz: i32) -> Result<i16, ModelError> {
+pub fn get_equip_ipos_by_wz(wz: i32) -> Result<i16, ItemError> {
     let filename: String = String::from("Character.wz");
     let json = metadata::service::wz_to_img(wz, &filename)?;
     let islot = json["info"]["islot"]
@@ -92,18 +92,18 @@ pub fn get_equip_ipos_by_wz(wz: i32) -> Result<i16, ModelError> {
             .iter()
             .find(|slot| slot.islot == islot)
             .map(|slot| slot.key)
-            .ok_or(ModelError::from(ItemError::InvalidISlot));
+            .ok_or(ItemError::InvalidISlot);
     } else {
         return OTHER_EQUIP_SLOTS
             .iter()
             .flat_map(|group| group.iter())
             .find(|slot| slot.islot == islot)
             .map(|slot| slot.key)
-            .ok_or(ModelError::from(ItemError::InvalidISlot));
+            .ok_or(ItemError::InvalidISlot);
     }
 }
 
-pub fn get_inventory_tab_by_wz(wz: i32) -> Result<InventoryTab, ModelError> {
+pub fn get_inventory_tab_by_wz(wz: i32) -> Result<InventoryTab, ItemError> {
     let filename: &str = "Item.wz";
     let wz_cat = wz / 10000;
     let json = match metadata::service::wz_to_tree(wz_cat, filename) {
@@ -123,10 +123,10 @@ pub fn get_inventory_tab_by_wz(wz: i32) -> Result<InventoryTab, ModelError> {
             _ => return Ok(InventoryTab::Equip),
         }
     }
-    return Err(ModelError::from(ItemError::InvalidISlot));
+    return Err(ItemError::InvalidISlot);
 }
 
-pub async fn create_item(state: &SharedState, wz: i32) -> Result<Item, ModelError> {
+pub async fn create_item(state: &SharedState, wz: i32) -> Result<Item, ItemError> {
     let itab: InventoryTab = get_inventory_tab_by_wz(wz)?;
     let item = match itab {
         InventoryTab::Use => {
@@ -138,7 +138,10 @@ pub async fn create_item(state: &SharedState, wz: i32) -> Result<Item, ModelErro
                 created_at: Some(SystemTime::now()),
                 updated_at: SystemTime::now(),
             };
-            let item_model: UseItemModel = item_model.update_item(state).await?;
+            let item_model: UseItemModel = item_model
+                .update_item(state)
+                .await
+                .map_err(|e| DatabaseError::DieselError(e))?;
             Item::Use(item_model.load())
         }
         InventoryTab::Setup => {
@@ -150,7 +153,10 @@ pub async fn create_item(state: &SharedState, wz: i32) -> Result<Item, ModelErro
                 created_at: Some(SystemTime::now()),
                 updated_at: SystemTime::now(),
             };
-            let item_model: SetupItemModel = item_model.update_item(state).await?;
+            let item_model: SetupItemModel = item_model
+                .update_item(state)
+                .await
+                .map_err(|e| DatabaseError::DieselError(e))?;
             Item::Setup(item_model.load())
         }
         InventoryTab::Cash => {
@@ -162,7 +168,10 @@ pub async fn create_item(state: &SharedState, wz: i32) -> Result<Item, ModelErro
                 created_at: Some(SystemTime::now()),
                 updated_at: SystemTime::now(),
             };
-            let item_model: CashNonEquipItemModel = item_model.update_item(state).await?;
+            let item_model: CashNonEquipItemModel = item_model
+                .update_item(state)
+                .await
+                .map_err(|e| DatabaseError::DieselError(e))?;
             Item::CashNonEquip(item_model.load())
         }
         InventoryTab::Etc => {
@@ -174,7 +183,10 @@ pub async fn create_item(state: &SharedState, wz: i32) -> Result<Item, ModelErro
                 created_at: Some(SystemTime::now()),
                 updated_at: SystemTime::now(),
             };
-            let item_model: EtcItemModel = item_model.update_item(state).await?;
+            let item_model: EtcItemModel = item_model
+                .update_item(state)
+                .await
+                .map_err(|e| DatabaseError::DieselError(e))?;
             Item::Etc(item_model.load())
         }
         InventoryTab::Equip => {
@@ -203,7 +215,10 @@ pub async fn create_item(state: &SharedState, wz: i32) -> Result<Item, ModelErro
                 created_at: Some(SystemTime::now()),
                 updated_at: SystemTime::now(),
             };
-            let item_model: EquipItemModel = item_model.update_item(state).await?;
+            let item_model: EquipItemModel = item_model
+                .update_item(state)
+                .await
+                .map_err(|e| DatabaseError::DieselError(e))?;
             if json["info"]["cash"] != 0 {
                 Item::Equip(item_model.load())
             } else {
@@ -222,10 +237,11 @@ fn get_equip_stats_from_wz(root: &Value, key: &str) -> Option<i32> {
 async fn get_equipped_items_by_char_id(
     state: &SharedState,
     char_id: i32,
-) -> Result<Vec<Item>, ModelError> {
+) -> Result<Vec<Item>, ItemError> {
     let mut equipped_items: Vec<Item> = Vec::<Item>::new();
-    let equip_item_models =
-        item::query::getters::get_equip_item_models_by_char_id(state, char_id).await?;
+    let equip_item_models = item::query::getters::get_equip_item_models_by_char_id(state, char_id)
+        .await
+        .map_err(|e| DatabaseError::DieselError(e))?;
     for equip_item_model in equip_item_models {
         if equip_item_model.ipos.unwrap() < 0 {
             let equip_item = equip_item_model.load();
@@ -244,10 +260,11 @@ async fn get_equipped_items_by_char_id(
 async fn get_equip_items_by_char_id(
     state: &SharedState,
     char_id: i32,
-) -> Result<Vec<Item>, ModelError> {
+) -> Result<Vec<Item>, ItemError> {
     let mut equip_items: Vec<Item> = Vec::<Item>::new();
-    let equip_item_models =
-        item::query::getters::get_equip_item_models_by_char_id(state, char_id).await?;
+    let equip_item_models = item::query::getters::get_equip_item_models_by_char_id(state, char_id)
+        .await
+        .map_err(|e| DatabaseError::DieselError(e))?;
     for equip_item_model in equip_item_models {
         if equip_item_model.ipos.unwrap() > 0 {
             let equip_item = equip_item_model.load();
@@ -266,10 +283,11 @@ async fn get_equip_items_by_char_id(
 async fn get_use_items_by_char_id(
     state: &SharedState,
     char_id: i32,
-) -> Result<Vec<Item>, ModelError> {
+) -> Result<Vec<Item>, ItemError> {
     let mut use_items: Vec<Item> = Vec::<Item>::new();
-    let use_item_models =
-        item::query::getters::get_use_item_models_by_char_id(state, char_id).await?;
+    let use_item_models = item::query::getters::get_use_item_models_by_char_id(state, char_id)
+        .await
+        .map_err(|e| DatabaseError::DieselError(e))?;
     for use_item_model in use_item_models {
         let use_item = use_item_model.load();
         use_items.push(Item::Use(use_item));
@@ -280,10 +298,11 @@ async fn get_use_items_by_char_id(
 async fn get_etc_items_by_char_id(
     state: &SharedState,
     char_id: i32,
-) -> Result<Vec<Item>, ModelError> {
+) -> Result<Vec<Item>, ItemError> {
     let mut etc_items: Vec<Item> = Vec::<Item>::new();
-    let etc_item_models =
-        item::query::getters::get_etc_item_models_by_char_id(state, char_id).await?;
+    let etc_item_models = item::query::getters::get_etc_item_models_by_char_id(state, char_id)
+        .await
+        .map_err(|e| DatabaseError::DieselError(e))?;
     for etc_item_model in etc_item_models {
         let etc_item = etc_item_model.load();
         etc_items.push(Item::Etc(etc_item));
@@ -294,10 +313,11 @@ async fn get_etc_items_by_char_id(
 async fn get_setup_items_by_char_id(
     state: &SharedState,
     char_id: i32,
-) -> Result<Vec<Item>, ModelError> {
+) -> Result<Vec<Item>, ItemError> {
     let mut setup_items: Vec<Item> = Vec::<Item>::new();
-    let setup_item_models =
-        item::query::getters::get_setup_item_models_by_char_id(state, char_id).await?;
+    let setup_item_models = item::query::getters::get_setup_item_models_by_char_id(state, char_id)
+        .await
+        .map_err(|e| DatabaseError::DieselError(e))?;
     for setup_item_model in setup_item_models {
         let setup_item = setup_item_model.load();
         setup_items.push(Item::Setup(setup_item));
@@ -308,10 +328,12 @@ async fn get_setup_items_by_char_id(
 async fn get_cash_nonequip_items_by_char_id(
     state: &SharedState,
     char_id: i32,
-) -> Result<Vec<Item>, ModelError> {
+) -> Result<Vec<Item>, ItemError> {
     let mut cash_nonequip_items: Vec<Item> = Vec::<Item>::new();
     let cash_nonequip_item_models =
-        item::query::getters::get_cash_nonequip_item_models_by_char_id(state, char_id).await?;
+        item::query::getters::get_cash_nonequip_item_models_by_char_id(state, char_id)
+            .await
+            .map_err(|e| DatabaseError::DieselError(e))?;
     for cash_nonequip_item_model in cash_nonequip_item_models {
         let cash_nonequip_item = cash_nonequip_item_model.load();
         cash_nonequip_items.push(Item::CashNonEquip(cash_nonequip_item));

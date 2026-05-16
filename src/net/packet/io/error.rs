@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::config::error::ConfigError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -26,4 +27,13 @@ pub enum IOError {
 
     #[error("Failed to write to packet in packet io layer: {0}")]
     WriteError(std::io::Error),
+
+    #[error("Invalid packet header in packet io layer")]
+    InvalidHeader,
+
+    #[error("Invalid packet length in packet io layer: {0}")]
+    InvalidPacketLength(i16),
+
+    #[error("Configuration error in packet io layer")]
+    ConfigError(#[from] ConfigError),
 }

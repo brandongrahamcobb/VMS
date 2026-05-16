@@ -17,19 +17,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::db::error::DatabaseError;
+use crate::models::item::error::ItemError;
+use crate::models::job::error::JobError;
+use crate::models::keybinding::error::KeybindingError;
+use crate::models::skill::error::SkillError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum CharacterError {
-    #[error("Requested character was not found in character model layer: {0}")]
-    NotFound(i16),
-
-    #[error("No character is selected for account in character model layer: {0}")]
-    NotSelected(i32),
-
-    #[error("Missing field in character model layer: {0}")]
-    MissingField(i32),
-
     #[error("No id found in character model layer")]
     NoId,
+
+    #[error("Item model error in character model layer")]
+    ItemError(#[from] ItemError),
+
+    #[error("Keybinding model error in character model layer")]
+    KeybindingError(#[from] KeybindingError),
+
+    #[error("Skill model error in character model layer")]
+    SkillError(#[from] SkillError),
+
+    #[error("Job model error in character model layer")]
+    JobError(#[from] JobError),
+
+    #[error("Database error in character model layer")]
+    DatabaseError(#[from] DatabaseError),
 }

@@ -19,8 +19,7 @@
 
 use crate::config::settings;
 use crate::inc::helpers;
-use crate::models::channel::wrapper::Channel;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::select_char::error::SelectCharError;
 use crate::net::packet::handler::select_char::reader::SelectCharReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -37,8 +36,13 @@ impl SelectCharStore {
         state: &SharedState,
         session: Session,
         reader: SelectCharReader,
-    ) -> Result<Self, NetworkError> {
-        let channel: Channel = session.get_channel(state).await?;
+    ) -> Result<Self, SelectCharError> {
+        let world_id: i16 = session.get_world_id()?;
+        let channel_id: u8 = session.get_channel_id()?;
+        let channel = {
+            let state = state.lock().await;
+            state.get_channel(world_id, channel_id).await?
+        };
         let addr: String = settings::get_routing_address()?;
         let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
         Ok(Self {

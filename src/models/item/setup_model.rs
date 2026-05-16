@@ -20,9 +20,7 @@
 use crate::db::schema::setup_items;
 use crate::models::item::model::ItemModel;
 use crate::models::item::wrapper::SetupItem;
-use crate::runtime::state::SharedState;
 use diesel::prelude::*;
-use diesel::{QueryResult, RunQueryDsl};
 use std::time::SystemTime;
 
 #[derive(Clone, Insertable, Queryable, AsChangeset, Selectable)]
@@ -41,25 +39,6 @@ impl SetupItemModel {
         SetupItem {
             model: self.clone(),
         }
-    }
-
-    pub async fn update_item(&self, state: &SharedState) -> QueryResult<Self> {
-        let db = {
-            let state = state.lock().await;
-            state.db.clone()
-        };
-        let mut conn = db.get().map_err(|e| {
-            diesel::result::Error::DatabaseError(
-                diesel::result::DatabaseErrorKind::UnableToSendCommand,
-                Box::new(e.to_string()),
-            )
-        })?;
-        diesel::insert_into(setup_items::table)
-            .values(self.clone())
-            .on_conflict(setup_items::id)
-            .do_update()
-            .set(self.clone())
-            .get_result::<Self>(&mut conn)
     }
 }
 

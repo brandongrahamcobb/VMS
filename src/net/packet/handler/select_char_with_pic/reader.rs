@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::select_char_with_pic::error::SelectCharWithPicError;
 use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::model::Packet;
 use crate::prelude::*;
@@ -32,7 +32,9 @@ pub struct SelectCharWithPicReader {
 }
 
 impl SelectCharWithPicReader {
-    pub fn read_select_char_with_pic_packet(packet: &Packet) -> Result<Self, NetworkError> {
+    pub fn read_select_char_with_pic_packet(
+        packet: &Packet,
+    ) -> Result<Self, SelectCharWithPicError> {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let _op = pkt_reader.read_short().map_err(ReadError)?;
         let pic = pkt_reader.read_str_with_length().map_err(ReadError)?;

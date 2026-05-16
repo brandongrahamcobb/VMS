@@ -18,7 +18,7 @@
  */
 
 use crate::net::action::{Action, SetAction};
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::list_chars::error::ListCharsError;
 use crate::net::packet::handler::list_chars::reader::ListCharsReader;
 use crate::net::packet::handler::list_chars::store::ListCharsStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -39,7 +39,7 @@ impl ListCharsHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, ListCharsError> {
         let reader: ListCharsReader = ListCharsReader::read_list_chars_packet(packet)?;
         let store: ListCharsStore =
             ListCharsStore::store_list_chars(state, session.clone(), reader.clone()).await?;
@@ -50,7 +50,7 @@ impl ListCharsHandler {
     fn build_list_chars_result(
         &self,
         store: ListCharsStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, ListCharsError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_list_chars_packet(
@@ -63,15 +63,15 @@ impl ListCharsHandler {
         result.add_action(Action::Set(SetAction::SetChannel {
             channel_id: store.channel_id,
             scope: Scope::Local,
-        }))?;
+        }));
         result.add_action(Action::Set(SetAction::SetWorld {
             world_id: store.world_id,
             scope: Scope::Local,
-        }))?;
+        }));
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
-        })?;
+        });
         Ok(result)
     }
 }

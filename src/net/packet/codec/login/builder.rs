@@ -1,4 +1,4 @@
-/* credentials/builder.rs
+/* login/builder.rs
  * The purpose of this module is to build an outgoing credentials validation packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
@@ -19,7 +19,7 @@
 
 use crate::config::settings;
 use crate::models::account::wrapper::Account;
-use crate::net::error::NetworkError;
+use crate::net::packet::codec::login::error::CodecLoginError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
@@ -30,7 +30,7 @@ impl Packet {
     pub fn build_credentials_handler_failed_login_packet(
         &mut self,
         status: i16,
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, CodecLoginError> {
         let op = SendOpcode::AccountStatus as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_byte(status).map_err(WriteError)?;
@@ -42,7 +42,7 @@ impl Packet {
     pub fn build_credentials_handler_successful_login_packet(
         &mut self,
         acc: Account,
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, CodecLoginError> {
         let pin_required = settings::get_pin_required()? as i16;
         let opcode = SendOpcode::AccountStatus as i16;
         let acc_id = acc.model.get_id()? as i32;
@@ -71,6 +71,22 @@ impl Packet {
         self.write_int(1).map_err(WriteError)?;
         self.write_byte(pin_required).map_err(WriteError)?;
         self.write_byte(1).map_err(WriteError)?;
+        Ok(self)
+    }
+
+    pub fn build_select_char_packet(
+        &mut self,
+        char_id: i32,
+        octets: [u8; 4],
+        port: i16,
+    ) -> Result<&mut Self, CodecLoginError> {
+        let op = SendOpcode::ServerIp as i16;
+        self.write_short(op).map_err(WriteError)?;
+        self.write_short(0).map_err(WriteError)?;
+        self.write_bytes(octets.to_vec()).map_err(WriteError)?;
+        self.write_short(port).map_err(WriteError)?;
+        self.write_int(char_id).map_err(WriteError)?;
+        self.write_bytes(vec![0u8; 5]).map_err(WriteError)?;
         Ok(self)
     }
 }

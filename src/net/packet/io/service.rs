@@ -18,23 +18,21 @@
  */
 
 use crate::constants::MAX_PACKET_LENGTH;
-use crate::net::error::NetworkError;
-
-use crate::net::packet::error::PacketError;
+use crate::net::packet::io::error::IOError;
 use crate::sec::aes::AES;
 
-pub fn check_header(aes: &AES, header: &[u8]) -> Result<(), NetworkError> {
+pub fn check_header(aes: &AES, header: &[u8]) -> Result<(), IOError> {
     if !(((header[0] ^ aes.iv[2]) & 0xFF) == ((aes.version >> 8) as u8 & 0xFF)
         && ((header[1] ^ aes.iv[3]) & 0xFF) == (aes.version & 0xFF) as u8)
     {
-        return Err(NetworkError::from(PacketError::InvalidHeader));
+        return Err(IOError::InvalidHeader);
     }
     Ok(())
 }
 
-pub fn check_packet_length(length: i16) -> Result<(), NetworkError> {
+pub fn check_packet_length(length: i16) -> Result<(), IOError> {
     if length < 2 || length > MAX_PACKET_LENGTH {
-        return Err(NetworkError::from(PacketError::InvalidPacketLength(length)));
+        return Err(IOError::InvalidPacketLength(length));
     }
     Ok(())
 }

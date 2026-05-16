@@ -19,7 +19,7 @@
 
 use crate::models::account::wrapper::StatusCode;
 use crate::net::action::{Action, SetAction};
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::credentials::error::CredentialsError;
 use crate::net::packet::handler::credentials::reader::CredentialsReader;
 use crate::net::packet::handler::credentials::store::CredentialsStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -40,7 +40,7 @@ impl CredentialsHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, CredentialsError> {
         let reader: CredentialsReader = CredentialsReader::read_credentials_packet(packet)?;
         let store: CredentialsStore =
             CredentialsStore::store_credentials(state, session.clone(), reader.clone()).await?;
@@ -51,7 +51,7 @@ impl CredentialsHandler {
     fn build_credentials_result(
         &self,
         store: CredentialsStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, CredentialsError> {
         let mut result: HandlerResult = HandlerResult::new();
         match store.status {
             StatusCode::Failed(code) => {
@@ -62,7 +62,7 @@ impl CredentialsHandler {
                 result.add_action(Action::Send {
                     packet: packet.clone(),
                     scope: Scope::Local,
-                })?;
+                });
             }
             StatusCode::Pending(code) => {
                 let code = code as i16;
@@ -71,11 +71,11 @@ impl CredentialsHandler {
                     .finish();
                 result.add_action(Action::Set(SetAction::SetAccount {
                     acc_id: store.acc.clone().unwrap().model.get_id()?,
-                }))?;
+                }));
                 result.add_action(Action::Send {
                     packet: packet.clone(),
                     scope: Scope::Local,
-                })?;
+                });
             }
             StatusCode::Success(_) => {
                 let packet: Packet = Packet::new_empty()
@@ -85,11 +85,11 @@ impl CredentialsHandler {
                     .finish();
                 result.add_action(Action::Set(SetAction::SetAccount {
                     acc_id: store.acc.clone().unwrap().model.get_id()?,
-                }))?;
+                }));
                 result.add_action(Action::Send {
                     packet: packet.clone(),
                     scope: Scope::Local,
-                })?;
+                });
             }
         }
         Ok(result)

@@ -17,12 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::db::error::DatabaseError;
 use crate::db::schema::accounts;
 use crate::models::account::error::AccountError;
 use crate::models::account::wrapper::Account;
 use crate::models::character;
 use crate::models::character::wrapper::Character;
-use crate::models::error::ModelError;
 use crate::runtime::state::SharedState;
 use diesel::prelude::*;
 use std::time::SystemTime;
@@ -45,10 +45,11 @@ pub struct AccountModel {
 }
 
 impl AccountModel {
-    pub async fn load(&self, state: &SharedState) -> Result<Account, ModelError> {
+    pub async fn load(&self, state: &SharedState) -> Result<Account, AccountError> {
         let acc_id = self.get_id()?;
-        let char_models =
-            character::query::getters::get_char_models_by_account_id(state, acc_id).await?;
+        let char_models = character::query::getters::get_char_models_by_account_id(state, acc_id)
+            .await
+            .map_err(|e| DatabaseError::DieselError(e))?;
         let mut chars: Vec<Character> = Vec::<Character>::new();
         for char_model in char_models {
             chars.push(char_model.load(state).await?);
@@ -60,27 +61,27 @@ impl AccountModel {
         Ok(acc)
     }
 
-    pub fn get_id(&self) -> Result<i32, ModelError> {
+    pub fn get_id(&self) -> Result<i32, AccountError> {
         if let Some(oid) = self.id {
             Ok(oid)
         } else {
-            Err(ModelError::from(AccountError::NoId))
+            Err(AccountError::NoId)
         }
     }
 
-    pub fn get_pic(&self) -> Result<String, ModelError> {
+    pub fn get_pic(&self) -> Result<String, AccountError> {
         if let Some(pic) = self.pic.clone() {
             Ok(pic)
         } else {
-            Err(ModelError::from(AccountError::NoPic(self.get_id()?)))
+            Err(AccountError::NoPic(self.get_id()?))
         }
     }
 
-    pub fn get_created_at(&self) -> Result<SystemTime, ModelError> {
+    pub fn get_created_at(&self) -> Result<SystemTime, AccountError> {
         if let Some(created_at) = self.created_at {
             Ok(created_at)
         } else {
-            Err(ModelError::from(AccountError::NoCreatedAt(self.get_id()?)))
+            Err(AccountError::NoCreatedAt(self.get_id()?))
         }
     }
 }

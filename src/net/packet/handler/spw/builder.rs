@@ -17,15 +17,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
-use crate::net::packet::model::Packet;
-
+use crate::net::packet::handler::spw::error::SpwError;
 use crate::net::packet::io::error::IOError::WriteError;
+use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
 
 impl Packet {
-    pub fn build_spw_packet(&mut self) -> Result<&mut Self, NetworkError> {
+    pub fn build_spw_packet(&mut self) -> Result<&mut Self, SpwError> {
         let op = SendOpcode::CheckSpwResult as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_byte(0) // failure

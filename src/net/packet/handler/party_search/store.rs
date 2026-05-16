@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::party_search::error::PartySearchError;
 use crate::net::packet::handler::party_search::reader::PartySearchReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -30,7 +30,7 @@ impl PartySearchStore {
         state: &SharedState,
         session: Session,
         reader: PartySearchReader,
-    ) -> Result<Self, NetworkError> {
+    ) -> Result<Self, PartySearchError> {
         std::hint::black_box(state);
         std::hint::black_box(session);
         std::hint::black_box(reader.clone());

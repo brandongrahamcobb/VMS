@@ -17,19 +17,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-
 use crate::config::settings;
 use crate::inc::helpers;
-use crate::models::channel::wrapper::Channel;
+use crate::models::character;
 use crate::models::character::wrapper::Character;
-use crate::models::error::ModelError;
-use crate::models::map::error::MapError;
-use crate::models::map::wrapper::Map;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::cc::error::ChangeChannelError;
 use crate::net::packet::handler::cc::reader::ChangeChannelReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
+use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct ChangeChannelStore {
@@ -45,23 +41,24 @@ impl ChangeChannelStore {
         state: &SharedState,
         session: Session,
         reader: ChangeChannelReader,
-    ) -> Result<Self, NetworkError> {
+    ) -> Result<Self, ChangeChannelError> {
+        let char_id = session.get_char_id()?;
+        let char: Character = character::service::get_char_by_id(state, char_id).await?;
+        let world_id: i16 = session.get_world_id()?;
         let channel_id: u8 = reader.channel_id;
         let map_wz: i32 = session.get_map_wz()?;
-        let channel: Channel = session.get_channel(state).await?;
-        let after_map: &Map = channel
-            .maps
-            .get(&map_wz)
-            .ok_or(MapError::NotFound(map_wz))
-            .map_err(ModelError::from)
-            .map_err(NetworkError::from)?;
+        let channel = {
+            let state = state.lock().await;
+            state.get_channel(world_id, channel_id).await?
+        };
+        let after_map = {
+            let state = state.lock().await;
+            state.get_map(world_id, channel_id, map_wz).await?
+        };
         let after_players: HashMap<i32, Character> = after_map.chars.clone();
-
-        let char: Character = session.get_char(state).await?;
         let addr: String = settings::get_routing_address()?;
         let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
         let port: i16 = channel.model.port;
-
         Ok(Self {
             after_players,
             channel_id,

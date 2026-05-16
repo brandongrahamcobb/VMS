@@ -17,15 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::account::wrapper::Account;
-use crate::models::channel::wrapper::Channel;
-use crate::models::character::wrapper::Character;
-use crate::models::map::wrapper::Map;
-use crate::models::world::wrapper::World;
-use crate::models::{account, character};
 use crate::net::packet::model::Packet;
 use crate::runtime::session::error::SessionError;
-use crate::runtime::state::SharedState;
 use tokio::sync::mpsc::UnboundedSender;
 
 #[derive(Clone)]
@@ -40,61 +33,20 @@ pub struct Session {
 }
 
 impl Session {
-    pub async fn get_acc(&self, state: &SharedState) -> Result<Account, SessionError> {
-        let acc_id = self.get_acc_id()?;
-        let acc: Account = account::service::get_account_by_id(state, acc_id).await?;
-        Ok(acc)
-    }
-
     pub fn get_acc_id(&self) -> Result<i32, SessionError> {
         self.acc_id.ok_or(SessionError::NoAccount(self.id))
-    }
-
-    pub async fn get_char(&self, state: &SharedState) -> Result<Character, SessionError> {
-        let char_id = self.get_char_id()?;
-        let char: Character = character::service::get_char_by_id(state, char_id).await?;
-        Ok(char)
     }
 
     pub fn get_char_id(&self) -> Result<i32, SessionError> {
         self.char_id.ok_or(SessionError::NoChar(self.id))
     }
 
-    pub async fn get_channel(&self, state: &SharedState) -> Result<Channel, SessionError> {
-        self.get_world(state)
-            .await?
-            .channels
-            .get(&self.get_channel_id()?)
-            .ok_or(SessionError::NoChannel(self.id))
-            .cloned()
-    }
-
     pub fn get_channel_id(&self) -> Result<u8, SessionError> {
         self.channel_id.ok_or(SessionError::NoChannel(self.id))
     }
 
-    pub async fn get_map(&self, state: &SharedState) -> Result<Map, SessionError> {
-        self.get_channel(state)
-            .await?
-            .maps
-            .get(&self.get_map_wz()?)
-            .ok_or(SessionError::NoMap(self.id))
-            .cloned()
-    }
-
     pub fn get_map_wz(&self) -> Result<i32, SessionError> {
         self.map_wz.ok_or(SessionError::NoMap(self.id))
-    }
-
-    pub async fn get_world(&self, state: &SharedState) -> Result<World, SessionError> {
-        let state = state.lock().await;
-        state
-            .worlds
-            .read()
-            .expect("poisoined")
-            .get(&self.get_world_id()?)
-            .ok_or(SessionError::NoWorld(self.id))
-            .cloned()
     }
 
     pub fn get_world_id(&self) -> Result<i16, SessionError> {

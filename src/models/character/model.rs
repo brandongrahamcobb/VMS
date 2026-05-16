@@ -20,7 +20,6 @@ use crate::db::schema::character_limits;
 use crate::db::schema::characters;
 use crate::models::character::error::CharacterError;
 use crate::models::character::wrapper::Character;
-use crate::models::error::ModelError;
 use crate::models::item;
 use crate::models::item::wrapper::Inventory;
 use crate::models::job;
@@ -76,7 +75,7 @@ pub struct CharacterLimitModel {
 }
 
 impl CharacterModel {
-    pub async fn load(&self, state: &SharedState) -> Result<Character, ModelError> {
+    pub async fn load(&self, state: &SharedState) -> Result<Character, CharacterError> {
         let char_id: i32 = self.get_id()?;
         let binds: HashMap<i32, Keybinding> =
             keybinding::service::load_keybindings(state, char_id).await?;
@@ -91,11 +90,11 @@ impl CharacterModel {
             skills,
         })
     }
-    pub fn get_id(&self) -> Result<i32, ModelError> {
+    pub fn get_id(&self) -> Result<i32, CharacterError> {
         if let Some(id) = self.id {
             Ok(id)
         } else {
-            Err(ModelError::from(CharacterError::NoId))
+            Err(CharacterError::NoId)
         }
     }
 }

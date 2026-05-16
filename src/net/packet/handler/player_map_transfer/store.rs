@@ -17,12 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::{
-    net::{
-        error::NetworkError, packet::handler::player_map_transfer::reader::PlayerMapTransferReader,
-    },
-    runtime::{session::model::Session, state::SharedState},
-};
+use crate::net::packet::handler::player_map_transfer::error::PlayerMapTransferError;
+use crate::net::packet::handler::player_map_transfer::reader::PlayerMapTransferReader;
+use crate::runtime::session::model::Session;
+use crate::runtime::state::SharedState;
 
 #[derive(Clone)]
 pub struct PlayerMapTransferStore;
@@ -32,7 +30,7 @@ impl PlayerMapTransferStore {
         state: &SharedState,
         session: Session,
         reader: PlayerMapTransferReader,
-    ) -> Result<Self, NetworkError> {
+    ) -> Result<Self, PlayerMapTransferError> {
         std::hint::black_box(state);
         std::hint::black_box(session);
         std::hint::black_box(reader.clone());

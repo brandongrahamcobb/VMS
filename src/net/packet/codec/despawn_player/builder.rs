@@ -18,7 +18,7 @@
  */
 
 use crate::models::character::wrapper::Character;
-use crate::net::error::NetworkError;
+use crate::net::packet::codec::despawn_player::error::CodecDespawnPlayerError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
@@ -28,7 +28,7 @@ impl Packet {
     pub fn build_despawn_player_packet(
         &mut self,
         char: Character,
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, CodecDespawnPlayerError> {
         let op = SendOpcode::DespawnPlayer as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_int(char.model.get_id()?).map_err(WriteError)?;

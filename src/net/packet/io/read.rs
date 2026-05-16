@@ -19,8 +19,8 @@
 
 use crate::config::settings;
 use crate::constants::HEADER_SIZE;
-use crate::net::error::NetworkError;
-use crate::net::packet;
+use crate::net::packet::io;
+use crate::net::packet::io::error::IOError;
 use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::model::Packet;
 use crate::sec::aes::AES;
@@ -36,7 +36,7 @@ pub struct PacketReader {
 }
 
 impl PacketReader {
-    pub fn new(read_half: OwnedReadHalf, recv_iv: &[u8]) -> Result<Self, NetworkError> {
+    pub fn new(read_half: OwnedReadHalf, recv_iv: &[u8]) -> Result<Self, IOError> {
         Ok(Self {
             pkt_reader: BufReader::new(read_half),
             aes: AES::new(&recv_iv.to_vec(), settings::get_version()?),
@@ -50,22 +50,22 @@ impl PacketReader {
     }
 
     // 2nd Level
-    async fn read_buffer(&mut self, buf: &mut [u8]) -> Result<(), NetworkError> {
+    async fn read_buffer(&mut self, buf: &mut [u8]) -> Result<(), IOError> {
         self.pkt_reader.read_exact(buf).await.map_err(ReadError)?;
         Ok(())
     }
 
     // 3rd Level
-    async fn read_header(&mut self) -> Result<[u8; HEADER_SIZE as usize], NetworkError> {
+    async fn read_header(&mut self) -> Result<[u8; HEADER_SIZE as usize], IOError> {
         let mut buf = [0u8; HEADER_SIZE as usize];
         self.read_buffer(&mut buf).await?;
-        packet::service::check_header(&self.aes, &buf)?;
+        io::service::check_header(&self.aes, &buf)?;
         Ok(buf)
     }
 
-    async fn read_payload(&mut self, header: &[u8]) -> Result<Packet, NetworkError> {
+    async fn read_payload(&mut self, header: &[u8]) -> Result<Packet, IOError> {
         let length = self.get_packet_length(header);
-        packet::service::check_packet_length(length)?;
+        io::service::check_packet_length(length)?;
         let mut buf = vec![0u8; length as usize];
         self.read_buffer(&mut buf).await?;
         self.aes.crypt(&mut buf);
@@ -74,7 +74,7 @@ impl PacketReader {
     }
 
     // 4th Level
-    pub async fn read_packet(&mut self) -> Result<Packet, NetworkError> {
+    pub async fn read_packet(&mut self) -> Result<Packet, IOError> {
         let header: [u8; HEADER_SIZE as usize] = self.read_header().await?;
         let packet = self.read_payload(&header).await?;
         Ok(packet)

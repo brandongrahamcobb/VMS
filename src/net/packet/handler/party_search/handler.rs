@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::party_search::error::PartySearchError;
 use crate::net::packet::handler::party_search::reader::PartySearchReader;
 use crate::net::packet::handler::party_search::store::PartySearchStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -37,7 +37,7 @@ impl PartySearchHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, PartySearchError> {
         let reader: PartySearchReader = PartySearchReader::read_party_search_packet(packet)?;
         let store: PartySearchStore =
             PartySearchStore::store_party_search(state, session, reader.clone())?;
@@ -48,7 +48,7 @@ impl PartySearchHandler {
     fn build_party_search_result(
         &self,
         store: PartySearchStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, PartySearchError> {
         // Not implemented
         std::hint::black_box(store);
         let result: HandlerResult = HandlerResult::new();

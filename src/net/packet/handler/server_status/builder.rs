@@ -17,8 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
-
+use crate::net::packet::handler::server_status::error::ServerStatusError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
@@ -28,7 +27,7 @@ impl Packet {
     pub fn build_server_status_packet(
         &mut self,
         status: i16,
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, ServerStatusError> {
         let op = SendOpcode::ServerStatus as i16;
         self.write_short(op).map_err(WriteError)?;
         let status = status as i16;

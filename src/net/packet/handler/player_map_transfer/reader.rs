@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::player_map_transfer::error::PlayerMapTransferError;
 use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::model::Packet;
 use crate::prelude::*;
@@ -27,7 +27,9 @@ use std::io::Cursor;
 pub struct PlayerMapTransferReader;
 
 impl PlayerMapTransferReader {
-    pub fn read_player_map_transfer_packet(packet: &Packet) -> Result<Self, NetworkError> {
+    pub fn read_player_map_transfer_packet(
+        packet: &Packet,
+    ) -> Result<Self, PlayerMapTransferError> {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let _op = pkt_reader.read_short().map_err(ReadError)?;
         Ok(Self)

@@ -18,7 +18,7 @@
  */
 
 use crate::net::action::Action;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::list_worlds::error::ListWorldsError;
 use crate::net::packet::handler::list_worlds::reader::ListWorldsReader;
 use crate::net::packet::handler::list_worlds::store::ListWorldsStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -39,7 +39,7 @@ impl ListWorldsHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, ListWorldsError> {
         let reader: ListWorldsReader = ListWorldsReader::read_list_worlds_packet(packet)?;
         let store: ListWorldsStore =
             ListWorldsStore::store_list_worlds(state, session, reader.clone()).await?;
@@ -50,7 +50,7 @@ impl ListWorldsHandler {
     fn build_list_worlds_result(
         &self,
         store: ListWorldsStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, ListWorldsError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_list_worlds_handler_servers_packet(store.worlds.clone())?
@@ -58,21 +58,21 @@ impl ListWorldsHandler {
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
-        })?;
+        });
         let packet: Packet = Packet::new_empty()
             .build_list_worlds_handler_last_connected_world_packet()?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
-        })?;
+        });
         let packet: Packet = Packet::new_empty()
             .build_list_worlds_handler_recommended_worlds_packet(store.worlds.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
-        })?;
+        });
         Ok(result)
     }
 }

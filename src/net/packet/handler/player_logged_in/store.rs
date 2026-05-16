@@ -17,17 +17,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-use std::time::SystemTime;
-
+use crate::models::character;
 use crate::models::character::wrapper::Character;
 use crate::models::keybinding::model::{KeybindType, KeybindingModel};
 use crate::models::keybinding::wrapper::Keybinding;
-use crate::models::map::wrapper::Map;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::player_logged_in::error::PlayerLoggedInError;
 use crate::net::packet::handler::player_logged_in::reader::PlayerLoggedInReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
+use std::collections::HashMap;
+use std::time::SystemTime;
 
 #[derive(Clone)]
 pub struct PlayerLoggedInStore {
@@ -43,11 +42,17 @@ impl PlayerLoggedInStore {
         state: &SharedState,
         session: Session,
         _reader: PlayerLoggedInReader,
-    ) -> Result<Self, NetworkError> {
-        let channel_id: u8 = session.get_channel_id()?;
+    ) -> Result<Self, PlayerLoggedInError> {
         let char_id: i32 = session.get_char_id()?;
-        let char: Character = session.get_char(state).await?;
-        let map: Map = session.get_map(state).await?;
+        let char: Character = character::service::get_char_by_id(state, char_id).await?;
+        let world_id: i16 = session.get_world_id()?;
+        let channel_id: u8 = session.get_channel_id()?;
+        let map = {
+            let state = state.lock().await;
+            state
+                .get_map(world_id, channel_id, char.model.map_wz)
+                .await?
+        };
         let after_players: HashMap<i32, Character> = map.chars;
         let binds: HashMap<i32, Keybinding> = (0..90)
             .map(|key| {
@@ -64,7 +69,7 @@ impl PlayerLoggedInStore {
                     .load()?,
                 ))
             })
-            .collect::<Result<HashMap<i32, Keybinding>, NetworkError>>()?;
+            .collect::<Result<HashMap<i32, Keybinding>, PlayerLoggedInError>>()?;
         Ok(Self {
             after_players,
             binds,

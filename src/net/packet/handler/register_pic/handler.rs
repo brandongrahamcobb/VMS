@@ -18,7 +18,7 @@
  */
 
 use crate::net::action::{Action, SetAction};
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::register_pic::error::RegisterPicError;
 use crate::net::packet::handler::register_pic::reader::RegisterPicReader;
 use crate::net::packet::handler::register_pic::store::RegisterPicStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -39,7 +39,7 @@ impl RegisterPicHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, RegisterPicError> {
         let reader: RegisterPicReader = RegisterPicReader::read_register_pic_packet(packet)?;
         let store: RegisterPicStore =
             RegisterPicStore::store_register_pic(state, session.clone(), reader.clone()).await?;
@@ -50,18 +50,18 @@ impl RegisterPicHandler {
     fn build_register_pic_result(
         &self,
         store: RegisterPicStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, RegisterPicError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_select_char_packet(store.char_id, store.octets, store.port)?
             .finish();
         result.add_action(Action::Set(SetAction::SetChar {
             char_id: store.char_id,
-        }))?;
+        }));
         result.add_action(Action::Break {
             packet: packet.clone(),
             scope: Scope::Local,
-        })?;
+        });
         Ok(result)
     }
 }

@@ -17,8 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
-
+use crate::net::packet::handler::check_char_name::error::CheckCharNameError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
@@ -29,7 +28,7 @@ impl Packet {
         &mut self,
         exists: bool,
         ign: String,
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, CheckCharNameError> {
         let op = SendOpcode::CharNameResponse as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_str_with_length(ign).map_err(WriteError)?;

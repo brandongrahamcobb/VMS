@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::chat_text::error::ChatTextError;
 use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::model::Packet;
 use crate::prelude::*;
@@ -31,7 +31,7 @@ pub struct ChatTextReader {
 }
 
 impl ChatTextReader {
-    pub fn read_chat_text_packet(packet: &Packet) -> Result<Self, NetworkError> {
+    pub fn read_chat_text_packet(packet: &Packet) -> Result<Self, ChatTextError> {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let _op = pkt_reader.read_short().map_err(ReadError)?;
         let msg = pkt_reader.read_str_with_length().map_err(ReadError)?;

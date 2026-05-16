@@ -17,11 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-
 use crate::models::character::wrapper::Character;
-use crate::models::item::wrapper::Item;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::list_chars::error::ListCharsError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
@@ -34,7 +31,7 @@ impl Packet {
         channel_id: u8,
         char_slots: i16,
         pic_status: i16,
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, ListCharsError> {
         let op = SendOpcode::CharList as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_byte(channel_id as i16).map_err(WriteError)?;
@@ -47,114 +44,12 @@ impl Packet {
         Ok(self)
     }
 
-    pub fn build_look_cash_equipment_part_packet(
-        &mut self,
-        char: Character,
-    ) -> Result<&mut Self, NetworkError> {
-        let equipped: HashMap<i16, Item> = char.inventory.equipped_tab;
-        for (ipos, equip) in equipped {
-            match equip {
-                Item::CashEquip(i) => {
-                    self.write_byte(ipos).map_err(WriteError)?;
-                    self.write_int(i.model.wz).map_err(WriteError)?;
-                }
-                _ => (),
-            }
-        }
-        Ok(self)
-    }
-
-    pub fn build_look_regular_equipment_part_packet(
-        &mut self,
-        char: Character,
-    ) -> Result<&mut Self, NetworkError> {
-        let equipped: HashMap<i16, Item> = char.inventory.equipped_tab;
-        for (ipos, equip) in equipped {
-            match equip {
-                Item::Equip(i) => {
-                    self.write_byte(ipos).map_err(WriteError)?;
-                    self.write_int(i.model.wz).map_err(WriteError)?;
-                }
-                _ => (),
-            }
-        }
-        Ok(self)
-    }
-
-    fn build_look_part_packet(&mut self, char: Character) -> Result<&mut Self, NetworkError> {
+    fn build_look_part_packet(&mut self, char: Character) -> Result<&mut Self, ListCharsError> {
         self.build_list_char_meta_part_packet(char.clone())?;
         self.build_look_meta_part_packet(char.clone())?;
         self.write_byte(0).map_err(WriteError)?;
         // Disable rank.
         self.write_byte(0).map_err(WriteError)?;
-        Ok(self)
-    }
-
-    pub fn build_list_char_meta_part_packet(
-        &mut self,
-        char: Character,
-    ) -> Result<&mut Self, NetworkError> {
-        self.write_int(char.model.get_id()?).map_err(WriteError)?;
-        self.write_str(char.model.ign.clone()).map_err(WriteError)?;
-        self.write_bytes(vec![0u8; 13 - char.model.ign.len()])
-            .map_err(WriteError)?;
-        self.write_byte(char.model.gender_wz as i16)
-            .map_err(WriteError)?;
-        self.write_byte(char.model.skin_wz as i16)
-            .map_err(WriteError)?;
-        self.write_int(char.model.face_wz).map_err(WriteError)?;
-        self.write_int(char.model.hair_wz).map_err(WriteError)?;
-        // Pets... Not implemented yet
-        self.write_long(0).map_err(WriteError)?;
-        self.write_long(0).map_err(WriteError)?;
-        self.write_long(0).map_err(WriteError)?;
-        self.write_byte(char.model.level as i16)
-            .map_err(WriteError)?;
-        self.write_short(char.model.job_wz).map_err(WriteError)?;
-        self.write_short(char.model.strength).map_err(WriteError)?;
-        self.write_short(char.model.dexterity).map_err(WriteError)?;
-        self.write_short(char.model.intelligence)
-            .map_err(WriteError)?;
-        self.write_short(char.model.luck).map_err(WriteError)?;
-        self.write_short(char.model.hp).map_err(WriteError)?;
-        self.write_short(char.model.max_hp).map_err(WriteError)?;
-        self.write_short(char.model.mp).map_err(WriteError)?;
-        self.write_short(char.model.max_mp).map_err(WriteError)?;
-        self.write_short(char.model.ap).map_err(WriteError)?;
-        // SP
-        self.write_short(0).map_err(WriteError)?;
-        self.write_int(char.model.exp).map_err(WriteError)?;
-        self.write_short(char.model.fame).map_err(WriteError)?;
-        // Gach xp?
-        self.write_int(0).map_err(WriteError)?;
-        self.write_int(char.model.map_wz).map_err(WriteError)?;
-        self.write_byte(0).map_err(WriteError)?;
-        self.write_int(0).map_err(WriteError)?;
-        Ok(self)
-    }
-
-    pub fn build_look_meta_part_packet(
-        &mut self,
-        char: Character,
-    ) -> Result<&mut Self, NetworkError> {
-        self.write_byte(char.model.gender_wz as i16)
-            .map_err(WriteError)?;
-        self.write_byte(char.model.skin_wz as i16)
-            .map_err(WriteError)?;
-        self.write_int(char.model.face_wz).map_err(WriteError)?;
-        self.write_byte(0) // megaphone
-            .map_err(WriteError)?;
-        self.write_int(char.model.hair_wz).map_err(WriteError)?;
-        self.build_look_regular_equipment_part_packet(char.clone())?;
-        self.write_byte(0xFF).map_err(WriteError)?;
-        self.build_look_cash_equipment_part_packet(char.clone())?;
-        self.write_byte(0xFF).map_err(WriteError)?;
-        self.write_int(0) //maskedequips -111
-            .map_err(WriteError)?;
-        // Pet stuff...
-        self.write_int(0).map_err(WriteError)?;
-        self.write_int(0).map_err(WriteError)?;
-        self.write_int(0).map_err(WriteError)?;
         Ok(self)
     }
 }

@@ -18,7 +18,7 @@
  */
 
 use crate::net::action::{Action, SetAction};
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::enter_cash_shop::error::EnterCashShopError;
 use crate::net::packet::handler::enter_cash_shop::reader::EnterCashShopReader;
 use crate::net::packet::handler::enter_cash_shop::store::EnterCashShopStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -39,7 +39,7 @@ impl EnterCashShopHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, EnterCashShopError> {
         let reader: EnterCashShopReader = EnterCashShopReader::read_enter_cash_shop_packet(packet)?;
         let store: EnterCashShopStore =
             EnterCashShopStore::store_enter_cash_shop(state, session.clone(), reader).await?;
@@ -50,26 +50,26 @@ impl EnterCashShopHandler {
     fn build_enter_cash_shop_result(
         &self,
         store: EnterCashShopStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, EnterCashShopError> {
         let mut result: HandlerResult = HandlerResult::new();
         result.add_action(Action::Set(SetAction::SetMap {
             map_wz: store.map_wz,
             scope: Scope::Local,
-        }))?;
+        }));
         let packet: Packet = Packet::new_empty()
             .build_enter_cash_shop_packet(store.username.clone(), store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
-        })?;
+        });
         let packet: Packet = Packet::new_empty()
             .build_despawn_player_packet(store.char.clone())?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Map(MapScope::SameChannelSameWorld),
-        })?;
+        });
         Ok(result)
     }
 }

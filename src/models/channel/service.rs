@@ -17,18 +17,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-
 use crate::config::settings;
+use crate::models::channel::error::ChannelError;
 use crate::models::channel::model::ChannelModel;
 use crate::models::channel::wrapper::Channel;
-use crate::models::error::ModelError;
+use std::collections::HashMap;
 
 pub fn load_channels(
     count: i8,
     world_id: i16,
     base_port: i16,
-) -> Result<HashMap<u8, Channel>, ModelError> {
+) -> Result<HashMap<u8, Channel>, ChannelError> {
     (0..count)
         .map(|id| {
             let port = base_port + (world_id as i16 * count as i16) + id as i16;

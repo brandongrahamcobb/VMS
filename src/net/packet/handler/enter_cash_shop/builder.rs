@@ -18,7 +18,7 @@
  */
 
 use crate::models::character::wrapper::Character;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::enter_cash_shop::error::EnterCashShopError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
@@ -29,7 +29,7 @@ impl Packet {
         &mut self,
         username: String,
         char: Character,
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, EnterCashShopError> {
         let op = SendOpcode::SetCashShop as i16;
         self.write_short(op).map_err(WriteError)?;
         // Timestamp / Session Dummy value
@@ -41,7 +41,7 @@ impl Packet {
         Ok(self)
     }
 
-    fn build_cash_shop_meta(&mut self, username: String) -> Result<&mut Self, NetworkError> {
+    fn build_cash_shop_meta(&mut self, username: String) -> Result<&mut Self, EnterCashShopError> {
         // Dummy values
         // Not MTS
         self.write_byte(0).map_err(WriteError)?;

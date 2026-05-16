@@ -18,7 +18,7 @@
  */
 
 use crate::net::action::Action;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::create_char::error::CreateCharError;
 use crate::net::packet::handler::create_char::reader::CreateCharReader;
 use crate::net::packet::handler::create_char::store::CreateCharStore;
 use crate::net::packet::handler::result::HandlerResult;
@@ -39,7 +39,7 @@ impl CreateCharHandler {
         state: &SharedState,
         session: Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, CreateCharError> {
         let reader: CreateCharReader = CreateCharReader::read_create_character_packet(packet)?;
         let store: CreateCharStore =
             CreateCharStore::store_create_char(state, session.clone(), reader.clone()).await?;
@@ -50,7 +50,7 @@ impl CreateCharHandler {
     fn build_create_char_result(
         &self,
         store: CreateCharStore,
-    ) -> Result<HandlerResult, NetworkError> {
+    ) -> Result<HandlerResult, CreateCharError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_create_char_packet(store.char.clone())?
@@ -58,7 +58,7 @@ impl CreateCharHandler {
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Local,
-        })?;
+        });
         Ok(result)
     }
 }

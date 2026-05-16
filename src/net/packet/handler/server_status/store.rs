@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::server_status::error::ServerStatusError;
 use crate::net::packet::handler::server_status::reader::ServerStatusReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -32,12 +32,12 @@ impl ServerStatusStore {
         state: &SharedState,
         session: Session,
         reader: ServerStatusReader,
-    ) -> Result<Self, NetworkError> {
+    ) -> Result<Self, ServerStatusError> {
         std::hint::black_box(session);
         std::hint::black_box(reader.clone());
         let worlds = {
             let state = state.lock().await;
-            state.worlds.read().expect("poisoned").clone()
+            state.worlds.read().await.clone()
         };
         let status: i16 = if worlds.values().any(|world| !world.channels.is_empty()) {
             0

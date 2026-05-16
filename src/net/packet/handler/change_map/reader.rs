@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::change_map::error::ChangeMapError;
 use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::model::Packet;
 use crate::prelude::*;
@@ -32,7 +32,7 @@ pub struct ChangeMapReader {
 }
 
 impl ChangeMapReader {
-    pub fn read_change_map_packet(packet: &Packet) -> Result<Self, NetworkError> {
+    pub fn read_change_map_packet(packet: &Packet) -> Result<Self, ChangeMapError> {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let _op = pkt_reader.read_short().map_err(ReadError)?;
         let died: i16 = pkt_reader.read_byte().map_err(ReadError)? as i16;

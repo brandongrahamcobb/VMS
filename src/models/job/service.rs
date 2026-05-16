@@ -17,14 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::{
-    models::{
-        character,
-        error::ModelError,
-        job::{model::JobModel, wrapper::Job},
-    },
-    runtime::state::SharedState,
-};
+use crate::db::error::DatabaseError;
+use crate::models::character;
+use crate::models::job::error::JobError;
+use crate::models::job::model::JobModel;
+use crate::models::job::wrapper::Job;
+use crate::runtime::state::SharedState;
 
 pub fn job_index_to_id(index: i16) -> i32 {
     let beginner: i32 = 0;
@@ -38,8 +36,10 @@ pub fn job_index_to_id(index: i16) -> i32 {
     }
 }
 
-pub async fn load_job(state: &SharedState, char_id: i32) -> Result<Job, ModelError> {
-    let char_model = character::query::getters::get_char_model_by_id(state, char_id).await?;
+pub async fn load_job(state: &SharedState, char_id: i32) -> Result<Job, JobError> {
+    let char_model = character::query::getters::get_char_model_by_id(state, char_id)
+        .await
+        .map_err(|e| DatabaseError::DieselError(e))?;
     let job_model = JobModel {
         wz: char_model.job_wz,
     };

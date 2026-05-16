@@ -16,7 +16,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::models::error::ModelError;
+
+use crate::db::error::DatabaseError;
 use crate::models::item;
 use crate::models::item::cash_nonequip_model::CashNonEquipItemModel;
 use crate::models::item::constants::InventoryTab;
@@ -82,7 +83,7 @@ pub struct UseItem {
 }
 
 impl Item {
-    pub fn get_ipos(&self) -> Result<i16, ModelError> {
+    pub fn get_ipos(&self) -> Result<i16, ItemError> {
         match self {
             Item::Equip(i) => i.model.get_ipos(),
             Item::CashEquip(i) => i.model.get_ipos(),
@@ -95,19 +96,25 @@ impl Item {
 }
 
 impl Inventory {
-    pub async fn equip(&mut self, state: &SharedState, item: Item) -> Result<(), ModelError> {
+    pub async fn equip(&mut self, state: &SharedState, item: Item) -> Result<(), ItemError> {
         match item.clone() {
             Item::Equip(mut i) => {
                 self.equip_tab.remove(&item.get_ipos()?);
                 i.model.ipos = Some(item::service::get_equip_ipos_by_wz(i.model.wz)?);
-                i.model.update_item(state).await?;
+                i.model
+                    .update_item(state)
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
                 self.equipped_tab.insert(i.model.ipos.unwrap(), item);
                 Ok(())
             }
             Item::CashEquip(mut i) => {
                 self.equip_tab.remove(&item.get_ipos()?);
                 i.model.ipos = Some(item::service::get_equip_ipos_by_wz(i.model.wz)?);
-                i.model.update_item(state).await?;
+                i.model
+                    .update_item(state)
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
                 self.equipped_tab.insert(i.model.ipos.unwrap(), item);
                 Ok(())
             }
@@ -115,33 +122,42 @@ impl Inventory {
         }
     }
 
-    pub async fn unequip(&mut self, state: &SharedState, item: Item) -> Result<(), ModelError> {
+    pub async fn unequip(&mut self, state: &SharedState, item: Item) -> Result<(), ItemError> {
         match item {
             Item::Equip(mut i) => {
                 let inventory_tab: InventoryTab =
                     item::service::get_inventory_tab_by_wz(i.model.wz)?;
                 i.model.ipos = self.next_free_pos(&inventory_tab);
-                i.model.update_item(state).await?;
+                i.model
+                    .update_item(state)
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
                 Ok(())
             }
             Item::CashEquip(mut i) => {
                 let inventory_tab: InventoryTab =
                     item::service::get_inventory_tab_by_wz(i.model.wz)?;
                 i.model.ipos = self.next_free_pos(&inventory_tab);
-                i.model.update_item(state).await?;
+                i.model
+                    .update_item(state)
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
                 Ok(())
             }
             _ => Ok(()),
         }
     }
 
-    pub async fn pick_up(&mut self, state: &SharedState, item: Item) -> Result<Item, ModelError> {
+    pub async fn pick_up(&mut self, state: &SharedState, item: Item) -> Result<Item, ItemError> {
         match item {
             Item::Equip(mut i) => {
                 let inventory_tab: InventoryTab =
                     item::service::get_inventory_tab_by_wz(i.model.wz)?;
                 i.model.ipos = self.next_free_pos(&inventory_tab);
-                i.model.update_item(state).await?;
+                i.model
+                    .update_item(state)
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
                 if let Some(pos) = i.model.ipos {
                     self.equip_tab.insert(pos, Item::Equip(i.clone()));
                 }
@@ -151,7 +167,10 @@ impl Inventory {
                 let inventory_tab: InventoryTab =
                     item::service::get_inventory_tab_by_wz(i.model.wz)?;
                 i.model.ipos = self.next_free_pos(&inventory_tab);
-                i.model.update_item(state).await?;
+                i.model
+                    .update_item(state)
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
                 if let Some(pos) = i.model.ipos {
                     self.etc_tab.insert(pos, Item::Etc(i.clone()));
                 }
@@ -161,7 +180,10 @@ impl Inventory {
                 let inventory_tab: InventoryTab =
                     item::service::get_inventory_tab_by_wz(i.model.wz)?;
                 i.model.ipos = self.next_free_pos(&inventory_tab);
-                i.model.update_item(state).await?;
+                i.model
+                    .update_item(state)
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
                 if let Some(pos) = i.model.ipos {
                     self.equip_tab.insert(pos, Item::CashEquip(i.clone()));
                 }
@@ -171,7 +193,10 @@ impl Inventory {
                 let inventory_tab: InventoryTab =
                     item::service::get_inventory_tab_by_wz(i.model.wz)?;
                 i.model.ipos = self.next_free_pos(&inventory_tab);
-                i.model.update_item(state).await?;
+                i.model
+                    .update_item(state)
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
                 if let Some(pos) = i.model.ipos {
                     self.setup_tab.insert(pos, Item::Setup(i.clone()));
                 }
@@ -181,13 +206,16 @@ impl Inventory {
                 let inventory_tab: InventoryTab =
                     item::service::get_inventory_tab_by_wz(i.model.wz)?;
                 i.model.ipos = self.next_free_pos(&inventory_tab);
-                i.model.update_item(state).await?;
+                i.model
+                    .update_item(state)
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
                 if let Some(pos) = i.model.ipos {
                     self.use_tab.insert(pos, Item::Use(i.clone()));
                 }
                 Ok(Item::Use(i.clone()))
             }
-            _ => Err(ModelError::from(ItemError::TabError)),
+            _ => Err(ItemError::TabError),
         }
     }
 

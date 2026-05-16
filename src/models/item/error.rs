@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::db::error::DatabaseError;
+use crate::metadata::error::MetadataError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -35,4 +37,10 @@ pub enum ItemError {
 
     #[error("No cash field found in item model layer")]
     InvalidCash,
+
+    #[error("Database error in item model layer")]
+    DatabaseError(#[from] DatabaseError),
+
+    #[error("Metadata error in item model layer")]
+    MetadataError(#[from] MetadataError),
 }

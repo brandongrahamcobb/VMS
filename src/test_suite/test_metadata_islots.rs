@@ -14,11 +14,11 @@ mod tests {
         let filenames: Vec<&str> = vec![
             // "Base.wz",
             // "Effect.wz",
-            "Item.wz",
+            // "Item.wz",
             // "Map.wz",
             // "Morph.wz",
             // "Quest.wz",
-            // "Skill.wz",
+            "Skill.wz",
             // "String.wz",
             // "UI.wz",
             // "Character.wz",
@@ -30,27 +30,24 @@ mod tests {
             // "Sound.wz",
             // "TamingMob.wz",
         ];
-        let mut islots: HashMap<i32, String> = HashMap::new();
         for filename in filenames {
-            for wz in (5200000..=5200000).step_by(1) {
-                let wz_cat = wz / 10000;
-                // match metadata::service::wz_debug_dir(filename, "Cash") {
-                match metadata::service::wz_to_tree(wz_cat, &filename) {
-                    Ok(json) => {
-                        // let item_key = format!("{:08}", wz);
-                        println!("{}", serde_json::to_string_pretty(&json).unwrap());
-                        // if let Some(info) = &json["info"].as_str() {
-                        //     dbg!(&info);
-                        // }
-                        // if let Some(islot) = json["info"]["islot"].as_str() {
-                        //     islots.insert(wz, islot.to_string());
-                        // }
-                    }
-                    Err(_) => (),
+            // for wz in (..=5200000).step_by(1) {
+            //     let wz_cat = wz / 10000;
+            // match metadata::service::wz_debug_dir(filename, "Cash") {
+            match metadata::service::wz_debug_dir(&filename, "") {
+                Ok(json) => {
+                    // let item_key = format!("{:08}", wz);
+                    println!("{}", serde_json::to_string_pretty(&json).unwrap());
+                    // if let Some(info) = &json["info"].as_str() {
+                    //     dbg!(&info);
+                    // }
+                    // if let Some(islot) = json["info"]["islot"].as_str() {
+                    //     islots.insert(wz, islot.to_string());
+                    // }
                 }
+                Err(_) => (),
             }
         }
-        dbg!(islots);
         Ok(())
     }
 }

@@ -61,24 +61,37 @@ impl LoginServer {
                             Ok(runtime) => match runtime.run().await {
                                 Ok(Some((mut runtime, mut packet))) => {
                                     let id = runtime.relay.session_id;
-                                    let session = {
+                                    let port = {
                                         let state = state.lock().await;
                                         let Some(session) = state.sessions.get(id) else {
-                                            info!("Expected a valid session. Session ID: {}", id);
+                                            info!(
+                                                "Expected a valid login session for transitioning to player server. Session ID: {}",
+                                                id
+                                            );
                                             return;
                                         };
-                                        session
-                                    };
-                                    let port = {
-                                        let channel = match session.get_channel(&state).await {
-                                            Ok(channel) => channel,
-                                            Err(e) => {
-                                                info!(
-                                                    "Failed to get active channel for session: {:?}",
-                                                    e
-                                                );
-                                                return;
-                                            }
+                                        let Ok(world_id) = session.get_world_id() else {
+                                            info!(
+                                                "Expected a login session world ID for transitioning to player server. Session ID: {}",
+                                                id
+                                            );
+                                            return;
+                                        };
+                                        let Ok(channel_id) = session.get_channel_id() else {
+                                            info!(
+                                                "Expected a login session channel ID for transitioning to player server. Session ID: {}",
+                                                id
+                                            );
+                                            return;
+                                        };
+                                        let Ok(channel) =
+                                            state.get_channel(world_id, channel_id).await
+                                        else {
+                                            info!(
+                                                "Expected a game state world and channel for transitioning to player server. Session ID: {}",
+                                                id
+                                            );
+                                            return;
                                         };
                                         channel.model.port
                                     };
@@ -162,24 +175,34 @@ impl PlayerServer {
                             Ok(runtime) => match runtime.run().await {
                                 Ok(Some((mut runtime, mut packet))) => {
                                     let id = runtime.relay.session_id;
-                                    let session = {
+                                    let port = {
                                         let state = state.lock().await;
                                         let Some(session) = state.sessions.get(id) else {
                                             info!("Expected a valid session. Session ID: {}", id);
                                             return;
                                         };
-                                        session
-                                    };
-                                    let port = {
-                                        let channel = match session.get_channel(&state).await {
-                                            Ok(channel) => channel,
-                                            Err(e) => {
-                                                info!(
-                                                    "Failed to get active channel for session: {:?}",
-                                                    e
-                                                );
-                                                return;
-                                            }
+                                        let Ok(world_id) = session.get_world_id() else {
+                                            info!(
+                                                "Expected a player session world ID for transitioning between player servers. Session ID: {}",
+                                                id
+                                            );
+                                            return;
+                                        };
+                                        let Ok(channel_id) = session.get_channel_id() else {
+                                            info!(
+                                                "Expected a player session channel ID for transitioning between player servers. Session ID: {}",
+                                                id
+                                            );
+                                            return;
+                                        };
+                                        let Ok(channel) =
+                                            state.get_channel(world_id, channel_id).await
+                                        else {
+                                            info!(
+                                                "Expected a game state world and channel for transitioning between player servers. Session ID: {}",
+                                                id
+                                            );
+                                            return;
                                         };
                                         channel.model.port
                                     };

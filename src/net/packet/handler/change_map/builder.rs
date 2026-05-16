@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::change_map::error::ChangeMapError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
@@ -29,7 +29,7 @@ impl Packet {
         channel_id: u8,
         map_wz: i32,
         pid: u8,
-    ) -> Result<&mut Self, NetworkError> {
+    ) -> Result<&mut Self, ChangeMapError> {
         let op = SendOpcode::SetField as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_int(channel_id as i32).map_err(WriteError)?;

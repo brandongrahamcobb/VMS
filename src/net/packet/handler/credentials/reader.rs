@@ -18,7 +18,7 @@
  */
 
 use crate::inc::helpers;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::credentials::error::CredentialsError;
 use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::model::Packet;
 use crate::prelude::*;
@@ -32,7 +32,7 @@ pub struct CredentialsReader {
 }
 
 impl CredentialsReader {
-    pub fn read_credentials_packet(packet: &Packet) -> Result<Self, NetworkError> {
+    pub fn read_credentials_packet(packet: &Packet) -> Result<Self, CredentialsError> {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let _op = pkt_reader.read_short().map_err(ReadError)?;
         let username = pkt_reader.read_str_with_length().map_err(ReadError)?;

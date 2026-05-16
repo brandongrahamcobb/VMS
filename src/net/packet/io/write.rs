@@ -18,7 +18,7 @@
  */
 
 use crate::config::settings;
-use crate::net::error::NetworkError;
+use crate::net::packet::io::error::IOError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
@@ -37,14 +37,14 @@ pub struct PacketWriter {
 }
 
 impl PacketWriter {
-    pub async fn new(write_half: OwnedWriteHalf, send_iv: &[u8]) -> Result<Self, NetworkError> {
+    pub async fn new(write_half: OwnedWriteHalf, send_iv: &[u8]) -> Result<Self, IOError> {
         Ok(Self {
             pkt_writer: BufWriter::new(write_half),
             aes: AES::new(&send_iv.to_vec(), settings::get_version()?),
         })
     }
 
-    pub async fn send_unencrypted_packet(&mut self, packet: &Packet) -> Result<(), NetworkError> {
+    pub async fn send_unencrypted_packet(&mut self, packet: &Packet) -> Result<(), IOError> {
         self.pkt_writer
             .write_all(&packet.bytes)
             .await
@@ -53,7 +53,7 @@ impl PacketWriter {
         Ok(())
     }
 
-    pub async fn send_encrypted_packet(&mut self, packet: &mut Packet) -> Result<(), NetworkError> {
+    pub async fn send_encrypted_packet(&mut self, packet: &mut Packet) -> Result<(), IOError> {
         let opcode = packet.opcode();
         let en = SendOpcode::from_i16(opcode).unwrap();
         debug!("Sent opcode: {} (0x{:02X}) ({:?})", opcode, opcode, en);

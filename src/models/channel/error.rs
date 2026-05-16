@@ -17,13 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::config::error::ConfigError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum ChannelError {
-    #[error("Requested channel was not found in channel model layer: {0}")]
-    NotFound(u8),
-
-    #[error("No capacity in channel model layer: {0}")]
-    NoCapacity(u8),
+    #[error("Config error in world model layer")]
+    ConfigError(#[from] ConfigError),
 }

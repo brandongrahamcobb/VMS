@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::close_attack::error::CloseAttackError;
 use crate::net::packet::io::error::IOError::ReadError;
 use crate::net::packet::model::Packet;
 use crate::prelude::*;
@@ -37,7 +37,7 @@ pub struct CloseAttackReader {
 }
 
 impl CloseAttackReader {
-    pub fn read_close_attack_packet(packet: &Packet) -> Result<Self, NetworkError> {
+    pub fn read_close_attack_packet(packet: &Packet) -> Result<Self, CloseAttackError> {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let skip = 1;
         pkt_reader.read_bytes(skip).map_err(ReadError)?;

@@ -17,8 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::db::error::DatabaseError;
 use crate::models::skill;
-use crate::net::error::NetworkError;
+use crate::net::packet::handler::close_attack::error::CloseAttackError;
 use crate::net::packet::handler::close_attack::reader::CloseAttackReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -42,14 +43,15 @@ impl CloseAttackStore {
         state: &SharedState,
         session: Session,
         reader: CloseAttackReader,
-    ) -> Result<Self, NetworkError> {
+    ) -> Result<Self, CloseAttackError> {
         let char_id: i32 = session.get_char_id()?;
         let skill_model = skill::query::getters::get_skill_model_by_character_id_and_skill_id(
             state,
             char_id,
             reader.skill_id,
         )
-        .await?;
+        .await
+        .map_err(|e| DatabaseError::DieselError(e))?;
         return Ok(Self {
             char_id,
             skill_level: skill_model.level,
