@@ -34,7 +34,7 @@ impl Packet {
         let op = SendOpcode::KeyMap as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
-        let keybindings: Vec<&Keybinding> = binds.values().collect();
+        let keybindings: Vec<&Keybinding> = (0..90).filter_map(|key| binds.get(&key)).collect();
         for bind in keybindings {
             self.write_byte(bind.model.bind_type as i16)
                 .map_err(WriteError)?;

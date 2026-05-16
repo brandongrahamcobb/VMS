@@ -42,9 +42,9 @@ impl PlayerLoggedInStore {
         _reader: &PlayerLoggedInReader,
     ) -> Result<Self, PlayerLoggedInError> {
         let char_id: i32 = session.get_char_id()?;
-        let char: Character = character::service::get_char_by_id(state, char_id).await?;
+        let mut char: Character = character::service::get_char_by_id(state, char_id).await?;
         let channel_id: u8 = session.get_channel_id()?;
-        let binds: HashMap<i32, Keybinding> = (0..90)
+        let mut binds: HashMap<i32, Keybinding> = (0..90)
             .map(|key| {
                 Ok((
                     key,
@@ -60,6 +60,9 @@ impl PlayerLoggedInStore {
                 ))
             })
             .collect::<Result<HashMap<i32, Keybinding>, PlayerLoggedInError>>()?;
+        for (key, bind) in char.binds.drain() {
+            binds.insert(key, bind);
+        }
         let map_wz = char.model.map_wz;
         Ok(Self {
             binds,
