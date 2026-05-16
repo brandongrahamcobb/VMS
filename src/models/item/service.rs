@@ -88,15 +88,15 @@ pub fn get_equip_ipos_by_wz(wz: i32) -> Result<i16, ItemError> {
         .as_i64()
         .ok_or(ItemError::InvalidCash)?;
     if cash == 0 {
-        return CASH_EQUIP_SLOTS
+        return OTHER_EQUIP_SLOTS
             .iter()
+            .flat_map(|group| group.iter())
             .find(|slot| slot.islot == islot)
             .map(|slot| slot.key)
             .ok_or(ItemError::InvalidISlot);
     } else {
-        return OTHER_EQUIP_SLOTS
+        return CASH_EQUIP_SLOTS
             .iter()
-            .flat_map(|group| group.iter())
             .find(|slot| slot.islot == islot)
             .map(|slot| slot.key)
             .ok_or(ItemError::InvalidISlot);
@@ -219,7 +219,7 @@ pub async fn create_item(state: &SharedState, wz: i32) -> Result<Item, ItemError
                 .update_item(state)
                 .await
                 .map_err(|e| DatabaseError::DieselError(e))?;
-            if json["info"]["cash"] != 0 {
+            if json["info"]["cash"] == 0 {
                 Item::Equip(item_model.load())
             } else {
                 Item::CashEquip(item_model.load())
@@ -247,7 +247,7 @@ async fn get_equipped_items_by_char_id(
             let equip_item = equip_item_model.load();
             let filename: String = String::from("Character.wz");
             let json = metadata::service::wz_to_img(equip_item_model.wz, &filename)?;
-            if json["info"]["cash"] != 0 {
+            if json["info"]["cash"] == 0 {
                 equipped_items.push(Item::Equip(equip_item));
             } else {
                 equipped_items.push(Item::CashEquip(equip_item));
@@ -270,7 +270,7 @@ async fn get_equip_items_by_char_id(
             let equip_item = equip_item_model.load();
             let filename: String = String::from("Character.wz");
             let json = metadata::service::wz_to_img(equip_item_model.wz, &filename)?;
-            if json["info"]["cash"] != 0 {
+            if json["info"]["cash"] == 0 {
                 equip_items.push(Item::Equip(equip_item));
             } else {
                 equip_items.push(Item::CashEquip(equip_item));

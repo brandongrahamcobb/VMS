@@ -145,13 +145,19 @@ impl Inventory {
         }
     }
 
-    pub async fn pick_up(&mut self, state: &SharedState, item: Item) -> Result<i16, ItemError> {
+    pub async fn pick_up(
+        &mut self,
+        state: &SharedState,
+        char_id: i32,
+        item: Item,
+    ) -> Result<i16, ItemError> {
         match item {
             Item::Equip(mut i) => {
                 let inventory_tab: InventoryTab =
                     item::service::get_inventory_tab_by_wz(i.model.wz)?;
                 let pos = self.next_free_pos(&inventory_tab)?;
                 i.model.ipos = Some(pos);
+                i.model.char_id = Some(char_id);
                 i.model
                     .update_item(state)
                     .await
@@ -164,6 +170,7 @@ impl Inventory {
                     item::service::get_inventory_tab_by_wz(i.model.wz)?;
                 let pos = self.next_free_pos(&inventory_tab)?;
                 i.model.ipos = Some(pos);
+                i.model.char_id = Some(char_id);
                 i.model
                     .update_item(state)
                     .await
@@ -178,6 +185,7 @@ impl Inventory {
                     item::service::get_inventory_tab_by_wz(i.model.wz)?;
                 let pos = self.next_free_pos(&inventory_tab)?;
                 i.model.ipos = Some(pos);
+                i.model.char_id = Some(char_id);
                 i.model
                     .update_item(state)
                     .await
@@ -192,6 +200,7 @@ impl Inventory {
                     item::service::get_inventory_tab_by_wz(i.model.wz)?;
                 let pos = self.next_free_pos(&inventory_tab)?;
                 i.model.ipos = Some(pos);
+                i.model.char_id = Some(char_id);
                 i.model
                     .update_item(state)
                     .await
@@ -206,6 +215,7 @@ impl Inventory {
                     item::service::get_inventory_tab_by_wz(i.model.wz)?;
                 let pos = self.next_free_pos(&inventory_tab)?;
                 i.model.ipos = Some(pos);
+                i.model.char_id = Some(char_id);
                 i.model
                     .update_item(state)
                     .await

@@ -119,7 +119,7 @@ impl CreateCharStore {
         let mut inventory: Inventory = item::service::load_inventory(state, char_id).await?;
         let top = item::service::create_item(state, reader.top_wz).await?;
         let top = {
-            let pos = inventory.pick_up(state, top).await?;
+            let pos = inventory.pick_up(state, char_id, top).await?;
             inventory
                 .equip_tab
                 .remove(&pos)
@@ -128,7 +128,7 @@ impl CreateCharStore {
         inventory.equip(state, top).await?;
         let bottom = item::service::create_item(state, reader.bottom_wz).await?;
         let bottom = {
-            let pos = inventory.pick_up(state, bottom).await?;
+            let pos = inventory.pick_up(state, char_id, bottom).await?;
             inventory
                 .equip_tab
                 .remove(&pos)
@@ -137,7 +137,7 @@ impl CreateCharStore {
         inventory.equip(state, bottom).await?;
         let shoes = item::service::create_item(state, reader.shoes_wz).await?;
         let shoes = {
-            let pos = inventory.pick_up(state, shoes).await?;
+            let pos = inventory.pick_up(state, char_id, shoes).await?;
             inventory
                 .equip_tab
                 .remove(&pos)
@@ -146,7 +146,7 @@ impl CreateCharStore {
         inventory.equip(state, shoes).await?;
         let weapon = item::service::create_item(state, reader.weapon_wz).await?;
         let weapon = {
-            let pos = inventory.pick_up(state, weapon).await?;
+            let pos = inventory.pick_up(state, char_id, weapon).await?;
             inventory
                 .equip_tab
                 .remove(&pos)

@@ -139,7 +139,7 @@ impl Packet {
         for (ipos, equip) in char.inventory.equipped_tab.iter() {
             match equip {
                 Item::CashEquip(i) => {
-                    self.write_byte(*ipos).map_err(WriteError)?;
+                    self.write_byte(-*ipos).map_err(WriteError)?;
                     self.write_int(i.model.wz).map_err(WriteError)?;
                 }
                 _ => (),
@@ -155,7 +155,7 @@ impl Packet {
         for (ipos, equip) in char.inventory.equipped_tab.iter() {
             match equip {
                 Item::Equip(i) => {
-                    self.write_byte(*ipos).map_err(WriteError)?;
+                    self.write_byte(-*ipos).map_err(WriteError)?;
                     self.write_int(i.model.wz).map_err(WriteError)?;
                 }
                 _ => (),
@@ -349,7 +349,8 @@ impl Packet {
         for (ipos, equip) in char.inventory.equipped_tab.iter() {
             match equip {
                 Item::CashEquip(i) => {
-                    self.write_short(*ipos).map_err(WriteError)?;
+                    dbg!("inventory cash:", ipos);
+                    self.write_short(-*ipos).map_err(WriteError)?;
                     self.write_int(i.model.wz).map_err(WriteError)?;
                 }
                 _ => (),
@@ -365,7 +366,7 @@ impl Packet {
         for (ipos, equip) in char.inventory.equipped_tab.iter() {
             match equip {
                 Item::Equip(i) => {
-                    self.write_short(*ipos).map_err(WriteError)?;
+                    self.write_short(-*ipos).map_err(WriteError)?;
                     self.build_inventory_regular_equip_meta_part_packet(&i)?;
                 }
                 _ => (),
