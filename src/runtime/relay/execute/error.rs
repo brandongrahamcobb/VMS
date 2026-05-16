@@ -27,7 +27,7 @@ use tokio::sync::mpsc::error::SendError;
 
 #[derive(Debug, Error)]
 pub enum ExecuteError {
-    #[error("Config error in execution layer")]
+    #[error("State error in execution layer")]
     StateError(#[from] StateError),
 
     #[error("Session error in execution layer")]

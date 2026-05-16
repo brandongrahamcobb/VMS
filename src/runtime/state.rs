@@ -133,7 +133,7 @@ impl State {
     ) -> Result<(), StateError> {
         let exists = self
             .with_channel(world_id, channel_id, |channel| {
-                if !channel.maps.contains_key(&map_wz) {
+                if channel.maps.contains_key(&map_wz) {
                     true
                 } else {
                     false
