@@ -33,13 +33,15 @@ pub fn get_map_wz_by_job_id(job_id: i16) -> Result<i32, MapError> {
 }
 
 pub fn load_map(map_wz: i32) -> Result<Map, MapError> {
-    let mobs = mob::service::load_mobs(map_wz)?;
+    let (mobs, next_mob_id) = mob::service::load_mobs(map_wz)?;
     let portals = portal::service::load_portals(map_wz)?;
     Ok(Map {
         model: MapModel { wz: map_wz },
         chars: HashMap::new(),
         items: HashMap::new(),
         mobs,
+        next_mob_id,
         portals,
+        free_mob_ids: Vec::new(),
     })
 }

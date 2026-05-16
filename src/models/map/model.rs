@@ -32,13 +32,15 @@ pub struct MapModel {
 impl MapModel {
     pub async fn load(&self, _state: &SharedState) -> Result<Map, MapError> {
         let portals: HashMap<u8, Portal> = portal::service::load_portals(self.wz)?;
-        let mobs: HashMap<u32, Mob> = mob::service::load_mobs(self.wz)?;
+        let (mobs, next_mob_id): (HashMap<u32, Mob>, u32) = mob::service::load_mobs(self.wz)?;
         Ok(Map {
             chars: HashMap::new(),
             items: HashMap::new(),
             model: self.clone(),
             mobs,
             portals,
+            next_mob_id,
+            free_mob_ids: Vec::new(),
         })
     }
 }

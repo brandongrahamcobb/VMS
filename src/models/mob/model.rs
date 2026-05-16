@@ -17,15 +17,38 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::models::mob::error::MobError;
+use crate::models::mob::wrapper::Mob;
+
 #[derive(Clone)]
 pub struct MobModel {
-    pub id: u16,
+    pub id: u32,
     pub wz: i32,
     pub pos_x: i16,
     pub pos_y: i16,
-    pub fh_x1: i16,
-    pub fh_x2: i16,
-    pub fh_y1: i16,
-    pub fh_y2: i16,
+    pub fh: i16,
     pub hp: i32,
+    pub max_hp: i32,
+    pub mp: i32,
+    pub max_mp: i32,
+    pub exp: i32,
+    pub pad: i16,
+    pub mad: i16,
+    pub pdd: i16,
+    pub mdd: i16,
+    pub acc: i16,
+    pub eva: i16,
+    pub speed: i16,
+    pub level: i16,
+    pub undead: i8,
+    pub body_attack: i8,
+    pub pushed: i8,
+}
+
+impl MobModel {
+    pub fn load(&self) -> Result<Mob, MobError> {
+        Ok(Mob {
+            model: self.clone(),
+        })
+    }
 }
