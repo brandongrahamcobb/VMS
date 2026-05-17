@@ -125,6 +125,31 @@ impl State {
         .await?
     }
 
+    pub async fn with_mut_map<F, R>(
+        &self,
+        world_id: i16,
+        channel_id: u8,
+        map_wz: i32,
+        f: F,
+    ) -> Result<R, StateError>
+    where
+        F: FnOnce(&mut Map) -> R,
+    {
+        let mut worlds = self.worlds.write().await;
+        let world = worlds
+            .get_mut(&world_id)
+            .ok_or(StateError::NoWorld(world_id))?;
+        let channel = world
+            .channels
+            .get_mut(&channel_id)
+            .ok_or(StateError::NoChannel(channel_id))?;
+        let map = channel
+            .maps
+            .get_mut(&map_wz)
+            .ok_or(StateError::NoMap(map_wz))?;
+        Ok(f(map))
+    }
+
     pub async fn insert_map(
         &self,
         world_id: i16,

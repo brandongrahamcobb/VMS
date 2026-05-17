@@ -31,6 +31,7 @@ use crate::net::packet::handler::handshake::error::HandshakeError;
 use crate::net::packet::handler::list_chars::error::ListCharsError;
 use crate::net::packet::handler::list_worlds::error::ListWorldsError;
 use crate::net::packet::handler::login_start::error::LoginStartError;
+use crate::net::packet::handler::move_mob::error::MoveMobError;
 use crate::net::packet::handler::move_player::error::MovePlayerError;
 use crate::net::packet::handler::party_search::error::PartySearchError;
 use crate::net::packet::handler::player_logged_in::error::PlayerLoggedInError;
@@ -40,6 +41,7 @@ use crate::net::packet::handler::select_char::error::SelectCharError;
 use crate::net::packet::handler::select_char_with_pic::error::SelectCharWithPicError;
 use crate::net::packet::handler::server_status::error::ServerStatusError;
 use crate::net::packet::handler::spw::error::SpwError;
+use crate::net::packet::handler::take_damage::error::TakeDamageError;
 use crate::net::packet::handler::tos::error::TosError;
 use thiserror::Error;
 
@@ -87,6 +89,9 @@ pub enum PacketHandlerError {
     #[error("Login start error in packet handler layer")]
     LoginStartError(#[from] LoginStartError),
 
+    #[error("Move mob error in packet handler layer")]
+    MoveMobError(#[from] MoveMobError),
+
     #[error("Move player error in packet handler layer")]
     MovePlayerError(#[from] MovePlayerError),
 
@@ -113,6 +118,9 @@ pub enum PacketHandlerError {
 
     #[error("SPW error in packet handler layer")]
     SpwError(#[from] SpwError),
+
+    #[error("Take damage error in packet handler layer")]
+    TakeDamageError(#[from] TakeDamageError),
 
     #[error("TOS error in packet handler layer")]
     TosError(#[from] TosError),

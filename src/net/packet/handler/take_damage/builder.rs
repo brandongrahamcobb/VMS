@@ -1,5 +1,5 @@
-/* player_logged_in/builder.rs
- * The purpose of this module is to build an outgoing player login packet.
+/* close_attack/builder.rs
+ * The purpose of this module is to build an outgoing close attack packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,29 +17,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::keybinding::wrapper::Keybinding;
-use crate::net::packet::handler::player_logged_in::error::PlayerLoggedInError;
+use crate::net::packet::handler::take_damage::error::TakeDamageError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
-use std::collections::HashMap;
 
 impl Packet {
-    pub fn build_player_logged_in_handler_keymap_packet(
-        &mut self,
-        binds: &HashMap<i32, Keybinding>,
-    ) -> Result<&mut Self, PlayerLoggedInError> {
-        let op = SendOpcode::KeyMap as i16;
+    pub fn build_take_damage_packet(&mut self, hp: i16) -> Result<&mut Self, TakeDamageError> {
+        let op = SendOpcode::ChangeStats as i16;
         self.write_short(op).map_err(WriteError)?;
-        self.write_byte(0).map_err(WriteError)?;
-        let keybindings: Vec<&Keybinding> = (0..90).filter_map(|key| binds.get(&key)).collect();
-        for bind in keybindings {
-            self.write_byte(bind.model.bind_type as i16)
-                .map_err(WriteError)?;
-            self.write_int(bind.model.action as i32)
-                .map_err(WriteError)?;
-        }
+        self.write_byte(0i16).map_err(WriteError)?; // itemreaction
+        self.write_int(0x400i32).map_err(WriteError)?; // updatemask: HP
+        self.write_short(hp).map_err(WriteError)?;
         Ok(self)
     }
 }

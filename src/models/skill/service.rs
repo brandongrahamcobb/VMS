@@ -36,7 +36,7 @@ pub fn generate_skill_wzs_by_job_wz(job_wz: i32) -> Result<Vec<i32>, SkillError>
         .keys()
         .filter_map(|k| k.parse::<i32>().ok())
         .collect();
-    let basic_attack_skill_id: i32 = 256;
+    let basic_attack_skill_id: i32 = 0;
     ids.push(basic_attack_skill_id);
     Ok(ids)
 }

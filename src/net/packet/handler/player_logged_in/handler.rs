@@ -61,7 +61,7 @@ impl PlayerLoggedInHandler {
             scope: Scope::Local,
         });
         let packet: Packet = Packet::new_empty()
-            .build_set_field_packet(&store.char, store.channel_id)?
+            .build_set_field_packet(&store.char, store.channel_id, store.char.model.map_wz)?
             .finish();
         result.add_action(Action::Send {
             packet: packet.clone(),

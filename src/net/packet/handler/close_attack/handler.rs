@@ -69,6 +69,26 @@ impl CloseAttackHandler {
             packet: packet.clone(),
             scope: Scope::Local,
         });
+        for (mob_id, hp_percent) in store.hp_updates.clone() {
+            let packet = Packet::new_empty()
+                .build_mob_damage_show_hp_packet(mob_id, hp_percent)?
+                .finish();
+            result.add_action(Action::Send {
+                packet: packet.clone(),
+                scope: Scope::Local,
+            });
+        }
+        for mob_id in store.dead_mobs.clone() {
+            let packet = Packet::new_empty().build_kill_mob_packet(mob_id)?.finish();
+            result.add_action(Action::Send {
+                packet: packet.clone(),
+                scope: Scope::Local,
+            });
+            result.add_action(Action::Send {
+                packet: packet.clone(),
+                scope: Scope::Map(MapScope::SameChannelSameWorld),
+            });
+        }
         result.add_action(Action::Send {
             packet: packet.clone(),
             scope: Scope::Map(MapScope::SameChannelSameWorld),

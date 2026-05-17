@@ -76,16 +76,28 @@ pub async fn retrieve(state: &SharedState, session: &Session) -> Result<(), Exec
     let packets: Vec<Packet> = {
         let state = state.lock().await;
         state
-            .with_map(world_id, channel_id, map_wz, |map| {
-                map.chars
-                    .values()
-                    .map(|player| {
-                        let mut packet = Packet::new_empty();
-                        packet.build_spawn_player_packet(player)?;
-                        Ok(packet.finish())
-                    })
-                    .collect::<Result<Vec<Packet>, ExecuteError>>()
-            })
+            .with_map(
+                world_id,
+                channel_id,
+                map_wz,
+                |map| -> Result<Vec<Packet>, ExecuteError> {
+                    let packets: Vec<Packet> = {
+                        let mut packets: Vec<Packet> = Vec::<Packet>::new();
+                        for player in map.chars.values() {
+                            packets.push(
+                                Packet::new_empty()
+                                    .build_spawn_player_packet(player)?
+                                    .finish(),
+                            );
+                        }
+                        for mob in map.mobs.values() {
+                            packets.push(Packet::new_empty().build_spawn_mob_packet(mob)?.finish());
+                        }
+                        packets
+                    };
+                    Ok(packets)
+                },
+            )
             .await??
     };
     for packet in packets {

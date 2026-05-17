@@ -17,7 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::db::error::DatabaseError;
+use crate::models::character::error::CharacterError;
 use crate::models::map::error::MapError;
+use crate::net::packet::codec::spawn_mob::error::CodecSpawnMobError;
 use crate::net::packet::codec::spawn_player::error::CodecSpawnPlayerError;
 use crate::net::packet::model::Packet;
 use crate::runtime::error::StateError;
@@ -41,4 +44,13 @@ pub enum ExecuteError {
 
     #[error("Codec spawn player error in execution layer")]
     CodecSpawnPlayerError(#[from] CodecSpawnPlayerError),
+
+    #[error("Codec spawn mob error in execution layer")]
+    CodecMobPlayerError(#[from] CodecSpawnMobError),
+
+    #[error("Character model error in execution layer")]
+    CharacterError(#[from] CharacterError),
+
+    #[error("Database error in execution layer")]
+    DatabaseError(#[from] DatabaseError),
 }

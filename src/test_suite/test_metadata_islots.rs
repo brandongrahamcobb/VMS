@@ -15,8 +15,8 @@ mod tests {
         let filenames: Vec<&str> = vec![
             // "Base.wz",
             // "Effect.wz",
-            "Item.wz",
-            // "Map.wz",
+            // "Item.wz",
+            "Map.wz",
             // "Morph.wz",
             // "Quest.wz",
             // "Skill.wz",
@@ -36,18 +36,21 @@ mod tests {
             //     let wz_cat = wz / 10000;
             // match metadata::service::wz_debug_dir(filename, "Cash") {
             //
-            let wz = 1040002;
-            let wz_cat = wz / 10000;
-            match metadata::service::wz_to_tree(wz_cat, &filename) {
+            //10000
+            let wz = 10000;
+            match metadata::service::wz_to_img(wz, &filename) {
                 Ok(json) => {
-                    println!("{}", serde_json::to_string_pretty(&json).unwrap());
-                    if let Some(cat) = json[filename]
-                        .as_object()
-                        .and_then(|o| o.keys().next())
-                        .map(|k| k.as_str())
-                    {
-                        dbg!(cat);
-                    }
+                    println!(
+                        "{}",
+                        serde_json::to_string_pretty(&json["info"]["returnMap"]).unwrap()
+                    );
+                    // if let Some(cat) = json[filename]
+                    //     .as_object()
+                    //     .and_then(|o| o.keys().next())
+                    //     .map(|k| k.as_str())
+                    // {
+                    //     dbg!(cat);
+                    // }
                     // println!("{}", serde_json::to_string_pretty(&json["info"][).unwrap());
                     // println!("{}", serde_json::to_string_pretty(&json["info"][).unwrap());
                     // let filename: String = String::from("Mob.wz");

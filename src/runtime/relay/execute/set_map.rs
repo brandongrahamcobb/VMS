@@ -17,6 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::db::error::DatabaseError;
+use crate::models::character;
+use crate::models::character::wrapper::Character;
 use crate::runtime::relay::execute::error::ExecuteError;
 use crate::runtime::relay::scope::{ChannelScope, MapScope};
 use crate::runtime::session::model::Session;
@@ -27,6 +30,12 @@ pub async fn set_map_locally(
     session: &Session,
     map_wz: i32,
 ) -> Result<(), ExecuteError> {
+    let char_id: i32 = session.get_char_id()?;
+    let mut char: Character = character::service::get_char_by_id(state, char_id).await?;
+    char.model.map_wz = map_wz;
+    character::query::setters::update_characters(state, vec![char.model])
+        .await
+        .map_err(|e| DatabaseError::DieselError(e))?;
     let locked_state = state.lock().await;
     locked_state.sessions.update(session.id, |s| {
         s.map_wz = Some(map_wz);
@@ -56,6 +65,13 @@ pub async fn set_map_for_map(
                 locked_state.sessions.update(s.id, |s| {
                     s.map_wz = Some(map_wz);
                 });
+                let char_id: i32 = s.get_char_id()?;
+                let mut char: Character =
+                    character::service::get_char_by_id(state, char_id).await?;
+                char.model.map_wz = map_wz;
+                character::query::setters::update_characters(state, vec![char.model])
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
             }
         }
         MapScope::AllChannelsSameWorld => {
@@ -72,6 +88,13 @@ pub async fn set_map_for_map(
                 locked_state.sessions.update(s.id, |s| {
                     s.map_wz = Some(map_wz);
                 });
+                let char_id: i32 = s.get_char_id()?;
+                let mut char: Character =
+                    character::service::get_char_by_id(state, char_id).await?;
+                char.model.map_wz = map_wz;
+                character::query::setters::update_characters(state, vec![char.model])
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
             }
         }
         MapScope::AllChannelsAllWorlds => {
@@ -86,6 +109,13 @@ pub async fn set_map_for_map(
                 locked_state.sessions.update(s.id, |s| {
                     s.map_wz = Some(map_wz);
                 });
+                let char_id: i32 = s.get_char_id()?;
+                let mut char: Character =
+                    character::service::get_char_by_id(state, char_id).await?;
+                char.model.map_wz = map_wz;
+                character::query::setters::update_characters(state, vec![char.model])
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
             }
         }
     }
@@ -113,6 +143,13 @@ pub async fn set_map_for_channel(
                 locked_state.sessions.update(s.id, |s| {
                     s.map_wz = Some(map_wz);
                 });
+                let char_id: i32 = s.get_char_id()?;
+                let mut char: Character =
+                    character::service::get_char_by_id(state, char_id).await?;
+                char.model.map_wz = map_wz;
+                character::query::setters::update_characters(state, vec![char.model])
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
             }
         }
         ChannelScope::AllWorlds => {
@@ -127,6 +164,13 @@ pub async fn set_map_for_channel(
                 locked_state.sessions.update(s.id, |s| {
                     s.map_wz = Some(map_wz);
                 });
+                let char_id: i32 = s.get_char_id()?;
+                let mut char: Character =
+                    character::service::get_char_by_id(state, char_id).await?;
+                char.model.map_wz = map_wz;
+                character::query::setters::update_characters(state, vec![char.model])
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
             }
         }
     }
@@ -149,6 +193,12 @@ pub async fn set_map_for_world(
         locked_state.sessions.update(s.id, |s| {
             s.map_wz = Some(map_wz);
         });
+        let char_id: i32 = s.get_char_id()?;
+        let mut char: Character = character::service::get_char_by_id(state, char_id).await?;
+        char.model.map_wz = map_wz;
+        character::query::setters::update_characters(state, vec![char.model])
+            .await
+            .map_err(|e| DatabaseError::DieselError(e))?;
     }
     Ok(())
 }
@@ -167,6 +217,12 @@ pub async fn set_map_globally(
         locked_state.sessions.update(s.id, |s| {
             s.map_wz = Some(map_wz);
         });
+        let char_id: i32 = s.get_char_id()?;
+        let mut char: Character = character::service::get_char_by_id(state, char_id).await?;
+        char.model.map_wz = map_wz;
+        character::query::setters::update_characters(state, vec![char.model])
+            .await
+            .map_err(|e| DatabaseError::DieselError(e))?;
     }
     Ok(())
 }

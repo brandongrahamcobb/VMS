@@ -1,5 +1,5 @@
-/* close_attack/error.rs
- * The purpose of this module is to provide errors related to close attacks.
+/* spawn_mob/error.rs
+ * The purpose of this module is to provide errors related to spawning mobs.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,27 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::db::error::DatabaseError;
-use crate::models::mob::error::MobError;
 use crate::net::packet::io::error::IOError;
-use crate::runtime::error::StateError;
-use crate::runtime::session::error::SessionError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum CloseAttackError {
-    #[error("Packet io error in close attack layer")]
+pub enum CodecSpawnMobError {
+    #[error("Packet io error in codec spawn player layer")]
     IOError(#[from] IOError),
-
-    #[error("Session error in close attack layer")]
-    SessionError(#[from] SessionError),
-
-    #[error("Database error in close attack layer")]
-    DatabaseError(#[from] DatabaseError),
-
-    #[error("State error in close attack layer")]
-    StateError(#[from] StateError),
-
-    #[error("Mob model error in close attack layer")]
-    MobError(#[from] MobError),
 }

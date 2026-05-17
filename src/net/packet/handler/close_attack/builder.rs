@@ -36,7 +36,7 @@ impl Packet {
         toleft: i16,
         stance: i16,
         speed: i16,
-        mob_damages: HashMap<i32, Vec<i32>>,
+        mob_damages: HashMap<u32, Vec<i32>>,
     ) -> Result<&mut Self, CloseAttackError> {
         let op = SendOpcode::AttackedClose as i16;
         self.write_short(op).map_err(WriteError)?;
@@ -52,7 +52,7 @@ impl Packet {
         self.write_byte(speed).map_err(WriteError)?;
         self.write_bytes(skip.clone()).map_err(WriteError)?;
         for (mob_id, damages) in mob_damages {
-            self.write_int(mob_id).map_err(WriteError)?;
+            self.write_int(mob_id as i32).map_err(WriteError)?;
             self.write_bytes(skip.clone()).map_err(WriteError)?;
             let meso_explosion_skill_id: i32 = 4211006;
             if skill_id == meso_explosion_skill_id {
@@ -67,6 +67,26 @@ impl Packet {
                 self.write_int(dmg).map_err(WriteError)?;
             }
         }
+        Ok(self)
+    }
+
+    pub fn build_mob_damage_show_hp_packet(
+        &mut self,
+        mob_id: u32,
+        hp_percent: i16,
+    ) -> Result<&mut Self, CloseAttackError> {
+        let op = SendOpcode::ShowMobHp as i16;
+        self.write_short(op).map_err(WriteError)?;
+        self.write_int(mob_id as i32).map_err(WriteError)?;
+        self.write_byte(hp_percent).map_err(WriteError)?;
+        Ok(self)
+    }
+
+    pub fn build_kill_mob_packet(&mut self, mob_id: u32) -> Result<&mut Self, CloseAttackError> {
+        let op = SendOpcode::KillMob as i16;
+        self.write_short(op).map_err(WriteError)?;
+        self.write_int(mob_id as i32).map_err(WriteError)?;
+        self.write_byte(0).map_err(WriteError)?; //animation likely from wz, 0 is not correct
         Ok(self)
     }
 }

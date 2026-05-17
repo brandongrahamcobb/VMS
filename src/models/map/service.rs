@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::metadata;
 use crate::models::map::error::MapError;
 use crate::models::map::model::MapModel;
 use crate::models::map::wrapper::Map;
@@ -44,4 +45,11 @@ pub fn load_map(map_wz: i32) -> Result<Map, MapError> {
         portals,
         free_mob_ids: Vec::new(),
     })
+}
+
+pub fn get_return_map(map_wz: i32) -> Result<i32, MapError> {
+    let filename: &str = "Map.wz";
+    let json = metadata::service::wz_to_img(map_wz, &filename)?;
+    let return_map_wz = json["info"]["returnMap"].as_i64().unwrap() as i32;
+    Ok(return_map_wz)
 }

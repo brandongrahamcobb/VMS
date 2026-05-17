@@ -132,6 +132,42 @@ impl Packet {
         Ok(self)
     }
 
+    pub fn build_set_field_packet(
+        &mut self,
+        char: &Character,
+        channel_id: u8,
+        map_wz: i32,
+    ) -> Result<&mut Self, CodecSpawnPlayerError> {
+        let op = SendOpcode::SetField as i16;
+        self.write_short(op).map_err(WriteError)?;
+        self.write_int(channel_id as i32).map_err(WriteError)?;
+        self //mode 1
+            .write_byte(1)
+            .map_err(WriteError)?;
+        self //mode 2
+            .write_byte(2)
+            .map_err(WriteError)?;
+        // Skip 23 bytes
+        let skip = vec![0u8; 23];
+        self.write_bytes(skip).map_err(WriteError)?;
+        self.write_int(char.model.get_id()?).map_err(WriteError)?;
+        self.write_str(char.model.ign.clone()).map_err(WriteError)?;
+        self.write_bytes(vec![0u8; 13 - char.model.ign.len()])
+            .map_err(WriteError)?;
+        let gender_wz = char.model.gender_wz as i16;
+        self.write_byte(gender_wz).map_err(WriteError)?;
+        let skin_wz = char.model.skin_wz as i16;
+        self.write_byte(skin_wz).map_err(WriteError)?;
+        self.write_int(char.model.face_wz).map_err(WriteError)?;
+        self.write_int(char.model.hair_wz).map_err(WriteError)?;
+        // Pets... Not implemented yet
+        self.write_long(0).map_err(WriteError)?;
+        self.write_long(0).map_err(WriteError)?;
+        self.write_long(0).map_err(WriteError)?;
+        self.build_player_logged_in_meta_part_packet(char, map_wz)?;
+        Ok(self)
+    }
+
     pub fn build_look_cash_equipment_part_packet(
         &mut self,
         char: &Character,
@@ -235,6 +271,7 @@ impl Packet {
     pub fn build_player_logged_in_meta_part_packet(
         &mut self,
         char: &Character,
+        map_wz: i32,
     ) -> Result<&mut Self, CodecSpawnPlayerError> {
         let level = char.model.level as i16;
         self.write_byte(level).map_err(WriteError)?;
@@ -255,7 +292,7 @@ impl Packet {
         self.write_short(char.model.fame).map_err(WriteError)?;
         // Gach xp?
         self.write_int(0).map_err(WriteError)?;
-        self.write_int(char.model.map_wz).map_err(WriteError)?;
+        self.write_int(map_wz).map_err(WriteError)?;
         self.write_byte(0).map_err(WriteError)?;
         self.write_int(0).map_err(WriteError)?;
         let bl_capacity = 25;

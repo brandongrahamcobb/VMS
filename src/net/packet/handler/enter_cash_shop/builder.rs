@@ -36,7 +36,7 @@ impl Packet {
         self.write_long(0).map_err(WriteError)?;
         // Flag
         self.write_byte(0).map_err(WriteError)?;
-        self.build_player_logged_in_meta_part_packet(char)?;
+        self.build_player_logged_in_meta_part_packet(char, char.model.map_wz)?;
         self.build_cash_shop_meta(username.clone())?;
         Ok(self)
     }

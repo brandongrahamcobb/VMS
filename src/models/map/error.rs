@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use core::num::ParseIntError;
+
 use thiserror::Error;
 
 use crate::metadata::error::MetadataError;
@@ -36,4 +38,7 @@ pub enum MapError {
 
     #[error("Portal model error map model layer")]
     PortalError(#[from] PortalError),
+
+    #[error("Parse int error in map model layer")]
+    ParseIntError(#[from] ParseIntError),
 }

@@ -24,7 +24,7 @@ use crate::metadata::error::MetadataError;
 #[derive(Debug, Error)]
 pub enum MobError {
     #[error("Requested mob was not found in mob model layer. Mob ID: {0}")]
-    NotFound(i32),
+    NotFound(u32),
 
     #[error("Metadata error mob model layer")]
     MetadataError(#[from] MetadataError),

@@ -1,0 +1,78 @@
+/* move_mob/handler.rs
+ * The purpose of this module is to handle mob movement.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+use crate::net::action::Action;
+use crate::net::packet::handler::move_mob::error::MoveMobError;
+use crate::net::packet::handler::move_mob::reader::MoveMobReader;
+use crate::net::packet::handler::move_mob::store::MoveMobStore;
+use crate::net::packet::handler::result::HandlerResult;
+use crate::net::packet::model::Packet;
+use crate::runtime::relay::scope::{MapScope, Scope};
+use crate::runtime::session::model::Session;
+use crate::runtime::state::SharedState;
+
+pub struct MoveMobHandler;
+
+impl MoveMobHandler {
+    pub fn new() -> Self {
+        Self
+    }
+
+    pub async fn handle(
+        &self,
+        state: &SharedState,
+        session: &Session,
+        packet: &Packet,
+    ) -> Result<HandlerResult, MoveMobError> {
+        let reader: MoveMobReader = MoveMobReader::read_move_mob_packet(packet)?;
+        let store: MoveMobStore = MoveMobStore::store_move_mob(state, session, &reader).await?;
+        let result: HandlerResult = self.build_move_mob_result(&store)?;
+        Ok(result)
+    }
+
+    fn build_move_mob_result(&self, store: &MoveMobStore) -> Result<HandlerResult, MoveMobError> {
+        let mut result = HandlerResult::new();
+        let packet: Packet = Packet::new_empty()
+            .build_mob_move_packet(
+                store.mob_id,
+                store.skill0,
+                store.skill1,
+                store.skill2,
+                store.skill3,
+                store.skill4,
+                store.skillb,
+                store.pos_x,
+                store.pos_y,
+                store.command,
+                store.x,
+                store.y,
+                store.last_x,
+                store.last_y,
+                store.fh,
+                store.new_state,
+                store.duration,
+            )?
+            .finish();
+        result.add_action(Action::Send {
+            packet: packet.clone(),
+            scope: Scope::Map(MapScope::SameChannelSameWorld),
+        });
+        Ok(result)
+    }
+}

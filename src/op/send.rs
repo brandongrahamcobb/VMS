@@ -48,6 +48,10 @@ pub enum SendOpcode {
     MovePlayer = 0xB9,
     // SpawnNpc = 0x101,
     SpawnMob = 0xEC,
+    MoveMonster = 0xEF,
+    ChangeStats = 0x1F,
+    ShowMobHp = 0xFA,
+    KillMob = 0xED,
     //
     SetCashShop = 0x7F,
     SetField = 0x7D,
