@@ -23,9 +23,6 @@ use crate::db::error::DatabaseError;
 
 #[derive(Debug, Error)]
 pub enum KeybindingError {
-    #[error("Requested keybinding was not found in keybinding model layer: {0}")]
-    NotFound(i16),
-
     #[error("Database error in keybinding model layer")]
     DatabaseError(#[from] DatabaseError),
 }

@@ -16,9 +16,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 use crate::models::map::error::MapError;
+use crate::models::map::respawn;
 use crate::models::map::wrapper::Map;
+use crate::models::mob::model::MobModel;
 use crate::models::mob::wrapper::Mob;
+use crate::models::portal::model::PortalModel;
 use crate::models::portal::wrapper::Portal;
 use crate::models::{mob, portal};
 use crate::runtime::state::SharedState;
@@ -30,17 +34,41 @@ pub struct MapModel {
 }
 
 impl MapModel {
-    pub async fn load(&self, _state: &SharedState) -> Result<Map, MapError> {
-        let portals: HashMap<u8, Portal> = portal::service::load_portals(self.wz)?;
-        let (mobs, next_mob_id): (HashMap<u32, Mob>, u32) = mob::service::load_mobs(self.wz)?;
+    pub fn load_mobs(&self, map_wz: i32) -> Result<HashMap<u32, Mob>, MapError> {
+        let m_models: HashMap<u32, MobModel> = mob::service::get_mob_models(map_wz)?;
+        let mut mobs: HashMap<u32, Mob> = HashMap::new();
+        for (mid, m_model) in m_models {
+            mobs.insert(mid, m_model.load()?);
+        }
+        Ok(mobs)
+    }
+
+    pub fn load_portals(&self, map_wz: i32) -> Result<HashMap<u8, Portal>, MapError> {
+        let p_models: HashMap<u8, PortalModel> = portal::service::get_portal_models(map_wz)?;
+        let mut portals: HashMap<u8, Portal> = HashMap::new();
+        for (pid, p_model) in p_models {
+            portals.insert(pid, p_model.load()?);
+        }
+        Ok(portals)
+    }
+
+    pub async fn load(
+        self,
+        state: &SharedState,
+        world_id: i16,
+        channel_id: u8,
+        map_wz: i32,
+    ) -> Result<Map, MapError> {
+        let mobs: HashMap<u32, Mob> = self.load_mobs(map_wz)?;
+        let portals: HashMap<u8, Portal> = self.load_portals(map_wz)?;
+        respawn::respawn_tick(state, world_id, channel_id, map_wz).await?;
         Ok(Map {
+            model: MapModel { wz: map_wz },
             chars: HashMap::new(),
+            dead_mobs: HashMap::new(),
             items: HashMap::new(),
-            model: self.clone(),
             mobs,
             portals,
-            next_mob_id,
-            free_mob_ids: Vec::new(),
         })
     }
 }

@@ -27,9 +27,6 @@ use crate::models::portal::error::PortalError;
 
 #[derive(Debug, Error)]
 pub enum MapError {
-    #[error("Requested map was not found in map model layer. Map ID: {0}")]
-    NotFound(i32),
-
     #[error("Metadata error map model layer")]
     MetadataError(#[from] MetadataError),
 
@@ -41,4 +38,7 @@ pub enum MapError {
 
     #[error("Parse int error in map model layer")]
     ParseIntError(#[from] ParseIntError),
+
+    #[error("No life map in metadata in map model layer")]
+    NoLife,
 }

@@ -19,10 +19,6 @@
 
 use crate::metadata;
 use crate::models::map::error::MapError;
-use crate::models::map::model::MapModel;
-use crate::models::map::wrapper::Map;
-use crate::models::{mob, portal};
-use std::collections::HashMap;
 
 pub fn get_map_wz_by_job_id(job_id: i16) -> Result<i32, MapError> {
     match job_id {
@@ -31,20 +27,6 @@ pub fn get_map_wz_by_job_id(job_id: i16) -> Result<i32, MapError> {
         2000 => Ok(140000000),
         _ => Ok(0), //placeholder
     }
-}
-
-pub fn load_map(map_wz: i32) -> Result<Map, MapError> {
-    let (mobs, next_mob_id) = mob::service::load_mobs(map_wz)?;
-    let portals = portal::service::load_portals(map_wz)?;
-    Ok(Map {
-        model: MapModel { wz: map_wz },
-        chars: HashMap::new(),
-        items: HashMap::new(),
-        mobs,
-        next_mob_id,
-        portals,
-        free_mob_ids: Vec::new(),
-    })
 }
 
 pub fn get_return_map(map_wz: i32) -> Result<i32, MapError> {

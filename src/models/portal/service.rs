@@ -17,36 +17,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-
 use crate::metadata;
 use crate::models::portal::error::PortalError;
 use crate::models::portal::model::PortalModel;
-use crate::models::portal::wrapper::Portal;
+use std::collections::HashMap;
 
-pub fn load_portals(map_wz: i32) -> Result<HashMap<u8, Portal>, PortalError> {
-    let filename: String = String::from("Map.wz");
-    let json = metadata::service::wz_to_img(map_wz, &filename)?;
-    let wz_portals = json.get("portal").and_then(|p| p.as_object()).unwrap();
-    let mut portals: HashMap<u8, Portal> = HashMap::new();
-    for (key, target) in wz_portals {
-        let pid = key.parse::<u8>().unwrap_or(0);
-        let pn = target
-            .get("pn")
-            .and_then(|v| v.as_str())
-            .unwrap_or("")
-            .to_string();
-        let tm = target
-            .get("tm")
-            .and_then(|v| v.as_i64())
+pub fn get_portal_models(map_wz: i32) -> Result<HashMap<u8, PortalModel>, PortalError> {
+    let mut p_models: HashMap<u8, PortalModel> = HashMap::new();
+    let portal_map = get_portal_json_map_from_map_wz(map_wz)?;
+    for (pid, portal) in portal_map.iter() {
+        let pid = pid.parse::<u8>().unwrap_or(0);
+        let pn = portal["pn"].as_str().unwrap_or("").to_string();
+        let tm = portal["tm"]
+            .as_i64()
             .map(|v| v as i32)
             .ok_or(PortalError::NoTargetMap)?;
-        let tn = target
-            .get("tn")
-            .and_then(|v| v.as_str())
-            .unwrap_or("sp")
-            .to_string();
-        portals.insert(pid, (PortalModel { pid, pn, tm, tn }).load()?);
+        let tn = portal["tn"].as_str().unwrap_or("sp").to_string();
+        p_models.insert(pid, PortalModel { pid, pn, tm, tn });
     }
-    Ok(portals)
+    Ok(p_models)
+}
+
+pub fn get_portal_json_map_from_map_wz(
+    map_wz: i32,
+) -> Result<serde_json::Map<String, serde_json::Value>, PortalError> {
+    let filename: String = String::from("Map.wz");
+    let json = metadata::service::wz_to_img(map_wz, &filename)?;
+    let portal_map = json["portal"].as_object().ok_or(PortalError::NoPortal)?;
+    Ok(portal_map.clone())
 }

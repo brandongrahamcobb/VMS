@@ -17,8 +17,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use core::time::Duration;
+
+use tokio::time::Instant;
+
 use crate::models::mob::model::MobModel;
 
 pub struct Mob {
     pub model: MobModel,
+}
+
+pub struct DeadMob {
+    pub model: MobModel,
+    pub died_at: Instant,
+    pub respawn_time: Duration,
 }

@@ -25,6 +25,9 @@ pub enum PortalError {
     #[error("No target map found in portal model layer")]
     NoTargetMap,
 
+    #[error("No portal found in portal model layer")]
+    NoPortal,
+
     #[error("Metadata error portal model layer")]
     MetadataError(#[from] MetadataError),
 }

@@ -22,8 +22,8 @@ use crate::db::error::DatabaseError;
 use crate::db::pool::DbPool;
 use crate::models::channel::wrapper::Channel;
 use crate::models::map::wrapper::Map;
+use crate::models::world;
 use crate::models::world::wrapper::World;
-use crate::models::{map, world};
 use crate::runtime::error::StateError;
 use crate::runtime::session::session_store::SessionStore;
 use diesel::PgConnection;
@@ -148,43 +148,5 @@ impl State {
             .get_mut(&map_wz)
             .ok_or(StateError::NoMap(map_wz))?;
         Ok(f(map))
-    }
-
-    pub async fn insert_map(
-        &self,
-        world_id: i16,
-        channel_id: u8,
-        map_wz: i32,
-    ) -> Result<(), StateError> {
-        let exists = self
-            .with_channel(world_id, channel_id, |channel| {
-                if channel.maps.contains_key(&map_wz) {
-                    true
-                } else {
-                    false
-                }
-            })
-            .await?;
-        if !exists {
-            let map = map::service::load_map(map_wz)?;
-            self.with_mut_channel(world_id, channel_id, |channel| {
-                channel.maps.insert(map_wz, map);
-            })
-            .await?;
-        }
-        Ok(())
-    }
-
-    pub async fn delete_map(
-        &self,
-        world_id: i16,
-        channel_id: u8,
-        map_wz: i32,
-    ) -> Result<(), StateError> {
-        self.with_mut_channel(world_id, channel_id, |channel| {
-            channel.maps.remove(&map_wz);
-        })
-        .await?;
-        Ok(())
     }
 }

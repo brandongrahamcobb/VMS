@@ -17,9 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::models::map::model::MapModel;
 use crate::net::packet::model::Packet;
 use crate::runtime::relay::execute::error::ExecuteError;
-use crate::runtime::relay::execute::{set_channel, set_map, set_world, simple};
+use crate::runtime::relay::execute::{broadcast, set_channel, set_map, set_world, simple};
 use crate::runtime::relay::scope::Scope;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
@@ -69,6 +70,38 @@ pub async fn send(
     Ok(())
 }
 
+pub async fn broadcast(
+    state: &SharedState,
+    packet: &Packet,
+    world_id: Option<i16>,
+    channel_id: Option<u8>,
+    map_wz: Option<i32>,
+    scope: &Scope,
+) -> Result<(), ExecuteError> {
+    match scope {
+        Scope::Local => {}
+        Scope::Map(map_scope) => {
+            let world_id = world_id.ok_or(ExecuteError::NoWorld)?;
+            let channel_id = channel_id.ok_or(ExecuteError::NoChannel)?;
+            let map_wz = map_wz.ok_or(ExecuteError::NoMap)?;
+            broadcast::broadcast_to_map(state, packet, world_id, channel_id, map_wz, map_scope)
+                .await?
+        }
+        Scope::Channel(channel_scope) => {
+            let world_id = world_id.ok_or(ExecuteError::NoWorld)?;
+            let channel_id = channel_id.ok_or(ExecuteError::NoChannel)?;
+            broadcast::broadcast_to_channel(state, packet, world_id, channel_id, channel_scope)
+                .await?
+        }
+        Scope::World => {
+            let world_id = world_id.ok_or(ExecuteError::NoWorld)?;
+            broadcast::broadcast_to_world(state, packet, world_id).await?
+        }
+        Scope::Global => broadcast::broadcast_globally(state, packet).await?,
+    }
+    Ok(())
+}
+
 pub async fn retrieve(state: &SharedState, session: &Session) -> Result<(), ExecuteError> {
     let world_id: i16 = session.get_world_id()?;
     let channel_id: u8 = session.get_channel_id()?;
@@ -114,10 +147,7 @@ pub async fn set_map(
 ) -> Result<(), ExecuteError> {
     let world_id: i16 = session.get_world_id()?;
     let channel_id: u8 = session.get_channel_id()?;
-    {
-        let state = state.lock().await;
-        state.insert_map(world_id, channel_id, map_wz).await?;
-    }
+    insert_map(state, world_id, channel_id, map_wz).await?;
     match scope {
         Scope::Local => {
             set_map::set_map_locally(state, session, map_wz).await?;
@@ -199,5 +229,48 @@ pub async fn set_char(
     state.sessions.update(session.id, |s| {
         s.char_id = Some(char_id);
     });
+    Ok(())
+}
+
+pub async fn insert_map(
+    state: &SharedState,
+    world_id: i16,
+    channel_id: u8,
+    map_wz: i32,
+) -> Result<(), ExecuteError> {
+    let map_model: MapModel = MapModel { wz: map_wz };
+    let map = map_model.load(state, world_id, channel_id, map_wz).await?;
+    let state = state.lock().await;
+    let exists = state
+        .with_channel(world_id, channel_id, |channel| {
+            if channel.maps.contains_key(&map_wz) {
+                true
+            } else {
+                false
+            }
+        })
+        .await?;
+    if !exists {
+        state
+            .with_mut_channel(world_id, channel_id, |channel| {
+                channel.maps.insert(map_wz, map);
+            })
+            .await?;
+    }
+    Ok(())
+}
+
+pub async fn delete_map(
+    state: &SharedState,
+    world_id: i16,
+    channel_id: u8,
+    map_wz: i32,
+) -> Result<(), ExecuteError> {
+    let state = state.lock().await;
+    state
+        .with_mut_channel(world_id, channel_id, |channel| {
+            channel.maps.remove(&map_wz);
+        })
+        .await?;
     Ok(())
 }

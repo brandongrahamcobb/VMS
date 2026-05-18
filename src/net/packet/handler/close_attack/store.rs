@@ -17,13 +17,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use tokio::time::Instant;
+
 use crate::db::error::DatabaseError;
 use crate::models::mob::error::MobError;
-use crate::models::{mob, skill};
+use crate::models::mob::wrapper::DeadMob;
+use crate::models::skill;
 use crate::net::packet::handler::close_attack::error::CloseAttackError;
 use crate::net::packet::handler::close_attack::reader::CloseAttackReader;
+use crate::runtime::error::StateError;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
+use core::time::Duration;
 use std::collections::HashMap;
 
 pub struct CloseAttackStore {
@@ -68,22 +73,26 @@ impl CloseAttackStore {
                         let mut dead_mobs: Vec<u32> = Vec::new();
                         let mut hp_updates: HashMap<u32, i16> = HashMap::new();
                         for (mob_id, damage) in reader.mob_damages.iter() {
-                            let mob = map
-                                .mobs
-                                .get_mut(mob_id)
-                                .ok_or(MobError::NotFound(*mob_id))?;
-                            let total_damage: i32 = damage.iter().sum();
-                            mob.model.hp -= total_damage;
-                            if mob.model.hp > 0 {
-                                let hp_percent: i16 =
-                                    (mob.model.hp * 100 / mob.model.max_hp) as i16;
-                                hp_updates.insert(mob.model.id, hp_percent);
+                            let (new_hp, mob_id, mob_model) = {
+                                let mob =
+                                    map.mobs.get_mut(mob_id).ok_or(StateError::NoMob(*mob_id))?;
+                                let total_damage: i32 = damage.iter().sum();
+                                mob.model.hp -= total_damage;
+                                (mob.model.hp, mob.model.id, mob.model.clone())
+                            };
+                            if new_hp > 0 {
+                                let hp_percent = (new_hp * 100 / mob_model.max_hp) as i16;
+                                hp_updates.insert(mob_id, hp_percent);
                             } else {
-                                dead_mobs.push(mob.model.id);
+                                map.mobs.remove(&mob_id);
+                                let dead_mob = DeadMob {
+                                    model: mob_model.clone(),
+                                    died_at: Instant::now(),
+                                    respawn_time: Duration::from_millis(mob_model.mob_time),
+                                };
+                                map.dead_mobs.insert(mob_model.id, dead_mob);
+                                dead_mobs.push(mob_model.id);
                             }
-                        }
-                        for mob_id in dead_mobs.iter() {
-                            map.mobs.remove(&mob_id);
                         }
                         Ok((dead_mobs, hp_updates))
                     },

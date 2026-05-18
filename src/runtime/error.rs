@@ -50,6 +50,9 @@ pub enum StateError {
     #[error("Map not found in game state layer: {0}")]
     NoMap(i32),
 
+    #[error("Mob not found in game state layer: {0}")]
+    NoMob(u32),
+
     #[error("Channel not found in game state layer: {0}")]
     NoChannel(u8),
 

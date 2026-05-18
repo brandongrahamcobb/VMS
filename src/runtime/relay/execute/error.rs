@@ -53,4 +53,13 @@ pub enum ExecuteError {
 
     #[error("Database error in execution layer")]
     DatabaseError(#[from] DatabaseError),
+
+    #[error("Map not found in execution layer")]
+    NoMap,
+
+    #[error("Channel not found in execution layer")]
+    NoChannel,
+
+    #[error("World not found in execution layer")]
+    NoWorld,
 }

@@ -27,6 +27,7 @@ pub struct MobModel {
     pub pos_x: i16,
     pub pos_y: i16,
     pub fh: i16,
+    pub mob_time: u64,
     pub hp: i32,
     pub max_hp: i32,
     pub mp: i32,
@@ -44,7 +45,6 @@ pub struct MobModel {
     pub body_attack: i8,
     pub pushed: i8,
 }
-
 impl MobModel {
     pub fn load(&self) -> Result<Mob, MobError> {
         Ok(Mob {

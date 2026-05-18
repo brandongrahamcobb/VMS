@@ -22,18 +22,17 @@ use crate::models::character::wrapper::Character;
 use crate::models::item::wrapper::Item;
 use crate::models::map::error::MapError;
 use crate::models::map::model::MapModel;
-use crate::models::mob::wrapper::Mob;
+use crate::models::mob::wrapper::{DeadMob, Mob};
 use crate::models::portal::wrapper::Portal;
 use std::collections::HashMap;
 
 pub struct Map {
     pub model: MapModel,
     pub chars: HashMap<i32, Character>,
+    pub dead_mobs: HashMap<u32, DeadMob>,
     pub items: HashMap<i32, Item>,
     pub mobs: HashMap<u32, Mob>,
     pub portals: HashMap<u8, Portal>,
-    pub next_mob_id: u32,
-    pub free_mob_ids: Vec<u32>,
 }
 
 impl Map {
@@ -44,27 +43,5 @@ impl Map {
             .find(|p| p.model.pn == tn)
             .ok_or(MetadataError::ObjectError)?;
         Ok(portal)
-    }
-
-    pub fn next_mob_id(&mut self) -> u32 {
-        if let Some(id) = self.free_mob_ids.pop() {
-            id
-        } else {
-            let id = self.next_mob_id;
-            self.next_mob_id += 1;
-            id
-        }
-    }
-
-    pub fn spawn_mob(&mut self, mob: Mob) -> u32 {
-        let id = self.next_mob_id();
-        self.mobs.insert(id, mob);
-        id
-    }
-
-    pub fn kill_mob(&mut self, id: u32) {
-        if self.mobs.remove(&id).is_some() {
-            self.free_mob_ids.push(id);
-        }
     }
 }
