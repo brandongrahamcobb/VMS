@@ -18,8 +18,7 @@
  */
 
 use crate::models::map::error::MapError;
-use crate::net::packet::codec::despawn_player::error::CodecDespawnPlayerError;
-use crate::net::packet::codec::spawn_player::error::CodecSpawnPlayerError;
+use crate::net::packet::codec::player::error::CodecPlayerError;
 use crate::net::packet::io::error::IOError;
 use crate::runtime::error::StateError;
 use crate::runtime::session::error::SessionError;
@@ -39,9 +38,6 @@ pub enum PlayerMapTransferError {
     #[error("State error in player map transfer layer")]
     StateError(#[from] StateError),
 
-    #[error("Spawn player packet error in player map transfer layer")]
-    CodecSpawnPlayerError(#[from] CodecSpawnPlayerError),
-
-    #[error("Despawn player packet error in player map transfer layer")]
-    CodecDespawnPlayerError(#[from] CodecDespawnPlayerError),
+    #[error("Codec player packet error in player map transfer layer")]
+    CodecPlayerError(#[from] CodecPlayerError),
 }

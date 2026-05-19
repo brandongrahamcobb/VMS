@@ -20,8 +20,8 @@
 use crate::db::error::DatabaseError;
 use crate::models::character::error::CharacterError;
 use crate::models::map::error::MapError;
-use crate::net::packet::codec::spawn_mob::error::CodecSpawnMobError;
-use crate::net::packet::codec::spawn_player::error::CodecSpawnPlayerError;
+use crate::net::packet::codec::mob::error::CodecMobError;
+use crate::net::packet::codec::player::error::CodecPlayerError;
 use crate::net::packet::model::Packet;
 use crate::runtime::error::StateError;
 use crate::runtime::session::error::SessionError;
@@ -42,11 +42,11 @@ pub enum ExecuteError {
     #[error("Failed UnboundedSender error in execution layer")]
     UnboundedSenderError(#[from] SendError<Packet>),
 
-    #[error("Codec spawn player error in execution layer")]
-    CodecSpawnPlayerError(#[from] CodecSpawnPlayerError),
+    #[error("Codec player packet error in execution layer")]
+    CodecPlayerError(#[from] CodecPlayerError),
 
-    #[error("Codec spawn mob error in execution layer")]
-    CodecMobPlayerError(#[from] CodecSpawnMobError),
+    #[error("Codec mob packet error in execution layer")]
+    CodecMobError(#[from] CodecMobError),
 
     #[error("Character model error in execution layer")]
     CharacterError(#[from] CharacterError),

@@ -28,7 +28,7 @@ pub fn get_mob_models(map_wz: i32) -> Result<HashMap<u32, MobModel>, MobError> {
     let mob_lifes = get_mob_lifes(map_wz)?;
     for mob_life in mob_lifes {
         let mob_metadata = get_mob_metadata(mob_life.clone())?;
-        let mob_info = get_mob_info(mob_life.clone())?;
+        let mob_info = get_mob_info(&mob_metadata)?;
         let mob_model = build_mob(next_id, &mob_metadata, &mob_info)?;
         mob_models.insert(next_id, mob_model);
         next_id += 1;
@@ -38,20 +38,22 @@ pub fn get_mob_models(map_wz: i32) -> Result<HashMap<u32, MobModel>, MobError> {
 
 pub fn get_mob_lifes(map_wz: i32) -> Result<Vec<serde_json::Value>, MobError> {
     let mut mob_lifes: Vec<serde_json::Value> = Vec::new();
-    let life_map = get_life_json_map_from_metadata_by_map_wz(map_wz)?;
-    for (_, life) in life_map {
-        mob_lifes.push(life);
+    let life_json = get_life_json_from_metadata_by_map_wz(map_wz)?;
+    let lifes = life_json.as_object().ok_or(MobError::NoLife(map_wz))?;
+    for (_, life) in lifes {
+        let life_type = life["type"].as_str().ok_or(MobError::NoType)?;
+        if life_type == "m" {
+            mob_lifes.push(life.clone())
+        }
     }
     Ok(mob_lifes)
 }
 
-fn get_life_json_map_from_metadata_by_map_wz(
-    map_wz: i32,
-) -> Result<serde_json::Map<String, serde_json::Value>, MobError> {
+fn get_life_json_from_metadata_by_map_wz(map_wz: i32) -> Result<serde_json::Value, MobError> {
     let filename: String = String::from("Map.wz");
     let json = metadata::service::wz_to_img(map_wz, &filename)?;
-    let life_map = json["life"].as_object().ok_or(MobError::NoLife)?;
-    Ok(life_map.clone())
+    let life = json.get("life").ok_or(MobError::NoLife(map_wz))?.clone();
+    Ok(life)
 }
 
 struct MobMetadata {
@@ -62,28 +64,19 @@ struct MobMetadata {
     mob_time: u64,
 }
 
-fn get_mob_metadata(life_metadata: serde_json::Value) -> Result<MobMetadata, MobError> {
-    let life_type = life_metadata["type"].as_str().ok_or(MobError::NoType)?;
-    if life_type == "m" {
-        let wz: i32 = life_metadata["id"]
-            .as_str()
-            .unwrap()
-            .parse::<i32>()
-            .unwrap();
-        let x = life_metadata["x"].as_i64().unwrap_or(0) as i16;
-        let y = life_metadata["y"].as_i64().unwrap_or(0) as i16;
-        let fh = life_metadata["fh"].as_i64().unwrap_or(0) as i16;
-        let mob_time = life_metadata["mobTime"].as_i64().unwrap_or(0) as u64;
-        Ok(MobMetadata {
-            wz,
-            x,
-            y,
-            fh,
-            mob_time,
-        })
-    } else {
-        Err(MobError::NotMob)
-    }
+fn get_mob_metadata(mob_life: serde_json::Value) -> Result<MobMetadata, MobError> {
+    let wz: i32 = mob_life["id"].as_str().unwrap().parse::<i32>().unwrap();
+    let x = mob_life["x"].as_i64().unwrap_or(0) as i16;
+    let y = mob_life["y"].as_i64().unwrap_or(0) as i16;
+    let fh = mob_life["fh"].as_i64().unwrap_or(0) as i16;
+    let mob_time = mob_life["mobTime"].as_i64().unwrap_or(0) as u64;
+    Ok(MobMetadata {
+        wz,
+        x,
+        y,
+        fh,
+        mob_time,
+    })
 }
 
 struct MobInfo {
@@ -103,8 +96,10 @@ struct MobInfo {
     pushed: i8,
 }
 
-fn get_mob_info(life: serde_json::Value) -> Result<MobInfo, MobError> {
-    let info = life["info"].as_object().ok_or(MobError::NoInfo)?;
+fn get_mob_info(mob_metadata: &MobMetadata) -> Result<MobInfo, MobError> {
+    let filename: String = String::from("Mob.wz");
+    let json = metadata::service::wz_to_img(mob_metadata.wz, &filename)?;
+    let info = json["info"].as_object().ok_or(MobError::NoInfo)?;
     let level = info["level"].as_i64().unwrap_or(0) as i16;
     let max_hp = info["maxHP"].as_i64().unwrap_or(0) as i32;
     let max_mp = info["maxMP"].as_i64().unwrap_or(0) as i32;

@@ -17,10 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::io::{read::PacketReader, write::PacketWriter};
 use crate::net::packet::model::Packet;
 use crate::runtime::relay::types::shared::RuntimeRelay;
 use crate::runtime::state::SharedState;
+use tokio::sync::broadcast;
 use tokio::sync::mpsc::UnboundedReceiver;
 
 pub struct Runtime<T: RuntimeRelay> {
@@ -36,5 +38,6 @@ pub struct LoginRelay {
 }
 
 pub struct PlayerRelay {
+    pub tick_rx: Option<broadcast::Receiver<HandlerResult>>,
     pub session_id: i32,
 }

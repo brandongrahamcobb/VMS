@@ -18,13 +18,13 @@
  */
 
 use crate::models::account::wrapper::StatusCode;
-use crate::net::action::{Action, SetAction};
+use crate::net::action::{Action, SessionAction, SetAction};
 use crate::net::packet::handler::credentials::error::CredentialsError;
 use crate::net::packet::handler::credentials::reader::CredentialsReader;
 use crate::net::packet::handler::credentials::store::CredentialsStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::relay::scope::Scope;
+use crate::runtime::relay::scope::SessionScope;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
@@ -59,10 +59,10 @@ impl CredentialsHandler {
                 let packet: Packet = Packet::new_empty()
                     .build_credentials_handler_failed_login_packet(code)?
                     .finish();
-                result.add_action(Action::Send {
+                result.add_action(Action::Session(SessionAction::Send {
                     packet: packet.clone(),
-                    scope: Scope::Local,
-                });
+                    scope: SessionScope::Local,
+                }));
             }
             StatusCode::Pending(code) => {
                 let acc = store.acc.take().unwrap();
@@ -70,26 +70,26 @@ impl CredentialsHandler {
                 let packet: Packet = Packet::new_empty()
                     .build_credentials_handler_failed_login_packet(code)?
                     .finish();
-                result.add_action(Action::Set(SetAction::SetAccount {
+                result.add_action(Action::Session(SessionAction::Set(SetAction::SetAccount {
                     acc_id: acc.model.get_id()?,
-                }));
-                result.add_action(Action::Send {
+                })));
+                result.add_action(Action::Session(SessionAction::Send {
                     packet: packet.clone(),
-                    scope: Scope::Local,
-                });
+                    scope: SessionScope::Local,
+                }));
             }
             StatusCode::Success(_) => {
                 let acc = store.acc.take().unwrap();
                 let packet: Packet = Packet::new_empty()
                     .build_credentials_handler_successful_login_packet(&acc)?
                     .finish();
-                result.add_action(Action::Set(SetAction::SetAccount {
+                result.add_action(Action::Session(SessionAction::Set(SetAction::SetAccount {
                     acc_id: acc.model.get_id()?,
-                }));
-                result.add_action(Action::Send {
+                })));
+                result.add_action(Action::Session(SessionAction::Send {
                     packet: packet.clone(),
-                    scope: Scope::Local,
-                });
+                    scope: SessionScope::Local,
+                }));
             }
         }
         Ok(result)

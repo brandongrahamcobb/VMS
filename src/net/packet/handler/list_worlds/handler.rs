@@ -17,13 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::action::Action;
+use crate::net::action::{Action, SessionAction};
 use crate::net::packet::handler::list_worlds::error::ListWorldsError;
 use crate::net::packet::handler::list_worlds::reader::ListWorldsReader;
 use crate::net::packet::handler::list_worlds::store::ListWorldsStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::relay::scope::Scope;
+use crate::runtime::relay::scope::SessionScope;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
@@ -56,24 +56,24 @@ impl ListWorldsHandler {
         let packet: Packet = Packet::new_empty()
             .build_list_worlds_handler_servers_packet(&worlds)?
             .finish();
-        result.add_action(Action::Send {
+        result.add_action(Action::Session(SessionAction::Send {
             packet: packet.clone(),
-            scope: Scope::Local,
-        });
+            scope: SessionScope::Local,
+        }));
         let packet: Packet = Packet::new_empty()
             .build_list_worlds_handler_last_connected_world_packet()?
             .finish();
-        result.add_action(Action::Send {
+        result.add_action(Action::Session(SessionAction::Send {
             packet: packet.clone(),
-            scope: Scope::Local,
-        });
+            scope: SessionScope::Local,
+        }));
         let packet: Packet = Packet::new_empty()
             .build_list_worlds_handler_recommended_worlds_packet(&worlds)?
             .finish();
-        result.add_action(Action::Send {
+        result.add_action(Action::Session(SessionAction::Send {
             packet: packet.clone(),
-            scope: Scope::Local,
-        });
+            scope: SessionScope::Local,
+        }));
         Ok(result)
     }
 }

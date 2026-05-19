@@ -1,5 +1,4 @@
-/* shared.rs
- * The purpose of this module is to provide the shared relay.
+/* shared.rs The purpose of this module is to provide the shared relay.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,7 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::action::{Action, SetAction};
+use tokio::sync::broadcast;
+
+use crate::net::action::{Action, BroadcastAction, SessionAction, SetAction};
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::relay::execute;
@@ -28,6 +29,10 @@ use core::ops::ControlFlow;
 
 #[allow(async_fn_in_trait)]
 pub trait RuntimeRelay: Sized {
+    fn tick_rx(&mut self) -> Option<&mut broadcast::Receiver<HandlerResult>>;
+
+    fn set_tick_rx(&mut self, rx: broadcast::Receiver<HandlerResult>);
+
     async fn new(session_id: i32) -> Result<Self, RelayTypeError>;
 
     fn session_id(&self) -> i32;
@@ -38,7 +43,7 @@ pub trait RuntimeRelay: Sized {
         packet: &Packet,
     ) -> Result<HandlerResult, RelayTypeError>;
 
-    async fn execute(
+    async fn execute_with_session(
         &mut self,
         state: &SharedState,
         result: HandlerResult,
@@ -53,32 +58,67 @@ pub trait RuntimeRelay: Sized {
                     .ok_or(SessionError::NotFound(self.session_id()))?
             };
             match action {
-                Action::Break { packet, scope } => {
-                    return execute::manager::end(state, &session, &packet, &scope)
-                        .await
-                        .map_err(RelayTypeError::from);
-                }
-                Action::Retrieve => execute::manager::retrieve(state, &session).await?,
-                Action::Send { packet, scope } => {
-                    execute::manager::send(state, &session, &packet, &scope).await?
-                }
-                Action::Set(set_action) => match set_action {
-                    SetAction::SetMap { map_wz, scope } => {
-                        execute::manager::set_map(state, &session, &scope, *map_wz).await?
+                Action::Broadcast(_) => {}
+                Action::Session(action) => match action {
+                    SessionAction::Break { packet, scope } => {
+                        return execute::session_execute::end(state, &session, &packet, &scope)
+                            .await
+                            .map_err(RelayTypeError::from);
                     }
-                    SetAction::SetChannel { channel_id, scope } => {
-                        execute::manager::set_channel(state, &session, &scope, *channel_id).await?
+                    SessionAction::Send { packet, scope } => {
+                        let _ = execute::session_execute::send(state, &session, &packet, &scope)
+                            .await?;
                     }
-                    SetAction::SetWorld { world_id, scope } => {
-                        execute::manager::set_world(state, &session, &scope, *world_id).await?
+                    SessionAction::Retrieve => {
+                        execute::session_execute::retrieve(state, &session).await?
                     }
-                    SetAction::SetAccount { acc_id } => {
-                        execute::manager::set_acc(state, &session, *acc_id).await?
-                    }
-                    SetAction::SetChar { char_id } => {
-                        execute::manager::set_char(state, &session, *char_id).await?
+                    SessionAction::Set(set_action) => match set_action {
+                        SetAction::SetMap { map_wz, scope } => {
+                            let tick_rx =
+                                execute::session_execute::set_map(state, &session, &scope, *map_wz)
+                                    .await?;
+                            self.set_tick_rx(tick_rx);
+                        }
+                        SetAction::SetChannel { channel_id, scope } => {
+                            execute::session_execute::set_channel(
+                                state,
+                                &session,
+                                &scope,
+                                *channel_id,
+                            )
+                            .await?
+                        }
+                        SetAction::SetWorld { world_id, scope } => {
+                            execute::session_execute::set_world(state, &session, &scope, *world_id)
+                                .await?
+                        }
+                        SetAction::SetAccount { acc_id } => {
+                            execute::session_execute::set_acc(state, &session, *acc_id).await?
+                        }
+                        SetAction::SetChar { char_id } => {
+                            execute::session_execute::set_char(state, &session, *char_id).await?
+                        }
+                    },
+                },
+            }
+        }
+        return Ok(ControlFlow::Continue(()));
+    }
+
+    async fn execute_without_session(
+        &self,
+        state: &SharedState,
+        result: HandlerResult,
+    ) -> Result<ControlFlow<Packet>, RelayTypeError> {
+        let model = &result.model;
+        for action in model {
+            match action {
+                Action::Broadcast(action) => match action {
+                    BroadcastAction::Send { packet, scope } => {
+                        execute::broadcast_execute::broadcast(state, &packet, &scope).await?
                     }
                 },
+                Action::Session(_) => {}
             }
         }
         return Ok(ControlFlow::Continue(()));

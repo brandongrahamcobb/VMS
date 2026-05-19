@@ -39,11 +39,23 @@ use crate::runtime::relay::types::error::RelayTypeError;
 use crate::runtime::relay::types::shared::RuntimeRelay;
 use crate::runtime::session::error::SessionError;
 use crate::runtime::state::SharedState;
+use tokio::sync::broadcast;
 use tracing::debug;
 
 impl RuntimeRelay for PlayerRelay {
     async fn new(session_id: i32) -> Result<Self, RelayTypeError> {
-        Ok(Self { session_id })
+        Ok(Self {
+            session_id,
+            tick_rx: None,
+        })
+    }
+
+    fn tick_rx(&mut self) -> Option<&mut broadcast::Receiver<HandlerResult>> {
+        self.tick_rx.as_mut()
+    }
+
+    fn set_tick_rx(&mut self, rx: broadcast::Receiver<HandlerResult>) {
+        self.tick_rx = Some(rx);
     }
 
     fn session_id(&self) -> i32 {

@@ -39,12 +39,19 @@ use crate::runtime::relay::types::error::RelayTypeError;
 use crate::runtime::relay::types::shared::RuntimeRelay;
 use crate::runtime::session::error::SessionError;
 use crate::runtime::state::SharedState;
+use tokio::sync::broadcast;
 use tracing::debug;
 
 impl RuntimeRelay for LoginRelay {
     async fn new(session_id: i32) -> Result<Self, RelayTypeError> {
         Ok(Self { session_id })
     }
+
+    fn tick_rx(&mut self) -> Option<&mut broadcast::Receiver<HandlerResult>> {
+        None
+    }
+
+    fn set_tick_rx(&mut self, rx: broadcast::Receiver<HandlerResult>) {}
 
     fn session_id(&self) -> i32 {
         self.session_id

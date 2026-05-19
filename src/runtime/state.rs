@@ -66,6 +66,17 @@ impl State {
         Ok(f(world))
     }
 
+    pub async fn with_mut_world<F, R>(&self, world_id: i16, f: F) -> Result<R, StateError>
+    where
+        F: FnOnce(&mut World) -> R,
+    {
+        let mut worlds = self.worlds.write().await;
+        let world = worlds
+            .get_mut(&world_id)
+            .ok_or(StateError::NoWorld(world_id))?;
+        Ok(f(world))
+    }
+
     pub async fn with_channel<F, R>(
         &self,
         world_id: i16,
@@ -76,11 +87,11 @@ impl State {
         F: FnOnce(&Channel) -> R,
     {
         self.with_world(world_id, |world| {
-            world
+            let channel: &Channel = world
                 .channels
                 .get(&channel_id)
-                .map(f)
-                .ok_or(StateError::NoChannel(channel_id))
+                .ok_or(StateError::NoChannel(channel_id))?;
+            Ok(f(channel))
         })
         .await?
     }
@@ -94,15 +105,14 @@ impl State {
     where
         F: FnOnce(&mut Channel) -> R,
     {
-        let mut worlds = self.worlds.write().await;
-        let world = worlds
-            .get_mut(&world_id)
-            .ok_or(StateError::NoWorld(world_id))?;
-        let channel = world
-            .channels
-            .get_mut(&channel_id)
-            .ok_or(StateError::NoChannel(channel_id))?;
-        Ok(f(channel))
+        self.with_mut_world(world_id, |world| {
+            let channel = world
+                .channels
+                .get_mut(&channel_id)
+                .ok_or(StateError::NoChannel(channel_id))?;
+            Ok(f(channel))
+        })
+        .await?
     }
 
     pub async fn with_map<F, R>(
@@ -116,11 +126,8 @@ impl State {
         F: FnOnce(&Map) -> R,
     {
         self.with_channel(world_id, channel_id, |channel| {
-            channel
-                .maps
-                .get(&map_wz)
-                .map(f)
-                .ok_or(StateError::NoMap(map_wz))
+            let map: &Map = channel.maps.get(&map_wz).ok_or(StateError::NoMap(map_wz))?;
+            Ok(f(map))
         })
         .await?
     }
@@ -135,18 +142,13 @@ impl State {
     where
         F: FnOnce(&mut Map) -> R,
     {
-        let mut worlds = self.worlds.write().await;
-        let world = worlds
-            .get_mut(&world_id)
-            .ok_or(StateError::NoWorld(world_id))?;
-        let channel = world
-            .channels
-            .get_mut(&channel_id)
-            .ok_or(StateError::NoChannel(channel_id))?;
-        let map = channel
-            .maps
-            .get_mut(&map_wz)
-            .ok_or(StateError::NoMap(map_wz))?;
-        Ok(f(map))
+        self.with_mut_channel(world_id, channel_id, |channel| {
+            let map = channel
+                .maps
+                .get_mut(&map_wz)
+                .ok_or(StateError::NoMap(map_wz))?;
+            Ok(f(map))
+        })
+        .await?
     }
 }

@@ -13,6 +13,7 @@ pub mod handshake;
 pub mod list_chars;
 pub mod list_worlds;
 pub mod login_start;
+pub mod mob_respawn;
 pub mod move_mob;
 pub mod move_player;
 pub mod party_search;

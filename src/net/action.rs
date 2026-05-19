@@ -17,19 +17,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use crate::net::packet::model::Packet;
-use crate::runtime::relay::scope::Scope;
+use crate::runtime::relay::scope::{BroadcastScope, SessionScope};
 
+#[derive(Clone)]
 pub enum Action {
-    Break { packet: Packet, scope: Scope },
-    Retrieve,
-    Set(SetAction),
-    Send { packet: Packet, scope: Scope },
+    Broadcast(BroadcastAction),
+    Session(SessionAction),
 }
 
+#[derive(Clone)]
+pub enum SessionAction {
+    Break { packet: Packet, scope: SessionScope },
+    Retrieve,
+    Set(SetAction),
+    Send { packet: Packet, scope: SessionScope },
+}
+
+#[derive(Clone)]
 pub enum SetAction {
-    SetMap { map_wz: i32, scope: Scope },
-    SetChannel { channel_id: u8, scope: Scope },
-    SetWorld { world_id: i16, scope: Scope },
+    SetMap { map_wz: i32, scope: SessionScope },
+    SetChannel { channel_id: u8, scope: SessionScope },
+    SetWorld { world_id: i16, scope: SessionScope },
     SetAccount { acc_id: i32 },
     SetChar { char_id: i32 },
+}
+
+#[derive(Clone)]
+pub enum BroadcastAction {
+    Send {
+        packet: Packet,
+        scope: BroadcastScope,
+    },
 }

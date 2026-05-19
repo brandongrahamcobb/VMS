@@ -20,7 +20,7 @@
 use crate::config::error::ConfigError;
 use crate::models::account::error::AccountError;
 use crate::models::character::error::CharacterError;
-use crate::net::packet::codec::spawn_player::error::CodecSpawnPlayerError;
+use crate::net::packet::codec::player::error::CodecPlayerError;
 use crate::net::packet::io::error::IOError;
 use crate::runtime::session::error::SessionError;
 use thiserror::Error;
@@ -39,8 +39,8 @@ pub enum ListCharsError {
     #[error("Character model error in list characters layer")]
     CharacterError(#[from] CharacterError),
 
-    #[error("Codec spawn player error in list characters layer")]
-    CodecSpawnPlayerError(#[from] CodecSpawnPlayerError),
+    #[error("Codec player packet error in list characters layer")]
+    CodecPlayerError(#[from] CodecPlayerError),
 
     #[error("Account model error in list character layer")]
     AccountError(#[from] AccountError),

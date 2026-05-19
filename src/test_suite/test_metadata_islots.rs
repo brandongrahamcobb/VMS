@@ -40,7 +40,11 @@ mod tests {
             let wz = 50000;
             match metadata::service::wz_to_img(wz, &filename) {
                 Ok(json) => {
-                    println!("{}", serde_json::to_string_pretty(&json["life"]).unwrap());
+                    // println!("{}", serde_json::to_string_pretty(&json["life"]).unwrap());
+                    println!(
+                        "{}",
+                        serde_json::to_string_pretty(&json["life"]["0"]["type"]).unwrap()
+                    );
                     // if let Some(cat) = json[filename]
                     //     .as_object()
                     //     .and_then(|o| o.keys().next())

@@ -27,6 +27,9 @@ pub struct MovePlayerStore {
     pub empty: bool,
     pub movement_bytes: Vec<u8>,
     pub too_short: bool,
+    pub world_id: i16,
+    pub channel_id: u8,
+    pub map_wz: i32,
 }
 
 impl MovePlayerStore {
@@ -35,12 +38,18 @@ impl MovePlayerStore {
         session: &Session,
         reader: &MovePlayerReader,
     ) -> Result<Self, MovePlayerError> {
+        let world_id: i16 = session.get_world_id()?;
+        let channel_id: u8 = session.get_channel_id()?;
+        let map_wz: i32 = session.get_map_wz()?;
         std::hint::black_box(state);
         Ok(Self {
             char_id: session.get_char_id()?,
             empty: reader.empty,
             movement_bytes: reader.movement_bytes.clone(),
             too_short: reader.too_short,
+            world_id,
+            channel_id,
+            map_wz,
         })
     }
 }

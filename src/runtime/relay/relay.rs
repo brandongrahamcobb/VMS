@@ -64,13 +64,19 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
 
     pub async fn run(mut self) -> Result<Option<(Self, Packet)>, RelayError> {
         loop {
+            let tick = async {
+                match self.relay.tick_rx() {
+                    Some(rx) => rx.recv().await.ok(),
+                    None => std::future::pending().await,
+                }
+            };
             tokio::select! {
                 packet = self.pkt_reader.read_packet() => {
                     let packet = packet?;
                     let result = self.relay
                         .handle_packet(&self.state, &packet)
                         .await?;
-                    match self.relay.execute(&self.state, result).await? {
+                    match self.relay.execute_with_session(&self.state, result).await? {
                         ControlFlow::Break(packet) => break Ok(Some((self, packet))),
                         _ => {}
                     }
@@ -79,6 +85,14 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
                     match packet {
                         Some(mut packet) => {
                             self.pkt_writer.send_encrypted_packet(&mut packet).await?;
+                        }
+                        None => break Ok(None),
+                    }
+                }
+                result = tick => {
+                    match result {
+                        Some(result) => {
+                            self.relay.execute_without_session(&self.state, result).await?;
                         }
                         None => break Ok(None),
                     }

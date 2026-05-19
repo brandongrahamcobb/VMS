@@ -17,15 +17,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::net::packet::codec::mob::error::CodecMobError;
 use crate::net::packet::io::error::IOError;
 use crate::runtime::session::error::SessionError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum MoveMobError {
-    #[error("Packet io error in move player layer")]
+    #[error("Packet io error in move mob layer")]
     IOError(#[from] IOError),
 
-    #[error("Session error in move player layer")]
+    #[error("Session error in move mob layer")]
     SessionError(#[from] SessionError),
+
+    #[error("Codec mob packet error in move mob layer")]
+    CodecMobError(#[from] CodecMobError),
 }

@@ -69,24 +69,4 @@ impl Packet {
         }
         Ok(self)
     }
-
-    pub fn build_mob_damage_show_hp_packet(
-        &mut self,
-        mob_id: u32,
-        hp_percent: i16,
-    ) -> Result<&mut Self, CloseAttackError> {
-        let op = SendOpcode::ShowMobHp as i16;
-        self.write_short(op).map_err(WriteError)?;
-        self.write_int(mob_id as i32).map_err(WriteError)?;
-        self.write_byte(hp_percent).map_err(WriteError)?;
-        Ok(self)
-    }
-
-    pub fn build_kill_mob_packet(&mut self, mob_id: u32) -> Result<&mut Self, CloseAttackError> {
-        let op = SendOpcode::KillMob as i16;
-        self.write_short(op).map_err(WriteError)?;
-        self.write_int(mob_id as i32).map_err(WriteError)?;
-        self.write_byte(0).map_err(WriteError)?; //animation likely from wz, 0 is not correct
-        Ok(self)
-    }
 }

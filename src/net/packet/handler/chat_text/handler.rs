@@ -17,13 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::action::Action;
+use crate::net::action::{Action, BroadcastAction};
 use crate::net::packet::handler::chat_text::error::ChatTextError;
 use crate::net::packet::handler::chat_text::reader::ChatTextReader;
 use crate::net::packet::handler::chat_text::store::ChatTextStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::relay::scope::{MapScope, Scope};
+use crate::runtime::relay::scope::BroadcastScope;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
@@ -54,14 +54,14 @@ impl ChatTextHandler {
         let packet: Packet = Packet::new_empty()
             .build_chat_text_packet(store.admin, store.char_id, store.msg.clone(), store.show)?
             .finish();
-        result.add_action(Action::Send {
+        result.add_action(Action::Broadcast(BroadcastAction::Send {
             packet: packet.clone(),
-            scope: Scope::Local,
-        });
-        result.add_action(Action::Send {
-            packet: packet.clone(),
-            scope: Scope::Map(MapScope::SameChannelSameWorld),
-        });
+            scope: BroadcastScope::Map {
+                world_id: store.world_id,
+                channel_id: store.channel_id,
+                map_wz: store.map_wz,
+            },
+        }));
         Ok(result)
     }
 }

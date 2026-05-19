@@ -24,7 +24,7 @@ use crate::models::item::error::ItemError;
 use crate::models::keybinding::error::KeybindingError;
 use crate::models::map::error::MapError;
 use crate::models::skill::error::SkillError;
-use crate::net::packet::codec::spawn_player::error::CodecSpawnPlayerError;
+use crate::net::packet::codec::player::error::CodecPlayerError;
 use crate::net::packet::io::error::IOError;
 use crate::runtime::session::error::SessionError;
 use thiserror::Error;
@@ -46,8 +46,8 @@ pub enum CreateCharError {
     #[error("Character model error in create character layer")]
     CharacterError(#[from] CharacterError),
 
-    #[error("Codec spawn player error in create characters layer")]
-    CodecSpawnPlayerError(#[from] CodecSpawnPlayerError),
+    #[error("Codec player packet error in create characters layer")]
+    CodecPlayerError(#[from] CodecPlayerError),
 
     #[error("Map model error in create character layer")]
     MapError(#[from] MapError),

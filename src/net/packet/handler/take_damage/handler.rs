@@ -17,13 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::action::{Action, SetAction};
+use crate::net::action::{Action, SessionAction, SetAction};
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::handler::take_damage::error::TakeDamageError;
 use crate::net::packet::handler::take_damage::reader::TakeDamageReader;
 use crate::net::packet::handler::take_damage::store::TakeDamageStore;
 use crate::net::packet::model::Packet;
-use crate::runtime::relay::scope::{MapScope, Scope};
+use crate::runtime::relay::scope::{MapScope, SessionScope};
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
@@ -56,44 +56,44 @@ impl TakeDamageHandler {
             let packet = Packet::new_empty()
                 .build_take_damage_packet(store.hp)?
                 .finish();
-            result.add_action(Action::Send {
+            result.add_action(Action::Session(SessionAction::Send {
                 packet: packet.clone(),
-                scope: Scope::Local,
-            });
+                scope: SessionScope::Local,
+            }));
         } else {
             let packet = Packet::new_empty()
                 .build_take_damage_packet(store.max_hp)?
                 .finish();
-            result.add_action(Action::Send {
+            result.add_action(Action::Session(SessionAction::Send {
                 packet: packet.clone(),
-                scope: Scope::Local,
-            });
+                scope: SessionScope::Local,
+            }));
             let packet: Packet = Packet::new_empty()
                 .build_despawn_player_packet(&store.char)?
                 .finish();
-            result.add_action(Action::Send {
+            result.add_action(Action::Session(SessionAction::Send {
                 packet: packet.clone(),
-                scope: Scope::Map(MapScope::SameChannelSameWorld),
-            });
+                scope: SessionScope::Map(MapScope::SameChannelSameWorld),
+            }));
             let packet: Packet = Packet::new_empty()
                 .build_set_field_change_map_packet(store.channel_id, store.return_map_wz, 0)?
                 .finish();
-            result.add_action(Action::Send {
+            result.add_action(Action::Session(SessionAction::Send {
                 packet: packet.clone(),
-                scope: Scope::Local,
-            });
-            result.add_action(Action::Set(SetAction::SetMap {
-                map_wz: store.return_map_wz,
-                scope: Scope::Local,
+                scope: SessionScope::Local,
             }));
+            result.add_action(Action::Session(SessionAction::Set(SetAction::SetMap {
+                map_wz: store.return_map_wz,
+                scope: SessionScope::Local,
+            })));
             let packet: Packet = Packet::new_empty()
                 .build_spawn_player_packet(&store.char)?
                 .finish();
-            result.add_action(Action::Send {
+            result.add_action(Action::Session(SessionAction::Send {
                 packet: packet.clone(),
-                scope: Scope::Map(MapScope::SameChannelSameWorld),
-            });
-            result.add_action(Action::Retrieve);
+                scope: SessionScope::Map(MapScope::SameChannelSameWorld),
+            }));
+            result.add_action(Action::Session(SessionAction::Retrieve));
         }
         Ok(result)
     }

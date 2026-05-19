@@ -1,5 +1,5 @@
-/* despawn_player/error.rs
- * The purpose of this module is to provide errors related to despawning a player.
+/* mob_respawn/error.rs
+ * The purpose of this module is to provide errors related to respawning mobs.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,15 +17,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::character::error::CharacterError;
+use crate::net::packet::codec::mob::error::CodecMobError;
 use crate::net::packet::io::error::IOError;
+use crate::runtime::error::StateError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum CodecDespawnPlayerError {
-    #[error("Packet io error in despawn player layer")]
+pub enum MobRespawnError {
+    #[error("Packet io error in mob respawn layer")]
     IOError(#[from] IOError),
 
-    #[error("Character model error in codec despawn player layer")]
-    CharacterError(#[from] CharacterError),
+    #[error("Codec mob packet error in mob respawn layer")]
+    CodecMobError(#[from] CodecMobError),
+
+    #[error("State error in mob respawn layer")]
+    StateError(#[from] StateError),
 }

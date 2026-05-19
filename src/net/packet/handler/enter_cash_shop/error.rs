@@ -19,8 +19,7 @@
 
 use crate::models::account::error::AccountError;
 use crate::models::character::error::CharacterError;
-use crate::net::packet::codec::despawn_player::error::CodecDespawnPlayerError;
-use crate::net::packet::codec::spawn_player::error::CodecSpawnPlayerError;
+use crate::net::packet::codec::player::error::CodecPlayerError;
 use crate::net::packet::io::error::IOError;
 use crate::runtime::session::error::SessionError;
 use thiserror::Error;
@@ -33,11 +32,8 @@ pub enum EnterCashShopError {
     #[error("Session error in enter cash shop layer")]
     SessionError(#[from] SessionError),
 
-    #[error("Codec despawn player packet error in enter cash shop layer")]
-    CodecDespawnPlayerError(#[from] CodecDespawnPlayerError),
-
-    #[error("Codec spawn player packet error in enter cash shop layer")]
-    CodecSpawnPlayerError(#[from] CodecSpawnPlayerError),
+    #[error("Codec player packet error in enter cash shop layer")]
+    CodecPlayerError(#[from] CodecPlayerError),
 
     #[error("Character model error in enter cash shop layer")]
     CharacterError(#[from] CharacterError),

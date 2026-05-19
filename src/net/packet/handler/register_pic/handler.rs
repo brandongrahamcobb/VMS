@@ -17,13 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::action::{Action, SetAction};
+use crate::net::action::{Action, SessionAction, SetAction};
 use crate::net::packet::handler::register_pic::error::RegisterPicError;
 use crate::net::packet::handler::register_pic::reader::RegisterPicReader;
 use crate::net::packet::handler::register_pic::store::RegisterPicStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::relay::scope::Scope;
+use crate::runtime::relay::scope::SessionScope;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
@@ -55,13 +55,13 @@ impl RegisterPicHandler {
         let packet: Packet = Packet::new_empty()
             .build_select_char_packet(store.char_id, store.octets, store.port)?
             .finish();
-        result.add_action(Action::Set(SetAction::SetChar {
+        result.add_action(Action::Session(SessionAction::Set(SetAction::SetChar {
             char_id: store.char_id,
-        }));
-        result.add_action(Action::Break {
+        })));
+        result.add_action(Action::Session(SessionAction::Break {
             packet: packet.clone(),
-            scope: Scope::Local,
-        });
+            scope: SessionScope::Local,
+        }));
         Ok(result)
     }
 }

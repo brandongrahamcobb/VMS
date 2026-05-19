@@ -17,7 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-pub enum Scope {
+#[derive(Clone)]
+pub enum SessionScope {
     Map(MapScope),
     Channel(ChannelScope),
     World,
@@ -25,13 +26,32 @@ pub enum Scope {
     Global,
 }
 
+#[derive(Clone)]
 pub enum MapScope {
     SameChannelSameWorld,
     AllChannelsSameWorld,
     AllChannelsAllWorlds,
 }
 
+#[derive(Clone)]
 pub enum ChannelScope {
     SameWorld,
     AllWorlds,
+}
+
+#[derive(Clone)]
+pub enum BroadcastScope {
+    Global,
+    World {
+        world_id: i16,
+    },
+    Channel {
+        world_id: i16,
+        channel_id: u8,
+    },
+    Map {
+        world_id: i16,
+        channel_id: u8,
+        map_wz: i32,
+    },
 }

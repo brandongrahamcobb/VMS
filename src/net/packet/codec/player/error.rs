@@ -1,5 +1,5 @@
-/* despawn_player/builder.rs
- * The purpose of this module is to build an outgoing despawn player packet.
+/* codec/player/error.rs
+ * The purpose of this module is to provide errors related to player packets.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,21 +17,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::character::wrapper::Character;
-use crate::net::packet::codec::despawn_player::error::CodecDespawnPlayerError;
-use crate::net::packet::io::error::IOError::WriteError;
-use crate::net::packet::model::Packet;
-use crate::op::send::SendOpcode;
-use crate::prelude::*;
+use crate::models::character::error::CharacterError;
+use crate::net::packet::io::error::IOError;
+use thiserror::Error;
 
-impl Packet {
-    pub fn build_despawn_player_packet(
-        &mut self,
-        char: &Character,
-    ) -> Result<&mut Self, CodecDespawnPlayerError> {
-        let op = SendOpcode::DespawnPlayer as i16;
-        self.write_short(op).map_err(WriteError)?;
-        self.write_int(char.model.get_id()?).map_err(WriteError)?;
-        Ok(self)
-    }
+#[derive(Debug, Error)]
+pub enum CodecPlayerError {
+    #[error("Packet io error in codec spawn player layer")]
+    IOError(#[from] IOError),
+
+    #[error("Character model error in codec spawn player layer")]
+    CharacterError(#[from] CharacterError),
 }

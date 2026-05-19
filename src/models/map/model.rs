@@ -17,14 +17,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use tokio::sync::broadcast;
+
 use crate::models::map::error::MapError;
-use crate::models::map::respawn;
 use crate::models::map::wrapper::Map;
 use crate::models::mob::model::MobModel;
 use crate::models::mob::wrapper::Mob;
 use crate::models::portal::model::PortalModel;
 use crate::models::portal::wrapper::Portal;
 use crate::models::{mob, portal};
+use crate::net::packet::handler::mob_respawn;
+use crate::net::packet::handler::mob_respawn::handler::MobRespawnHandler;
 use crate::runtime::state::SharedState;
 use std::collections::HashMap;
 
@@ -59,9 +62,13 @@ impl MapModel {
         channel_id: u8,
         map_wz: i32,
     ) -> Result<Map, MapError> {
+        let (tick_tx, _) = broadcast::channel(32);
         let mobs: HashMap<u32, Mob> = self.load_mobs(map_wz)?;
         let portals: HashMap<u8, Portal> = self.load_portals(map_wz)?;
-        respawn::respawn_tick(state, world_id, channel_id, map_wz).await?;
+        let mob_respawn_handler: MobRespawnHandler = mob_respawn::handler::MobRespawnHandler::new();
+        mob_respawn_handler
+            .handle(state, tick_tx.clone(), world_id, channel_id, map_wz)
+            .await?;
         Ok(Map {
             model: MapModel { wz: map_wz },
             chars: HashMap::new(),
@@ -69,6 +76,7 @@ impl MapModel {
             items: HashMap::new(),
             mobs,
             portals,
+            tick_tx,
         })
     }
 }

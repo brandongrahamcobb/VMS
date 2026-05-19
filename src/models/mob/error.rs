@@ -35,6 +35,6 @@ pub enum MobError {
     #[error("Life is not a mob error in mob model layer")]
     NotMob,
 
-    #[error("Not life value error in map metadata in mob model layer")]
-    NoLife,
+    #[error("Not life value error in map metadata in mob model layer. Map WZ: {0}")]
+    NoLife(i32),
 }

@@ -1,5 +1,5 @@
-/* spawn_mob/error.rs
- * The purpose of this module is to provide errors related to spawning mobs.
+/* mob/error.rs
+ * The purpose of this module is to provide errors related to mob packets.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -21,7 +21,7 @@ use crate::net::packet::io::error::IOError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum CodecSpawnMobError {
-    #[error("Packet io error in codec spawn player layer")]
+pub enum CodecMobError {
+    #[error("Packet io error in codec mob layer")]
     IOError(#[from] IOError),
 }

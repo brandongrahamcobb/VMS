@@ -19,7 +19,7 @@
 
 use crate::models::character::wrapper::Character;
 use crate::models::item::wrapper::{EquipItem, Item};
-use crate::net::packet::codec::spawn_player::error::CodecSpawnPlayerError;
+use crate::net::packet::codec::player::error::CodecPlayerError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
@@ -29,7 +29,7 @@ impl Packet {
     pub fn build_spawn_player_packet(
         &mut self,
         char: &Character,
-    ) -> Result<&mut Self, CodecSpawnPlayerError> {
+    ) -> Result<&mut Self, CodecPlayerError> {
         let op = SendOpcode::SpawnPlayer as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_int(char.model.get_id()?).map_err(WriteError)?;
@@ -137,7 +137,7 @@ impl Packet {
         char: &Character,
         channel_id: u8,
         map_wz: i32,
-    ) -> Result<&mut Self, CodecSpawnPlayerError> {
+    ) -> Result<&mut Self, CodecPlayerError> {
         let op = SendOpcode::SetField as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_int(channel_id as i32).map_err(WriteError)?;
@@ -171,7 +171,7 @@ impl Packet {
     pub fn build_look_cash_equipment_part_packet(
         &mut self,
         char: &Character,
-    ) -> Result<&mut Self, CodecSpawnPlayerError> {
+    ) -> Result<&mut Self, CodecPlayerError> {
         for (ipos, equip) in char.inventory.equipped_tab.iter() {
             match equip {
                 Item::CashEquip(i) => {
@@ -187,7 +187,7 @@ impl Packet {
     pub fn build_look_regular_equipment_part_packet(
         &mut self,
         char: &Character,
-    ) -> Result<&mut Self, CodecSpawnPlayerError> {
+    ) -> Result<&mut Self, CodecPlayerError> {
         for (ipos, equip) in char.inventory.equipped_tab.iter() {
             match equip {
                 Item::Equip(i) => {
@@ -203,7 +203,7 @@ impl Packet {
     pub fn build_list_char_meta_part_packet(
         &mut self,
         char: &Character,
-    ) -> Result<&mut Self, CodecSpawnPlayerError> {
+    ) -> Result<&mut Self, CodecPlayerError> {
         self.write_int(char.model.get_id()?).map_err(WriteError)?;
         self.write_str(char.model.ign.clone()).map_err(WriteError)?;
         self.write_bytes(vec![0u8; 13 - char.model.ign.len()])
@@ -246,7 +246,7 @@ impl Packet {
     pub fn build_look_meta_part_packet(
         &mut self,
         char: &Character,
-    ) -> Result<&mut Self, CodecSpawnPlayerError> {
+    ) -> Result<&mut Self, CodecPlayerError> {
         self.write_byte(char.model.gender_wz as i16)
             .map_err(WriteError)?;
         self.write_byte(char.model.skin_wz as i16)
@@ -272,7 +272,7 @@ impl Packet {
         &mut self,
         char: &Character,
         map_wz: i32,
-    ) -> Result<&mut Self, CodecSpawnPlayerError> {
+    ) -> Result<&mut Self, CodecPlayerError> {
         let level = char.model.level as i16;
         self.write_byte(level).map_err(WriteError)?;
         self.write_short(char.model.job_wz).map_err(WriteError)?;
@@ -310,7 +310,7 @@ impl Packet {
         Ok(self)
     }
 
-    fn build_skills_part_packet(&mut self) -> Result<&mut Self, CodecSpawnPlayerError> {
+    fn build_skills_part_packet(&mut self) -> Result<&mut Self, CodecPlayerError> {
         // Dummy values
         // No skills!
         self.write_short(0).map_err(WriteError)?;
@@ -319,7 +319,7 @@ impl Packet {
         Ok(self)
     }
 
-    fn build_quests_part_packet(&mut self) -> Result<&mut Self, CodecSpawnPlayerError> {
+    fn build_quests_part_packet(&mut self) -> Result<&mut Self, CodecPlayerError> {
         // Dummy values
         let started_quests = 0;
         self.write_short(started_quests).map_err(WriteError)?;
@@ -328,13 +328,13 @@ impl Packet {
         Ok(self)
     }
 
-    fn build_minigames_part_packet(&mut self) -> Result<&mut Self, CodecSpawnPlayerError> {
+    fn build_minigames_part_packet(&mut self) -> Result<&mut Self, CodecPlayerError> {
         // Dummy values
         self.write_short(0).map_err(WriteError)?;
         Ok(self)
     }
 
-    fn build_rings_part_packet(&mut self) -> Result<&mut Self, CodecSpawnPlayerError> {
+    fn build_rings_part_packet(&mut self) -> Result<&mut Self, CodecPlayerError> {
         // Dummy values
         let num_crush_rings = 0;
         let num_friendship_rings = 0;
@@ -345,7 +345,7 @@ impl Packet {
         Ok(self)
     }
 
-    fn build_teleport_part_packet(&mut self) -> Result<&mut Self, CodecSpawnPlayerError> {
+    fn build_teleport_part_packet(&mut self) -> Result<&mut Self, CodecPlayerError> {
         // Dummy values
         for _ in 0..5 {
             self.write_int(0).map_err(WriteError)?;
@@ -356,7 +356,7 @@ impl Packet {
         Ok(self)
     }
 
-    fn build_codex_part_packet(&mut self) -> Result<&mut Self, CodecSpawnPlayerError> {
+    fn build_codex_part_packet(&mut self) -> Result<&mut Self, CodecPlayerError> {
         // Dummy values
         let codex_cover = 1;
         let num_cards = 0;
@@ -366,14 +366,14 @@ impl Packet {
         Ok(self)
     }
 
-    fn build_new_year_cards_part_packet(&mut self) -> Result<&mut Self, CodecSpawnPlayerError> {
+    fn build_new_year_cards_part_packet(&mut self) -> Result<&mut Self, CodecPlayerError> {
         // Dummy values
         let num_cards = 0;
         self.write_short(num_cards).map_err(WriteError)?;
         Ok(self)
     }
 
-    fn build_area_info_part_packet(&mut self) -> Result<&mut Self, CodecSpawnPlayerError> {
+    fn build_area_info_part_packet(&mut self) -> Result<&mut Self, CodecPlayerError> {
         let num_areas = 0;
         self.write_short(num_areas).map_err(WriteError)?;
         Ok(self)
@@ -382,7 +382,7 @@ impl Packet {
     pub fn build_inventory_cash_equipment_part_packet(
         &mut self,
         char: &Character,
-    ) -> Result<&mut Self, CodecSpawnPlayerError> {
+    ) -> Result<&mut Self, CodecPlayerError> {
         for (ipos, equip) in char.inventory.equipped_tab.iter() {
             match equip {
                 Item::CashEquip(i) => {
@@ -399,7 +399,7 @@ impl Packet {
     pub fn build_inventory_regular_equipment_part_packet(
         &mut self,
         char: &Character,
-    ) -> Result<&mut Self, CodecSpawnPlayerError> {
+    ) -> Result<&mut Self, CodecPlayerError> {
         for (ipos, equip) in char.inventory.equipped_tab.iter() {
             match equip {
                 Item::Equip(i) => {
@@ -415,7 +415,7 @@ impl Packet {
     fn build_inventory_regular_equip_meta_part_packet(
         &mut self,
         equip: &EquipItem,
-    ) -> Result<&mut Self, CodecSpawnPlayerError> {
+    ) -> Result<&mut Self, CodecPlayerError> {
         // Dummy values
         self.write_byte(1).map_err(WriteError)?;
         self.write_int(equip.model.wz).map_err(WriteError)?;
@@ -444,7 +444,7 @@ impl Packet {
     pub fn build_inventory_part_packet(
         &mut self,
         char: &Character,
-    ) -> Result<&mut Self, CodecSpawnPlayerError> {
+    ) -> Result<&mut Self, CodecPlayerError> {
         self.write_int(char.model.meso).map_err(WriteError)?;
         // Dummy values
         // Inventory slot Capacities
@@ -471,6 +471,16 @@ impl Packet {
         self.write_byte(0).map_err(WriteError)?;
         // Start of CASH
         self.write_byte(0).map_err(WriteError)?;
+        Ok(self)
+    }
+
+    pub fn build_despawn_player_packet(
+        &mut self,
+        char: &Character,
+    ) -> Result<&mut Self, CodecPlayerError> {
+        let op = SendOpcode::DespawnPlayer as i16;
+        self.write_short(op).map_err(WriteError)?;
+        self.write_int(char.model.get_id()?).map_err(WriteError)?;
         Ok(self)
     }
 }

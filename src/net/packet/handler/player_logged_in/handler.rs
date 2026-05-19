@@ -17,13 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::action::{Action, SetAction};
+use crate::net::action::{Action, SessionAction, SetAction};
 use crate::net::packet::handler::player_logged_in::error::PlayerLoggedInError;
 use crate::net::packet::handler::player_logged_in::reader::PlayerLoggedInReader;
 use crate::net::packet::handler::player_logged_in::store::PlayerLoggedInStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::relay::scope::{MapScope, Scope};
+use crate::runtime::relay::scope::{MapScope, SessionScope};
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
@@ -56,29 +56,29 @@ impl PlayerLoggedInHandler {
         let packet: Packet = Packet::new_empty()
             .build_player_logged_in_handler_keymap_packet(&store.binds)?
             .finish();
-        result.add_action(Action::Send {
+        result.add_action(Action::Session(SessionAction::Send {
             packet: packet.clone(),
-            scope: Scope::Local,
-        });
+            scope: SessionScope::Local,
+        }));
         let packet: Packet = Packet::new_empty()
             .build_set_field_packet(&store.char, store.channel_id, store.char.model.map_wz)?
             .finish();
-        result.add_action(Action::Send {
+        result.add_action(Action::Session(SessionAction::Send {
             packet: packet.clone(),
-            scope: Scope::Local,
-        });
-        result.add_action(Action::Set(SetAction::SetMap {
-            map_wz: store.map_wz,
-            scope: Scope::Local,
+            scope: SessionScope::Local,
         }));
+        result.add_action(Action::Session(SessionAction::Set(SetAction::SetMap {
+            map_wz: store.map_wz,
+            scope: SessionScope::Local,
+        })));
         let packet: Packet = Packet::new_empty()
             .build_spawn_player_packet(&store.char)?
             .finish();
-        result.add_action(Action::Send {
+        result.add_action(Action::Session(SessionAction::Send {
             packet: packet.clone(),
-            scope: Scope::Map(MapScope::SameChannelSameWorld),
-        });
-        result.add_action(Action::Retrieve);
+            scope: SessionScope::Map(MapScope::SameChannelSameWorld),
+        }));
+        result.add_action(Action::Session(SessionAction::Retrieve));
         Ok(result)
     }
 }

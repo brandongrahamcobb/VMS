@@ -17,11 +17,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use tokio::sync::broadcast;
+
 use crate::models::map::model::MapModel;
+use crate::net::packet::handler::mob_respawn;
+use crate::net::packet::handler::mob_respawn::handler::MobRespawnHandler;
+use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::relay::execute::error::ExecuteError;
-use crate::runtime::relay::execute::{broadcast, set_channel, set_map, set_world, simple};
-use crate::runtime::relay::scope::Scope;
+use crate::runtime::relay::execute::{set_channel, set_map, set_world, simple};
+use crate::runtime::relay::scope::SessionScope;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 use core::ops::ControlFlow;
@@ -30,20 +35,20 @@ pub async fn end(
     state: &SharedState,
     session: &Session,
     packet: &Packet,
-    scope: &Scope,
+    scope: &SessionScope,
 ) -> Result<ControlFlow<Packet>, ExecuteError> {
     match scope {
-        Scope::Local => {
+        SessionScope::Local => {
             return Ok(ControlFlow::Break(packet.clone()));
         }
-        Scope::Map(map_scope) => {
+        SessionScope::Map(map_scope) => {
             simple::simply_send_to_map(state, session, packet, map_scope).await?
         }
-        Scope::Channel(channel_scope) => {
+        SessionScope::Channel(channel_scope) => {
             simple::simply_send_to_channel(state, session, packet, channel_scope).await?
         }
-        Scope::World => simple::simply_send_to_world(state, session, packet).await?,
-        Scope::Global => simple::simply_send_globally(state, session, packet).await?,
+        SessionScope::World => simple::simply_send_to_world(state, session, packet).await?,
+        SessionScope::Global => simple::simply_send_globally(state, session, packet).await?,
     }
     Ok(ControlFlow::Continue(()))
 }
@@ -52,54 +57,22 @@ pub async fn send(
     state: &SharedState,
     session: &Session,
     packet: &Packet,
-    scope: &Scope,
-) -> Result<(), ExecuteError> {
+    scope: &SessionScope,
+) -> Result<ControlFlow<Packet>, ExecuteError> {
     match scope {
-        Scope::Local => {
+        SessionScope::Local => {
             session.tx.send(packet.clone())?;
         }
-        Scope::Map(map_scope) => {
+        SessionScope::Map(map_scope) => {
             simple::simply_send_to_map(state, session, packet, map_scope).await?
         }
-        Scope::Channel(channel_scope) => {
+        SessionScope::Channel(channel_scope) => {
             simple::simply_send_to_channel(state, session, packet, channel_scope).await?
         }
-        Scope::World => simple::simply_send_to_world(state, session, packet).await?,
-        Scope::Global => simple::simply_send_globally(state, session, packet).await?,
+        SessionScope::World => simple::simply_send_to_world(state, session, packet).await?,
+        SessionScope::Global => simple::simply_send_globally(state, session, packet).await?,
     }
-    Ok(())
-}
-
-pub async fn broadcast(
-    state: &SharedState,
-    packet: &Packet,
-    world_id: Option<i16>,
-    channel_id: Option<u8>,
-    map_wz: Option<i32>,
-    scope: &Scope,
-) -> Result<(), ExecuteError> {
-    match scope {
-        Scope::Local => {}
-        Scope::Map(map_scope) => {
-            let world_id = world_id.ok_or(ExecuteError::NoWorld)?;
-            let channel_id = channel_id.ok_or(ExecuteError::NoChannel)?;
-            let map_wz = map_wz.ok_or(ExecuteError::NoMap)?;
-            broadcast::broadcast_to_map(state, packet, world_id, channel_id, map_wz, map_scope)
-                .await?
-        }
-        Scope::Channel(channel_scope) => {
-            let world_id = world_id.ok_or(ExecuteError::NoWorld)?;
-            let channel_id = channel_id.ok_or(ExecuteError::NoChannel)?;
-            broadcast::broadcast_to_channel(state, packet, world_id, channel_id, channel_scope)
-                .await?
-        }
-        Scope::World => {
-            let world_id = world_id.ok_or(ExecuteError::NoWorld)?;
-            broadcast::broadcast_to_world(state, packet, world_id).await?
-        }
-        Scope::Global => broadcast::broadcast_globally(state, packet).await?,
-    }
-    Ok(())
+    Ok(ControlFlow::Continue(()))
 }
 
 pub async fn retrieve(state: &SharedState, session: &Session) -> Result<(), ExecuteError> {
@@ -142,46 +115,50 @@ pub async fn retrieve(state: &SharedState, session: &Session) -> Result<(), Exec
 pub async fn set_map(
     state: &SharedState,
     session: &Session,
-    scope: &Scope,
+    scope: &SessionScope,
     map_wz: i32,
-) -> Result<(), ExecuteError> {
+) -> Result<broadcast::Receiver<HandlerResult>, ExecuteError> {
     let world_id: i16 = session.get_world_id()?;
     let channel_id: u8 = session.get_channel_id()?;
-    insert_map(state, world_id, channel_id, map_wz).await?;
+    let tick_rx = insert_map(state, world_id, channel_id, map_wz).await?;
     match scope {
-        Scope::Local => {
+        SessionScope::Local => {
             set_map::set_map_locally(state, session, map_wz).await?;
         }
-        Scope::Map(map_scope) => {
+        SessionScope::Map(map_scope) => {
             set_map::set_map_for_map(state, session, map_scope, map_wz).await?
         }
-        Scope::Channel(channel_scope) => {
+        SessionScope::Channel(channel_scope) => {
             set_map::set_map_for_channel(state, session, channel_scope, map_wz).await?
         }
-        Scope::World => set_map::set_map_for_world(state, session, map_wz).await?,
-        Scope::Global => set_map::set_map_globally(state, session, map_wz).await?,
+        SessionScope::World => set_map::set_map_for_world(state, session, map_wz).await?,
+        SessionScope::Global => set_map::set_map_globally(state, session, map_wz).await?,
     }
-    Ok(())
+    Ok(tick_rx)
 }
 
 pub async fn set_channel(
     state: &SharedState,
     session: &Session,
-    scope: &Scope,
+    scope: &SessionScope,
     channel_id: u8,
 ) -> Result<(), ExecuteError> {
     match scope {
-        Scope::Local => {
+        SessionScope::Local => {
             set_channel::set_channel_locally(state, session, channel_id).await?;
         }
-        Scope::Map(map_scope) => {
+        SessionScope::Map(map_scope) => {
             set_channel::set_channel_for_map(state, session, map_scope, channel_id).await?
         }
-        Scope::Channel(channel_scope) => {
+        SessionScope::Channel(channel_scope) => {
             set_channel::set_channel_for_channel(state, session, channel_scope, channel_id).await?
         }
-        Scope::World => set_channel::set_channel_for_world(state, session, channel_id).await?,
-        Scope::Global => set_channel::set_channel_globally(state, session, channel_id).await?,
+        SessionScope::World => {
+            set_channel::set_channel_for_world(state, session, channel_id).await?
+        }
+        SessionScope::Global => {
+            set_channel::set_channel_globally(state, session, channel_id).await?
+        }
     }
     Ok(())
 }
@@ -189,21 +166,21 @@ pub async fn set_channel(
 pub async fn set_world(
     state: &SharedState,
     session: &Session,
-    scope: &Scope,
+    scope: &SessionScope,
     world_id: i16,
 ) -> Result<(), ExecuteError> {
     match scope {
-        Scope::Local => {
+        SessionScope::Local => {
             set_world::set_world_locally(state, session, world_id).await?;
         }
-        Scope::Map(map_scope) => {
+        SessionScope::Map(map_scope) => {
             set_world::set_world_for_map(state, session, map_scope, world_id).await?
         }
-        Scope::Channel(channel_scope) => {
+        SessionScope::Channel(channel_scope) => {
             set_world::set_world_for_channel(state, session, channel_scope, world_id).await?
         }
-        Scope::World => set_world::set_world_for_world(state, session, world_id).await?,
-        Scope::Global => set_world::set_world_globally(state, session, world_id).await?,
+        SessionScope::World => set_world::set_world_for_world(state, session, world_id).await?,
+        SessionScope::Global => set_world::set_world_globally(state, session, world_id).await?,
     }
     Ok(())
 }
@@ -237,7 +214,7 @@ pub async fn insert_map(
     world_id: i16,
     channel_id: u8,
     map_wz: i32,
-) -> Result<(), ExecuteError> {
+) -> Result<broadcast::Receiver<HandlerResult>, ExecuteError> {
     let map_model: MapModel = MapModel { wz: map_wz };
     let map = map_model.load(state, world_id, channel_id, map_wz).await?;
     let state = state.lock().await;
@@ -257,7 +234,12 @@ pub async fn insert_map(
             })
             .await?;
     }
-    Ok(())
+    let tick_rx = state
+        .with_channel(world_id, channel_id, |channel| {
+            channel.maps.get(&map_wz).unwrap().tick_tx.subscribe()
+        })
+        .await?;
+    Ok(tick_rx)
 }
 
 pub async fn delete_map(

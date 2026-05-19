@@ -40,6 +40,9 @@ pub struct MoveMobStore {
     pub fh: i16,
     pub new_state: u8,
     pub duration: i16,
+    pub world_id: i16,
+    pub channel_id: u8,
+    pub map_wz: i32,
 }
 
 impl MoveMobStore {
@@ -48,6 +51,9 @@ impl MoveMobStore {
         session: &Session,
         reader: &MoveMobReader,
     ) -> Result<Self, MoveMobError> {
+        let world_id: i16 = session.get_world_id()?;
+        let channel_id: u8 = session.get_channel_id()?;
+        let map_wz: i32 = session.get_map_wz()?;
         std::hint::black_box(state);
         std::hint::black_box(session);
         Ok(Self {
@@ -68,6 +74,9 @@ impl MoveMobStore {
             fh: reader.fh,
             new_state: reader.new_state,
             duration: reader.duration,
+            world_id,
+            channel_id,
+            map_wz,
         })
     }
 }

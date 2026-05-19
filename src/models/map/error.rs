@@ -24,6 +24,7 @@ use thiserror::Error;
 use crate::metadata::error::MetadataError;
 use crate::models::mob::error::MobError;
 use crate::models::portal::error::PortalError;
+use crate::net::packet::handler::mob_respawn::error::MobRespawnError;
 
 #[derive(Debug, Error)]
 pub enum MapError {
@@ -41,4 +42,7 @@ pub enum MapError {
 
     #[error("No life map in metadata in map model layer")]
     NoLife,
+
+    #[error("Mob respawn handler error in map model layer")]
+    MobRespawnError(#[from] MobRespawnError),
 }

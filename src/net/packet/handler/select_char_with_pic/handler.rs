@@ -17,13 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::action::{Action, SetAction};
+use crate::net::action::{Action, SessionAction, SetAction};
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::handler::select_char_with_pic::error::SelectCharWithPicError;
 use crate::net::packet::handler::select_char_with_pic::reader::SelectCharWithPicReader;
 use crate::net::packet::handler::select_char_with_pic::store::SelectCharWithPicStore;
 use crate::net::packet::model::Packet;
-use crate::runtime::relay::scope::Scope;
+use crate::runtime::relay::scope::SessionScope;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
@@ -54,24 +54,24 @@ impl SelectCharWithPicHandler {
     ) -> Result<HandlerResult, SelectCharWithPicError> {
         let mut result: HandlerResult = HandlerResult::new();
         if store.pic_status {
-            result.add_action(Action::Set(SetAction::SetChar {
+            result.add_action(Action::Session(SessionAction::Set(SetAction::SetChar {
                 char_id: store.char_id,
-            }));
+            })));
             let packet: Packet = Packet::new_empty()
                 .build_select_char_packet(store.char_id, store.octets, store.port)?
                 .finish();
-            result.add_action(Action::Break {
+            result.add_action(Action::Session(SessionAction::Break {
                 packet: packet.clone(),
-                scope: Scope::Local,
-            });
+                scope: SessionScope::Local,
+            }));
         } else {
             let packet: Packet = Packet::new_empty()
                 .build_select_char_handler_failed_pic_packet()?
                 .finish();
-            result.add_action(Action::Send {
+            result.add_action(Action::Session(SessionAction::Send {
                 packet: packet.clone(),
-                scope: Scope::Local,
-            });
+                scope: SessionScope::Local,
+            }));
         };
         Ok(result)
     }

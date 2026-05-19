@@ -1,5 +1,6 @@
 use crate::net::action::Action;
 
+#[derive(Clone)]
 pub struct HandlerResult {
     pub model: Vec<Action>,
 }

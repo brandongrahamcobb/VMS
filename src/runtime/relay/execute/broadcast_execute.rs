@@ -17,10 +17,33 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::net::action::{Action, BroadcastAction};
+use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::relay::execute::error::ExecuteError;
-use crate::runtime::relay::scope::{ChannelScope, MapScope};
+use crate::runtime::relay::scope::BroadcastScope;
 use crate::runtime::state::SharedState;
+
+pub async fn broadcast(
+    state: &SharedState,
+    packet: &Packet,
+    scope: &BroadcastScope,
+) -> Result<(), ExecuteError> {
+    match scope {
+        BroadcastScope::Global => broadcast_globally(state, packet).await?,
+        BroadcastScope::World { world_id } => broadcast_to_world(state, packet, *world_id).await?,
+        BroadcastScope::Channel {
+            world_id,
+            channel_id,
+        } => broadcast_to_channel(state, packet, *world_id, *channel_id).await?,
+        BroadcastScope::Map {
+            world_id,
+            channel_id,
+            map_wz,
+        } => broadcast_to_map(state, packet, *world_id, *channel_id, *map_wz).await?,
+    }
+    Ok(())
+}
 
 pub async fn broadcast_to_map(
     state: &SharedState,
@@ -28,44 +51,16 @@ pub async fn broadcast_to_map(
     world_id: i16,
     channel_id: u8,
     map_wz: i32,
-    map_scope: &MapScope,
 ) -> Result<(), ExecuteError> {
     let no_session_id = 0;
-    match map_scope {
-        MapScope::SameChannelSameWorld => {
-            let sessions = {
-                let locked_state = state.lock().await;
-                locked_state.sessions.get_by_map_channel_world(
-                    map_wz,
-                    channel_id,
-                    world_id,
-                    no_session_id,
-                )
-            };
-            for s in sessions {
-                s.tx.send(packet.clone())?;
-            }
-        }
-        MapScope::AllChannelsSameWorld => {
-            let sessions = {
-                let locked_state = state.lock().await;
-                locked_state
-                    .sessions
-                    .get_by_map_world(map_wz, world_id, no_session_id)
-            };
-            for s in sessions {
-                s.tx.send(packet.clone())?;
-            }
-        }
-        MapScope::AllChannelsAllWorlds => {
-            let sessions = {
-                let locked_state = state.lock().await;
-                locked_state.sessions.get_by_map(map_wz, no_session_id)
-            };
-            for s in sessions {
-                s.tx.send(packet.clone())?;
-            }
-        }
+    let sessions = {
+        let locked_state = state.lock().await;
+        locked_state
+            .sessions
+            .get_by_map_channel_world(map_wz, channel_id, world_id, no_session_id)
+    };
+    for s in sessions {
+        s.tx.send(packet.clone())?;
     }
     Ok(())
 }
@@ -75,32 +70,16 @@ pub async fn broadcast_to_channel(
     packet: &Packet,
     world_id: i16,
     channel_id: u8,
-    channel_scope: &ChannelScope,
 ) -> Result<(), ExecuteError> {
     let no_session_id = 0;
-    match channel_scope {
-        ChannelScope::SameWorld => {
-            let sessions = {
-                let locked_state = state.lock().await;
-                locked_state
-                    .sessions
-                    .get_by_channel_world(channel_id, world_id, no_session_id)
-            };
-            for s in sessions {
-                s.tx.send(packet.clone())?;
-            }
-        }
-        ChannelScope::AllWorlds => {
-            let sessions = {
-                let locked_state = state.lock().await;
-                locked_state
-                    .sessions
-                    .get_by_channel(channel_id, no_session_id)
-            };
-            for s in sessions {
-                s.tx.send(packet.clone())?;
-            }
-        }
+    let sessions = {
+        let locked_state = state.lock().await;
+        locked_state
+            .sessions
+            .get_by_channel_world(channel_id, world_id, no_session_id)
+    };
+    for s in sessions {
+        s.tx.send(packet.clone())?;
     }
     Ok(())
 }

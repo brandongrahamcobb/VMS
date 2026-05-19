@@ -17,13 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::action::Action;
+use crate::net::action::{Action, BroadcastAction};
 use crate::net::packet::handler::move_player::error::MovePlayerError;
 use crate::net::packet::handler::move_player::reader::MovePlayerReader;
 use crate::net::packet::handler::move_player::store::MovePlayerStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::relay::scope::{MapScope, Scope};
+use crate::runtime::relay::scope::BroadcastScope;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
@@ -56,14 +56,14 @@ impl MovePlayerHandler {
             let packet: Packet = Packet::new_empty()
                 .build_player_move_packet(store.char_id, store.movement_bytes.clone())?
                 .finish();
-            result.add_action(Action::Send {
+            result.add_action(Action::Broadcast(BroadcastAction::Send {
                 packet: packet.clone(),
-                scope: Scope::Local,
-            });
-            result.add_action(Action::Send {
-                packet: packet.clone(),
-                scope: Scope::Map(MapScope::SameChannelSameWorld),
-            });
+                scope: BroadcastScope::Map {
+                    world_id: store.world_id,
+                    channel_id: store.channel_id,
+                    map_wz: store.map_wz,
+                },
+            }));
         }
         Ok(result)
     }

@@ -17,13 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::action::Action;
+use crate::net::action::{Action, BroadcastAction, SessionAction};
 use crate::net::packet::handler::close_attack::error::CloseAttackError;
 use crate::net::packet::handler::close_attack::reader::CloseAttackReader;
 use crate::net::packet::handler::close_attack::store::CloseAttackStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::relay::scope::{MapScope, Scope};
+use crate::runtime::relay::scope::{BroadcastScope, SessionScope};
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
@@ -65,34 +65,34 @@ impl CloseAttackHandler {
                 store.mob_damages.clone(),
             )?
             .finish();
-        result.add_action(Action::Send {
+        result.add_action(Action::Broadcast(BroadcastAction::Send {
             packet: packet.clone(),
-            scope: Scope::Local,
-        });
+            scope: BroadcastScope::Map {
+                world_id: store.world_id,
+                channel_id: store.channel_id,
+                map_wz: store.map_wz,
+            },
+        }));
         for (mob_id, hp_percent) in store.hp_updates.clone() {
             let packet = Packet::new_empty()
                 .build_mob_damage_show_hp_packet(mob_id, hp_percent)?
                 .finish();
-            result.add_action(Action::Send {
+            result.add_action(Action::Session(SessionAction::Send {
                 packet: packet.clone(),
-                scope: Scope::Local,
-            });
+                scope: SessionScope::Local,
+            }));
         }
         for mob_id in store.dead_mobs.clone() {
             let packet = Packet::new_empty().build_kill_mob_packet(mob_id)?.finish();
-            result.add_action(Action::Send {
+            result.add_action(Action::Broadcast(BroadcastAction::Send {
                 packet: packet.clone(),
-                scope: Scope::Local,
-            });
-            result.add_action(Action::Send {
-                packet: packet.clone(),
-                scope: Scope::Map(MapScope::SameChannelSameWorld),
-            });
+                scope: BroadcastScope::Map {
+                    world_id: store.world_id,
+                    channel_id: store.channel_id,
+                    map_wz: store.map_wz,
+                },
+            }));
         }
-        result.add_action(Action::Send {
-            packet: packet.clone(),
-            scope: Scope::Map(MapScope::SameChannelSameWorld),
-        });
         Ok(result)
     }
 }

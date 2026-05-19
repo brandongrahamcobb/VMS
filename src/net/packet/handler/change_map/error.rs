@@ -19,8 +19,7 @@
 
 use crate::models::character::error::CharacterError;
 use crate::models::map::error::MapError;
-use crate::net::packet::codec::despawn_player::error::CodecDespawnPlayerError;
-use crate::net::packet::codec::spawn_player::error::CodecSpawnPlayerError;
+use crate::net::packet::codec::player::error::CodecPlayerError;
 use crate::net::packet::io::error::IOError;
 use crate::runtime::error::StateError;
 use crate::runtime::session::error::SessionError;
@@ -43,9 +42,6 @@ pub enum ChangeMapError {
     #[error("State error in change map layer")]
     StateError(#[from] StateError),
 
-    #[error("Codec spawn player packet error in change map layer")]
-    CodecSpawnPlayerError(#[from] CodecSpawnPlayerError),
-
-    #[error("Codec despawn player packet error in change map layer")]
-    CodecDespawnPlayerError(#[from] CodecDespawnPlayerError),
+    #[error("Codec player packet error in change map layer")]
+    CodecPlayerError(#[from] CodecPlayerError),
 }

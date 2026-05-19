@@ -17,13 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::action::Action;
+use crate::net::action::{Action, SessionAction};
 use crate::net::packet::handler::delete_char::error::DeleteCharError;
 use crate::net::packet::handler::delete_char::reader::DeleteCharReader;
 use crate::net::packet::handler::delete_char::store::DeleteCharStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::relay::scope::Scope;
+use crate::runtime::relay::scope::SessionScope;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
@@ -55,10 +55,10 @@ impl DeleteCharHandler {
         let packet = Packet::new_empty()
             .build_delete_char_packet(store.char_id, store.pic_status)?
             .finish();
-        result.add_action(Action::Send {
+        result.add_action(Action::Session(SessionAction::Send {
             packet: packet.clone(),
-            scope: Scope::Local,
-        });
+            scope: SessionScope::Local,
+        }));
         Ok(result)
     }
 }

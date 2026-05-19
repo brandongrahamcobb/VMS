@@ -20,8 +20,7 @@
 use crate::config::error::ConfigError;
 use crate::models::character::error::CharacterError;
 use crate::models::map::error::MapError;
-use crate::net::packet::codec::despawn_player::error::CodecDespawnPlayerError;
-use crate::net::packet::codec::spawn_player::error::CodecSpawnPlayerError;
+use crate::net::packet::codec::player::error::CodecPlayerError;
 use crate::net::packet::io::error::IOError;
 use crate::runtime::error::StateError;
 use crate::runtime::session::error::SessionError;
@@ -32,11 +31,8 @@ pub enum ChangeChannelError {
     #[error("Packet io error in change channel layer")]
     IOError(#[from] IOError),
 
-    #[error("Spawn player packet error in change channel layer")]
-    CodecSpawnPlayerError(#[from] CodecSpawnPlayerError),
-
-    #[error("Despawn player packet error in change channel layer")]
-    CodecDespawnPlayerError(#[from] CodecDespawnPlayerError),
+    #[error("Codec player packet error in change channel layer")]
+    CodecPlayerError(#[from] CodecPlayerError),
 
     #[error("Map model error in change channel layer")]
     MapError(#[from] MapError),

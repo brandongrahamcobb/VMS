@@ -20,8 +20,7 @@
 use crate::db::error::DatabaseError;
 use crate::models::character::error::CharacterError;
 use crate::models::map::error::MapError;
-use crate::net::packet::codec::despawn_player::error::CodecDespawnPlayerError;
-use crate::net::packet::codec::spawn_player::error::CodecSpawnPlayerError;
+use crate::net::packet::codec::player::error::CodecPlayerError;
 use crate::net::packet::handler::change_map::error::ChangeMapError;
 use crate::net::packet::io::error::IOError;
 use crate::runtime::session::error::SessionError;
@@ -44,11 +43,8 @@ pub enum TakeDamageError {
     #[error("Map model error in take damage layer")]
     MapError(#[from] MapError),
 
-    #[error("Codec spawn player packet error in take damage layer")]
-    CodecSpawnPlayerError(#[from] CodecSpawnPlayerError),
-
-    #[error("Codec despawn player packet error in take damage layer")]
-    CodecDespawnPlayerError(#[from] CodecDespawnPlayerError),
+    #[error("Codec player packet error in take damage layer")]
+    CodecPlayerError(#[from] CodecPlayerError),
 
     #[error("Change map error in take damage layer")]
     ChangeMapError(#[from] ChangeMapError), // might be placed better if it was a shared place

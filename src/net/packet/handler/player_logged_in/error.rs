@@ -21,7 +21,7 @@ use crate::models::character::error::CharacterError;
 use crate::models::keybinding::error::KeybindingError;
 use crate::models::map::error::MapError;
 use crate::net::packet::codec::login::error::CodecLoginError;
-use crate::net::packet::codec::spawn_player::error::CodecSpawnPlayerError;
+use crate::net::packet::codec::player::error::CodecPlayerError;
 use crate::net::packet::io::error::IOError;
 use crate::runtime::error::StateError;
 use crate::runtime::session::error::SessionError;
@@ -32,8 +32,8 @@ pub enum PlayerLoggedInError {
     #[error("Packet io error in player logged in layer")]
     IOError(#[from] IOError),
 
-    #[error("Spawn player packet error in player logged in layer")]
-    CodecSpawnPlayerError(#[from] CodecSpawnPlayerError),
+    #[error("Codec player packet error in player logged in layer")]
+    CodecPlayerError(#[from] CodecPlayerError),
 
     #[error("Map model error in player logged in layer")]
     MapError(#[from] MapError),
@@ -44,7 +44,7 @@ pub enum PlayerLoggedInError {
     #[error("Keybinding model error in player logged in layer")]
     KeybindingError(#[from] KeybindingError),
 
-    #[error("Codec login error in player logged in layer")]
+    #[error("Codec login packet error in player logged in layer")]
     CodecLoginError(#[from] CodecLoginError),
 
     #[error("Character model error in player logged in layer")]

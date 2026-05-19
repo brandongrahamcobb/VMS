@@ -43,6 +43,9 @@ pub struct CloseAttackStore {
     pub speed: i16,
     pub hp_updates: HashMap<u32, i16>,
     pub mob_damages: HashMap<u32, Vec<i32>>,
+    pub world_id: i16,
+    pub channel_id: u8,
+    pub map_wz: i32,
 }
 
 impl CloseAttackStore {
@@ -111,6 +114,9 @@ impl CloseAttackStore {
             speed: reader.speed,
             hp_updates,
             mob_damages: reader.mob_damages.clone(),
+            world_id,
+            channel_id,
+            map_wz,
         });
     }
 }
