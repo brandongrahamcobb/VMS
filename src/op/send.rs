@@ -55,6 +55,7 @@ pub enum SendOpcode {
     SpawnMobController = 0xEE,
     DropLoot = 0x10C,
     RemoveLoot = 0x10D,
+    ModifyInventory = 0x1D,
     //
     SetCashShop = 0x7F,
     SetField = 0x7D,

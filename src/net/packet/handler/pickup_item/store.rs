@@ -48,7 +48,9 @@ impl PickupItemStore {
         let char_id: i32 = session.get_char_id()?;
         let mut char: Character = character::service::get_char_by_id(state, char_id).await?;
         let item: Item = item::service::get_item_by_item_id(state, reader.item_id).await?;
-        char.inventory.pick_up(state, char_id, item).await?;
+        char.inventory
+            .pick_up(state, char.model.ign.clone(), char_id, item)
+            .await?;
         let pet_pickup: bool = false; //placeholder
         Ok(Self {
             char_id,

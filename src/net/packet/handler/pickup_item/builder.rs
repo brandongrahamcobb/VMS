@@ -32,7 +32,7 @@ impl Packet {
     ) -> Result<&mut Self, PickupItemError> {
         let op = SendOpcode::RemoveLoot as i16;
         self.write_short(op).map_err(WriteError)?;
-        let mode: u8 = 1;
+        let mode: u8 = 0;
         self.write_byte(mode as i16).map_err(WriteError)?;
         self.write_int(item_id).map_err(WriteError)?;
         if mode > 1 {

@@ -22,7 +22,6 @@ use crate::db::error::DatabaseError;
 use crate::models::character::model::CharacterModel;
 use crate::models::character::wrapper::Character;
 use crate::models::item;
-use crate::models::item::error::ItemError;
 use crate::models::item::wrapper::Inventory;
 use crate::models::job::model::{JobModel, JobWzSkill};
 use crate::models::job::wrapper::Job;
@@ -116,44 +115,35 @@ impl CreateCharStore {
     async fn init_equips(
         state: &SharedState,
         reader: &CreateCharReader,
+        ign: String,
         char_id: i32,
     ) -> Result<Inventory, CreateCharError> {
         let mut inventory: Inventory = item::service::load_inventory(state, char_id).await?;
         let top = item::service::create_item(state, reader.top_wz).await?;
-        let top = {
-            let pos = inventory.pick_up(state, char_id, top).await?;
-            inventory
-                .equip_tab
-                .remove(&pos)
-                .ok_or(ItemError::InvalidISlot)?
-        };
+        let top_id = top.model.get_id()?;
+        inventory.pick_up(state, ign.clone(), char_id, top).await?;
+        let top = item::service::get_item_by_item_id(state, top_id).await?;
         inventory.equip(state, top).await?;
         let bottom = item::service::create_item(state, reader.bottom_wz).await?;
-        let bottom = {
-            let pos = inventory.pick_up(state, char_id, bottom).await?;
-            inventory
-                .equip_tab
-                .remove(&pos)
-                .ok_or(ItemError::InvalidISlot)?
-        };
+        let bottom_id = bottom.model.get_id()?;
+        inventory
+            .pick_up(state, ign.clone(), char_id, bottom)
+            .await?;
+        let bottom = item::service::get_item_by_item_id(state, bottom_id).await?;
         inventory.equip(state, bottom).await?;
         let shoes = item::service::create_item(state, reader.shoes_wz).await?;
-        let shoes = {
-            let pos = inventory.pick_up(state, char_id, shoes).await?;
-            inventory
-                .equip_tab
-                .remove(&pos)
-                .ok_or(ItemError::InvalidISlot)?
-        };
+        let shoes_id = shoes.model.get_id()?;
+        inventory
+            .pick_up(state, ign.clone(), char_id, shoes)
+            .await?;
+        let shoes = item::service::get_item_by_item_id(state, shoes_id).await?;
         inventory.equip(state, shoes).await?;
         let weapon = item::service::create_item(state, reader.weapon_wz).await?;
-        let weapon = {
-            let pos = inventory.pick_up(state, char_id, weapon).await?;
-            inventory
-                .equip_tab
-                .remove(&pos)
-                .ok_or(ItemError::InvalidISlot)?
-        };
+        let weapon_id = weapon.model.get_id()?;
+        inventory
+            .pick_up(state, ign.clone(), char_id, weapon)
+            .await?;
+        let weapon = item::service::get_item_by_item_id(state, weapon_id).await?;
         inventory.equip(state, weapon).await?;
         Ok(inventory)
     }
@@ -201,7 +191,7 @@ impl CreateCharStore {
         let char_model = Self::init_char_model(state, reader, acc_id, world_id, map_wz).await?;
         let char_id = char_model.get_id()?;
         let binds: HashMap<i32, Keybinding> = Self::init_keybindings(state, char_id).await?;
-        let inventory = Self::init_equips(state, reader, char_id).await?;
+        let inventory = Self::init_equips(state, reader, char_model.ign.clone(), char_id).await?;
         let job_model: JobModel = JobModel;
         let job: Job = job_model.load(reader.job_wz)?;
         let skills: HashMap<i32, Skill> =

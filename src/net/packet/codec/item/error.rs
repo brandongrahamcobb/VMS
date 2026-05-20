@@ -17,11 +17,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::models::item::error::ItemError;
 use crate::net::packet::io::error::IOError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum CodecItemError {
-    #[error("Packet io error in codec login layer")]
+    #[error("Packet io error in codec item layer")]
     IOError(#[from] IOError),
+
+    #[error("Item error in codec item layer")]
+    ItemError(#[from] ItemError),
 }

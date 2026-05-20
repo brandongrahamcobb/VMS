@@ -36,8 +36,11 @@ pub enum ItemError {
     #[error("No islot found in item model layer")]
     InvalidISlot,
 
-    #[error("No cash field found in item model layer")]
-    InvalidCash,
+    #[error("No inventory mod item model found in item model layer")]
+    NoItemModel,
+
+    #[error("No inventory mod item info found in item model layer")]
+    NoItemInfo,
 
     #[error("Database error in item model layer")]
     DatabaseError(#[from] DatabaseError),

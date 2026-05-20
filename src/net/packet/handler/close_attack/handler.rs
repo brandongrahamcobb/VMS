@@ -17,7 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::item::wrapper::Item;
 use crate::models::map::model::Point;
 use crate::net::action::{Action, BroadcastAction, SessionAction};
 use crate::net::packet::handler::close_attack::error::CloseAttackError;
@@ -106,40 +105,30 @@ impl CloseAttackHandler {
             };
             if let Some(drops) = store.dead_mobs_drops.get(&mob_id) {
                 for (count, drop) in drops {
-                    let (item_id, item_wz) = match drop {
-                        Item::CashEquip(equip_item) => (equip_item.model.id, equip_item.model.wz),
-                        Item::CashNonEquip(cash_non_equip_item) => {
-                            (cash_non_equip_item.model.id, cash_non_equip_item.model.wz)
-                        }
-                        Item::Equip(equip_item) => (equip_item.model.id, equip_item.model.wz),
-                        Item::Etc(etc_item) => (etc_item.model.id, etc_item.model.wz),
-                        Item::Setup(setup_item) => (setup_item.model.id, setup_item.model.wz),
-                        Item::Use(use_item) => (use_item.model.id, use_item.model.wz),
-                    };
-                    if let Some(item_id) = item_id {
-                        for _ in 0..*count {
-                            let packet = Packet::new_empty()
-                                .build_drop_loot_packet(
-                                    store.mode,
-                                    item_id as u32,
-                                    false,
-                                    item_wz,
-                                    store.owner,
-                                    store.can_pickup,
-                                    drop_to.clone(),
-                                    drop_from.clone(),
-                                    store.player_drop,
-                                )?
-                                .finish();
-                            result.add_action(Action::Broadcast(BroadcastAction::Send {
-                                packet: packet.clone(),
-                                scope: BroadcastScope::Map {
-                                    world_id: store.world_id,
-                                    channel_id: store.channel_id,
-                                    map_wz: store.map_wz,
-                                },
-                            }));
-                        }
+                    let item_id: i32 = drop.model.get_id()?;
+                    let item_wz: i32 = drop.model.wz;
+                    for _ in 0..*count {
+                        let packet = Packet::new_empty()
+                            .build_drop_loot_packet(
+                                store.mode,
+                                item_id as u32,
+                                false,
+                                item_wz,
+                                store.owner,
+                                store.can_pickup,
+                                drop_to.clone(),
+                                drop_from.clone(),
+                                store.player_drop,
+                            )?
+                            .finish();
+                        result.add_action(Action::Broadcast(BroadcastAction::Send {
+                            packet: packet.clone(),
+                            scope: BroadcastScope::Map {
+                                world_id: store.world_id,
+                                channel_id: store.channel_id,
+                                map_wz: store.map_wz,
+                            },
+                        }));
                     }
                 }
             }

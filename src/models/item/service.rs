@@ -22,16 +22,11 @@ use crate::db::error::DatabaseError;
 use crate::metadata;
 use crate::metadata::error::MetadataError;
 use crate::models::item;
-use crate::models::item::cash_nonequip_model::CashNonEquipItemModel;
 use crate::models::item::constants::{CASH_EQUIP_SLOTS, InventoryTab, OTHER_EQUIP_SLOTS};
-use crate::models::item::equip_model::{EquipItemModel, EquipItemWz};
 use crate::models::item::error::ItemError;
-use crate::models::item::etc_model::EtcItemModel;
-use crate::models::item::model::DropData;
-use crate::models::item::setup_model::SetupItemModel;
-use crate::models::item::use_model::UseItemModel;
+use crate::models::item::model::{DropData, ItemModel, ItemWzInfo};
+use crate::models::item::wrapper::Inventory;
 use crate::models::item::wrapper::Item;
-use crate::models::item::wrapper::{EquipItem, Inventory};
 use crate::models::mob::model::{MobWzInfo, MobWzLife};
 use crate::runtime::state::SharedState;
 use rand::RngExt;
@@ -40,36 +35,46 @@ use std::collections::HashMap;
 use std::time::SystemTime;
 
 pub async fn load_inventory(state: &SharedState, char_id: i32) -> Result<Inventory, ItemError> {
-    let mut equipped_tab: HashMap<i16, Item> = HashMap::new();
-    let equipped_items = item::service::get_equipped_items_by_char_id(state, char_id).await?;
-    for equipped_item in equipped_items {
-        equipped_tab.insert(equipped_item.get_ipos()?, equipped_item);
-    }
-    let mut equip_tab: HashMap<i16, Item> = HashMap::new();
-    let equip_items = item::service::get_equip_items_by_char_id(state, char_id).await?;
-    for equip_item in equip_items {
-        equip_tab.insert(equip_item.get_ipos()?, equip_item);
-    }
-    let mut use_tab: HashMap<i16, Item> = HashMap::new();
-    let use_items = item::service::get_use_items_by_char_id(state, char_id).await?;
-    for use_item in use_items {
-        use_tab.insert(use_item.get_ipos()?, use_item);
-    }
-    let mut etc_tab: HashMap<i16, Item> = HashMap::new();
-    let etc_items = item::service::get_etc_items_by_char_id(state, char_id).await?;
-    for etc_item in etc_items {
-        etc_tab.insert(etc_item.get_ipos()?, etc_item);
-    }
-    let mut setup_tab: HashMap<i16, Item> = HashMap::new();
-    let setup_items = item::service::get_setup_items_by_char_id(state, char_id).await?;
-    for setup_item in setup_items {
-        setup_tab.insert(setup_item.get_ipos()?, setup_item);
-    }
-    let mut cash_tab: HashMap<i16, Item> = HashMap::new();
-    let cash_nonequip_items =
-        item::service::get_cash_nonequip_items_by_char_id(state, char_id).await?;
-    for cash_nonequip_item in cash_nonequip_items {
-        cash_tab.insert(cash_nonequip_item.get_ipos()?, cash_nonequip_item);
+    let items = item::service::get_items_by_char_id(state, char_id).await?;
+    let mut cash_tab: HashMap<i16, Vec<Item>> = HashMap::new();
+    let mut equipped_tab: HashMap<i16, Vec<Item>> = HashMap::new();
+    let mut equip_tab: HashMap<i16, Vec<Item>> = HashMap::new();
+    let mut etc_tab: HashMap<i16, Vec<Item>> = HashMap::new();
+    let mut setup_tab: HashMap<i16, Vec<Item>> = HashMap::new();
+    let mut use_tab: HashMap<i16, Vec<Item>> = HashMap::new();
+    dbg!("test");
+    for item in items {
+        dbg!("test");
+        let ipos: i16 = item.model.get_ipos()?;
+        let cash: i8 = InventoryTab::Cash as i8;
+        let consume: i8 = InventoryTab::Use as i8;
+        let equip: i8 = InventoryTab::Equip as i8;
+        let etc: i8 = InventoryTab::Etc as i8;
+        let setup: i8 = InventoryTab::Setup as i8;
+        match item.info.itab {
+            x if x == cash => {
+                cash_tab.entry(ipos).or_default().push(item);
+            }
+            x if x == consume => {
+                use_tab.entry(ipos).or_default().push(item);
+            }
+            x if x == equip => {
+                if ipos < 0 {
+                    dbg!("test2");
+                    equipped_tab.insert(ipos, vec![item]);
+                } else {
+                    dbg!("test3");
+                    equip_tab.insert(ipos, vec![item]);
+                }
+            }
+            x if x == etc => {
+                etc_tab.entry(ipos).or_default().push(item);
+            }
+            x if x == setup => {
+                setup_tab.entry(ipos).or_default().push(item);
+            }
+            _ => return Err(ItemError::TabError),
+        }
     }
     let inventory: Inventory = Inventory {
         equipped_tab,
@@ -87,10 +92,10 @@ pub fn get_equip_ipos_by_wz(wz: i32) -> Result<i16, ItemError> {
     let json = metadata::service::wz_to_img(wz, &filename)?;
     let islot = json["info"]["islot"]
         .as_str()
-        .ok_or(ItemError::InvalidISlot)?;
+        .ok_or(MetadataError::EntryError)?;
     let cash = json["info"]["cash"]
         .as_i64()
-        .ok_or(ItemError::InvalidCash)?;
+        .ok_or(MetadataError::EntryError)?;
     if cash == 0 {
         return OTHER_EQUIP_SLOTS
             .iter()
@@ -132,100 +137,83 @@ pub fn get_inventory_tab_by_wz(wz: i32) -> Result<InventoryTab, ItemError> {
 
 pub async fn create_item(state: &SharedState, wz: i32) -> Result<Item, ItemError> {
     let itab: InventoryTab = get_inventory_tab_by_wz(wz)?;
-    let item = match itab {
-        InventoryTab::Use => {
-            let item_model = UseItemModel {
-                id: None,
-                char_id: None,
-                wz,
-                ipos: None,
-                created_at: Some(SystemTime::now()),
-                updated_at: SystemTime::now(),
-            };
-            let item_model: UseItemModel = item_model
-                .update_item(state)
-                .await
-                .map_err(|e| DatabaseError::DieselError(e))?;
-            Item::Use(item_model.load())
-        }
-        InventoryTab::Setup => {
-            let item_model = SetupItemModel {
-                id: None,
-                char_id: None,
-                wz,
-                ipos: None,
-                created_at: Some(SystemTime::now()),
-                updated_at: SystemTime::now(),
-            };
-            let item_model: SetupItemModel = item_model
-                .update_item(state)
-                .await
-                .map_err(|e| DatabaseError::DieselError(e))?;
-            Item::Setup(item_model.load())
-        }
-        InventoryTab::Cash => {
-            let item_model = CashNonEquipItemModel {
-                id: None,
-                char_id: None,
-                wz,
-                ipos: None,
-                created_at: Some(SystemTime::now()),
-                updated_at: SystemTime::now(),
-            };
-            let item_model: CashNonEquipItemModel = item_model
-                .update_item(state)
-                .await
-                .map_err(|e| DatabaseError::DieselError(e))?;
-            Item::CashNonEquip(item_model.load())
-        }
-        InventoryTab::Etc => {
-            let item_model = EtcItemModel {
-                id: None,
-                char_id: None,
-                wz,
-                ipos: None,
-                created_at: Some(SystemTime::now()),
-                updated_at: SystemTime::now(),
-            };
-            let item_model: EtcItemModel = item_model
-                .update_item(state)
-                .await
-                .map_err(|e| DatabaseError::DieselError(e))?;
-            Item::Etc(item_model.load())
-        }
-        InventoryTab::Equip => {
-            let wz_info = build_equip_item_wz_info(wz)?;
-            let item_model: EquipItemModel = EquipItemModel {
-                id: None,
-                char_id: None,
-                wz,
-                ipos: None,
-                strength: rand_stat(wz_info.strength, 5),
-                dexterity: rand_stat(wz_info.dexterity, 5),
-                intelligence: rand_stat(wz_info.intelligence, 5),
-                luck: rand_stat(wz_info.luck, 5),
-                attack: rand_stat(wz_info.attack, 5),
-                weapon_defense: rand_stat(wz_info.weapon_defense, 10),
-                magic: rand_stat(wz_info.magic, 5),
-                magic_defense: rand_stat(wz_info.magic_defense, 10),
-                hp: rand_stat(wz_info.hp, 10),
-                mp: rand_stat(wz_info.mp, 10),
-                accuracy: rand_stat(wz_info.accuracy, 5),
-                avoid: rand_stat(wz_info.avoid, 5),
-                hands: rand_stat(wz_info.hands, 5),
-                speed: rand_stat(wz_info.speed, 5),
-                jump: rand_stat(wz_info.jump, 5),
-                created_at: Some(SystemTime::now()),
-                updated_at: SystemTime::now(),
-            };
-            let item_model: EquipItemModel = item_model
-                .update_item(state)
-                .await
-                .map_err(|e| DatabaseError::DieselError(e))?;
-            if !wz_info.cash {
-                Item::Equip(item_model.load()?)
-            } else {
-                Item::CashEquip(item_model.load()?)
+    let item = {
+        match itab {
+            InventoryTab::Equip => {
+                let item_wz_info: ItemWzInfo = build_equip_item_wz_info(wz)?;
+                let item_model: ItemModel = ItemModel {
+                    id: None,
+                    char_id: None,
+                    ipos: None,
+                    strength: rand_stat(item_wz_info.strength, 5),
+                    dexterity: rand_stat(item_wz_info.dexterity, 5),
+                    intelligence: rand_stat(item_wz_info.intelligence, 5),
+                    luck: rand_stat(item_wz_info.luck, 5),
+                    attack: rand_stat(item_wz_info.attack, 5),
+                    weapon_defense: rand_stat(item_wz_info.weapon_defense, 10),
+                    magic: rand_stat(item_wz_info.magic, 5),
+                    magic_defense: rand_stat(item_wz_info.magic_defense, 10),
+                    hp: rand_stat(item_wz_info.hp, 10),
+                    mp: rand_stat(item_wz_info.mp, 10),
+                    accuracy: rand_stat(item_wz_info.accuracy, 5),
+                    avoid: rand_stat(item_wz_info.avoid, 5),
+                    hands: rand_stat(item_wz_info.hands, 5),
+                    speed: rand_stat(item_wz_info.speed, 5),
+                    jump: rand_stat(item_wz_info.jump, 5),
+                    wz,
+                    slots: 0,      //placeholder
+                    expire: 0,     //placeholder
+                    level: 0,      //placeholder
+                    flag: 0,       //placeholder
+                    item_level: 0, //placeholder
+                    item_exp: 0,   //placeholder
+                    vicious: 0,    //placeholder
+                    created_at: Some(SystemTime::now()),
+                    updated_at: SystemTime::now(),
+                };
+                let item_model: ItemModel = item_model
+                    .update_item(state)
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
+                item_model.load(item_wz_info)?
+            }
+            _ => {
+                let item_wz_info: ItemWzInfo = build_nonequip_item_wz_info(wz)?;
+                let item_model: ItemModel = ItemModel {
+                    id: None,
+                    char_id: None,
+                    ipos: None,
+                    strength: 0,
+                    dexterity: 0,
+                    intelligence: 0,
+                    luck: 0,
+                    attack: 0,
+                    weapon_defense: 0,
+                    magic: 0,
+                    magic_defense: 0,
+                    hp: 0,
+                    mp: 0,
+                    accuracy: 0,
+                    avoid: 0,
+                    hands: 0,
+                    speed: 0,
+                    jump: 0,
+                    wz,
+                    slots: 0,
+                    expire: 0,
+                    level: 0,
+                    item_level: 0,
+                    flag: 0,
+                    item_exp: 0,
+                    vicious: 0,
+                    created_at: Some(SystemTime::now()),
+                    updated_at: SystemTime::now(),
+                };
+                let item_model: ItemModel = item_model
+                    .update_item(state)
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
+                item_model.load(item_wz_info)?
             }
         }
     };
@@ -237,125 +225,37 @@ fn get_equip_stats_from_wz(root: &Value, key: &str) -> Option<i16> {
     map.get(key).and_then(|v| v.as_i64().map(|n| n as i16))
 }
 
-async fn get_equipped_items_by_char_id(
-    state: &SharedState,
-    char_id: i32,
-) -> Result<Vec<Item>, ItemError> {
-    let mut equipped_items: Vec<Item> = Vec::<Item>::new();
-    let equip_item_models = item::query::getters::get_equip_item_models_by_char_id(state, char_id)
+async fn get_items_by_char_id(state: &SharedState, char_id: i32) -> Result<Vec<Item>, ItemError> {
+    let mut items: Vec<Item> = Vec::<Item>::new();
+    let item_models = item::query::getters::get_item_models_by_char_id(state, char_id)
         .await
         .map_err(|e| DatabaseError::DieselError(e))?;
-    for equip_item_model in equip_item_models {
-        if equip_item_model.ipos.unwrap() < 0 {
-            let equip_item = equip_item_model.load()?;
-            let filename: String = String::from("Character.wz");
-            let json = metadata::service::wz_to_img(equip_item_model.wz, &filename)?;
-            if json["info"]["cash"] == 0 {
-                equipped_items.push(Item::Equip(equip_item));
-            } else {
-                equipped_items.push(Item::CashEquip(equip_item));
+    for item_model in item_models {
+        let itab: InventoryTab = get_inventory_tab_by_wz(item_model.wz)?;
+        let item_wz_info: ItemWzInfo = {
+            match itab {
+                InventoryTab::Equip => build_equip_item_wz_info(item_model.wz)?,
+                _ => build_nonequip_item_wz_info(item_model.wz)?,
             }
-        }
+        };
+        items.push(item_model.load(item_wz_info)?);
     }
-    Ok(equipped_items)
+    Ok(items)
 }
 
-async fn get_equip_items_by_char_id(
-    state: &SharedState,
-    char_id: i32,
-) -> Result<Vec<Item>, ItemError> {
-    let mut equip_items: Vec<Item> = Vec::<Item>::new();
-    let equip_item_models = item::query::getters::get_equip_item_models_by_char_id(state, char_id)
-        .await
-        .map_err(|e| DatabaseError::DieselError(e))?;
-    for equip_item_model in equip_item_models {
-        if equip_item_model.ipos.unwrap() > 0 {
-            let equip_item = equip_item_model.load()?;
-            let filename: String = String::from("Character.wz");
-            let json = metadata::service::wz_to_img(equip_item_model.wz, &filename)?;
-            if json["info"]["cash"] == 0 {
-                equip_items.push(Item::Equip(equip_item));
-            } else {
-                equip_items.push(Item::CashEquip(equip_item));
-            }
-        }
-    }
-    Ok(equip_items)
-}
-
-async fn get_use_items_by_char_id(
-    state: &SharedState,
-    char_id: i32,
-) -> Result<Vec<Item>, ItemError> {
-    let mut use_items: Vec<Item> = Vec::<Item>::new();
-    let use_item_models = item::query::getters::get_use_item_models_by_char_id(state, char_id)
-        .await
-        .map_err(|e| DatabaseError::DieselError(e))?;
-    for use_item_model in use_item_models {
-        let use_item = use_item_model.load();
-        use_items.push(Item::Use(use_item));
-    }
-    Ok(use_items)
-}
-
-async fn get_etc_items_by_char_id(
-    state: &SharedState,
-    char_id: i32,
-) -> Result<Vec<Item>, ItemError> {
-    let mut etc_items: Vec<Item> = Vec::<Item>::new();
-    let etc_item_models = item::query::getters::get_etc_item_models_by_char_id(state, char_id)
-        .await
-        .map_err(|e| DatabaseError::DieselError(e))?;
-    for etc_item_model in etc_item_models {
-        let etc_item = etc_item_model.load();
-        etc_items.push(Item::Etc(etc_item));
-    }
-    Ok(etc_items)
-}
-
-async fn get_setup_items_by_char_id(
-    state: &SharedState,
-    char_id: i32,
-) -> Result<Vec<Item>, ItemError> {
-    let mut setup_items: Vec<Item> = Vec::<Item>::new();
-    let setup_item_models = item::query::getters::get_setup_item_models_by_char_id(state, char_id)
-        .await
-        .map_err(|e| DatabaseError::DieselError(e))?;
-    for setup_item_model in setup_item_models {
-        let setup_item = setup_item_model.load();
-        setup_items.push(Item::Setup(setup_item));
-    }
-    Ok(setup_items)
-}
-
-async fn get_cash_nonequip_items_by_char_id(
-    state: &SharedState,
-    char_id: i32,
-) -> Result<Vec<Item>, ItemError> {
-    let mut cash_nonequip_items: Vec<Item> = Vec::<Item>::new();
-    let cash_nonequip_item_models =
-        item::query::getters::get_cash_nonequip_item_models_by_char_id(state, char_id)
-            .await
-            .map_err(|e| DatabaseError::DieselError(e))?;
-    for cash_nonequip_item_model in cash_nonequip_item_models {
-        let cash_nonequip_item = cash_nonequip_item_model.load();
-        cash_nonequip_items.push(Item::CashNonEquip(cash_nonequip_item));
-    }
-    Ok(cash_nonequip_items)
-}
-
-pub fn build_equip_item_wz_info(item_wz: i32) -> Result<EquipItemWz, ItemError> {
+pub fn build_equip_item_wz_info(wz: i32) -> Result<ItemWzInfo, ItemError> {
+    let itab: InventoryTab = get_inventory_tab_by_wz(wz)?;
     let filename: String = String::from("Character.wz");
-    dbg!(item_wz);
-    let json = metadata::service::wz_to_img(item_wz, &filename)?;
+    let json = metadata::service::wz_to_img(wz, &filename)?;
     let islot = json["info"]["islot"]
         .as_str()
         .ok_or(ItemError::InvalidISlot)?
         .to_string();
     let cash = json["info"]["cash"] == 1;
-    let wz_info = EquipItemWz {
+    let wz_info = ItemWzInfo {
         cash,
-        islot,
+        islot: Some(islot),
+        itab: itab as i8,
         strength: get_equip_stats_from_wz(&json, "incSTR").unwrap_or(0),
         dexterity: get_equip_stats_from_wz(&json, "incDEX").unwrap_or(0),
         intelligence: get_equip_stats_from_wz(&json, "incINT").unwrap_or(0),
@@ -371,6 +271,39 @@ pub fn build_equip_item_wz_info(item_wz: i32) -> Result<EquipItemWz, ItemError> 
         hands: get_equip_stats_from_wz(&json, "incHANDS").unwrap_or(0),
         speed: get_equip_stats_from_wz(&json, "incSPEED").unwrap_or(0),
         jump: get_equip_stats_from_wz(&json, "incJUMP").unwrap_or(0),
+        slots: 0, // placeholder
+        flag: 0,  //placeholder
+    };
+    Ok(wz_info)
+}
+
+pub fn build_nonequip_item_wz_info(wz: i32) -> Result<ItemWzInfo, ItemError> {
+    let itab: InventoryTab = get_inventory_tab_by_wz(wz)?;
+    let filename: &str = "Item.wz";
+    let modified_wz: i32 = wz.div_euclid(10000);
+    let json = metadata::service::wz_to_img(modified_wz, filename)?;
+    let cash = json["info"]["cash"] == 1;
+    let wz_info = ItemWzInfo {
+        cash,
+        islot: None,
+        itab: itab as i8,
+        strength: 0,
+        dexterity: 0,
+        intelligence: 0,
+        luck: 0,
+        attack: 0,
+        weapon_defense: 0,
+        magic: 0,
+        magic_defense: 0,
+        hp: 0,
+        mp: 0,
+        accuracy: 0,
+        avoid: 0,
+        hands: 0,
+        speed: 0,
+        jump: 0,
+        slots: 0,
+        flag: 0, //placeholder
     };
     Ok(wz_info)
 }
@@ -423,39 +356,15 @@ pub async fn get_random_meso_drop(mob_wz_info: MobWzInfo) -> Result<i32, ItemErr
 }
 
 pub async fn get_item_by_item_id(state: &SharedState, item_id: i32) -> Result<Item, ItemError> {
-    if let Ok(item_model) =
-        item::query::getters::get_etc_item_models_by_item_id(state, item_id).await
-    {
-        return Ok(Item::Etc(item_model.load()));
-    }
-
-    if let Ok(item_model) =
-        item::query::getters::get_cash_nonequip_item_models_by_item_id(state, item_id).await
-    {
-        return Ok(Item::CashNonEquip(item_model.load()));
-    }
-
-    if let Ok(item_model) =
-        item::query::getters::get_equip_item_models_by_item_id(state, item_id).await
-    {
-        let item: EquipItem = item_model.load()?;
-        match get_inventory_tab_by_wz(item.model.wz)? {
-            InventoryTab::Equip => return Ok(Item::Equip(item)),
-            InventoryTab::Cash => return Ok(Item::CashEquip(item)),
-            _ => (),
+    let item_model: ItemModel = item::query::getters::get_item_model_by_item_id(state, item_id)
+        .await
+        .map_err(|e| DatabaseError::DieselError(e))?;
+    let itab: InventoryTab = get_inventory_tab_by_wz(item_model.wz)?;
+    let item_wz_info = {
+        match itab {
+            InventoryTab::Equip => build_equip_item_wz_info(item_model.wz)?,
+            _ => build_nonequip_item_wz_info(item_model.wz)?,
         }
-    }
-
-    if let Ok(item_model) =
-        item::query::getters::get_setup_item_models_by_item_id(state, item_id).await
-    {
-        return Ok(Item::Setup(item_model.load()));
-    }
-
-    if let Ok(item_model) =
-        item::query::getters::get_use_item_models_by_item_id(state, item_id).await
-    {
-        return Ok(Item::Use(item_model.load()));
-    }
-    Err(ItemError::ItemNotFound)
+    };
+    return Ok(item_model.load(item_wz_info)?);
 }

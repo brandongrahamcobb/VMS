@@ -18,24 +18,19 @@
  */
 use crate::db::error::DatabaseError;
 use crate::models::item;
-use crate::models::item::cash_nonequip_model::{CashNonEquipItemModel, CashNonEquipItemWz};
 use crate::models::item::constants::InventoryTab;
-use crate::models::item::equip_model::{EquipItemModel, EquipItemWz};
 use crate::models::item::error::ItemError;
-use crate::models::item::etc_model::{EtcItemModel, EtcItemWz};
-use crate::models::item::model::ItemModel;
-use crate::models::item::setup_model::{SetupItemModel, SetupItemWz};
-use crate::models::item::use_model::{UseItemModel, UseItemWz};
+use crate::models::item::model::{InventoryMod, InventoryModMode, ItemModel, ItemWzInfo};
 use crate::runtime::state::SharedState;
 use std::collections::HashMap;
 
 pub struct Inventory {
-    pub equipped_tab: HashMap<i16, Item>,
-    pub equip_tab: HashMap<i16, Item>,
-    pub use_tab: HashMap<i16, Item>,
-    pub setup_tab: HashMap<i16, Item>,
-    pub etc_tab: HashMap<i16, Item>,
-    pub cash_tab: HashMap<i16, Item>,
+    pub equipped_tab: HashMap<i16, Vec<Item>>,
+    pub equip_tab: HashMap<i16, Vec<Item>>,
+    pub use_tab: HashMap<i16, Vec<Item>>,
+    pub setup_tab: HashMap<i16, Vec<Item>>,
+    pub etc_tab: HashMap<i16, Vec<Item>>,
+    pub cash_tab: HashMap<i16, Vec<Item>>,
 }
 
 pub enum EquipSlot {
@@ -45,192 +40,114 @@ pub enum EquipSlot {
     Regular,
 }
 
-pub enum Item {
-    CashEquip(EquipItem),
-    CashNonEquip(CashNonEquipItem),
-    Equip(EquipItem),
-    Etc(EtcItem),
-    Setup(SetupItem),
-    Use(UseItem),
-}
-
-pub struct CashNonEquipItem {
-    pub model: CashNonEquipItemModel,
-    pub info: CashNonEquipItemWz,
-}
-
-pub struct EquipItem {
-    pub model: EquipItemModel,
-    pub info: EquipItemWz,
-}
-
-pub struct EtcItem {
-    pub model: EtcItemModel,
-    pub info: EtcItemWz,
-}
-
-pub struct SetupItem {
-    pub model: SetupItemModel,
-    pub info: SetupItemWz,
-}
-
-pub struct UseItem {
-    pub model: UseItemModel,
-    pub info: UseItemWz,
+pub struct Item {
+    pub model: ItemModel,
+    pub info: ItemWzInfo,
 }
 
 impl Item {
     pub fn get_ipos(&self) -> Result<i16, ItemError> {
-        match self {
-            Item::Equip(i) => i.model.get_ipos(),
-            Item::CashEquip(i) => i.model.get_ipos(),
-            Item::CashNonEquip(i) => i.model.get_ipos(),
-            Item::Use(i) => i.model.get_ipos(),
-            Item::Setup(i) => i.model.get_ipos(),
-            Item::Etc(i) => i.model.get_ipos(),
-        }
+        self.model.get_ipos()
     }
 }
 
 impl Inventory {
-    pub async fn equip(&mut self, state: &SharedState, item: Item) -> Result<(), ItemError> {
-        match item {
-            Item::Equip(mut i) => {
-                let old_pos = i.model.ipos.ok_or(ItemError::NoPos)?;
-                self.equip_tab.remove(&old_pos);
-                i.model.ipos = Some(item::service::get_equip_ipos_by_wz(i.model.wz)?);
-                i.model
-                    .update_item(state)
-                    .await
-                    .map_err(|e| DatabaseError::DieselError(e))?;
-                let new_pos = i.model.ipos.unwrap();
-                self.equipped_tab.insert(new_pos, Item::Equip(i));
-                Ok(())
+    pub async fn equip(&mut self, state: &SharedState, mut item: Item) -> Result<(), ItemError> {
+        match item.model.ipos {
+            Some(old_pos) => {
+                self.equip_tab.remove(&old_pos).ok_or(ItemError::NoPos)?;
             }
-            Item::CashEquip(mut i) => {
-                let old_pos = i.model.ipos.ok_or(ItemError::NoPos)?;
-                self.equip_tab.remove(&old_pos);
-                i.model.ipos = Some(item::service::get_equip_ipos_by_wz(i.model.wz)?);
-                i.model
-                    .update_item(state)
-                    .await
-                    .map_err(|e| DatabaseError::DieselError(e))?;
-                let new_pos = i.model.ipos.unwrap();
-                self.equipped_tab.insert(new_pos, Item::CashEquip(i));
-                Ok(())
-            }
-            _ => Ok(()),
+            None => (),
         }
+        item.model.ipos = Some(item::service::get_equip_ipos_by_wz(item.model.wz)?);
+        item.model
+            .update_item(state)
+            .await
+            .map_err(|e| DatabaseError::DieselError(e))?;
+        let new_pos = item.model.ipos.unwrap();
+        self.equipped_tab.insert(new_pos, vec![item]);
+        Ok(())
     }
 
-    pub async fn unequip(&mut self, state: &SharedState, item: Item) -> Result<(), ItemError> {
-        match item {
-            Item::Equip(mut i) => {
-                let inventory_tab: InventoryTab =
-                    item::service::get_inventory_tab_by_wz(i.model.wz)?;
-                i.model.ipos = Some(self.next_free_pos(&inventory_tab)?);
-                i.model
-                    .update_item(state)
-                    .await
-                    .map_err(|e| DatabaseError::DieselError(e))?;
-                Ok(())
-            }
-            Item::CashEquip(mut i) => {
-                let inventory_tab: InventoryTab =
-                    item::service::get_inventory_tab_by_wz(i.model.wz)?;
-                i.model.ipos = Some(self.next_free_pos(&inventory_tab)?);
-                i.model
-                    .update_item(state)
-                    .await
-                    .map_err(|e| DatabaseError::DieselError(e))?;
-                Ok(())
-            }
-            _ => Ok(()),
-        }
+    pub async fn unequip(&mut self, state: &SharedState, mut item: Item) -> Result<(), ItemError> {
+        let inventory_tab: InventoryTab = item::service::get_inventory_tab_by_wz(item.model.wz)?;
+        item.model.ipos = Some(self.next_free_pos(&inventory_tab)?);
+        item.model
+            .update_item(state)
+            .await
+            .map_err(|e| DatabaseError::DieselError(e))?;
+        Ok(())
     }
 
     pub async fn pick_up(
         &mut self,
         state: &SharedState,
+        ign: String,
         char_id: i32,
-        item: Item,
-    ) -> Result<i16, ItemError> {
-        match item {
-            Item::Equip(mut i) => {
-                let inventory_tab: InventoryTab =
-                    item::service::get_inventory_tab_by_wz(i.model.wz)?;
-                let pos = self.next_free_pos(&inventory_tab)?;
-                i.model.ipos = Some(pos);
-                i.model.char_id = Some(char_id);
-                i.model
-                    .update_item(state)
-                    .await
-                    .map_err(|e| DatabaseError::DieselError(e))?;
-                self.equip_tab.insert(pos, Item::Equip(i));
-                Ok(pos)
+        mut item: Item,
+    ) -> Result<InventoryMod, ItemError> {
+        let item_model: ItemModel = item.model.clone();
+        let item_info: ItemWzInfo = item.info.clone();
+        let values = [
+            &self.cash_tab,
+            &self.etc_tab,
+            &self.setup_tab,
+            &self.use_tab,
+        ];
+        let (pos, stack_size, itab) = values
+            .iter()
+            .find_map(|value| {
+                value.iter().find_map(|(pos, inv_item_stack)| {
+                    if inv_item_stack[0].model.wz == item.model.wz {
+                        Some((
+                            *pos,
+                            inv_item_stack.len(),
+                            item::service::get_inventory_tab_by_wz(item.model.wz).ok()?,
+                        ))
+                    } else {
+                        None
+                    }
+                })
+            })
+            .unwrap_or((
+                self.next_free_pos(&item::service::get_inventory_tab_by_wz(item.model.wz)?)?,
+                0,
+                item::service::get_inventory_tab_by_wz(item.model.wz)?,
+            ));
+        item.model.ipos = Some(pos);
+        item.model.char_id = Some(char_id);
+        item.model
+            .update_item(state)
+            .await
+            .map_err(|e| DatabaseError::DieselError(e))?;
+        match itab {
+            InventoryTab::Equip => {
+                self.equip_tab.insert(pos, vec![item]);
             }
-            Item::Etc(mut i) => {
-                let inventory_tab: InventoryTab =
-                    item::service::get_inventory_tab_by_wz(i.model.wz)?;
-                let pos = self.next_free_pos(&inventory_tab)?;
-                i.model.ipos = Some(pos);
-                i.model.char_id = Some(char_id);
-                i.model
-                    .update_item(state)
-                    .await
-                    .map_err(|e| DatabaseError::DieselError(e))?;
-                if let Some(pos) = i.model.ipos {
-                    self.etc_tab.insert(pos, Item::Etc(i));
-                }
-                Ok(pos)
+            InventoryTab::Cash => {
+                self.cash_tab.entry(pos).or_default().push(item);
             }
-            Item::CashEquip(mut i) => {
-                let inventory_tab: InventoryTab =
-                    item::service::get_inventory_tab_by_wz(i.model.wz)?;
-                let pos = self.next_free_pos(&inventory_tab)?;
-                i.model.ipos = Some(pos);
-                i.model.char_id = Some(char_id);
-                i.model
-                    .update_item(state)
-                    .await
-                    .map_err(|e| DatabaseError::DieselError(e))?;
-                if let Some(pos) = i.model.ipos {
-                    self.equip_tab.insert(pos, Item::CashEquip(i));
-                }
-                Ok(pos)
+            InventoryTab::Use => {
+                self.use_tab.entry(pos).or_default().push(item);
             }
-            Item::Setup(mut i) => {
-                let inventory_tab: InventoryTab =
-                    item::service::get_inventory_tab_by_wz(i.model.wz)?;
-                let pos = self.next_free_pos(&inventory_tab)?;
-                i.model.ipos = Some(pos);
-                i.model.char_id = Some(char_id);
-                i.model
-                    .update_item(state)
-                    .await
-                    .map_err(|e| DatabaseError::DieselError(e))?;
-                if let Some(pos) = i.model.ipos {
-                    self.setup_tab.insert(pos, Item::Setup(i));
-                }
-                Ok(pos)
+            InventoryTab::Etc => {
+                self.etc_tab.entry(pos).or_default().push(item);
             }
-            Item::Use(mut i) => {
-                let inventory_tab: InventoryTab =
-                    item::service::get_inventory_tab_by_wz(i.model.wz)?;
-                let pos = self.next_free_pos(&inventory_tab)?;
-                i.model.ipos = Some(pos);
-                i.model.char_id = Some(char_id);
-                i.model
-                    .update_item(state)
-                    .await
-                    .map_err(|e| DatabaseError::DieselError(e))?;
-                if let Some(pos) = i.model.ipos {
-                    self.use_tab.insert(pos, Item::Use(i));
-                }
-                Ok(pos)
+            InventoryTab::Setup => {
+                self.setup_tab.entry(pos).or_default().push(item);
             }
-            _ => Err(ItemError::TabError),
         }
+
+        let inv_mod: InventoryMod = InventoryMod {
+            mode: InventoryModMode::Add,
+            inv_type: itab as i8,
+            pos,
+            count: stack_size as i16 + 1,
+            item_model: Some(item_model),
+            item_info: Some(item_info),
+            char_name: ign,
+        };
+        Ok(inv_mod)
     }
 
     pub fn next_free_pos(&self, tab: &InventoryTab) -> Result<i16, ItemError> {
@@ -242,7 +159,7 @@ impl Inventory {
         }
     }
 
-    pub fn get_tab(&self, tab: &InventoryTab) -> &HashMap<i16, Item> {
+    pub fn get_tab(&self, tab: &InventoryTab) -> &HashMap<i16, Vec<Item>> {
         match tab {
             InventoryTab::Equip => &self.equip_tab,
             InventoryTab::Use => &self.use_tab,

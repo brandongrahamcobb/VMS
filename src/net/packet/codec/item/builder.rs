@@ -17,6 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::models::item::constants::InventoryTab;
+use crate::models::item::model::{InventoryMod, InventoryModMode, ItemModel, ItemWzInfo};
+use crate::models::item::wrapper::Item;
 use crate::models::map::model::Point;
 use crate::net::packet::codec::item::error::CodecItemError;
 use crate::net::packet::io::error::IOError::WriteError;
@@ -41,8 +44,6 @@ impl Packet {
         self.write_short(op).map_err(WriteError)?;
         self.write_byte(mode as i16).map_err(WriteError)?;
         self.write_int(id as i32).map_err(WriteError)?;
-        dbg!(id);
-        dbg!("DROP");
         self.write_byte(is_meso as i16).map_err(WriteError)?;
         self.write_int(wz_or_meso_amount).map_err(WriteError)?;
         self.write_int(owner).map_err(WriteError)?;
@@ -62,6 +63,113 @@ impl Packet {
             self.write_bytes(skip.clone()).map_err(WriteError)?;
         }
         self.write_byte(player_drop as i16).map_err(WriteError)?;
+        Ok(self)
+    }
+
+    pub fn build_add_to_inventory_packet(
+        &mut self,
+        mods: Vec<InventoryMod>,
+    ) -> Result<&mut Self, CodecItemError> {
+        self.write_short(SendOpcode::ModifyInventory as i16)
+            .map_err(WriteError)?;
+        self.write_byte(true as i16).map_err(WriteError)?; // updatetick
+        self.write_byte(mods.len() as i16).map_err(WriteError)?;
+        for m in mods {
+            self.write_byte(m.mode.clone() as i16).map_err(WriteError)?;
+            self.write_byte(m.inv_type as i16).map_err(WriteError)?;
+            self.write_short(m.pos).map_err(WriteError)?;
+            match m.mode {
+                InventoryModMode::Add => {
+                    // write full item data
+                    self.build_item_data(
+                        m.char_name.clone(),
+                        m.count,
+                        &m.get_item_model()?,
+                        &m.get_item_info()?,
+                    )?;
+                }
+                InventoryModMode::ChangeCount => {
+                    self.write_short(m.count).map_err(WriteError)?;
+                }
+                _ => {}
+            }
+        }
+        Ok(self)
+    }
+
+    pub fn build_item_data(
+        &mut self,
+        char_name: String,
+        count: i16,
+        item_model: &ItemModel,
+        item_info: &ItemWzInfo,
+    ) -> Result<&mut Self, CodecItemError> {
+        let equip: i8 = InventoryTab::Equip as i8;
+        match item_info.itab {
+            x if x == equip => {
+                let item_type: u8 = 1;
+                self.write_byte(item_type as i16).map_err(WriteError)?; // type byte
+                self.write_int(item_model.wz).map_err(WriteError)?;
+                self.write_byte(item_info.cash as i16).map_err(WriteError)?;
+                if item_info.cash {
+                    self.write_bytes(vec![0u8; 8]).map_err(WriteError)?; // unique id
+                }
+                self.write_long(item_model.expire).map_err(WriteError)?;
+                self.write_byte(item_model.slots as i16)
+                    .map_err(WriteError)?;
+                self.write_byte(item_model.level as i16)
+                    .map_err(WriteError)?;
+                // stats - order matters, must match EquipStat enum order
+                self.write_short(item_model.strength).map_err(WriteError)?;
+                self.write_short(item_model.dexterity).map_err(WriteError)?;
+                self.write_short(item_model.intelligence)
+                    .map_err(WriteError)?;
+                self.write_short(item_model.luck).map_err(WriteError)?;
+                self.write_short(item_model.hp).map_err(WriteError)?;
+                self.write_short(item_model.mp).map_err(WriteError)?;
+                self.write_short(item_model.attack).map_err(WriteError)?;
+                self.write_short(item_model.magic).map_err(WriteError)?;
+                self.write_short(item_model.weapon_defense)
+                    .map_err(WriteError)?;
+                self.write_short(item_model.magic_defense)
+                    .map_err(WriteError)?;
+                self.write_short(item_model.accuracy).map_err(WriteError)?;
+                self.write_short(item_model.avoid).map_err(WriteError)?;
+                self.write_short(item_model.hands).map_err(WriteError)?;
+                self.write_short(item_model.speed).map_err(WriteError)?;
+                self.write_short(item_model.jump).map_err(WriteError)?;
+                self.write_str_with_length(char_name).map_err(WriteError)?;
+                self.write_short(item_model.flag).map_err(WriteError)?;
+                if item_info.cash {
+                    self.write_bytes(vec![0u8; 10]).map_err(WriteError)?;
+                } else {
+                    self.write_byte(0).map_err(WriteError)?;
+                    self.write_byte(item_model.item_level as i16)
+                        .map_err(WriteError)?;
+                    self.write_short(0).map_err(WriteError)?;
+                    self.write_short(item_model.item_exp).map_err(WriteError)?;
+                    self.write_int(item_model.vicious).map_err(WriteError)?;
+                    self.write_long(0).map_err(WriteError)?;
+                }
+                self.write_bytes(vec![0u8; 12]).map_err(WriteError)?;
+            }
+            _ => {
+                let item_type: u8 = 2;
+                self.write_byte(item_type as i16).map_err(WriteError)?; // type byte
+                self.write_int(item_model.wz).map_err(WriteError)?;
+                self.write_byte(item_info.cash as i16).map_err(WriteError)?;
+                if item_info.cash {
+                    self.write_bytes(vec![0u8; 8]).map_err(WriteError)?;
+                }
+                self.write_long(item_model.expire).map_err(WriteError)?;
+                self.write_short(count).map_err(WriteError)?;
+                self.write_str_with_length(char_name).map_err(WriteError)?;
+                self.write_short(item_model.flag).map_err(WriteError)?;
+                if (item_model.wz / 10000 == 233) || (item_model.wz / 10000 == 207) {
+                    self.write_bytes(vec![0u8; 8]).map_err(WriteError)?;
+                }
+            }
+        }
         Ok(self)
     }
 }

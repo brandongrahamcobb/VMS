@@ -18,7 +18,7 @@
  */
 
 use crate::models::character::wrapper::Character;
-use crate::models::item::wrapper::{EquipItem, Item};
+use crate::models::item::wrapper::Item;
 use crate::net::packet::codec::player::error::CodecPlayerError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
@@ -172,13 +172,10 @@ impl Packet {
         &mut self,
         char: &Character,
     ) -> Result<&mut Self, CodecPlayerError> {
-        for (ipos, equip) in char.inventory.equipped_tab.iter() {
-            match equip {
-                Item::CashEquip(i) => {
-                    self.write_byte(-*ipos).map_err(WriteError)?;
-                    self.write_int(i.model.wz).map_err(WriteError)?;
-                }
-                _ => (),
+        for (ipos, equips) in char.inventory.equipped_tab.iter() {
+            if equips[0].info.cash {
+                self.write_byte(-*ipos).map_err(WriteError)?;
+                self.write_int(equips[0].model.wz).map_err(WriteError)?;
             }
         }
         Ok(self)
@@ -188,13 +185,11 @@ impl Packet {
         &mut self,
         char: &Character,
     ) -> Result<&mut Self, CodecPlayerError> {
-        for (ipos, equip) in char.inventory.equipped_tab.iter() {
-            match equip {
-                Item::Equip(i) => {
-                    self.write_byte(-*ipos).map_err(WriteError)?;
-                    self.write_int(i.model.wz).map_err(WriteError)?;
-                }
-                _ => (),
+        for (ipos, equips) in char.inventory.equipped_tab.iter() {
+            dbg!(equips[0].model.wz);
+            if !equips[0].info.cash {
+                self.write_byte(-*ipos).map_err(WriteError)?;
+                self.write_int(equips[0].model.wz).map_err(WriteError)?;
             }
         }
         Ok(self)
@@ -383,13 +378,10 @@ impl Packet {
         &mut self,
         char: &Character,
     ) -> Result<&mut Self, CodecPlayerError> {
-        for (ipos, equip) in char.inventory.equipped_tab.iter() {
-            match equip {
-                Item::CashEquip(i) => {
-                    self.write_short(-*ipos).map_err(WriteError)?;
-                    self.write_int(i.model.wz).map_err(WriteError)?;
-                }
-                _ => (),
+        for (ipos, equips) in char.inventory.equipped_tab.iter() {
+            if equips[0].info.cash {
+                self.write_short(-*ipos).map_err(WriteError)?;
+                self.write_int(equips[0].model.wz).map_err(WriteError)?;
             }
         }
         Ok(self)
@@ -399,13 +391,11 @@ impl Packet {
         &mut self,
         char: &Character,
     ) -> Result<&mut Self, CodecPlayerError> {
-        for (ipos, equip) in char.inventory.equipped_tab.iter() {
-            match equip {
-                Item::Equip(i) => {
-                    self.write_short(-*ipos).map_err(WriteError)?;
-                    self.build_inventory_regular_equip_meta_part_packet(&i)?;
-                }
-                _ => (),
+        for (ipos, equips) in char.inventory.equipped_tab.iter() {
+            dbg!(equips[0].model.wz);
+            if !equips[0].info.cash {
+                self.write_short(-*ipos).map_err(WriteError)?;
+                self.build_inventory_regular_equip_meta_part_packet(&equips[0])?;
             }
         }
         Ok(self)
@@ -413,7 +403,7 @@ impl Packet {
 
     fn build_inventory_regular_equip_meta_part_packet(
         &mut self,
-        equip: &EquipItem,
+        equip: &Item,
     ) -> Result<&mut Self, CodecPlayerError> {
         // Dummy values
         self.write_byte(1).map_err(WriteError)?;

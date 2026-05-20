@@ -98,10 +98,9 @@ diesel::table! {
 }
 
 diesel::table! {
-    equip_items (id) {
+    items (id) {
         id -> Nullable<Int4>,
         char_id -> Nullable<Int4>,
-        wz -> Int4,
         ipos -> Nullable<Int2>,
         strength -> Int2,
         dexterity -> Int2,
@@ -118,50 +117,14 @@ diesel::table! {
         hands -> Int2,
         speed -> Int2,
         jump -> Int2,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
-    cash_nonequip_items (id) {
-        id -> Nullable<Int4>,
-        char_id -> Nullable<Int4>,
         wz -> Int4,
-        ipos -> Nullable<Int2>,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
-    etc_items (id) {
-        id -> Nullable<Int4>,
-        char_id -> Nullable<Int4>,
-        wz -> Int4,
-        ipos -> Nullable<Int2>,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
-    setup_items (id) {
-        id -> Nullable<Int4>,
-        char_id -> Nullable<Int4>,
-        wz -> Int4,
-        ipos -> Nullable<Int2>,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
-    use_items (id) {
-        id -> Nullable<Int4>,
-        char_id -> Nullable<Int4>,
-        wz -> Int4,
-        ipos -> Nullable<Int2>,
+        slots -> Int4,
+        expire -> Int8,
+        level -> Int2,
+        item_level -> Int2,
+        flag -> Int2,
+        item_exp -> Int2,
+        vicious -> Int4,
         created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
     }
@@ -171,12 +134,8 @@ diesel::allow_tables_to_appear_in_same_query!(
     accounts,
     character_limits,
     characters,
-    cash_nonequip_items,
     drops,
-    equip_items,
-    etc_items,
-    setup_items,
-    use_items,
+    items,
     keybindings,
     skills,
 );
