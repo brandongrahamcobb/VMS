@@ -1,5 +1,5 @@
-/* character/model.rs
- * The purpose of this module is to provide a character model and its wrapper.
+/* mob_ai/error.rs
+ * The purpose of this module is to provide errors related to AI of mobs.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,20 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
+use crate::net::packet::codec::mob::error::CodecMobError;
+use crate::net::packet::io::error::IOError;
+use crate::runtime::error::StateError;
+use crate::runtime::session::error::SessionError;
+use thiserror::Error;
 
-use crate::models::character::model::CharacterModel;
-use crate::models::item::wrapper::Inventory;
-use crate::models::job::wrapper::Job;
-use crate::models::keybinding::wrapper::Keybinding;
-use crate::models::map::model::Point;
-use crate::models::skill::wrapper::Skill;
+#[derive(Debug, Error)]
+pub enum MobAiError {
+    #[error("Packet io error in mob AI layer")]
+    IOError(#[from] IOError),
 
-pub struct Character {
-    pub model: CharacterModel,
-    pub binds: HashMap<i32, Keybinding>,
-    pub job: Job,
-    pub inventory: Inventory,
-    pub skills: HashMap<i32, Skill>,
-    pub pos: Point,
+    #[error("Session error in mob AI layer")]
+    SessionError(#[from] SessionError),
+
+    #[error("Codec mob packet error in mob AI layer")]
+    CodecMobError(#[from] CodecMobError),
+
+    #[error("State error in mob AI layer")]
+    StateError(#[from] StateError),
 }

@@ -52,6 +52,9 @@ pub enum SendOpcode {
     ChangeStats = 0x1F,
     ShowMobHp = 0xFA,
     KillMob = 0xED,
+    SpawnMobController = 0xEE,
+    DropLoot = 0x10C,
+    RemoveLoot = 0x10D,
     //
     SetCashShop = 0x7F,
     SetField = 0x7D,

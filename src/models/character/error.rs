@@ -21,6 +21,7 @@ use crate::db::error::DatabaseError;
 use crate::models::item::error::ItemError;
 use crate::models::job::error::JobError;
 use crate::models::keybinding::error::KeybindingError;
+use crate::models::portal::error::PortalError;
 use crate::models::skill::error::SkillError;
 use thiserror::Error;
 
@@ -37,6 +38,9 @@ pub enum CharacterError {
 
     #[error("Skill model error in character model layer")]
     SkillError(#[from] SkillError),
+
+    #[error("Portal model error in character model layer")]
+    PortalError(#[from] PortalError),
 
     #[error("Job model error in character model layer")]
     JobError(#[from] JobError),

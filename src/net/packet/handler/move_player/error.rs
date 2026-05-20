@@ -17,7 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::models::character::error::CharacterError;
 use crate::net::packet::io::error::IOError;
+use crate::runtime::error::StateError;
 use crate::runtime::session::error::SessionError;
 use thiserror::Error;
 
@@ -28,4 +30,10 @@ pub enum MovePlayerError {
 
     #[error("Session error in move player layer")]
     SessionError(#[from] SessionError),
+
+    #[error("State error in move player layer")]
+    StateError(#[from] StateError),
+
+    #[error("Character model error in move player layer")]
+    CharacterError(#[from] CharacterError),
 }

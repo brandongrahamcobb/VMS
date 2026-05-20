@@ -24,9 +24,10 @@ use crate::net::packet::handler::chat_text::handler::ChatTextHandler;
 use crate::net::packet::handler::close_attack::handler::CloseAttackHandler;
 use crate::net::packet::handler::enter_cash_shop::handler::EnterCashShopHandler;
 use crate::net::packet::handler::error::PacketHandlerError;
-use crate::net::packet::handler::move_mob::handler::MoveMobHandler;
+use crate::net::packet::handler::mob_ai::handler::MobAiHandler;
 use crate::net::packet::handler::move_player::handler::MovePlayerHandler;
 use crate::net::packet::handler::party_search::handler::PartySearchHandler;
+use crate::net::packet::handler::pickup_item::handler::PickupItemHandler;
 use crate::net::packet::handler::player_logged_in::handler::PlayerLoggedInHandler;
 use crate::net::packet::handler::player_map_transfer::handler::PlayerMapTransferHandler;
 use crate::net::packet::handler::result::HandlerResult;
@@ -155,7 +156,7 @@ impl RuntimeRelay for PlayerRelay {
                     .map_err(PacketHandlerError::from)?)
             }
             x if x == RecvOpcode::MobMoved as i16 => {
-                let handler = MoveMobHandler::new();
+                let handler = MobAiHandler::new();
                 Ok(handler
                     .handle(state, &session, packet)
                     .await
@@ -163,6 +164,13 @@ impl RuntimeRelay for PlayerRelay {
             }
             x if x == RecvOpcode::TakeDamage as i16 => {
                 let handler = TakeDamageHandler::new();
+                Ok(handler
+                    .handle(state, &session, packet)
+                    .await
+                    .map_err(PacketHandlerError::from)?)
+            }
+            x if x == RecvOpcode::PickupItem as i16 => {
+                let handler = PickupItemHandler::new();
                 Ok(handler
                     .handle(state, &session, packet)
                     .await

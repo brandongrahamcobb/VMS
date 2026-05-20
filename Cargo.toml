@@ -27,3 +27,4 @@ shroom_img = { git = "https://github.com/brandongrahamcobb/shroom-lib.git", pack
 anyhow = "1.0.102"
 binrw = "0.15.1"
 serde_json = "1.0.149"
+tokio-util = "0.7.18"

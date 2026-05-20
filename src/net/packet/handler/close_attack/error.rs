@@ -18,7 +18,9 @@
  */
 
 use crate::db::error::DatabaseError;
+use crate::models::item::error::ItemError;
 use crate::models::mob::error::MobError;
+use crate::net::packet::codec::item::error::CodecItemError;
 use crate::net::packet::codec::mob::error::CodecMobError;
 use crate::net::packet::io::error::IOError;
 use crate::runtime::error::StateError;
@@ -44,4 +46,10 @@ pub enum CloseAttackError {
 
     #[error("Codec mob packet error in close attack layer")]
     CodecMobError(#[from] CodecMobError),
+
+    #[error("Item model error in close attack layer")]
+    ItemError(#[from] ItemError),
+
+    #[error("Codec item packet error in close attack layer")]
+    CodecItemError(#[from] CodecItemError),
 }

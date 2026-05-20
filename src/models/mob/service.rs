@@ -19,22 +19,8 @@
 
 use crate::metadata;
 use crate::models::mob::error::MobError;
-use crate::models::mob::model::MobModel;
-use std::collections::HashMap;
-
-pub fn get_mob_models(map_wz: i32) -> Result<HashMap<u32, MobModel>, MobError> {
-    let mut mob_models: HashMap<u32, MobModel> = HashMap::new();
-    let mut next_id: u32 = 1;
-    let mob_lifes = get_mob_lifes(map_wz)?;
-    for mob_life in mob_lifes {
-        let mob_metadata = get_mob_metadata(mob_life.clone())?;
-        let mob_info = get_mob_info(&mob_metadata)?;
-        let mob_model = build_mob(next_id, &mob_metadata, &mob_info)?;
-        mob_models.insert(next_id, mob_model);
-        next_id += 1;
-    }
-    Ok(mob_models)
-}
+use crate::models::mob::model::{MobModel, MobWzInfo, MobWzLife};
+use crate::models::mob::wrapper::Mob;
 
 pub fn get_mob_lifes(map_wz: i32) -> Result<Vec<serde_json::Value>, MobError> {
     let mut mob_lifes: Vec<serde_json::Value> = Vec::new();
@@ -56,21 +42,13 @@ fn get_life_json_from_metadata_by_map_wz(map_wz: i32) -> Result<serde_json::Valu
     Ok(life)
 }
 
-struct MobMetadata {
-    wz: i32,
-    x: i16,
-    y: i16,
-    fh: i16,
-    mob_time: u64,
-}
-
-fn get_mob_metadata(mob_life: serde_json::Value) -> Result<MobMetadata, MobError> {
+pub fn get_mob_wz_life(mob_life: serde_json::Value) -> Result<MobWzLife, MobError> {
     let wz: i32 = mob_life["id"].as_str().unwrap().parse::<i32>().unwrap();
     let x = mob_life["x"].as_i64().unwrap_or(0) as i16;
     let y = mob_life["y"].as_i64().unwrap_or(0) as i16;
-    let fh = mob_life["fh"].as_i64().unwrap_or(0) as i16;
+    let fh = mob_life["fh"].as_i64().unwrap_or(0) as u16;
     let mob_time = mob_life["mobTime"].as_i64().unwrap_or(0) as u64;
-    Ok(MobMetadata {
+    Ok(MobWzLife {
         wz,
         x,
         y,
@@ -79,87 +57,64 @@ fn get_mob_metadata(mob_life: serde_json::Value) -> Result<MobMetadata, MobError
     })
 }
 
-struct MobInfo {
-    level: i16,
-    max_hp: i32,
-    max_mp: i32,
-    exp: i32,
-    pad: i16,
-    mad: i16,
-    pdd: i16,
-    mdd: i16,
-    acc: i16,
-    eva: i16,
-    speed: i16,
-    undead: i8,
-    body_attack: i8,
-    pushed: i8,
-}
-
-fn get_mob_info(mob_metadata: &MobMetadata) -> Result<MobInfo, MobError> {
+pub fn get_mob_wz_info(mob_metadata: &MobWzLife) -> Result<MobWzInfo, MobError> {
     let filename: String = String::from("Mob.wz");
     let json = metadata::service::wz_to_img(mob_metadata.wz, &filename)?;
     let info = json["info"].as_object().ok_or(MobError::NoInfo)?;
-    let level = info["level"].as_i64().unwrap_or(0) as i16;
-    let max_hp = info["maxHP"].as_i64().unwrap_or(0) as i32;
-    let max_mp = info["maxMP"].as_i64().unwrap_or(0) as i32;
-    let exp = info["exp"].as_i64().unwrap_or(0) as i32;
-    let pad = info["PADamage"].as_i64().unwrap_or(0) as i16;
-    let mad = info["MADamage"].as_i64().unwrap_or(0) as i16;
-    let pdd = info["PDDamage"].as_i64().unwrap_or(0) as i16;
-    let mdd = info["MDDamage"].as_i64().unwrap_or(0) as i16;
-    let acc = info["acc"].as_i64().unwrap_or(0) as i16;
-    let eva = info["eva"].as_i64().unwrap_or(0) as i16;
-    let speed = info["speed"].as_i64().unwrap_or(0) as i16;
-    let undead = info["undead"].as_i64().unwrap_or(0) as i8;
-    let body_attack = info["bodyAttack"].as_i64().unwrap_or(0) as i8;
-    let pushed = info["pushed"].as_i64().unwrap_or(0) as i8;
-    Ok(MobInfo {
+    let mad: i16 = info["MADamage"].as_i64().unwrap_or(0) as i16;
+    let mdd: i16 = info["MDDamage"].as_i64().unwrap_or(0) as i16;
+    let pad: i16 = info["PADamage"].as_i64().unwrap_or(0) as i16;
+    let pdd: i16 = info["PDDamage"].as_i64().unwrap_or(0) as i16;
+    let acc: i16 = info["acc"].as_i64().unwrap_or(0) as i16;
+    let body_attack: i8 = info["bodyAttack"].as_i64().unwrap_or(0) as i8;
+    let exp: i32 = info["exp"].as_i64().unwrap_or(0) as i32;
+    let eva: i16 = info["eva"].as_i64().unwrap_or(0) as i16;
+    let fs: f32 = info["fs"].as_i64().unwrap_or(0) as f32;
+    let level: i16 = info["level"].as_i64().unwrap_or(0) as i16;
+    let max_hp: i32 = info["maxHP"].as_i64().unwrap_or(0) as i32;
+    let max_mp: i32 = info["maxMP"].as_i64().unwrap_or(0) as i32;
+    let mob_type: i16 = info["mobType"].as_i64().unwrap_or(0) as i16;
+    let pushed: i8 = info["pushed"].as_i64().unwrap_or(0) as i8;
+    let speed: i16 = info["speed"].as_i64().unwrap_or(0) as i16;
+    let summon_type: i16 = info["summonType"].as_i64().unwrap_or(0) as i16;
+    let undead: i8 = info["undead"].as_i64().unwrap_or(0) as i8;
+    Ok(MobWzInfo {
+        mad,
+        mdd,
+        pad,
+        pdd,
+        acc,
+        body_attack,
+        exp,
+        eva,
+        fs,
         level,
         max_hp,
         max_mp,
-        exp,
-        pad,
-        mad,
-        pdd,
-        mdd,
-        acc,
-        eva,
-        speed,
-        undead,
-        body_attack,
+        mob_type,
         pushed,
+        speed,
+        summon_type,
+        undead,
     })
 }
 
-fn build_mob(
+pub fn init_mob(
     next_id: u32,
-    mob_metadata: &MobMetadata,
-    mob_info: &MobInfo,
-) -> Result<MobModel, MobError> {
+    mob_wz_info: &MobWzInfo,
+    mob_wz_life: &MobWzLife,
+) -> Result<Mob, MobError> {
     let mob_model: MobModel = MobModel {
         id: next_id,
-        wz: mob_metadata.wz,
-        pos_x: mob_metadata.x,
-        pos_y: mob_metadata.y,
-        fh: mob_metadata.fh,
-        mob_time: mob_metadata.mob_time,
-        hp: mob_info.max_hp,
-        level: mob_info.level,
-        max_hp: mob_info.max_hp,
-        mp: mob_info.max_mp,
-        max_mp: mob_info.max_mp,
-        exp: mob_info.exp,
-        pad: mob_info.pad,
-        mad: mob_info.mad,
-        pdd: mob_info.pdd,
-        mdd: mob_info.mdd,
-        acc: mob_info.acc,
-        eva: mob_info.eva,
-        speed: mob_info.speed,
-        undead: mob_info.undead,
-        body_attack: mob_info.body_attack,
-        pushed: mob_info.pushed,
+        pos_x: mob_wz_life.x,
+        pos_y: mob_wz_life.y,
+        hp: mob_wz_info.max_hp,
+        mp: mob_wz_info.max_mp,
+        fh: mob_wz_life.fh,
+        new_state: 0,
+        last_x: mob_wz_life.x,
+        last_y: mob_wz_life.y,
     };
-    Ok(mob_model)
+    let mob: Mob = mob_model.load(mob_wz_info, mob_wz_life)?;
+    Ok(mob)
 }

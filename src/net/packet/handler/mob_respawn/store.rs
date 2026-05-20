@@ -17,17 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::mob::wrapper::Mob;
+use crate::models::mob::model::MobWzLife;
+use crate::models::mob::wrapper::LifeState;
 use crate::net::packet::handler::mob_respawn::error::MobRespawnError;
 use crate::runtime::state::SharedState;
+use core::time::Duration;
 use std::collections::HashMap;
 use tokio::time::Instant;
 
 pub struct MobRespawnStore {
-    pub to_respawn: HashMap<u32, Mob>,
+    pub to_respawn: HashMap<u32, MobWzLife>,
     pub world_id: i16,
     pub channel_id: u8,
     pub map_wz: i32,
+    pub mode: i8,
+    pub stance: i8,
+    pub effect: i8,
+    pub team: i8,
 }
 
 impl MobRespawnStore {
@@ -38,34 +44,32 @@ impl MobRespawnStore {
         channel_id: u8,
         map_wz: i32,
     ) -> Result<Self, MobRespawnError> {
-        let to_respawn: HashMap<u32, Mob> = {
+        let to_respawn: HashMap<u32, MobWzLife> = {
             let state = state.lock().await;
             state
                 .with_mut_map(
                     world_id,
                     channel_id,
                     map_wz,
-                    |map| -> Result<HashMap<u32, Mob>, MobRespawnError> {
+                    |map| -> Result<HashMap<u32, MobWzLife>, MobRespawnError> {
                         let due: Vec<u32> = map
-                            .dead_mobs
+                            .mobs
                             .iter()
-                            .filter(|(_, dead)| {
-                                now.duration_since(dead.died_at) >= dead.respawn_time
+                            .filter(|(_, dead)| match &dead.life_state {
+                                LifeState::Dead(death_state) => {
+                                    now.duration_since(death_state.died_at)
+                                        >= Duration::from_secs(dead.life.mob_time)
+                                }
+                                LifeState::Alive => false,
                             })
                             .map(|(mob_id, _)| *mob_id)
                             .collect();
                         let mut to_respawn = HashMap::new();
                         for mob_id in due {
-                            if let Some(mut dead) = map.dead_mobs.remove(&mob_id) {
-                                dead.model.hp = dead.model.max_hp;
-                                let map_mob = Mob {
-                                    model: dead.model.clone(),
-                                };
-                                map.mobs.insert(mob_id, map_mob);
-                                let respawned_mob = Mob {
-                                    model: dead.model.clone(),
-                                };
-                                to_respawn.insert(mob_id, respawned_mob);
+                            if let Some(dead) = map.mobs.get_mut(&mob_id) {
+                                dead.model.hp = dead.info.max_hp;
+                                dead.life_state = LifeState::Alive;
+                                to_respawn.insert(dead.model.id, dead.life.clone());
                             }
                         }
                         Ok(to_respawn)
@@ -78,6 +82,10 @@ impl MobRespawnStore {
             world_id,
             channel_id,
             map_wz,
+            mode: 1,
+            stance: 0,
+            effect: 0,
+            team: -1,
         })
     }
 }

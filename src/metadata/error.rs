@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use core::num::ParseIntError;
+
 use crate::config::error::ConfigError;
 
 #[derive(Debug, thiserror::Error)]
@@ -44,4 +46,7 @@ pub enum MetadataError {
 
     #[error("Config error in model layer")]
     ConfigError(#[from] ConfigError),
+
+    #[error("Parse integer error in metadata model layer")]
+    ParseIntError(#[from] ParseIntError),
 }

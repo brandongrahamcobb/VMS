@@ -58,7 +58,11 @@ pub trait RuntimeRelay: Sized {
                     .ok_or(SessionError::NotFound(self.session_id()))?
             };
             match action {
-                Action::Broadcast(_) => {}
+                Action::Broadcast(action) => match action {
+                    BroadcastAction::Send { packet, scope } => {
+                        execute::broadcast_execute::broadcast(state, &packet, &scope).await?;
+                    }
+                },
                 Action::Session(action) => match action {
                     SessionAction::Break { packet, scope } => {
                         return execute::session_execute::end(state, &session, &packet, &scope)
@@ -74,9 +78,13 @@ pub trait RuntimeRelay: Sized {
                     }
                     SessionAction::Set(set_action) => match set_action {
                         SetAction::SetMap { map_wz, scope } => {
-                            let tick_rx =
-                                execute::session_execute::set_map(state, &session, &scope, *map_wz)
-                                    .await?;
+                            if session.get_map_wz().is_ok() {
+                                execute::session_execute::exit_map(state, &session).await?;
+                            }
+                            let tick_rx = execute::session_execute::enter_map(
+                                state, &session, &scope, *map_wz,
+                            )
+                            .await?;
                             self.set_tick_rx(tick_rx);
                         }
                         SetAction::SetChannel { channel_id, scope } => {
@@ -105,7 +113,7 @@ pub trait RuntimeRelay: Sized {
         return Ok(ControlFlow::Continue(()));
     }
 
-    async fn execute_without_session(
+    async fn execute_via_tick(
         &self,
         state: &SharedState,
         result: HandlerResult,

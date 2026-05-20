@@ -45,6 +45,51 @@ pub fn get_routing_address() -> Result<String, ConfigError> {
     Ok(addr)
 }
 
+pub fn get_item_drop_rate() -> Result<f64, ConfigError> {
+    let settings = get_settings()?;
+    let key: &str = "item_drop_rate";
+    let rate = settings
+        .get_float(key)
+        .map_err(|_| ConfigError::InvalidFloat(key.to_string()))?;
+    Ok(rate)
+}
+
+pub fn get_meso_drop_rate() -> Result<f64, ConfigError> {
+    let settings = get_settings()?;
+    let key: &str = "meso_drop_rate";
+    let rate = settings
+        .get_float(key)
+        .map_err(|_| ConfigError::InvalidFloat(key.to_string()))?;
+    Ok(rate)
+}
+
+pub fn get_mob_exp_rate() -> Result<f64, ConfigError> {
+    let settings = get_settings()?;
+    let key: &str = "mob_exp_rate";
+    let rate = settings
+        .get_float(key)
+        .map_err(|_| ConfigError::InvalidFloat(key.to_string()))?;
+    Ok(rate)
+}
+
+pub fn get_quest_meso_rate() -> Result<f64, ConfigError> {
+    let settings = get_settings()?;
+    let key: &str = "quest_meso_rate";
+    let rate = settings
+        .get_float(key)
+        .map_err(|_| ConfigError::InvalidFloat(key.to_string()))?;
+    Ok(rate)
+}
+
+pub fn get_quest_exp_rate() -> Result<f64, ConfigError> {
+    let settings = get_settings()?;
+    let key: &str = "quest_exp_rate";
+    let rate = settings
+        .get_float(key)
+        .map_err(|_| ConfigError::InvalidFloat(key.to_string()))?;
+    Ok(rate)
+}
+
 pub fn get_wz_path() -> Result<String, ConfigError> {
     let settings = get_settings()?;
     let key: &str = "wz_directory";

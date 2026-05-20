@@ -51,6 +51,7 @@ pub enum RecvOpcode {
     MobMoved = 0xBC,
     TakeDamage = 0x30,
     AllChat = 0x31,
+    PickupItem = 0xCA,
     // Whisper = 0x78,
     //
     ChangeKeymap = 0x87,

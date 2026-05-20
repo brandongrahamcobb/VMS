@@ -17,11 +17,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::metadata;
 use crate::models::portal::error::PortalError;
 use crate::models::portal::wrapper::Portal;
 
 #[derive(Clone)]
 pub struct PortalModel {
+    pub map_wz: i32,
+}
+
+#[derive(Clone)]
+pub struct PortalWzInfo {
     pub pid: u8,
     pub pn: String,
     pub tm: i32,
@@ -29,9 +35,22 @@ pub struct PortalModel {
 }
 
 impl PortalModel {
-    pub fn load(&self) -> Result<Portal, PortalError> {
-        Ok(Portal {
+    pub fn load(&self, map_wz: i32, pid: u8) -> Result<Portal, PortalError> {
+        let filename: String = String::from("Map.wz");
+        let json = metadata::service::wz_to_img(map_wz, &filename)?;
+        let portal_map = json["portal"].as_object().ok_or(PortalError::NoPortal)?;
+        let portal = &portal_map[&pid.to_string()];
+        let pn = portal["pn"].as_str().unwrap_or("").to_string();
+        let tm = portal["tm"]
+            .as_i64()
+            .map(|v| v as i32)
+            .ok_or(PortalError::NoTargetMap)?;
+        let tn = portal["tn"].as_str().unwrap_or("sp").to_string();
+        let wz_info: PortalWzInfo = PortalWzInfo { pid, pn, tm, tn };
+        let portal = Portal {
             model: self.clone(),
-        })
+            info: wz_info,
+        };
+        Ok(portal)
     }
 }

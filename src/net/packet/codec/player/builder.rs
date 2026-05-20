@@ -386,7 +386,6 @@ impl Packet {
         for (ipos, equip) in char.inventory.equipped_tab.iter() {
             match equip {
                 Item::CashEquip(i) => {
-                    dbg!("inventory cash:", ipos);
                     self.write_short(-*ipos).map_err(WriteError)?;
                     self.write_int(i.model.wz).map_err(WriteError)?;
                 }
@@ -448,7 +447,7 @@ impl Packet {
         self.write_int(char.model.meso).map_err(WriteError)?;
         // Dummy values
         // Inventory slot Capacities
-        self.write_bytes(vec![0u8; 5]).map_err(WriteError)?;
+        self.write_bytes(vec![8u8; 5]).map_err(WriteError)?;
         // Time?
         self.write_long(0).map_err(WriteError)?;
         self.build_inventory_regular_equipment_part_packet(char)?;

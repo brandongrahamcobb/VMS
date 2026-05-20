@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::config::error::ConfigError;
 use crate::db::error::DatabaseError;
 use crate::metadata::error::MetadataError;
 use thiserror::Error;
@@ -46,4 +47,10 @@ pub enum ItemError {
 
     #[error("Inventory full error in item model layer")]
     InventoryFull,
+
+    #[error("Item not found error in item model layer")]
+    ItemNotFound,
+
+    #[error("Configuration error in item model layer")]
+    ConfigError(#[from] ConfigError),
 }

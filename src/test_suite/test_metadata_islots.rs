@@ -15,8 +15,8 @@ mod tests {
         let filenames: Vec<&str> = vec![
             // "Base.wz",
             // "Effect.wz",
-            // "Item.wz",
-            "Map.wz",
+            "Item.wz",
+            // "Map.wz",
             // "Morph.wz",
             // "Quest.wz",
             // "Skill.wz",
@@ -37,14 +37,25 @@ mod tests {
             // match metadata::service::wz_debug_dir(filename, "Cash") {
             //
             //10000
-            let wz = 50000;
-            match metadata::service::wz_to_img(wz, &filename) {
+            let wz = 4000007;
+            let wz_modified = wz / 10000;
+            match metadata::service::wz_to_img(wz_modified, &filename) {
                 Ok(json) => {
-                    // println!("{}", serde_json::to_string_pretty(&json["life"]).unwrap());
-                    println!(
-                        "{}",
-                        serde_json::to_string_pretty(&json["life"]["0"]["type"]).unwrap()
-                    );
+                    if let Some(json) = json.as_object() {
+                        println!("{}", serde_json::to_string_pretty(&json).unwrap());
+                        if let Some(islot) = json[&wz.to_string()]["info"]["islot"].as_str() {
+                            println!("{}", serde_json::to_string_pretty(&json).unwrap());
+                        }
+                    }
+                    // let id = json["life"]["0"]["id"].as_str().unwrap().parse::<i32>()?;
+                    // let filename = "Mob.wz";
+                    // match metadata::service::wz_to_img(id, &filename) {
+                    //     Ok(json) => {
+                    //         // println!("{}", serde_json::to_string_pretty(&json["life"]).unwrap());
+                    //         println!("{}", serde_json::to_string_pretty(&json).unwrap());
+                    //     }
+                    //     Err(_) => {}
+                    // }
                     // if let Some(cat) = json[filename]
                     //     .as_object()
                     //     .and_then(|o| o.keys().next())

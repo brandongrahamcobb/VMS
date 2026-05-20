@@ -16,8 +16,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
+use crate::db::schema::drops;
 use crate::models::item::error::ItemError;
+use diesel::{Identifiable, Queryable};
 
 pub trait ItemModel {
     fn id(&self) -> Option<i32>;
@@ -30,4 +31,15 @@ pub trait ItemModel {
     fn get_ipos(&self) -> Result<i16, ItemError> {
         self.ipos().ok_or(ItemError::NoPos)
     }
+}
+
+#[derive(Queryable, Identifiable)]
+#[diesel(table_name = drops)]
+pub struct DropData {
+    pub id: i64,
+    pub mob_wz: i32,
+    pub item_wz: i32,
+    pub minimum_quantity: i32,
+    pub maximum_quantity: i32,
+    pub chance: i32,
 }

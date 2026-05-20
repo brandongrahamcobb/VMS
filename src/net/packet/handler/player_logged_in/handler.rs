@@ -54,7 +54,7 @@ impl PlayerLoggedInHandler {
     ) -> Result<HandlerResult, PlayerLoggedInError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
-            .build_player_logged_in_handler_keymap_packet(&store.binds)?
+            .build_player_logged_in_keymap_packet(&store.binds)?
             .finish();
         result.add_action(Action::Session(SessionAction::Send {
             packet: packet.clone(),

@@ -17,18 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use core::time::Duration;
-
+use crate::models::mob::model::{MobModel, MobWzInfo, MobWzLife};
 use tokio::time::Instant;
-
-use crate::models::mob::model::MobModel;
 
 pub struct Mob {
     pub model: MobModel,
+    pub info: MobWzInfo,
+    pub life: MobWzLife,
+    pub life_state: LifeState,
 }
 
-pub struct DeadMob {
-    pub model: MobModel,
+#[derive(Clone)]
+pub enum LifeState {
+    Alive,
+    Dead(DeathState),
+}
+
+#[derive(Clone)]
+pub struct DeathState {
     pub died_at: Instant,
-    pub respawn_time: Duration,
 }

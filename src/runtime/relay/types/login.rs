@@ -51,7 +51,7 @@ impl RuntimeRelay for LoginRelay {
         None
     }
 
-    fn set_tick_rx(&mut self, rx: broadcast::Receiver<HandlerResult>) {}
+    fn set_tick_rx(&mut self, _rx: broadcast::Receiver<HandlerResult>) {}
 
     fn session_id(&self) -> i32 {
         self.session_id

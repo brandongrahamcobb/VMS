@@ -17,20 +17,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::config::settings;
 use crate::db::error::DatabaseError;
 use crate::metadata;
 use crate::metadata::error::MetadataError;
 use crate::models::item;
 use crate::models::item::cash_nonequip_model::CashNonEquipItemModel;
 use crate::models::item::constants::{CASH_EQUIP_SLOTS, InventoryTab, OTHER_EQUIP_SLOTS};
-use crate::models::item::equip_model::EquipItemModel;
+use crate::models::item::equip_model::{EquipItemModel, EquipItemWz};
 use crate::models::item::error::ItemError;
 use crate::models::item::etc_model::EtcItemModel;
+use crate::models::item::model::DropData;
 use crate::models::item::setup_model::SetupItemModel;
 use crate::models::item::use_model::UseItemModel;
-use crate::models::item::wrapper::Inventory;
 use crate::models::item::wrapper::Item;
+use crate::models::item::wrapper::{EquipItem, Inventory};
+use crate::models::mob::model::{MobWzInfo, MobWzLife};
 use crate::runtime::state::SharedState;
+use rand::RngExt;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::time::SystemTime;
@@ -105,7 +109,7 @@ pub fn get_equip_ipos_by_wz(wz: i32) -> Result<i16, ItemError> {
 
 pub fn get_inventory_tab_by_wz(wz: i32) -> Result<InventoryTab, ItemError> {
     let filename: &str = "Item.wz";
-    let wz_cat = wz / 10000;
+    let wz_cat: i32 = wz.div_euclid(10000);
     let json = match metadata::service::wz_to_tree(wz_cat, filename) {
         Ok(json) => json,
         Err(_) => return Ok(InventoryTab::Equip),
@@ -133,8 +137,8 @@ pub async fn create_item(state: &SharedState, wz: i32) -> Result<Item, ItemError
             let item_model = UseItemModel {
                 id: None,
                 char_id: None,
-                ipos: None,
                 wz,
+                ipos: None,
                 created_at: Some(SystemTime::now()),
                 updated_at: SystemTime::now(),
             };
@@ -148,8 +152,8 @@ pub async fn create_item(state: &SharedState, wz: i32) -> Result<Item, ItemError
             let item_model = SetupItemModel {
                 id: None,
                 char_id: None,
-                ipos: None,
                 wz,
+                ipos: None,
                 created_at: Some(SystemTime::now()),
                 updated_at: SystemTime::now(),
             };
@@ -163,8 +167,8 @@ pub async fn create_item(state: &SharedState, wz: i32) -> Result<Item, ItemError
             let item_model = CashNonEquipItemModel {
                 id: None,
                 char_id: None,
-                ipos: None,
                 wz,
+                ipos: None,
                 created_at: Some(SystemTime::now()),
                 updated_at: SystemTime::now(),
             };
@@ -178,8 +182,8 @@ pub async fn create_item(state: &SharedState, wz: i32) -> Result<Item, ItemError
             let item_model = EtcItemModel {
                 id: None,
                 char_id: None,
-                ipos: None,
                 wz,
+                ipos: None,
                 created_at: Some(SystemTime::now()),
                 updated_at: SystemTime::now(),
             };
@@ -190,28 +194,27 @@ pub async fn create_item(state: &SharedState, wz: i32) -> Result<Item, ItemError
             Item::Etc(item_model.load())
         }
         InventoryTab::Equip => {
-            let filename: String = String::from("Character.wz");
-            let json = metadata::service::wz_to_img(wz, &filename)?;
-            let item_model = EquipItemModel {
+            let wz_info = build_equip_item_wz_info(wz)?;
+            let item_model: EquipItemModel = EquipItemModel {
                 id: None,
                 char_id: None,
                 wz,
                 ipos: None,
-                strength: get_equip_stats_from_wz(&json, "incSTR").unwrap_or(0),
-                dexterity: get_equip_stats_from_wz(&json, "incDEX").unwrap_or(0),
-                intelligence: get_equip_stats_from_wz(&json, "incINT").unwrap_or(0),
-                luck: get_equip_stats_from_wz(&json, "incLUK").unwrap_or(0),
-                attack: get_equip_stats_from_wz(&json, "incPAD").unwrap_or(0),
-                weapon_defense: get_equip_stats_from_wz(&json, "incPDD").unwrap_or(0),
-                magic: get_equip_stats_from_wz(&json, "incMAD").unwrap_or(0),
-                magic_defense: get_equip_stats_from_wz(&json, "incMDD").unwrap_or(0),
-                hp: get_equip_stats_from_wz(&json, "incMHP").unwrap_or(0),
-                mp: get_equip_stats_from_wz(&json, "incMMP").unwrap_or(0),
-                accuracy: get_equip_stats_from_wz(&json, "incACC").unwrap_or(0),
-                avoid: get_equip_stats_from_wz(&json, "incEVA").unwrap_or(0),
-                hands: get_equip_stats_from_wz(&json, "incHANDS").unwrap_or(0),
-                speed: get_equip_stats_from_wz(&json, "incSPEED").unwrap_or(0),
-                jump: get_equip_stats_from_wz(&json, "incJUMP").unwrap_or(0),
+                strength: rand_stat(wz_info.strength, 5),
+                dexterity: rand_stat(wz_info.dexterity, 5),
+                intelligence: rand_stat(wz_info.intelligence, 5),
+                luck: rand_stat(wz_info.luck, 5),
+                attack: rand_stat(wz_info.attack, 5),
+                weapon_defense: rand_stat(wz_info.weapon_defense, 10),
+                magic: rand_stat(wz_info.magic, 5),
+                magic_defense: rand_stat(wz_info.magic_defense, 10),
+                hp: rand_stat(wz_info.hp, 10),
+                mp: rand_stat(wz_info.mp, 10),
+                accuracy: rand_stat(wz_info.accuracy, 5),
+                avoid: rand_stat(wz_info.avoid, 5),
+                hands: rand_stat(wz_info.hands, 5),
+                speed: rand_stat(wz_info.speed, 5),
+                jump: rand_stat(wz_info.jump, 5),
                 created_at: Some(SystemTime::now()),
                 updated_at: SystemTime::now(),
             };
@@ -219,19 +222,19 @@ pub async fn create_item(state: &SharedState, wz: i32) -> Result<Item, ItemError
                 .update_item(state)
                 .await
                 .map_err(|e| DatabaseError::DieselError(e))?;
-            if json["info"]["cash"] == 0 {
-                Item::Equip(item_model.load())
+            if !wz_info.cash {
+                Item::Equip(item_model.load()?)
             } else {
-                Item::CashEquip(item_model.load())
+                Item::CashEquip(item_model.load()?)
             }
         }
     };
     Ok(item)
 }
 
-fn get_equip_stats_from_wz(root: &Value, key: &str) -> Option<i32> {
+fn get_equip_stats_from_wz(root: &Value, key: &str) -> Option<i16> {
     let map = root.get("info").ok_or(MetadataError::ObjectError).ok()?;
-    map.get(key).and_then(|v| v.as_i64().map(|n| n as i32))
+    map.get(key).and_then(|v| v.as_i64().map(|n| n as i16))
 }
 
 async fn get_equipped_items_by_char_id(
@@ -244,7 +247,7 @@ async fn get_equipped_items_by_char_id(
         .map_err(|e| DatabaseError::DieselError(e))?;
     for equip_item_model in equip_item_models {
         if equip_item_model.ipos.unwrap() < 0 {
-            let equip_item = equip_item_model.load();
+            let equip_item = equip_item_model.load()?;
             let filename: String = String::from("Character.wz");
             let json = metadata::service::wz_to_img(equip_item_model.wz, &filename)?;
             if json["info"]["cash"] == 0 {
@@ -267,7 +270,7 @@ async fn get_equip_items_by_char_id(
         .map_err(|e| DatabaseError::DieselError(e))?;
     for equip_item_model in equip_item_models {
         if equip_item_model.ipos.unwrap() > 0 {
-            let equip_item = equip_item_model.load();
+            let equip_item = equip_item_model.load()?;
             let filename: String = String::from("Character.wz");
             let json = metadata::service::wz_to_img(equip_item_model.wz, &filename)?;
             if json["info"]["cash"] == 0 {
@@ -339,4 +342,120 @@ async fn get_cash_nonequip_items_by_char_id(
         cash_nonequip_items.push(Item::CashNonEquip(cash_nonequip_item));
     }
     Ok(cash_nonequip_items)
+}
+
+pub fn build_equip_item_wz_info(item_wz: i32) -> Result<EquipItemWz, ItemError> {
+    let filename: String = String::from("Character.wz");
+    dbg!(item_wz);
+    let json = metadata::service::wz_to_img(item_wz, &filename)?;
+    let islot = json["info"]["islot"]
+        .as_str()
+        .ok_or(ItemError::InvalidISlot)?
+        .to_string();
+    let cash = json["info"]["cash"] == 1;
+    let wz_info = EquipItemWz {
+        cash,
+        islot,
+        strength: get_equip_stats_from_wz(&json, "incSTR").unwrap_or(0),
+        dexterity: get_equip_stats_from_wz(&json, "incDEX").unwrap_or(0),
+        intelligence: get_equip_stats_from_wz(&json, "incINT").unwrap_or(0),
+        luck: get_equip_stats_from_wz(&json, "incLUK").unwrap_or(0),
+        attack: get_equip_stats_from_wz(&json, "incPAD").unwrap_or(0),
+        weapon_defense: get_equip_stats_from_wz(&json, "incPDD").unwrap_or(0),
+        magic: get_equip_stats_from_wz(&json, "incMAD").unwrap_or(0),
+        magic_defense: get_equip_stats_from_wz(&json, "incMDD").unwrap_or(0),
+        hp: get_equip_stats_from_wz(&json, "incMHP").unwrap_or(0),
+        mp: get_equip_stats_from_wz(&json, "incMMP").unwrap_or(0),
+        accuracy: get_equip_stats_from_wz(&json, "incACC").unwrap_or(0),
+        avoid: get_equip_stats_from_wz(&json, "incEVA").unwrap_or(0),
+        hands: get_equip_stats_from_wz(&json, "incHANDS").unwrap_or(0),
+        speed: get_equip_stats_from_wz(&json, "incSPEED").unwrap_or(0),
+        jump: get_equip_stats_from_wz(&json, "incJUMP").unwrap_or(0),
+    };
+    Ok(wz_info)
+}
+
+pub fn rand_stat(default_value: i16, max_range: i32) -> i16 {
+    if default_value == 0 {
+        return 0;
+    }
+    let l_max_range = ((default_value as f64 * 0.1).ceil() as i32).min(max_range);
+    let rand = rand::rng().random::<f64>();
+    ((default_value as i32 - l_max_range) + (rand * (l_max_range * 2 + 1) as f64).floor() as i32)
+        as i16
+}
+
+pub async fn get_random_drops(
+    state: &SharedState,
+    mob_wz_life: MobWzLife,
+) -> Result<HashMap<i32, Item>, ItemError> {
+    let drop_rate: f64 = settings::get_item_drop_rate()?;
+    let drop_data: Vec<DropData> = item::query::getters::get_item_drop_data(state, mob_wz_life.wz)
+        .await
+        .map_err(|e| DatabaseError::DieselError(e))?;
+    let mut items: HashMap<i32, Item> = HashMap::new();
+    for drop_entry in drop_data {
+        let chance: f64 = (drop_entry.chance as f64 / 1_000_000.0) * drop_rate;
+        let to_drop = if chance > 1.0 {
+            true
+        } else {
+            rand::rng().random_bool(chance)
+        };
+        if to_drop {
+            if chance > 2.0 {
+                let multiplier = chance.div_euclid(1.0) as i32;
+                items.insert(multiplier, create_item(state, drop_entry.item_wz).await?);
+            } else {
+                items.insert(1, create_item(state, drop_entry.item_wz).await?);
+            }
+        }
+    }
+    Ok(items)
+}
+
+pub async fn get_random_meso_drop(mob_wz_info: MobWzInfo) -> Result<i32, ItemError> {
+    let meso_rate: f64 = settings::get_meso_drop_rate()?;
+    let base = (mob_wz_info.level * 3 + 20) as f32;
+    let min = (base * 0.75) as i32;
+    let max = (base * 1.25) as i32;
+    let amount = rand::rng().random_range(min..=max);
+    Ok((amount as f64 * meso_rate) as i32)
+}
+
+pub async fn get_item_by_item_id(state: &SharedState, item_id: i32) -> Result<Item, ItemError> {
+    if let Ok(item_model) =
+        item::query::getters::get_etc_item_models_by_item_id(state, item_id).await
+    {
+        return Ok(Item::Etc(item_model.load()));
+    }
+
+    if let Ok(item_model) =
+        item::query::getters::get_cash_nonequip_item_models_by_item_id(state, item_id).await
+    {
+        return Ok(Item::CashNonEquip(item_model.load()));
+    }
+
+    if let Ok(item_model) =
+        item::query::getters::get_equip_item_models_by_item_id(state, item_id).await
+    {
+        let item: EquipItem = item_model.load()?;
+        match get_inventory_tab_by_wz(item.model.wz)? {
+            InventoryTab::Equip => return Ok(Item::Equip(item)),
+            InventoryTab::Cash => return Ok(Item::CashEquip(item)),
+            _ => (),
+        }
+    }
+
+    if let Ok(item_model) =
+        item::query::getters::get_setup_item_models_by_item_id(state, item_id).await
+    {
+        return Ok(Item::Setup(item_model.load()));
+    }
+
+    if let Ok(item_model) =
+        item::query::getters::get_use_item_models_by_item_id(state, item_id).await
+    {
+        return Ok(Item::Use(item_model.load()));
+    }
+    Err(ItemError::ItemNotFound)
 }

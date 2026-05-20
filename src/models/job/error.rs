@@ -19,6 +19,7 @@
 
 use crate::db::error::DatabaseError;
 use crate::metadata::error::MetadataError;
+use core::num::ParseIntError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -28,4 +29,10 @@ pub enum JobError {
 
     #[error("Database error in job model layer")]
     DatabaseError(#[from] DatabaseError),
+
+    #[error("No skill error in job model layer: {0}")]
+    NoSkill(i16),
+
+    #[error("Parse integer error in job model layer")]
+    ParseIntError(#[from] ParseIntError),
 }

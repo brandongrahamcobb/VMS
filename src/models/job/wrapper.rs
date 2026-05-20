@@ -17,8 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::job::model::JobModel;
+use crate::models::job::model::{JobModel, JobWzSkill};
 
 pub struct Job {
     pub model: JobModel,
+    pub info: JobWzInfo,
+}
+
+pub struct JobWzInfo {
+    pub skills: Vec<JobWzSkill>,
 }

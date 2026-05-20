@@ -1,5 +1,5 @@
-/* execute/manager.rs
- * The purpose of this module is to provide action-wide functions for relay handling.
+/* session_execute.rs
+ * The purpose of this module is to provide action-wide functions for session-related actions.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,11 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use tokio::sync::broadcast;
-
-use crate::models::map::model::MapModel;
-use crate::net::packet::handler::mob_respawn;
-use crate::net::packet::handler::mob_respawn::handler::MobRespawnHandler;
+use crate::constants::VACANCY_DURATION;
+use crate::models::map::model::{MapModel, Point};
+use crate::models::map::wrapper::VacancyState;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::relay::execute::error::ExecuteError;
@@ -30,6 +28,9 @@ use crate::runtime::relay::scope::SessionScope;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 use core::ops::ControlFlow;
+use std::sync::Arc;
+use tokio::sync::broadcast;
+use tokio_util::sync::CancellationToken;
 
 pub async fn end(
     state: &SharedState,
@@ -79,40 +80,61 @@ pub async fn retrieve(state: &SharedState, session: &Session) -> Result<(), Exec
     let world_id: i16 = session.get_world_id()?;
     let channel_id: u8 = session.get_channel_id()?;
     let map_wz: i32 = session.get_map_wz()?;
-    let packets: Vec<Packet> = {
+    {
         let state = state.lock().await;
         state
-            .with_map(
+            .with_mut_map(
                 world_id,
                 channel_id,
                 map_wz,
-                |map| -> Result<Vec<Packet>, ExecuteError> {
-                    let packets: Vec<Packet> = {
-                        let mut packets: Vec<Packet> = Vec::<Packet>::new();
-                        for player in map.chars.values() {
-                            packets.push(
-                                Packet::new_empty()
-                                    .build_spawn_player_packet(player)?
-                                    .finish(),
-                            );
-                        }
-                        for mob in map.mobs.values() {
-                            packets.push(Packet::new_empty().build_spawn_mob_packet(mob)?.finish());
-                        }
-                        packets
-                    };
-                    Ok(packets)
+                |map| -> Result<(), ExecuteError> {
+                    if let Some(token) = map.vacancy_token.take() {
+                        token.cancel();
+                    }
+                    let mut packets: Vec<Packet> = Vec::<Packet>::new();
+                    for player in map.chars.values() {
+                        packets.push(
+                            Packet::new_empty()
+                                .build_spawn_player_packet(player)?
+                                .finish(),
+                        );
+                    }
+                    for (mob_id, mob) in map.mobs.iter() {
+                        packets.push(
+                            Packet::new_empty()
+                                .build_spawn_mob_packet(*mob_id, &mob.life)?
+                                .finish(),
+                        );
+                        packets.push(
+                            Packet::new_empty()
+                                .build_spawn_mob_controller_packet(
+                                    *mob_id,
+                                    1,
+                                    mob.life.wz as i32,
+                                    0,
+                                    mob.model.fh,
+                                    0,
+                                    &Point {
+                                        x: mob.model.pos_x,
+                                        y: mob.model.pos_y,
+                                    },
+                                    -1,
+                                )?
+                                .finish(),
+                        );
+                    }
+                    for packet in packets {
+                        session.tx.send(packet)?;
+                    }
+                    Ok(())
                 },
             )
             .await??
     };
-    for packet in packets {
-        session.tx.send(packet)?;
-    }
     Ok(())
 }
 
-pub async fn set_map(
+pub async fn enter_map(
     state: &SharedState,
     session: &Session,
     scope: &SessionScope,
@@ -135,6 +157,50 @@ pub async fn set_map(
         SessionScope::Global => set_map::set_map_globally(state, session, map_wz).await?,
     }
     Ok(tick_rx)
+}
+
+pub async fn exit_map(state: &SharedState, session: &Session) -> Result<(), ExecuteError> {
+    let world_id: i16 = session.get_world_id()?;
+    let channel_id: u8 = session.get_channel_id()?;
+    let map_wz: i32 = session.get_map_wz()?;
+    let char_id: i32 = session.get_char_id()?;
+    let is_vacant = {
+        let state = state.lock().await;
+        state
+            .with_mut_map(
+                world_id,
+                channel_id,
+                map_wz,
+                |map| -> Result<bool, ExecuteError> {
+                    map.chars.remove(&char_id);
+                    Ok(map.chars.is_empty())
+                },
+            )
+            .await??
+    };
+    if is_vacant {
+        let token: CancellationToken = CancellationToken::new();
+        let token_clone: CancellationToken = token.clone();
+        let state_clone = Arc::clone(state);
+        {
+            let state = state.lock().await;
+            state
+                .with_mut_map(world_id, channel_id, map_wz, |map| {
+                    map.vacancy = VacancyState::Vacant;
+                    map.vacancy_token = Some(token);
+                })
+                .await?;
+        }
+        tokio::spawn(async move {
+            tokio::select! {
+                _ = tokio::time::sleep(VACANCY_DURATION) => {
+                    let _ = suspend_map(&state_clone, world_id, channel_id, map_wz).await;
+                }
+                _ = token_clone.cancelled() => {}
+            }
+        });
+    }
+    Ok(())
 }
 
 pub async fn set_channel(
@@ -215,25 +281,25 @@ pub async fn insert_map(
     channel_id: u8,
     map_wz: i32,
 ) -> Result<broadcast::Receiver<HandlerResult>, ExecuteError> {
-    let map_model: MapModel = MapModel { wz: map_wz };
-    let map = map_model.load(state, world_id, channel_id, map_wz).await?;
-    let state = state.lock().await;
-    let exists = state
-        .with_channel(world_id, channel_id, |channel| {
-            if channel.maps.contains_key(&map_wz) {
-                true
-            } else {
-                false
-            }
-        })
-        .await?;
+    let exists = {
+        let state = state.lock().await;
+        state
+            .with_channel(world_id, channel_id, |channel| {
+                channel.maps.contains_key(&map_wz)
+            })
+            .await?
+    };
     if !exists {
+        let map_model: MapModel = MapModel { wz: map_wz };
+        let map = map_model.load(state, world_id, channel_id, map_wz).await?;
+        let state = state.lock().await;
         state
             .with_mut_channel(world_id, channel_id, |channel| {
                 channel.maps.insert(map_wz, map);
             })
             .await?;
     }
+    let state = state.lock().await;
     let tick_rx = state
         .with_channel(world_id, channel_id, |channel| {
             channel.maps.get(&map_wz).unwrap().tick_tx.subscribe()
@@ -242,7 +308,7 @@ pub async fn insert_map(
     Ok(tick_rx)
 }
 
-pub async fn delete_map(
+pub async fn suspend_map(
     state: &SharedState,
     world_id: i16,
     channel_id: u8,

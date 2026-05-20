@@ -18,6 +18,8 @@
  */
 
 use crate::db::schema::equip_items;
+use crate::models::item;
+use crate::models::item::error::ItemError;
 use crate::models::item::model::ItemModel;
 use crate::models::item::wrapper::EquipItem;
 use diesel::prelude::*;
@@ -30,30 +32,52 @@ pub struct EquipItemModel {
     pub char_id: Option<i32>,
     pub wz: i32,
     pub ipos: Option<i16>,
-    pub strength: i32,
-    pub dexterity: i32,
-    pub intelligence: i32,
-    pub luck: i32,
-    pub attack: i32,
-    pub weapon_defense: i32,
-    pub magic: i32,
-    pub magic_defense: i32,
-    pub hp: i32,
-    pub mp: i32,
-    pub accuracy: i32,
-    pub avoid: i32,
-    pub hands: i32,
-    pub speed: i32,
-    pub jump: i32,
+    pub strength: i16,
+    pub dexterity: i16,
+    pub intelligence: i16,
+    pub luck: i16,
+    pub attack: i16,
+    pub weapon_defense: i16,
+    pub magic: i16,
+    pub magic_defense: i16,
+    pub hp: i16,
+    pub mp: i16,
+    pub accuracy: i16,
+    pub avoid: i16,
+    pub hands: i16,
+    pub speed: i16,
+    pub jump: i16,
     pub created_at: Option<SystemTime>,
     pub updated_at: SystemTime,
 }
 
+pub struct EquipItemWz {
+    pub strength: i16,
+    pub dexterity: i16,
+    pub intelligence: i16,
+    pub luck: i16,
+    pub attack: i16,
+    pub weapon_defense: i16,
+    pub magic: i16,
+    pub magic_defense: i16,
+    pub hp: i16,
+    pub mp: i16,
+    pub accuracy: i16,
+    pub avoid: i16,
+    pub hands: i16,
+    pub speed: i16,
+    pub jump: i16,
+    pub islot: String,
+    pub cash: bool,
+}
+
 impl EquipItemModel {
-    pub fn load(&self) -> EquipItem {
-        EquipItem {
+    pub fn load(&self) -> Result<EquipItem, ItemError> {
+        let wz_info: EquipItemWz = item::service::build_equip_item_wz_info(self.wz)?;
+        Ok(EquipItem {
             model: self.clone(),
-        }
+            info: wz_info,
+        })
     }
 }
 

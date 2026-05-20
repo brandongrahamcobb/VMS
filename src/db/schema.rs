@@ -60,6 +60,7 @@ diesel::table! {
         hair_color_wz -> Int4,
         skin_wz -> Int4,
         gender_wz -> Int2,
+        last_portal -> Int2,
         created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp
     }
@@ -102,21 +103,21 @@ diesel::table! {
         char_id -> Nullable<Int4>,
         wz -> Int4,
         ipos -> Nullable<Int2>,
-        strength -> Int4,
-        dexterity -> Int4,
-        intelligence -> Int4,
-        luck -> Int4,
-        attack -> Int4,
-        weapon_defense -> Int4,
-        magic -> Int4,
-        magic_defense -> Int4,
-        hp -> Int4,
-        mp -> Int4,
-        accuracy -> Int4,
-        avoid -> Int4,
-        hands -> Int4,
-        speed -> Int4,
-        jump -> Int4,
+        strength -> Int2,
+        dexterity -> Int2,
+        intelligence -> Int2,
+        luck -> Int2,
+        attack -> Int2,
+        weapon_defense -> Int2,
+        magic -> Int2,
+        magic_defense -> Int2,
+        hp -> Int2,
+        mp -> Int2,
+        accuracy -> Int2,
+        avoid -> Int2,
+        hands -> Int2,
+        speed -> Int2,
+        jump -> Int2,
         created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
     }
@@ -171,6 +172,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     character_limits,
     characters,
     cash_nonequip_items,
+    drops,
     equip_items,
     etc_items,
     setup_items,
@@ -178,3 +180,14 @@ diesel::allow_tables_to_appear_in_same_query!(
     keybindings,
     skills,
 );
+
+diesel::table! {
+    drops (id) {
+        id -> BigInt,
+        mob_wz -> Integer,
+        item_wz -> Integer,
+        minimum_quantity -> Integer,
+        maximum_quantity -> Integer,
+        chance -> Integer,
+    }
+}

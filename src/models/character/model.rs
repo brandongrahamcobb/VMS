@@ -16,16 +16,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+use crate::db::error::DatabaseError;
 use crate::db::schema::character_limits;
 use crate::db::schema::characters;
+use crate::models::character;
 use crate::models::character::error::CharacterError;
 use crate::models::character::wrapper::Character;
 use crate::models::item;
 use crate::models::item::wrapper::Inventory;
-use crate::models::job;
+use crate::models::job::model::JobModel;
 use crate::models::job::wrapper::Job;
 use crate::models::keybinding;
 use crate::models::keybinding::wrapper::Keybinding;
+use crate::models::map::model::Point;
+use crate::models::portal;
 use crate::models::skill;
 use crate::models::skill::wrapper::Skill;
 use crate::runtime::state::SharedState;
@@ -60,6 +64,7 @@ pub struct CharacterModel {
     pub hair_color_wz: i32,
     pub skin_wz: i32,
     pub gender_wz: i16,
+    pub last_portal: i16,
     pub created_at: Option<SystemTime>,
     pub updated_at: SystemTime,
 }
@@ -77,17 +82,24 @@ pub struct CharacterLimitModel {
 impl CharacterModel {
     pub async fn load(&self, state: &SharedState) -> Result<Character, CharacterError> {
         let char_id: i32 = self.get_id()?;
+        let char_model: CharacterModel =
+            character::query::getters::get_char_model_by_id(state, char_id)
+                .await
+                .map_err(|e| DatabaseError::DieselError(e))?;
         let binds: HashMap<i32, Keybinding> =
             keybinding::service::load_keybindings(state, char_id).await?;
         let inventory: Inventory = item::service::load_inventory(state, char_id).await?;
-        let job: Job = job::service::load_job(state, char_id).await?;
+        let job_model: JobModel = JobModel;
+        let job: Job = job_model.load(char_model.job_wz)?;
         let skills: HashMap<i32, Skill> = skill::service::load_skills(state, char_id).await?;
+        let pos: Point = portal::service::get_zeroeth_portal_spawnpoint(self.map_wz)?;
         Ok(Character {
             model: self.clone(),
             binds,
             inventory,
             job,
             skills,
+            pos,
         })
     }
     pub fn get_id(&self) -> Result<i32, CharacterError> {

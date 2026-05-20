@@ -16,17 +16,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 use crate::db::error::DatabaseError;
 use crate::models::item;
-use crate::models::item::cash_nonequip_model::CashNonEquipItemModel;
+use crate::models::item::cash_nonequip_model::{CashNonEquipItemModel, CashNonEquipItemWz};
 use crate::models::item::constants::InventoryTab;
-use crate::models::item::equip_model::EquipItemModel;
+use crate::models::item::equip_model::{EquipItemModel, EquipItemWz};
 use crate::models::item::error::ItemError;
-use crate::models::item::etc_model::EtcItemModel;
+use crate::models::item::etc_model::{EtcItemModel, EtcItemWz};
 use crate::models::item::model::ItemModel;
-use crate::models::item::setup_model::SetupItemModel;
-use crate::models::item::use_model::UseItemModel;
+use crate::models::item::setup_model::{SetupItemModel, SetupItemWz};
+use crate::models::item::use_model::{UseItemModel, UseItemWz};
 use crate::runtime::state::SharedState;
 use std::collections::HashMap;
 
@@ -57,22 +56,27 @@ pub enum Item {
 
 pub struct CashNonEquipItem {
     pub model: CashNonEquipItemModel,
+    pub info: CashNonEquipItemWz,
 }
 
 pub struct EquipItem {
     pub model: EquipItemModel,
+    pub info: EquipItemWz,
 }
 
 pub struct EtcItem {
     pub model: EtcItemModel,
+    pub info: EtcItemWz,
 }
 
 pub struct SetupItem {
     pub model: SetupItemModel,
+    pub info: SetupItemWz,
 }
 
 pub struct UseItem {
     pub model: UseItemModel,
+    pub info: UseItemWz,
 }
 
 impl Item {

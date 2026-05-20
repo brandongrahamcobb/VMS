@@ -24,6 +24,9 @@ pub enum ConfigError {
     #[error("Invalid integer value for key in config layer: {0}")]
     InvalidInt(String),
 
+    #[error("Invalid float value for key in config layer: {0}")]
+    InvalidFloat(String),
+
     #[error("Invalid boolean value for key in config layer: {0}")]
     InvalidBool(String),
 

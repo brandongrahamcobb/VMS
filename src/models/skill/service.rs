@@ -18,28 +18,11 @@
  */
 
 use crate::db::error::DatabaseError;
-use crate::metadata;
 use crate::models::skill;
 use crate::models::skill::error::SkillError;
 use crate::models::skill::wrapper::Skill;
 use crate::runtime::state::SharedState;
 use std::collections::HashMap;
-
-pub fn generate_skill_wzs_by_job_wz(job_wz: i32) -> Result<Vec<i32>, SkillError> {
-    let wz_modified = job_wz * 100;
-    let filename: String = String::from("Skill.wz");
-    let json = metadata::service::wz_to_img(wz_modified, &filename)?;
-    let mut ids: Vec<i32> = json
-        .get("skill")
-        .and_then(|s| s.as_object())
-        .unwrap_or(&serde_json::Map::new())
-        .keys()
-        .filter_map(|k| k.parse::<i32>().ok())
-        .collect();
-    let basic_attack_skill_id: i32 = 0;
-    ids.push(basic_attack_skill_id);
-    Ok(ids)
-}
 
 pub async fn load_skills(
     state: &SharedState,

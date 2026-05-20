@@ -1,5 +1,5 @@
-/* character/model.rs
- * The purpose of this module is to provide a character model and its wrapper.
+/* pickup_item/error.rs
+ * The purpose of this module is to provide errors related to picking up items.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,20 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
+use crate::models::character::error::CharacterError;
+use crate::models::item::error::ItemError;
+use crate::net::packet::io::error::IOError;
+use crate::runtime::session::error::SessionError;
+use thiserror::Error;
 
-use crate::models::character::model::CharacterModel;
-use crate::models::item::wrapper::Inventory;
-use crate::models::job::wrapper::Job;
-use crate::models::keybinding::wrapper::Keybinding;
-use crate::models::map::model::Point;
-use crate::models::skill::wrapper::Skill;
+#[derive(Debug, Error)]
+pub enum PickupItemError {
+    #[error("Packet io error in pickup item layer")]
+    IOError(#[from] IOError),
 
-pub struct Character {
-    pub model: CharacterModel,
-    pub binds: HashMap<i32, Keybinding>,
-    pub job: Job,
-    pub inventory: Inventory,
-    pub skills: HashMap<i32, Skill>,
-    pub pos: Point,
+    #[error("Session error in pickup item layer")]
+    SessionError(#[from] SessionError),
+
+    #[error("Character model error in pickup item layer")]
+    CharacterError(#[from] CharacterError),
+
+    #[error("Item model error in pickup item layer")]
+    ItemError(#[from] ItemError),
 }

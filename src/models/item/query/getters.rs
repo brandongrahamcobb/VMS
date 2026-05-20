@@ -17,10 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::db::schema::{cash_nonequip_items, equip_items, etc_items, setup_items, use_items};
+use crate::db::schema::{
+    cash_nonequip_items, drops, equip_items, etc_items, setup_items, use_items,
+};
 use crate::models::item::cash_nonequip_model::CashNonEquipItemModel;
 use crate::models::item::equip_model::EquipItemModel;
 use crate::models::item::etc_model::EtcItemModel;
+use crate::models::item::model::DropData;
 use crate::models::item::setup_model::SetupItemModel;
 use crate::models::item::use_model::UseItemModel;
 use crate::runtime::state::SharedState;
@@ -120,4 +123,115 @@ pub async fn get_use_item_models_by_char_id(
     use_items::table
         .filter(use_items::char_id.eq(char_id))
         .get_results::<UseItemModel>(&mut conn)
+}
+
+pub async fn get_equip_item_models_by_item_id(
+    state: &SharedState,
+    item_id: i32,
+) -> QueryResult<EquipItemModel> {
+    let db = {
+        let state = state.lock().await;
+        state.db.clone()
+    };
+    let mut conn = db.get().map_err(|e| {
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UnableToSendCommand,
+            Box::new(e.to_string()),
+        )
+    })?;
+    equip_items::table
+        .filter(equip_items::id.eq(item_id))
+        .get_result::<EquipItemModel>(&mut conn)
+}
+
+pub async fn get_cash_nonequip_item_models_by_item_id(
+    state: &SharedState,
+    item_id: i32,
+) -> QueryResult<CashNonEquipItemModel> {
+    let db = {
+        let state = state.lock().await;
+        state.db.clone()
+    };
+    let mut conn = db.get().map_err(|e| {
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UnableToSendCommand,
+            Box::new(e.to_string()),
+        )
+    })?;
+    cash_nonequip_items::table
+        .filter(cash_nonequip_items::id.eq(item_id))
+        .get_result::<CashNonEquipItemModel>(&mut conn)
+}
+
+pub async fn get_etc_item_models_by_item_id(
+    state: &SharedState,
+    item_id: i32,
+) -> QueryResult<EtcItemModel> {
+    let db = {
+        let state = state.lock().await;
+        state.db.clone()
+    };
+    let mut conn = db.get().map_err(|e| {
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UnableToSendCommand,
+            Box::new(e.to_string()),
+        )
+    })?;
+    etc_items::table
+        .filter(etc_items::id.eq(item_id))
+        .get_result::<EtcItemModel>(&mut conn)
+}
+
+pub async fn get_setup_item_models_by_item_id(
+    state: &SharedState,
+    item_id: i32,
+) -> QueryResult<SetupItemModel> {
+    let db = {
+        let state = state.lock().await;
+        state.db.clone()
+    };
+    let mut conn = db.get().map_err(|e| {
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UnableToSendCommand,
+            Box::new(e.to_string()),
+        )
+    })?;
+    setup_items::table
+        .filter(setup_items::id.eq(item_id))
+        .get_result::<SetupItemModel>(&mut conn)
+}
+
+pub async fn get_use_item_models_by_item_id(
+    state: &SharedState,
+    item_id: i32,
+) -> QueryResult<UseItemModel> {
+    let db = {
+        let state = state.lock().await;
+        state.db.clone()
+    };
+    let mut conn = db.get().map_err(|e| {
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UnableToSendCommand,
+            Box::new(e.to_string()),
+        )
+    })?;
+    use_items::table
+        .filter(use_items::id.eq(item_id))
+        .get_result::<UseItemModel>(&mut conn)
+}
+
+pub async fn get_item_drop_data(state: &SharedState, mob_wz: i32) -> QueryResult<Vec<DropData>> {
+    let db = {
+        let state = state.lock().await;
+        state.db.clone()
+    };
+    let mut conn = db.get().map_err(|e| {
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UnableToSendCommand,
+            Box::new(e.to_string()),
+        )
+    })?;
+    drops::table
+        .filter(drops::mob_wz.eq(mob_wz))
+        .get_results::<DropData>(&mut conn)
 }

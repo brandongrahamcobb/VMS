@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::models::item::wrapper::Item;
+use crate::models::map::model::Point;
 use crate::net::action::{Action, BroadcastAction, SessionAction};
 use crate::net::packet::handler::close_attack::error::CloseAttackError;
 use crate::net::packet::handler::close_attack::reader::CloseAttackReader;
@@ -26,6 +28,7 @@ use crate::net::packet::model::Packet;
 use crate::runtime::relay::scope::{BroadcastScope, SessionScope};
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
+use rand::RngExt;
 
 pub struct CloseAttackHandler;
 
@@ -43,11 +46,11 @@ impl CloseAttackHandler {
         let reader: CloseAttackReader = CloseAttackReader::read_close_attack_packet(packet)?;
         let store: CloseAttackStore =
             CloseAttackStore::store_close_attack(state, session, &reader).await?;
-        let result = self.build_close_attack_result(&store)?;
+        let result = self.build_close_attack_result(&store).await?;
         Ok(result)
     }
 
-    fn build_close_attack_result(
+    async fn build_close_attack_result(
         &self,
         store: &CloseAttackStore,
     ) -> Result<HandlerResult, CloseAttackError> {
@@ -82,8 +85,8 @@ impl CloseAttackHandler {
                 scope: SessionScope::Local,
             }));
         }
-        for mob_id in store.dead_mobs.clone() {
-            let packet = Packet::new_empty().build_kill_mob_packet(mob_id)?.finish();
+        for (mob_id, mob) in store.dead_mobs.iter() {
+            let packet = Packet::new_empty().build_kill_mob_packet(*mob_id)?.finish();
             result.add_action(Action::Broadcast(BroadcastAction::Send {
                 packet: packet.clone(),
                 scope: BroadcastScope::Map {
@@ -92,6 +95,83 @@ impl CloseAttackHandler {
                     map_wz: store.map_wz,
                 },
             }));
+            let drop_from: Point = Point {
+                x: mob.model.pos_x,
+                y: mob.model.pos_y,
+            };
+            let offset_x = rand::rng().random_range(-50..=50);
+            let drop_to: Point = Point {
+                x: mob.model.pos_x + offset_x,
+                y: mob.model.pos_y,
+            };
+            if let Some(drops) = store.dead_mobs_drops.get(&mob_id) {
+                for (count, drop) in drops {
+                    let (item_id, item_wz) = match drop {
+                        Item::CashEquip(equip_item) => (equip_item.model.id, equip_item.model.wz),
+                        Item::CashNonEquip(cash_non_equip_item) => {
+                            (cash_non_equip_item.model.id, cash_non_equip_item.model.wz)
+                        }
+                        Item::Equip(equip_item) => (equip_item.model.id, equip_item.model.wz),
+                        Item::Etc(etc_item) => (etc_item.model.id, etc_item.model.wz),
+                        Item::Setup(setup_item) => (setup_item.model.id, setup_item.model.wz),
+                        Item::Use(use_item) => (use_item.model.id, use_item.model.wz),
+                    };
+                    if let Some(item_id) = item_id {
+                        for _ in 0..*count {
+                            let packet = Packet::new_empty()
+                                .build_drop_loot_packet(
+                                    store.mode,
+                                    item_id as u32,
+                                    false,
+                                    item_wz,
+                                    store.owner,
+                                    store.can_pickup,
+                                    drop_to.clone(),
+                                    drop_from.clone(),
+                                    store.player_drop,
+                                )?
+                                .finish();
+                            result.add_action(Action::Broadcast(BroadcastAction::Send {
+                                packet: packet.clone(),
+                                scope: BroadcastScope::Map {
+                                    world_id: store.world_id,
+                                    channel_id: store.channel_id,
+                                    map_wz: store.map_wz,
+                                },
+                            }));
+                        }
+                    }
+                }
+            }
+
+            let offset_x = rand::rng().random_range(-50..=50);
+            let drop_to: Point = Point {
+                x: mob.model.pos_x + offset_x,
+                y: mob.model.pos_y,
+            };
+            if let Some(mesos) = store.dead_mobs_mesos.get(&mob_id) {
+                let packet = Packet::new_empty()
+                    .build_drop_loot_packet(
+                        store.mode,
+                        0, // item ID
+                        true,
+                        *mesos,
+                        store.owner,
+                        store.can_pickup,
+                        drop_to,
+                        drop_from,
+                        store.player_drop,
+                    )?
+                    .finish();
+                result.add_action(Action::Broadcast(BroadcastAction::Send {
+                    packet: packet.clone(),
+                    scope: BroadcastScope::Map {
+                        world_id: store.world_id,
+                        channel_id: store.channel_id,
+                        map_wz: store.map_wz,
+                    },
+                }));
+            }
         }
         Ok(result)
     }

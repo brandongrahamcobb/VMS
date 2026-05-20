@@ -34,10 +34,13 @@ pub struct UseItemModel {
     pub updated_at: SystemTime,
 }
 
+pub struct UseItemWz;
+
 impl UseItemModel {
     pub fn load(&self) -> UseItem {
         UseItem {
             model: self.clone(),
+            info: UseItemWz,
         }
     }
 }

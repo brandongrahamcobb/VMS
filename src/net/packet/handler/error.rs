@@ -31,9 +31,11 @@ use crate::net::packet::handler::handshake::error::HandshakeError;
 use crate::net::packet::handler::list_chars::error::ListCharsError;
 use crate::net::packet::handler::list_worlds::error::ListWorldsError;
 use crate::net::packet::handler::login_start::error::LoginStartError;
-use crate::net::packet::handler::move_mob::error::MoveMobError;
+use crate::net::packet::handler::mob_ai::error::MobAiError;
+use crate::net::packet::handler::mob_respawn::error::MobRespawnError;
 use crate::net::packet::handler::move_player::error::MovePlayerError;
 use crate::net::packet::handler::party_search::error::PartySearchError;
+use crate::net::packet::handler::pickup_item::error::PickupItemError;
 use crate::net::packet::handler::player_logged_in::error::PlayerLoggedInError;
 use crate::net::packet::handler::player_map_transfer::error::PlayerMapTransferError;
 use crate::net::packet::handler::register_pic::error::RegisterPicError;
@@ -89,14 +91,20 @@ pub enum PacketHandlerError {
     #[error("Login start error in packet handler layer")]
     LoginStartError(#[from] LoginStartError),
 
-    #[error("Move mob error in packet handler layer")]
-    MoveMobError(#[from] MoveMobError),
+    #[error("Mob AI error in packet handler layer")]
+    MobAiError(#[from] MobAiError),
+
+    #[error("Mob respawn error in packet handler layer")]
+    MobRespawnError(#[from] MobRespawnError),
 
     #[error("Move player error in packet handler layer")]
     MovePlayerError(#[from] MovePlayerError),
 
     #[error("Party search error in packet handler layer")]
     PartySearchError(#[from] PartySearchError),
+
+    #[error("Pickup item error in packet handler layer")]
+    PickupItemError(#[from] PickupItemError),
 
     #[error("Player logged in error in packet handler layer")]
     PlayerLoggedInError(#[from] PlayerLoggedInError),

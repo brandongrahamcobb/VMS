@@ -17,19 +17,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use tokio::sync::broadcast;
-
+use crate::metadata;
 use crate::models::map::error::MapError;
-use crate::models::map::wrapper::Map;
-use crate::models::mob::model::MobModel;
+use crate::models::map::wrapper::{Map, VacancyState};
 use crate::models::mob::wrapper::Mob;
+use crate::models::portal::error::PortalError;
 use crate::models::portal::model::PortalModel;
 use crate::models::portal::wrapper::Portal;
-use crate::models::{mob, portal};
+use crate::models::{map, mob};
 use crate::net::packet::handler::mob_respawn;
 use crate::net::packet::handler::mob_respawn::handler::MobRespawnHandler;
 use crate::runtime::state::SharedState;
 use std::collections::HashMap;
+use tokio::sync::broadcast;
+
+#[derive(Clone)]
+pub struct Point {
+    pub x: i16,
+    pub y: i16,
+}
+
+#[derive(Clone)]
+pub struct MapWzInfo {
+    pub mob_rate: f32,
+    pub return_map_wz: i32,
+}
 
 #[derive(Clone)]
 pub struct MapModel {
@@ -37,22 +49,31 @@ pub struct MapModel {
 }
 
 impl MapModel {
-    pub fn load_mobs(&self, map_wz: i32) -> Result<HashMap<u32, Mob>, MapError> {
-        let m_models: HashMap<u32, MobModel> = mob::service::get_mob_models(map_wz)?;
-        let mut mobs: HashMap<u32, Mob> = HashMap::new();
-        for (mid, m_model) in m_models {
-            mobs.insert(mid, m_model.load()?);
-        }
-        Ok(mobs)
-    }
-
     pub fn load_portals(&self, map_wz: i32) -> Result<HashMap<u8, Portal>, MapError> {
-        let p_models: HashMap<u8, PortalModel> = portal::service::get_portal_models(map_wz)?;
         let mut portals: HashMap<u8, Portal> = HashMap::new();
-        for (pid, p_model) in p_models {
-            portals.insert(pid, p_model.load()?);
+        let filename: String = String::from("Map.wz");
+        let json = metadata::service::wz_to_img(map_wz, &filename)?;
+        let portal_map = json["portal"].as_object().ok_or(PortalError::NoPortal)?;
+        for (pid, _) in portal_map.iter() {
+            let pid: u8 = pid.parse::<u8>()?;
+            let p_model: PortalModel = PortalModel { map_wz };
+            portals.insert(pid, p_model.load(map_wz, pid)?);
         }
         Ok(portals)
+    }
+
+    pub fn load_mobs(&self, map_wz: i32) -> Result<HashMap<u32, Mob>, MapError> {
+        let mut mobs: HashMap<u32, Mob> = HashMap::new();
+        let mut next_id: u32 = 1;
+        let mob_lifes = mob::service::get_mob_lifes(map_wz)?;
+        for mob_life in mob_lifes {
+            let mob_wz_life = mob::service::get_mob_wz_life(mob_life.clone())?;
+            let mob_wz_info = mob::service::get_mob_wz_info(&mob_wz_life)?;
+            let mob = mob::service::init_mob(next_id, &mob_wz_info, &mob_wz_life)?;
+            mobs.insert(next_id, mob);
+            next_id += 1;
+        }
+        Ok(mobs)
     }
 
     pub async fn load(
@@ -63,6 +84,7 @@ impl MapModel {
         map_wz: i32,
     ) -> Result<Map, MapError> {
         let (tick_tx, _) = broadcast::channel(32);
+        let wz_info: MapWzInfo = map::service::build_map_wz_info(map_wz)?;
         let mobs: HashMap<u32, Mob> = self.load_mobs(map_wz)?;
         let portals: HashMap<u8, Portal> = self.load_portals(map_wz)?;
         let mob_respawn_handler: MobRespawnHandler = mob_respawn::handler::MobRespawnHandler::new();
@@ -72,11 +94,13 @@ impl MapModel {
         Ok(Map {
             model: MapModel { wz: map_wz },
             chars: HashMap::new(),
-            dead_mobs: HashMap::new(),
+            info: wz_info,
             items: HashMap::new(),
             mobs,
             portals,
             tick_tx,
+            vacancy_token: None,
+            vacancy: VacancyState::Vacant,
         })
     }
 }

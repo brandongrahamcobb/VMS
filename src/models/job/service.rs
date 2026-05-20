@@ -17,12 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::db::error::DatabaseError;
-use crate::models::character;
+use crate::metadata;
 use crate::models::job::error::JobError;
-use crate::models::job::model::JobModel;
-use crate::models::job::wrapper::Job;
-use crate::runtime::state::SharedState;
+use crate::models::job::model::JobWzSkill;
 
 pub fn job_index_to_id(index: i16) -> i32 {
     let beginner: i32 = 0;
@@ -36,12 +33,17 @@ pub fn job_index_to_id(index: i16) -> i32 {
     }
 }
 
-pub async fn load_job(state: &SharedState, char_id: i32) -> Result<Job, JobError> {
-    let char_model = character::query::getters::get_char_model_by_id(state, char_id)
-        .await
-        .map_err(|e| DatabaseError::DieselError(e))?;
-    let job_model = JobModel {
-        wz: char_model.job_wz,
-    };
-    Ok(job_model.load()?)
+pub fn get_job_wz_skills_by_job_wz(job_wz: i16) -> Result<Vec<JobWzSkill>, JobError> {
+    let modified_wz: i16 = job_wz * 100;
+    let mut skills: Vec<JobWzSkill> = Vec::new();
+    let filename: String = String::from("Skill.wz");
+    let json = metadata::service::wz_to_img(modified_wz as i32, &filename)?;
+    let job_wz_skill = json["skill"]
+        .as_object()
+        .ok_or(JobError::NoSkill(modified_wz))?;
+    for (wz, _) in job_wz_skill {
+        let wz: i32 = wz.parse::<i32>()?;
+        skills.push(JobWzSkill { wz });
+    }
+    Ok(skills)
 }

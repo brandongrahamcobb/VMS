@@ -17,8 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::portal::model::PortalModel;
+use crate::models::portal::model::{PortalModel, PortalWzInfo};
 
 pub struct Portal {
     pub model: PortalModel,
+    pub info: PortalWzInfo,
 }

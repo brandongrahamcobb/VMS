@@ -21,11 +21,14 @@ use crate::db::error::DatabaseError;
 use crate::models::account::error::AccountError;
 use crate::models::character::error::CharacterError;
 use crate::models::item::error::ItemError;
+use crate::models::job::error::JobError;
 use crate::models::keybinding::error::KeybindingError;
 use crate::models::map::error::MapError;
+use crate::models::portal::error::PortalError;
 use crate::models::skill::error::SkillError;
 use crate::net::packet::codec::player::error::CodecPlayerError;
 use crate::net::packet::io::error::IOError;
+use crate::runtime::error::StateError;
 use crate::runtime::session::error::SessionError;
 use thiserror::Error;
 
@@ -52,6 +55,9 @@ pub enum CreateCharError {
     #[error("Map model error in create character layer")]
     MapError(#[from] MapError),
 
+    #[error("Job model error in create character layer")]
+    JobError(#[from] JobError),
+
     #[error("Skill model error in create character layer")]
     SkillError(#[from] SkillError),
 
@@ -60,4 +66,10 @@ pub enum CreateCharError {
 
     #[error("Keybinding model error in create character layer")]
     KeybindingError(#[from] KeybindingError),
+
+    #[error("State error in create character layer")]
+    StateError(#[from] StateError),
+
+    #[error("Portal model error in create character layer")]
+    PortalError(#[from] PortalError),
 }

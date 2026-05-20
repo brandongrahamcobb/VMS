@@ -47,7 +47,7 @@ impl ChangeMapStore {
             state
                 .with_map(world_id, channel_id, map_wz, |map| {
                     map.get_portal(reader.tn.clone())
-                        .map(|p| (p.model.tm, p.model.pid))
+                        .map(|p| (p.info.tm, p.info.pid))
                 })
                 .await??
         };

@@ -1,5 +1,5 @@
-/* broadcast.rs
- * The purpose of this module is to provide broadcast relay handling.
+/* broadcast_execute.rs
+ * The purpose of this module is to provide actions related to all clients.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,12 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::action::{Action, BroadcastAction};
-use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
 use crate::runtime::relay::execute::error::ExecuteError;
 use crate::runtime::relay::scope::BroadcastScope;
 use crate::runtime::state::SharedState;
+use rand::seq::IndexedRandom;
 
 pub async fn broadcast(
     state: &SharedState,
@@ -31,16 +30,50 @@ pub async fn broadcast(
 ) -> Result<(), ExecuteError> {
     match scope {
         BroadcastScope::Global => broadcast_globally(state, packet).await?,
+        BroadcastScope::GlobalChar => broadcast_to_one_member_globally(state, packet).await?,
         BroadcastScope::World { world_id } => broadcast_to_world(state, packet, *world_id).await?,
+        BroadcastScope::WorldChar { world_id } => {
+            broadcast_to_one_member_in_world(state, packet, *world_id).await?
+        }
         BroadcastScope::Channel {
             world_id,
             channel_id,
         } => broadcast_to_channel(state, packet, *world_id, *channel_id).await?,
+        BroadcastScope::ChannelChar {
+            world_id,
+            channel_id,
+        } => broadcast_to_one_member_in_channel(state, packet, *world_id, *channel_id).await?,
         BroadcastScope::Map {
             world_id,
             channel_id,
             map_wz,
         } => broadcast_to_map(state, packet, *world_id, *channel_id, *map_wz).await?,
+        BroadcastScope::MapChar {
+            world_id,
+            channel_id,
+            map_wz,
+        } => broadcast_to_one_member_in_map(state, packet, *world_id, *channel_id, *map_wz).await?,
+    }
+    Ok(())
+}
+
+pub async fn broadcast_to_one_member_in_map(
+    state: &SharedState,
+    packet: &Packet,
+    world_id: i16,
+    channel_id: u8,
+    map_wz: i32,
+) -> Result<(), ExecuteError> {
+    let no_session_id = 0;
+    let sessions = {
+        let locked_state = state.lock().await;
+        locked_state
+            .sessions
+            .get_by_map_channel_world(map_wz, channel_id, world_id, no_session_id)
+    };
+    match sessions.choose(&mut rand::rng()) {
+        Some(s) => s.tx.send(packet.clone())?,
+        None => (),
     }
     Ok(())
 }
@@ -65,6 +98,26 @@ pub async fn broadcast_to_map(
     Ok(())
 }
 
+pub async fn broadcast_to_one_member_in_channel(
+    state: &SharedState,
+    packet: &Packet,
+    world_id: i16,
+    channel_id: u8,
+) -> Result<(), ExecuteError> {
+    let no_session_id = 0;
+    let sessions = {
+        let locked_state = state.lock().await;
+        locked_state
+            .sessions
+            .get_by_channel_world(channel_id, world_id, no_session_id)
+    };
+    match sessions.choose(&mut rand::rng()) {
+        Some(s) => s.tx.send(packet.clone())?,
+        None => (),
+    }
+    Ok(())
+}
+
 pub async fn broadcast_to_channel(
     state: &SharedState,
     packet: &Packet,
@@ -84,6 +137,23 @@ pub async fn broadcast_to_channel(
     Ok(())
 }
 
+pub async fn broadcast_to_one_member_in_world(
+    state: &SharedState,
+    packet: &Packet,
+    world_id: i16,
+) -> Result<(), ExecuteError> {
+    let no_session_id = 0;
+    let sessions = {
+        let locked_state = state.lock().await;
+        locked_state.sessions.get_by_world(world_id, no_session_id)
+    };
+    match sessions.choose(&mut rand::rng()) {
+        Some(s) => s.tx.send(packet.clone())?,
+        None => (),
+    }
+    Ok(())
+}
+
 pub async fn broadcast_to_world(
     state: &SharedState,
     packet: &Packet,
@@ -96,6 +166,22 @@ pub async fn broadcast_to_world(
     };
     for s in sessions {
         s.tx.send(packet.clone())?;
+    }
+    Ok(())
+}
+
+pub async fn broadcast_to_one_member_globally(
+    state: &SharedState,
+    packet: &Packet,
+) -> Result<(), ExecuteError> {
+    let no_session_id = 0;
+    let sessions = {
+        let locked_state = state.lock().await;
+        locked_state.sessions.get_all(no_session_id)
+    };
+    match sessions.choose(&mut rand::rng()) {
+        Some(s) => s.tx.send(packet.clone())?,
+        None => (),
     }
     Ok(())
 }

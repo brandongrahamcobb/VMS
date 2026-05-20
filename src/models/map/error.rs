@@ -17,14 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use core::num::ParseIntError;
-
-use thiserror::Error;
-
 use crate::metadata::error::MetadataError;
 use crate::models::mob::error::MobError;
 use crate::models::portal::error::PortalError;
 use crate::net::packet::handler::mob_respawn::error::MobRespawnError;
+use core::num::ParseIntError;
+use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum MapError {

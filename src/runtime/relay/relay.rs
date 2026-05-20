@@ -1,7 +1,7 @@
 /* relay.rs
  * The purpose of this module is to provide the run and execution logic of the relay.
  *
- * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.gitrand::
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -92,7 +92,10 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
                 result = tick => {
                     match result {
                         Some(result) => {
-                            self.relay.execute_without_session(&self.state, result).await?;
+                            match self.relay.execute_via_tick(&self.state, result).await? {
+                                ControlFlow::Break(packet) => break Ok(Some((self, packet))),
+                                _ => {}
+                            }
                         }
                         None => break Ok(None),
                     }

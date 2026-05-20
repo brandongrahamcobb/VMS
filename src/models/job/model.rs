@@ -17,18 +17,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::models::job;
 use crate::models::job::error::JobError;
-use crate::models::job::wrapper::Job;
+use crate::models::job::wrapper::{Job, JobWzInfo};
 
 #[derive(Clone)]
-pub struct JobModel {
-    pub wz: i16,
+pub struct JobWzSkill {
+    pub wz: i32,
 }
 
+#[derive(Clone)]
+pub struct JobModel;
+
 impl JobModel {
-    pub fn load(&self) -> Result<Job, JobError> {
+    pub fn load(&self, job_wz: i16) -> Result<Job, JobError> {
+        let job_wz_skills: Vec<JobWzSkill> = job::service::get_job_wz_skills_by_job_wz(job_wz)?;
         Ok(Job {
             model: self.clone(),
+            info: JobWzInfo {
+                skills: job_wz_skills,
+            },
         })
     }
 }

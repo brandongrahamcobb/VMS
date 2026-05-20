@@ -1,5 +1,5 @@
-/* move_mob/handler.rs
- * The purpose of this module is to handle mob movement.
+/* mob_ai/handler.rs
+ * The purpose of this module is to handle mob AI.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,19 +17,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::action::{Action, BroadcastAction};
-use crate::net::packet::handler::move_mob::error::MoveMobError;
-use crate::net::packet::handler::move_mob::reader::MoveMobReader;
-use crate::net::packet::handler::move_mob::store::MoveMobStore;
+use crate::models::mob::model::MobMovement;
+use crate::net::action::{Action, SessionAction};
+use crate::net::packet::handler::mob_ai::error::MobAiError;
+use crate::net::packet::handler::mob_ai::reader::MobAiReader;
+use crate::net::packet::handler::mob_ai::store::MobAiStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::relay::scope::BroadcastScope;
+use crate::runtime::relay::scope::{MapScope, SessionScope};
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
-pub struct MoveMobHandler;
+pub struct MobAiHandler;
 
-impl MoveMobHandler {
+impl MobAiHandler {
     pub fn new() -> Self {
         Self
     }
@@ -39,14 +40,14 @@ impl MoveMobHandler {
         state: &SharedState,
         session: &Session,
         packet: &Packet,
-    ) -> Result<HandlerResult, MoveMobError> {
-        let reader: MoveMobReader = MoveMobReader::read_move_mob_packet(packet)?;
-        let store: MoveMobStore = MoveMobStore::store_move_mob(state, session, &reader).await?;
-        let result: HandlerResult = self.build_move_mob_result(&store)?;
+    ) -> Result<HandlerResult, MobAiError> {
+        let reader: MobAiReader = MobAiReader::read_mob_ai_packet(packet)?;
+        let store: MobAiStore = MobAiStore::store_mob_ai(state, session, &reader).await?;
+        let result: HandlerResult = self.build_mob_ai_result(&store)?;
         Ok(result)
     }
 
-    fn build_move_mob_result(&self, store: &MoveMobStore) -> Result<HandlerResult, MoveMobError> {
+    fn build_mob_ai_result(&self, store: &MobAiStore) -> Result<HandlerResult, MobAiError> {
         let mut result = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_mob_move_packet(
@@ -57,25 +58,23 @@ impl MoveMobHandler {
                 store.skill3,
                 store.skill4,
                 store.skillb,
-                store.pos_x,
-                store.pos_y,
-                store.command,
-                store.x,
-                store.y,
-                store.last_x,
-                store.last_y,
-                store.fh,
-                store.new_state,
-                store.duration,
+                store.origin.x,
+                store.origin.y,
+                vec![MobMovement {
+                    command: store.command,
+                    x: store.next.x,
+                    y: store.next.y,
+                    last_x: store.last.x,
+                    last_y: store.last.y,
+                    fh: store.fh,
+                    new_state: store.new_state,
+                    duration: store.duration,
+                }],
             )?
             .finish();
-        result.add_action(Action::Broadcast(BroadcastAction::Send {
+        result.add_action(Action::Session(SessionAction::Send {
             packet: packet.clone(),
-            scope: BroadcastScope::Map {
-                world_id: store.world_id,
-                channel_id: store.channel_id,
-                map_wz: store.map_wz,
-            },
+            scope: SessionScope::Map(MapScope::SameChannelSameWorld),
         }));
         Ok(result)
     }

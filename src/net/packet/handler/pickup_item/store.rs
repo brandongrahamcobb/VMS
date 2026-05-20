@@ -1,5 +1,5 @@
-/* move_player/store.rs
- * The purpose of this module is to resolve relevant variables for player movement.
+/* pickup_item/store.rs
+ * The purpose of this module is to resolve relevant variables for player login.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,54 +17,47 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::map;
+use crate::models::character::wrapper::Character;
+use crate::models::item::wrapper::Item;
 use crate::models::map::model::Point;
-use crate::net::packet::handler::move_player::error::MovePlayerError;
-use crate::net::packet::handler::move_player::reader::MovePlayerReader;
+use crate::models::{character, item};
+use crate::net::packet::handler::pickup_item::error::PickupItemError;
+use crate::net::packet::handler::pickup_item::reader::PickupItemReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
-pub struct MovePlayerStore {
+pub struct PickupItemStore {
     pub char_id: i32,
-    pub empty: bool,
-    pub movement_bytes: Vec<u8>,
-    pub too_short: bool,
+    pub item_id: i32,
     pub world_id: i16,
     pub channel_id: u8,
     pub map_wz: i32,
+    pub pet_pickup: bool,
+    pub pos: Point,
 }
 
-impl MovePlayerStore {
-    pub async fn store_move_player(
+impl PickupItemStore {
+    pub async fn store_pickup_item(
         state: &SharedState,
         session: &Session,
-        reader: &MovePlayerReader,
-    ) -> Result<Self, MovePlayerError> {
+        reader: &PickupItemReader,
+    ) -> Result<Self, PickupItemError> {
         let world_id: i16 = session.get_world_id()?;
         let channel_id: u8 = session.get_channel_id()?;
         let map_wz: i32 = session.get_map_wz()?;
         let char_id: i32 = session.get_char_id()?;
-        let pos: Point =
-            map::service::parse_position(&reader.movement_bytes).unwrap_or(Point { x: 0, y: 0 });
-        {
-            let state = state.lock().await;
-            state
-                .with_mut_map(world_id, channel_id, map_wz, |map| {
-                    if let Some(char) = map.chars.get_mut(&char_id) {
-                        char.pos = pos;
-                    }
-                })
-                .await?;
-        }
-        std::hint::black_box(state);
+        let mut char: Character = character::service::get_char_by_id(state, char_id).await?;
+        let item: Item = item::service::get_item_by_item_id(state, reader.item_id).await?;
+        char.inventory.pick_up(state, char_id, item).await?;
+        let pet_pickup: bool = false; //placeholder
         Ok(Self {
-            char_id: session.get_char_id()?,
-            empty: reader.empty,
-            movement_bytes: reader.movement_bytes.clone(),
-            too_short: reader.too_short,
+            char_id,
+            item_id: reader.item_id,
             world_id,
             channel_id,
             map_wz,
+            pet_pickup,
+            pos: reader.pos.clone(),
         })
     }
 }

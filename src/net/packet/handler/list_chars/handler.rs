@@ -68,7 +68,6 @@ impl ListCharsHandler {
             world_id: store.world_id,
             scope: SessionScope::Local,
         })));
-        dbg!(store.world_id, store.channel_id);
         result.add_action(Action::Session(SessionAction::Send {
             packet: packet.clone(),
             scope: SessionScope::Local,

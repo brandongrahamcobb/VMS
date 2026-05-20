@@ -34,10 +34,13 @@ pub struct EtcItemModel {
     pub updated_at: SystemTime,
 }
 
+pub struct EtcItemWz;
+
 impl EtcItemModel {
     pub fn load(&self) -> EtcItem {
         EtcItem {
             model: self.clone(),
+            info: EtcItemWz,
         }
     }
 }

@@ -1,5 +1,5 @@
-/* player_logged_in/builder.rs
- * The purpose of this module is to build an outgoing player login packet.
+/* pickup_item/builder.rs
+ * The purpose of this module is to build an outgoing item pickup packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,28 +17,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::keybinding::wrapper::Keybinding;
-use crate::net::packet::handler::player_logged_in::error::PlayerLoggedInError;
+use crate::net::packet::handler::pickup_item::error::PickupItemError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
-use std::collections::HashMap;
 
 impl Packet {
-    pub fn build_player_logged_in_keymap_packet(
+    pub fn build_pickup_item_packet(
         &mut self,
-        binds: &HashMap<i32, Keybinding>,
-    ) -> Result<&mut Self, PlayerLoggedInError> {
-        let op = SendOpcode::KeyMap as i16;
+        char_id: i32,
+        item_id: i32,
+        pet_pickup: bool,
+    ) -> Result<&mut Self, PickupItemError> {
+        let op = SendOpcode::RemoveLoot as i16;
         self.write_short(op).map_err(WriteError)?;
-        self.write_byte(0).map_err(WriteError)?;
-        let keybindings: Vec<&Keybinding> = (0..90).filter_map(|key| binds.get(&key)).collect();
-        for bind in keybindings {
-            self.write_byte(bind.model.bind_type as i16)
-                .map_err(WriteError)?;
-            self.write_int(bind.model.action as i32)
-                .map_err(WriteError)?;
+        let mode: u8 = 1;
+        self.write_byte(mode as i16).map_err(WriteError)?;
+        self.write_int(item_id).map_err(WriteError)?;
+        if mode > 1 {
+            self.write_int(char_id).map_err(WriteError)?;
+            if pet_pickup {
+                self.write_byte(pet_pickup as i16).map_err(WriteError)?;
+            }
         }
         Ok(self)
     }

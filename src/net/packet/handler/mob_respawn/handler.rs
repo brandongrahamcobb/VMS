@@ -17,12 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::models::map::model::Point;
 use crate::net::action::{Action, BroadcastAction};
 use crate::net::packet::handler::mob_respawn::error::MobRespawnError;
 use crate::net::packet::handler::mob_respawn::store::MobRespawnStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::relay::execute;
 use crate::runtime::relay::scope::BroadcastScope;
 use crate::runtime::state::SharedState;
 use crate::runtime::tick::{MS_PER_TICK, TickManager};
@@ -70,12 +70,12 @@ impl MobRespawnHandler {
                     Ok(respawn_store) => respawn_store,
                     Err(_) => continue,
                 };
-                let result: HandlerResult =
+                let respawn_result: HandlerResult =
                     match MobRespawnHandler::build_respawn_result(&store).await {
                         Ok(respawn_result) => respawn_result,
                         Err(_) => continue,
                     };
-                let _ = tick_tx_clone.send(result);
+                let _ = tick_tx_clone.send(respawn_result);
             }
         });
         Ok(())
@@ -85,8 +85,10 @@ impl MobRespawnHandler {
         store: &MobRespawnStore,
     ) -> Result<HandlerResult, MobRespawnError> {
         let mut result: HandlerResult = HandlerResult::new();
-        for (mob_id, mob) in store.to_respawn.iter() {
-            let packet = Packet::new_empty().build_spawn_mob_packet(&mob)?.finish();
+        for (mob_id, mob_life) in store.to_respawn.clone() {
+            let packet = Packet::new_empty()
+                .build_spawn_mob_packet(mob_id, &mob_life)?
+                .finish();
             result.add_action(Action::Broadcast(BroadcastAction::Send {
                 packet: packet.clone(),
                 scope: BroadcastScope::Map {
@@ -96,29 +98,23 @@ impl MobRespawnHandler {
                 },
             }));
             let packet = Packet::new_empty()
-                .build_mob_move_packet(
-                    *mob_id as u32,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0, // skills all 0
-                    mob.model.pos_x,
-                    mob.model.pos_y,
-                    0, // command
-                    mob.model.pos_x,
-                    mob.model.pos_y,
-                    mob.model.pos_x,
-                    mob.model.pos_y,
-                    mob.model.fh,
-                    0, // stance
-                    0, // duration
+                .build_spawn_mob_controller_packet(
+                    mob_id,
+                    store.mode,
+                    mob_life.wz,
+                    store.stance,
+                    mob_life.fh,
+                    store.effect,
+                    &Point {
+                        x: mob_life.x,
+                        y: mob_life.y,
+                    },
+                    store.team,
                 )?
                 .finish();
             result.add_action(Action::Broadcast(BroadcastAction::Send {
                 packet: packet.clone(),
-                scope: BroadcastScope::Map {
+                scope: BroadcastScope::MapChar {
                     world_id: store.world_id,
                     channel_id: store.channel_id,
                     map_wz: store.map_wz,

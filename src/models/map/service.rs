@@ -19,6 +19,16 @@
 
 use crate::metadata;
 use crate::models::map::error::MapError;
+use crate::models::map::model::{MapWzInfo, Point};
+
+pub fn build_map_wz_info(map_wz: i32) -> Result<MapWzInfo, MapError> {
+    let return_map_wz = get_return_map(map_wz)?;
+    let mob_rate = get_mob_rate(map_wz)?;
+    Ok(MapWzInfo {
+        mob_rate,
+        return_map_wz,
+    })
+}
 
 pub fn get_map_wz_by_job_id(job_id: i16) -> Result<i32, MapError> {
     match job_id {
@@ -34,4 +44,68 @@ pub fn get_return_map(map_wz: i32) -> Result<i32, MapError> {
     let json = metadata::service::wz_to_img(map_wz, &filename)?;
     let return_map_wz = json["info"]["returnMap"].as_i64().unwrap() as i32;
     Ok(return_map_wz)
+}
+
+pub fn get_mob_rate(map_wz: i32) -> Result<f32, MapError> {
+    let filename: &str = "Map.wz";
+    let json = metadata::service::wz_to_img(map_wz, &filename)?;
+    let mob_rate = json["info"]["mobRate"].as_f64().unwrap() as f32;
+    Ok(mob_rate)
+}
+
+pub fn parse_position(movement_bytes: &[u8]) -> Option<Point> {
+    let mut cursor = 0;
+    let length = *movement_bytes.get(cursor)? as usize;
+    let progress: usize = 1;
+    cursor += progress;
+    let mut last_x: i16 = 0;
+    let mut last_y: i16 = 0;
+    for _ in 0..length {
+        let command = *movement_bytes.get(cursor)?;
+        cursor += 1;
+        match command {
+            0 | 5 | 17 => {
+                last_x = i16::from_le_bytes([
+                    *movement_bytes.get(cursor)?,
+                    *movement_bytes.get(cursor + 1)?,
+                ]);
+                last_y = i16::from_le_bytes([
+                    *movement_bytes.get(cursor + 2)?,
+                    *movement_bytes.get(cursor + 3)?,
+                ]);
+                let progress: usize = 13;
+                cursor += progress;
+            }
+            1 | 2 | 6 | 12 | 13 | 16 => {
+                last_x = i16::from_le_bytes([
+                    *movement_bytes.get(cursor)?,
+                    *movement_bytes.get(cursor + 1)?,
+                ]);
+                last_y = i16::from_le_bytes([
+                    *movement_bytes.get(cursor + 2)?,
+                    *movement_bytes.get(cursor + 3)?,
+                ]);
+                let progress: usize = 5;
+                cursor += progress;
+            }
+            3 | 4 | 7 | 8 | 9 | 14 | 10 => {}
+            15 => {
+                last_x = i16::from_le_bytes([
+                    *movement_bytes.get(cursor)?,
+                    *movement_bytes.get(cursor + 1)?,
+                ]);
+                last_y = i16::from_le_bytes([
+                    *movement_bytes.get(cursor + 2)?,
+                    *movement_bytes.get(cursor + 3)?,
+                ]);
+                let progress: usize = 13;
+                cursor += progress;
+            }
+            _ => return None,
+        }
+    }
+    Some(Point {
+        x: last_x,
+        y: last_y,
+    })
 }

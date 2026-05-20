@@ -1,5 +1,5 @@
 /* portal/service.rs
- * The purpose of this module is to provide assisting functions and implementations for portals.
+ * The purpose of this module is to provide assisting functions for portals.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -18,31 +18,14 @@
  */
 
 use crate::metadata;
+use crate::models::map::model::Point;
 use crate::models::portal::error::PortalError;
-use crate::models::portal::model::PortalModel;
-use std::collections::HashMap;
 
-pub fn get_portal_models(map_wz: i32) -> Result<HashMap<u8, PortalModel>, PortalError> {
-    let mut p_models: HashMap<u8, PortalModel> = HashMap::new();
-    let portal_map = get_portal_json_map_from_map_wz(map_wz)?;
-    for (pid, portal) in portal_map.iter() {
-        let pid = pid.parse::<u8>().unwrap_or(0);
-        let pn = portal["pn"].as_str().unwrap_or("").to_string();
-        let tm = portal["tm"]
-            .as_i64()
-            .map(|v| v as i32)
-            .ok_or(PortalError::NoTargetMap)?;
-        let tn = portal["tn"].as_str().unwrap_or("sp").to_string();
-        p_models.insert(pid, PortalModel { pid, pn, tm, tn });
-    }
-    Ok(p_models)
-}
-
-pub fn get_portal_json_map_from_map_wz(
-    map_wz: i32,
-) -> Result<serde_json::Map<String, serde_json::Value>, PortalError> {
+pub fn get_zeroeth_portal_spawnpoint(map_wz: i32) -> Result<Point, PortalError> {
     let filename: String = String::from("Map.wz");
     let json = metadata::service::wz_to_img(map_wz, &filename)?;
     let portal_map = json["portal"].as_object().ok_or(PortalError::NoPortal)?;
-    Ok(portal_map.clone())
+    let x = portal_map["0"]["x"].as_i64().unwrap_or(0) as i16;
+    let y = portal_map["0"]["y"].as_i64().unwrap_or(0) as i16;
+    Ok(Point { x, y })
 }

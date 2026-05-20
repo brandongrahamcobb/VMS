@@ -1,5 +1,5 @@
-/* move_mob/store.rs
- * The purpose of this module is to resolve relevant variables for mob movement.
+/* mob_ai/store.rs
+ * The purpose of this module is to resolve relevant variables for mob AI.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,12 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::packet::handler::move_mob::error::MoveMobError;
-use crate::net::packet::handler::move_mob::reader::MoveMobReader;
+use crate::models::map::model::Point;
+use crate::net::packet::handler::mob_ai::error::MobAiError;
+use crate::net::packet::handler::mob_ai::reader::MobAiReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
-pub struct MoveMobStore {
+pub struct MobAiStore {
     pub mob_id: u32,
     pub skillb: u8,
     pub skill0: u8,
@@ -30,31 +31,39 @@ pub struct MoveMobStore {
     pub skill2: u8,
     pub skill3: u8,
     pub skill4: u8,
-    pub pos_x: i16,
-    pub pos_y: i16,
     pub command: u8,
-    pub x: i16,
-    pub y: i16,
-    pub last_x: i16,
-    pub last_y: i16,
-    pub fh: i16,
+    pub origin: Point,
+    pub next: Point,
+    pub last: Point,
+    pub fh: u16,
     pub new_state: u8,
     pub duration: i16,
-    pub world_id: i16,
-    pub channel_id: u8,
-    pub map_wz: i32,
 }
 
-impl MoveMobStore {
-    pub async fn store_move_mob(
+impl MobAiStore {
+    pub async fn store_mob_ai(
         state: &SharedState,
         session: &Session,
-        reader: &MoveMobReader,
-    ) -> Result<Self, MoveMobError> {
+        reader: &MobAiReader,
+    ) -> Result<Self, MobAiError> {
         let world_id: i16 = session.get_world_id()?;
         let channel_id: u8 = session.get_channel_id()?;
         let map_wz: i32 = session.get_map_wz()?;
-        std::hint::black_box(state);
+        {
+            let state = state.lock().await;
+            state
+                .with_mut_map(world_id, channel_id, map_wz, |map| {
+                    if let Some(mut mob) = map.mobs.remove(&reader.mob_id) {
+                        mob.model.pos_x = reader.origin_x;
+                        mob.model.pos_y = reader.origin_y;
+                        mob.life.fh = reader.fh;
+                        mob.model.last_x = reader.last_x;
+                        mob.model.last_y = reader.last_y;
+                        map.mobs.insert(reader.mob_id, mob);
+                    }
+                })
+                .await?;
+        }
         std::hint::black_box(session);
         Ok(Self {
             mob_id: reader.mob_id,
@@ -64,19 +73,22 @@ impl MoveMobStore {
             skill3: reader.skill3,
             skill4: reader.skill4,
             skillb: reader.skillb,
-            pos_x: reader.pos_x,
-            pos_y: reader.pos_y,
+            origin: Point {
+                x: reader.origin_x,
+                y: reader.origin_y,
+            },
+            next: Point {
+                x: reader.next_x,
+                y: reader.next_y,
+            },
+            last: Point {
+                x: reader.last_x,
+                y: reader.last_y,
+            },
             command: reader.command,
-            x: reader.x,
-            y: reader.y,
-            last_x: reader.last_x,
-            last_y: reader.last_y,
             fh: reader.fh,
             new_state: reader.new_state,
             duration: reader.duration,
-            world_id,
-            channel_id,
-            map_wz,
         })
     }
 }

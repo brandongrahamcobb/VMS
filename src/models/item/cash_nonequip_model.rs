@@ -34,10 +34,13 @@ pub struct CashNonEquipItemModel {
     pub updated_at: SystemTime,
 }
 
+pub struct CashNonEquipItemWz;
+
 impl CashNonEquipItemModel {
     pub fn load(&self) -> CashNonEquipItem {
         CashNonEquipItem {
             model: self.clone(),
+            info: CashNonEquipItemWz,
         }
     }
 }

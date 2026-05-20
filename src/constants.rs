@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use core::time::Duration;
+
 use crate::models::world::model::WorldModel;
 
 pub const CASH_SHOP_MAP_ID: i32 = 193000000;
@@ -70,6 +72,8 @@ pub const INVALID_OPCODE: i16 = -1;
 pub const MAX_PACKET_LENGTH: i16 = i16::MAX;
 
 pub const HEADER_SIZE: u8 = 4;
+
+pub const VACANCY_DURATION: Duration = Duration::from_mins(5);
 
 const EVENT_MESSAGE: &str = "";
 const FLAG: i16 = 0;
