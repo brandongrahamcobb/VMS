@@ -42,9 +42,7 @@ pub async fn load_inventory(state: &SharedState, char_id: i32) -> Result<Invento
     let mut etc_tab: HashMap<i16, Vec<Item>> = HashMap::new();
     let mut setup_tab: HashMap<i16, Vec<Item>> = HashMap::new();
     let mut use_tab: HashMap<i16, Vec<Item>> = HashMap::new();
-    dbg!("test");
     for item in items {
-        dbg!("test");
         let ipos: i16 = item.model.get_ipos()?;
         let cash: i8 = InventoryTab::Cash as i8;
         let consume: i8 = InventoryTab::Use as i8;
@@ -60,10 +58,8 @@ pub async fn load_inventory(state: &SharedState, char_id: i32) -> Result<Invento
             }
             x if x == equip => {
                 if ipos < 0 {
-                    dbg!("test2");
                     equipped_tab.insert(ipos, vec![item]);
                 } else {
-                    dbg!("test3");
                     equip_tab.insert(ipos, vec![item]);
                 }
             }

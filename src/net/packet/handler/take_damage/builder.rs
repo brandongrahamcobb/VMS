@@ -33,3 +33,23 @@ impl Packet {
         Ok(self)
     }
 }
+// 0x1       SKIN
+// 0x2       FACE
+// 0x4       HAIR
+// 0x10      LEVEL
+// 0x20      JOB
+// 0x40      STR
+// 0x80      DEX
+// 0x100     INT
+// 0x200     LUK
+// 0x400     HP
+// 0x800     MAXHP
+// 0x1000    MP
+// 0x2000    MAXMP
+// 0x4000    AP
+// 0x8000    SP
+// 0x10000   EXP
+// 0x20000   FAME
+// 0x40000   MESO
+// 0x180008  PET
+// 0x200000  GACHAEXP

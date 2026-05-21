@@ -17,11 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::net::action::{Action, SessionAction};
 use crate::net::packet::handler::player_map_transfer::error::PlayerMapTransferError;
 use crate::net::packet::handler::player_map_transfer::reader::PlayerMapTransferReader;
 use crate::net::packet::handler::player_map_transfer::store::PlayerMapTransferStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
+use crate::runtime::relay::scope::{MapScope, SessionScope};
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
@@ -50,9 +52,14 @@ impl PlayerMapTransferHandler {
         &self,
         store: &PlayerMapTransferStore,
     ) -> Result<HandlerResult, PlayerMapTransferError> {
-        // Not implemented
-        std::hint::black_box(store);
-        let result: HandlerResult = HandlerResult::new();
+        let mut result = HandlerResult::new();
+        let packet: Packet = Packet::new_empty()
+            .build_spawn_player_packet(&store.char)?
+            .finish();
+        result.add_action(Action::Session(SessionAction::Send {
+            packet: packet.clone(),
+            scope: SessionScope::Map(MapScope::SameChannelSameWorld),
+        }));
         Ok(result)
     }
 }

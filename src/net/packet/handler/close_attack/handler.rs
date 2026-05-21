@@ -24,7 +24,7 @@ use crate::net::packet::handler::close_attack::reader::CloseAttackReader;
 use crate::net::packet::handler::close_attack::store::CloseAttackStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::relay::scope::{BroadcastScope, SessionScope};
+use crate::runtime::relay::scope::{BroadcastScope, MapScope, SessionScope};
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 use rand::RngExt;
@@ -160,6 +160,41 @@ impl CloseAttackHandler {
                         map_wz: store.map_wz,
                     },
                 }));
+            }
+            if let Some(mob) = store.dead_mobs.get(&mob_id) {
+                if !store.levelup {
+                    let exp = store.base_exp + mob.info.exp;
+                    let packet = Packet::new_empty().build_set_exp_packet(exp)?.finish();
+                    result.add_action(Action::Session(SessionAction::Send {
+                        packet: packet.clone(),
+                        scope: SessionScope::Local,
+                    }));
+                } else {
+                    let packet = Packet::new_empty()
+                        .build_set_level_packet(store.level)?
+                        .finish();
+                    result.add_action(Action::Session(SessionAction::Send {
+                        packet: packet.clone(),
+                        scope: SessionScope::Local,
+                    }));
+                    let exp = 0;
+                    let packet = Packet::new_empty().build_set_exp_packet(exp)?.finish();
+                    result.add_action(Action::Session(SessionAction::Send {
+                        packet: packet.clone(),
+                        scope: SessionScope::Local,
+                    }));
+                    let packet = Packet::new_empty()
+                        .build_level_up_effect_packet(store.char_id)?
+                        .finish();
+                    result.add_action(Action::Broadcast(BroadcastAction::Send {
+                        packet: packet.clone(),
+                        scope: BroadcastScope::Map {
+                            world_id: store.world_id,
+                            channel_id: store.channel_id,
+                            map_wz: store.map_wz,
+                        },
+                    }));
+                }
             }
         }
         Ok(result)

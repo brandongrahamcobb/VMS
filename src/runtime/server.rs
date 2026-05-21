@@ -26,6 +26,7 @@ use crate::runtime::state::SharedState;
 use std::future::Future;
 use std::pin::Pin;
 use tokio::net::TcpListener;
+use tokio::time::Instant;
 use tracing::info;
 
 pub struct LoginServer;
@@ -50,6 +51,7 @@ impl LoginServer {
                             map_wz: None,
                             world_id: None,
                             tx: tx.clone(),
+                            map_lock: false,
                         })
                     };
                     info!("Listening on port {}...", port);

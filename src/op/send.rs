@@ -56,6 +56,7 @@ pub enum SendOpcode {
     DropLoot = 0x10C,
     RemoveLoot = 0x10D,
     ModifyInventory = 0x1D,
+    ShowForeignEffect = 0xC6,
     //
     SetCashShop = 0x7F,
     SetField = 0x7D,

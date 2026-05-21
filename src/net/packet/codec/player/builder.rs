@@ -186,7 +186,6 @@ impl Packet {
         char: &Character,
     ) -> Result<&mut Self, CodecPlayerError> {
         for (ipos, equips) in char.inventory.equipped_tab.iter() {
-            dbg!(equips[0].model.wz);
             if !equips[0].info.cash {
                 self.write_byte(-*ipos).map_err(WriteError)?;
                 self.write_int(equips[0].model.wz).map_err(WriteError)?;
@@ -392,7 +391,6 @@ impl Packet {
         char: &Character,
     ) -> Result<&mut Self, CodecPlayerError> {
         for (ipos, equips) in char.inventory.equipped_tab.iter() {
-            dbg!(equips[0].model.wz);
             if !equips[0].info.cash {
                 self.write_short(-*ipos).map_err(WriteError)?;
                 self.build_inventory_regular_equip_meta_part_packet(&equips[0])?;

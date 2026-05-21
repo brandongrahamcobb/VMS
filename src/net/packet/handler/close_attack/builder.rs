@@ -69,4 +69,35 @@ impl Packet {
         }
         Ok(self)
     }
+
+    pub fn build_set_exp_packet(&mut self, exp: i32) -> Result<&mut Self, CloseAttackError> {
+        let op = SendOpcode::ChangeStats as i16;
+        self.write_short(op).map_err(WriteError)?;
+        self.write_byte(0i16).map_err(WriteError)?; // itemreaction
+        self.write_int(0x10000i32).map_err(WriteError)?; // updatemask: HP
+        self.write_int(exp).map_err(WriteError)?;
+        Ok(self)
+    }
+
+    pub fn build_set_level_packet(&mut self, level: i16) -> Result<&mut Self, CloseAttackError> {
+        let op = SendOpcode::ChangeStats as i16;
+        self.write_short(op).map_err(WriteError)?;
+        self.write_byte(0i16).map_err(WriteError)?; // itemreaction
+        self.write_int(0x10i32).map_err(WriteError)?; // updatemask: HP
+        self.write_byte(level).map_err(WriteError)?;
+        Ok(self)
+    }
+
+    pub fn build_level_up_effect_packet(
+        &mut self,
+        char_id: i32,
+    ) -> Result<&mut Self, CloseAttackError> {
+        let op = SendOpcode::ShowForeignEffect as i16;
+        self.write_short(op).map_err(WriteError)?;
+        self.write_int(char_id).map_err(WriteError)?;
+        self.write_byte(1).map_err(WriteError)?; // level up
+        self.write_int(0).map_err(WriteError)?; // skillid
+        self.write_byte(0).map_err(WriteError)?; // direction
+        Ok(self)
+    }
 }

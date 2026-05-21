@@ -19,10 +19,12 @@
 
 use tokio::time::Instant;
 
+use crate::constants::EXP_TABLE;
 use crate::db::error::DatabaseError;
+use crate::models::character::wrapper::Character;
 use crate::models::item::wrapper::Item;
 use crate::models::mob::wrapper::{DeathState, LifeState, Mob};
-use crate::models::{item, skill};
+use crate::models::{character, item, skill};
 use crate::net::packet::handler::close_attack::error::CloseAttackError;
 use crate::net::packet::handler::close_attack::reader::CloseAttackReader;
 use crate::runtime::session::model::Session;
@@ -50,6 +52,9 @@ pub struct CloseAttackStore {
     pub owner: i32,
     pub can_pickup: u8,
     pub player_drop: bool,
+    pub base_exp: i32,
+    pub levelup: bool,
+    pub level: i16,
 }
 
 impl CloseAttackStore {
@@ -62,6 +67,8 @@ impl CloseAttackStore {
         let channel_id: u8 = session.get_channel_id()?;
         let map_wz: i32 = session.get_map_wz()?;
         let char_id: i32 = session.get_char_id()?;
+        let mut char: Character = character::service::get_char_by_id(state, char_id).await?;
+        let mut level: i16 = char.model.level;
         let skill_model = skill::query::getters::get_skill_model_by_character_id_and_skill_id(
             state,
             char_id,
@@ -129,12 +136,27 @@ impl CloseAttackStore {
         };
         let mut dead_mobs_drops: HashMap<u32, HashMap<i32, Item>> = HashMap::new();
         let mut dead_mobs_mesos: HashMap<u32, i32> = HashMap::new();
+        let mut levelup = false;
         for (mob_id, mob) in dead_mobs.iter() {
             let drops: HashMap<i32, Item> =
                 item::service::get_random_drops(state, mob.life.clone()).await?;
             let mesos: i32 = item::service::get_random_meso_drop(mob.info.clone()).await?;
             dead_mobs_drops.insert(*mob_id, drops);
             dead_mobs_mesos.insert(*mob_id, mesos);
+            char.model.exp = char.model.exp + mob.info.exp;
+            if char.model.exp < EXP_TABLE[char.model.level as usize] as i32 {
+                character::query::setters::update_characters(state, vec![char.model.clone()])
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
+            } else {
+                char.model.exp = 0;
+                level = char.model.level + 1;
+                char.model.level += 1;
+                character::query::setters::update_characters(state, vec![char.model.clone()])
+                    .await
+                    .map_err(|e| DatabaseError::DieselError(e))?;
+                levelup = true;
+            }
         }
         let mode: u8 = 1; // animation 0 fade, 1 drop mob, 2 spawn in
         let owner: i32 = 0; // char id or 0
@@ -161,6 +183,9 @@ impl CloseAttackStore {
             owner,
             can_pickup,
             player_drop,
+            base_exp: char.model.exp,
+            levelup,
+            level,
         });
     }
 }

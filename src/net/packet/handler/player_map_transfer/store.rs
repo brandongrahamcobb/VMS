@@ -17,12 +17,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::models::character;
+use crate::models::character::wrapper::Character;
 use crate::net::packet::handler::player_map_transfer::error::PlayerMapTransferError;
 use crate::net::packet::handler::player_map_transfer::reader::PlayerMapTransferReader;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
-pub struct PlayerMapTransferStore;
+pub struct PlayerMapTransferStore {
+    pub char: Character,
+}
 
 impl PlayerMapTransferStore {
     pub async fn store_player_map_transfer(
@@ -30,9 +34,15 @@ impl PlayerMapTransferStore {
         session: &Session,
         reader: &PlayerMapTransferReader,
     ) -> Result<Self, PlayerMapTransferError> {
-        std::hint::black_box(state);
-        std::hint::black_box(session);
+        {
+            let state = state.lock().await;
+            state.sessions.update(session.id, |session| {
+                session.map_lock = false;
+            });
+        }
+        let char_id: i32 = session.get_char_id()?;
+        let char: Character = character::service::get_char_by_id(state, char_id).await?;
         std::hint::black_box(reader);
-        Ok(Self)
+        Ok(Self { char })
     }
 }

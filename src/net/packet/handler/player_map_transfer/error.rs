@@ -17,10 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::map::error::MapError;
+use crate::models::character::error::CharacterError;
 use crate::net::packet::codec::player::error::CodecPlayerError;
 use crate::net::packet::io::error::IOError;
-use crate::runtime::error::StateError;
 use crate::runtime::session::error::SessionError;
 use thiserror::Error;
 
@@ -32,11 +31,8 @@ pub enum PlayerMapTransferError {
     #[error("Session error in player map transfer layer")]
     SessionError(#[from] SessionError),
 
-    #[error("Map model error in player map transfer layer")]
-    MapError(#[from] MapError),
-
-    #[error("State error in player map transfer layer")]
-    StateError(#[from] StateError),
+    #[error("Character model error in player map transfer layer")]
+    CharacterError(#[from] CharacterError),
 
     #[error("Codec player packet error in player map transfer layer")]
     CodecPlayerError(#[from] CodecPlayerError),

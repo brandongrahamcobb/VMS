@@ -46,10 +46,12 @@ impl ChangeMapStore {
             let state = state.lock().await;
             state
                 .with_map(world_id, channel_id, map_wz, |map| {
-                    map.get_portal(reader.tn.clone())
-                        .map(|p| (p.info.tm, p.info.pid))
+                    match map.get_portal(reader.tn.clone()) {
+                        Ok(p) => (p.info.tm, p.info.pid),
+                        Err(_) => (map_wz, 0),
+                    }
                 })
-                .await??
+                .await?
         };
         let char_id = session.get_char_id()?;
         let char: Character = character::service::get_char_by_id(state, char_id).await?;

@@ -65,6 +65,7 @@ pub fn parse_position(movement_bytes: &[u8]) -> Option<Point> {
         cursor += 1;
         match command {
             0 | 5 | 17 => {
+                // ABSOLUTE: xpos(2) + ypos(2) + lastx(2) + lasty(2) + fh(2) + newstate(1) + duration(2) = 13
                 last_x = i16::from_le_bytes([
                     *movement_bytes.get(cursor)?,
                     *movement_bytes.get(cursor + 1)?,
@@ -73,10 +74,10 @@ pub fn parse_position(movement_bytes: &[u8]) -> Option<Point> {
                     *movement_bytes.get(cursor + 2)?,
                     *movement_bytes.get(cursor + 3)?,
                 ]);
-                let progress: usize = 13;
-                cursor += progress;
+                cursor += 13;
             }
             1 | 2 | 6 | 12 | 13 | 16 => {
+                // RELATIVE: xpos(2) + ypos(2) + newstate(1) + duration(2) = 7
                 last_x = i16::from_le_bytes([
                     *movement_bytes.get(cursor)?,
                     *movement_bytes.get(cursor + 1)?,
@@ -85,11 +86,10 @@ pub fn parse_position(movement_bytes: &[u8]) -> Option<Point> {
                     *movement_bytes.get(cursor + 2)?,
                     *movement_bytes.get(cursor + 3)?,
                 ]);
-                let progress: usize = 5;
-                cursor += progress;
+                cursor += 7; // was 5, off by 2
             }
-            3 | 4 | 7 | 8 | 9 | 14 | 10 => {}
-            15 => {
+            11 => {
+                // CHAIR: xpos(2) + ypos(2) + skip(2) + newstate(1) + duration(2) = 9
                 last_x = i16::from_le_bytes([
                     *movement_bytes.get(cursor)?,
                     *movement_bytes.get(cursor + 1)?,
@@ -98,8 +98,22 @@ pub fn parse_position(movement_bytes: &[u8]) -> Option<Point> {
                     *movement_bytes.get(cursor + 2)?,
                     *movement_bytes.get(cursor + 3)?,
                 ]);
-                let progress: usize = 13;
-                cursor += progress;
+                cursor += 9;
+            }
+            15 => {
+                // JUMPDOWN: xpos(2) + ypos(2) + lastx(2) + lasty(2) + skip(2) + fh(2) + newstate(1) + duration(2) = 15
+                last_x = i16::from_le_bytes([
+                    *movement_bytes.get(cursor)?,
+                    *movement_bytes.get(cursor + 1)?,
+                ]);
+                last_y = i16::from_le_bytes([
+                    *movement_bytes.get(cursor + 2)?,
+                    *movement_bytes.get(cursor + 3)?,
+                ]);
+                cursor += 15; // was 13, off by 2
+            }
+            3 | 4 | 7 | 8 | 9 | 10 | 14 => {
+                // NONE: no payload
             }
             _ => return None,
         }
