@@ -4,9 +4,9 @@ set -ex
 SOURCE_DIR=${PWD}
 
 os=$(uname)
-if [ "$os" = "Darwin" ]; then
+if [ "$os" = "Linux" ]; then
     CORES=$(nproc)
-elif [ "$os" = "Linux" ]; then
+elif [ "$os" = "Darwin" ]; then
     CORES=$(sysctl -n hw.ncpu)
 fi
 
@@ -65,11 +65,10 @@ if [[
     # git clone https://github.com/Dav1dde/glad.git && \
     git clone https://github.com/brandongrahamcobb/glad.git && \
     cd glad && \
-    git checkout master && \
+    git checkout glad2 && \
     mkdir build && \
-    cd build && \
-    cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5 && \
-    make -j$CORES
+    cmake -S cmake/. -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -B build && \
+    cmake --build build -j$CORES
     echo "successfully compiled glad"
     cd $SOURCE_DIR
 fi
@@ -122,7 +121,7 @@ if [[
     # git clone https://github.com/glfw/glfw && \
     git clone https://github.com/brandongrahamcobb/glfw && \
     cd glfw && \
-    git checkout 0a49ef0 && \
+    # git checkout 0a49ef0 && \
     mkdir build && \
     cd build && \
     cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5 && \

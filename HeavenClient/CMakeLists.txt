@@ -24,6 +24,8 @@ include_directories(Net/Packets)
 include_directories(Template)
 include_directories(Util)
 
+add_compile_options(-w)
+
 add_executable(HeavenClient
     Audio/Audio.cpp
     Audio/Audio.h
@@ -460,8 +462,12 @@ ENDIF(NOT FREETYPE_FOUND)
 INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_DIRS})
 TARGET_LINK_LIBRARIES(HeavenClient ${FREETYPE_LIBRARIES})
 
-TARGET_INCLUDE_DIRECTORIES(HeavenClient PUBLIC ${PROJECT_SOURCE_DIR}/libs/glad/build/include)
-TARGET_LINK_LIBRARIES(HeavenClient ${PROJECT_SOURCE_DIR}/libs/glad/build/libglad.a)
+add_library(glad STATIC libs/glad/src/glad.c)
+target_include_directories(glad PUBLIC libs/glad/include)
+target_link_libraries(HeavenClient glad)
+#
+# TARGET_INCLUDE_DIRECTORIES(HeavenClient PUBLIC ${PROJECT_SOURCE_DIR}/libs/glad/include)
+# TARGET_LINK_LIBRARIES(HeavenClient ${PROJECT_SOURCE_DIR}/libs/glad/build/libglad.a)
 
 TARGET_INCLUDE_DIRECTORIES(HeavenClient PUBLIC ${PROJECT_SOURCE_DIR}/libs/stb)
 
@@ -493,7 +499,6 @@ IF(APPLE)
 ELSE()
     TARGET_LINK_LIBRARIES(HeavenClient GL)
 ENDIF()
-# TARGET_LINK_LIBRARIES(HeavenClient GL)
 IF(NOT APPLE)
     TARGET_LINK_LIBRARIES(HeavenClient X11)
     TARGET_LINK_LIBRARIES(HeavenClient dl)
@@ -517,7 +522,7 @@ ADD_CUSTOM_COMMAND(TARGET HeavenClient POST_BUILD
         ${PROJECT_SOURCE_DIR}/fonts
         $<TARGET_FILE_DIR:HeavenClient>/fonts
 )
-add_executable(GenerateNX Util/GenerateNX.cpp)
-target_link_libraries(GenerateNX PRIVATE HeavenClientLib NoLifeNx) 
-# Replace with the actual libraries your client uses
-target_include_directories(GenerateNX PRIVATE Util libs/NoLifeNx/nlnx)
+# add_executable(GenerateNX Util/GenerateNX.cpp)
+# target_link_libraries(GenerateNX PRIVATE HeavenClientLib NoLifeNx) 
+# # Replace with the actual libraries your client uses
+# target_include_directories(GenerateNX PRIVATE Util libs/NoLifeNx/nlnx)
