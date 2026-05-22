@@ -17,8 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use tokio::time::Instant;
-
 use crate::net::action::{Action, SessionAction, SetAction};
 use crate::net::packet::handler::change_map::error::ChangeMapError;
 use crate::net::packet::handler::change_map::reader::ChangeMapReader;
@@ -42,18 +40,12 @@ impl ChangeMapHandler {
         session: &Session,
         packet: &Packet,
     ) -> Result<HandlerResult, ChangeMapError> {
+        if session.transitioning {
+            return Ok(HandlerResult::new());
+        }
         let reader: ChangeMapReader = ChangeMapReader::read_change_map_packet(packet)?;
         let store: ChangeMapStore =
             ChangeMapStore::store_change_map(state, session, &reader).await?;
-        if session.map_lock {
-            return Ok(HandlerResult::new());
-        }
-        {
-            let state = state.lock().await;
-            state.sessions.update(session.id, |session| {
-                session.map_lock = true;
-            });
-        }
         let result: HandlerResult = self.build_change_map(&store)?;
         Ok(result)
     }
@@ -61,24 +53,23 @@ impl ChangeMapHandler {
     fn build_change_map(&self, store: &ChangeMapStore) -> Result<HandlerResult, ChangeMapError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
-            .build_set_field_change_map_packet(store.channel_id, store.after_map_wz, store.pid)?
-            .finish();
-        result.add_action(Action::Session(SessionAction::Send {
-            packet: packet.clone(),
-            scope: SessionScope::Local,
-        }));
-        let packet: Packet = Packet::new_empty()
             .build_despawn_player_packet(&store.char)?
             .finish();
         result.add_action(Action::Session(SessionAction::Send {
             packet: packet.clone(),
             scope: SessionScope::Map(MapScope::SameChannelSameWorld),
         }));
+        let packet: Packet = Packet::new_empty()
+            .build_set_field_change_map_packet(store.channel_id, store.after_map_wz, store.pid)?
+            .finish();
+        result.add_action(Action::Session(SessionAction::Send {
+            packet: packet.clone(),
+            scope: SessionScope::Local,
+        }));
         result.add_action(Action::Session(SessionAction::Set(SetAction::SetMap {
             map_wz: store.after_map_wz,
             scope: SessionScope::Local,
         })));
-        result.add_action(Action::Session(SessionAction::Retrieve));
         Ok(result)
     }
 }

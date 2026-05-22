@@ -60,6 +60,9 @@ pub trait RuntimeRelay: Sized {
             match action {
                 Action::Broadcast(action) => match action {
                     BroadcastAction::Send { packet, scope } => {
+                        if session.transitioning {
+                            return Ok(ControlFlow::Continue(()));
+                        }
                         execute::broadcast_execute::broadcast(state, &packet, &scope).await?;
                     }
                 },

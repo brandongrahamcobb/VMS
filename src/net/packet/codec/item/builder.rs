@@ -19,7 +19,6 @@
 
 use crate::models::item::constants::InventoryTab;
 use crate::models::item::model::{InventoryMod, InventoryModMode, ItemModel, ItemWzInfo};
-use crate::models::item::wrapper::Item;
 use crate::models::map::model::Point;
 use crate::net::packet::codec::item::error::CodecItemError;
 use crate::net::packet::io::error::IOError::WriteError;

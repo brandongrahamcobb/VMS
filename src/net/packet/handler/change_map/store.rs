@@ -44,14 +44,18 @@ impl ChangeMapStore {
         let map_wz: i32 = session.get_map_wz()?;
         let (tm, pid): (i32, u8) = {
             let state = state.lock().await;
-            state
+            let (tm, pid) = state
                 .with_map(world_id, channel_id, map_wz, |map| {
                     match map.get_portal(reader.tn.clone()) {
                         Ok(p) => (p.info.tm, p.info.pid),
                         Err(_) => (map_wz, 0),
                     }
                 })
-                .await?
+                .await?;
+            state.sessions.update(session.id, |session| {
+                session.transitioning = true;
+            });
+            (tm, pid)
         };
         let char_id = session.get_char_id()?;
         let char: Character = character::service::get_char_by_id(state, char_id).await?;

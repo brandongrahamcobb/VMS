@@ -86,14 +86,6 @@ impl TakeDamageHandler {
                 map_wz: store.return_map_wz,
                 scope: SessionScope::Local,
             })));
-            let packet: Packet = Packet::new_empty()
-                .build_spawn_player_packet(&store.char)?
-                .finish();
-            result.add_action(Action::Session(SessionAction::Send {
-                packet: packet.clone(),
-                scope: SessionScope::Map(MapScope::SameChannelSameWorld),
-            }));
-            result.add_action(Action::Session(SessionAction::Retrieve));
         }
         Ok(result)
     }

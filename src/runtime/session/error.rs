@@ -52,4 +52,7 @@ pub enum SessionError {
 
     #[error("Model error in session layer: {0}")]
     ModelError(#[from] ModelError),
+
+    #[error("Failed to retrieve map lock in session layer")]
+    MapLockError,
 }

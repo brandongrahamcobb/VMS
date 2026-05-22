@@ -38,6 +38,9 @@ pub struct MobAiStore {
     pub fh: u16,
     pub new_state: u8,
     pub duration: i16,
+    pub world_id: i16,
+    pub channel_id: u8,
+    pub map_wz: i32,
 }
 
 impl MobAiStore {
@@ -89,6 +92,9 @@ impl MobAiStore {
             fh: reader.fh,
             new_state: reader.new_state,
             duration: reader.duration,
+            world_id,
+            channel_id,
+            map_wz,
         })
     }
 }

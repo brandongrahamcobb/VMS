@@ -63,20 +63,12 @@ impl ChangeChannelHandler {
             scope: SessionScope::Map(MapScope::SameChannelSameWorld),
         }));
         let packet: Packet = Packet::new_empty()
-            .build_spawn_player_packet(&store.char)?
-            .finish();
-        result.add_action(Action::Session(SessionAction::Send {
-            packet: packet.clone(),
-            scope: SessionScope::Map(MapScope::SameChannelSameWorld),
-        }));
-        let packet: Packet = Packet::new_empty()
             .build_channel_change_packet(store.octets.clone(), store.port)?
             .finish();
         result.add_action(Action::Session(SessionAction::Break {
             packet: packet.clone(),
             scope: SessionScope::Local,
         }));
-        result.add_action(Action::Session(SessionAction::Retrieve));
         Ok(result)
     }
 }

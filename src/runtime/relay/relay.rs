@@ -86,7 +86,7 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
                         Some(mut packet) => {
                             self.pkt_writer.send_encrypted_packet(&mut packet).await?;
                         }
-                        None => break Ok(None),
+                        None => {},
                     }
                 }
                 result = tick => {
@@ -97,7 +97,7 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
                                 _ => {}
                             }
                         }
-                        None => break Ok(None),
+                        None => {},
                     }
                 }
             }

@@ -24,6 +24,7 @@ pub enum SendOpcode {
     ServerStatus = 0x03,
     // CheckPin = 0x06,
     // UpdatePin = 0x07,
+    Ping = 0x11,
     ServerList = 0x0A,
     NewChar = 0x0E,
     DeleteCharacter = 0x0F,

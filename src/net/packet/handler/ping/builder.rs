@@ -1,5 +1,5 @@
-/* close_attack/builder.rs
- * The purpose of this module is to build an outgoing close attack packet.
+/* ping/builder.rs
+ * The purpose of this module is to build an outgoing ping packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,19 +17,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::net::packet::handler::take_damage::error::TakeDamageError;
+use crate::net::packet::handler::ping::error::PingError;
 use crate::net::packet::io::error::IOError::WriteError;
 use crate::net::packet::model::Packet;
 use crate::op::send::SendOpcode;
 use crate::prelude::*;
 
 impl Packet {
-    pub fn build_take_damage_packet(&mut self, hp: i16) -> Result<&mut Self, TakeDamageError> {
-        let op = SendOpcode::ChangeStats as i16;
+    pub fn build_ping_packet(&mut self) -> Result<&mut Self, PingError> {
+        let op = SendOpcode::Ping as i16;
         self.write_short(op).map_err(WriteError)?;
-        self.write_byte(0i16).map_err(WriteError)?; // itemreaction
-        self.write_int(0x400i32).map_err(WriteError)?; // updatemask: HP
-        self.write_short(hp).map_err(WriteError)?;
         Ok(self)
     }
 }

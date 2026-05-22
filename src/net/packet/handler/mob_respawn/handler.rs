@@ -97,29 +97,29 @@ impl MobRespawnHandler {
                     map_wz: store.map_wz,
                 },
             }));
-            // let packet = Packet::new_empty()
-            //     .build_spawn_mob_controller_packet(
-            //         mob_id,
-            //         store.mode,
-            //         mob_life.wz,
-            //         store.stance,
-            //         mob_life.fh,
-            //         store.effect,
-            //         &Point {
-            //             x: mob_life.x,
-            //             y: mob_life.y,
-            //         },
-            //         store.team,
-            //     )?
-            //     .finish();
-            // result.add_action(Action::Broadcast(BroadcastAction::Send {
-            //     packet: packet.clone(),
-            //     scope: BroadcastScope::MapChar {
-            //         world_id: store.world_id,
-            //         channel_id: store.channel_id,
-            //         map_wz: store.map_wz,
-            //     },
-            // }));
+            let packet = Packet::new_empty()
+                .build_spawn_mob_controller_packet(
+                    mob_id,
+                    store.mode,
+                    mob_life.wz,
+                    store.stance,
+                    mob_life.fh,
+                    store.effect,
+                    &Point {
+                        x: mob_life.x,
+                        y: mob_life.y,
+                    },
+                    store.team,
+                )?
+                .finish();
+            result.add_action(Action::Broadcast(BroadcastAction::Send {
+                packet: packet.clone(),
+                scope: BroadcastScope::MapChar {
+                    world_id: store.world_id,
+                    channel_id: store.channel_id,
+                    map_wz: store.map_wz,
+                },
+            }));
         }
         Ok(result)
     }

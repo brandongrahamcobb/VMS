@@ -18,6 +18,7 @@ pub mod mob_respawn;
 pub mod move_player;
 pub mod party_search;
 pub mod pickup_item;
+pub mod ping;
 pub mod player_logged_in;
 pub mod player_map_transfer;
 pub mod register_pic;

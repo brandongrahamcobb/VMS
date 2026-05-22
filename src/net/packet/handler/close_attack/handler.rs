@@ -186,13 +186,9 @@ impl CloseAttackHandler {
                     let packet = Packet::new_empty()
                         .build_level_up_effect_packet(store.char_id)?
                         .finish();
-                    result.add_action(Action::Broadcast(BroadcastAction::Send {
+                    result.add_action(Action::Session(SessionAction::Send {
                         packet: packet.clone(),
-                        scope: BroadcastScope::Map {
-                            world_id: store.world_id,
-                            channel_id: store.channel_id,
-                            map_wz: store.map_wz,
-                        },
+                        scope: SessionScope::Map(MapScope::SameChannelSameWorld),
                     }));
                 }
             }

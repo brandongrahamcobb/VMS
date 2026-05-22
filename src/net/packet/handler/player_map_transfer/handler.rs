@@ -60,6 +60,7 @@ impl PlayerMapTransferHandler {
             packet: packet.clone(),
             scope: SessionScope::Map(MapScope::SameChannelSameWorld),
         }));
+        result.add_action(Action::Session(SessionAction::Retrieve));
         Ok(result)
     }
 }

@@ -18,13 +18,13 @@
  */
 
 use crate::models::mob::model::MobMovement;
-use crate::net::action::{Action, SessionAction};
+use crate::net::action::{Action, BroadcastAction};
 use crate::net::packet::handler::mob_ai::error::MobAiError;
 use crate::net::packet::handler::mob_ai::reader::MobAiReader;
 use crate::net::packet::handler::mob_ai::store::MobAiStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::relay::scope::{MapScope, SessionScope};
+use crate::runtime::relay::scope::BroadcastScope;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
@@ -72,9 +72,13 @@ impl MobAiHandler {
                 }],
             )?
             .finish();
-        result.add_action(Action::Session(SessionAction::Send {
+        result.add_action(Action::Broadcast(BroadcastAction::Send {
             packet: packet.clone(),
-            scope: SessionScope::Map(MapScope::SameChannelSameWorld),
+            scope: BroadcastScope::Map {
+                world_id: store.world_id,
+                channel_id: store.channel_id,
+                map_wz: store.map_wz,
+            },
         }));
         Ok(result)
     }

@@ -26,6 +26,9 @@ use crate::runtime::state::SharedState;
 
 pub struct PlayerMapTransferStore {
     pub char: Character,
+    pub world_id: i16,
+    pub channel_id: u8,
+    pub map_wz: i32,
 }
 
 impl PlayerMapTransferStore {
@@ -37,12 +40,20 @@ impl PlayerMapTransferStore {
         {
             let state = state.lock().await;
             state.sessions.update(session.id, |session| {
-                session.map_lock = false;
+                session.transitioning = false;
             });
         }
         let char_id: i32 = session.get_char_id()?;
         let char: Character = character::service::get_char_by_id(state, char_id).await?;
+        let world_id: i16 = session.get_world_id()?;
+        let channel_id: u8 = session.get_channel_id()?;
+        let map_wz: i32 = session.get_map_wz()?;
         std::hint::black_box(reader);
-        Ok(Self { char })
+        Ok(Self {
+            char,
+            world_id,
+            channel_id,
+            map_wz,
+        })
     }
 }

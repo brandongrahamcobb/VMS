@@ -1,5 +1,5 @@
-/* player_map_transfer/error.rs
- * The purpose of this module is to provide errors related to warping to other maps.
+/* ping/error.rs
+ * The purpose of this module is to provide errors related to the ping between server and client.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,27 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::character::error::CharacterError;
-use crate::net::packet::codec::player::error::CodecPlayerError;
-use crate::net::packet::handler::ping::error::PingError;
 use crate::net::packet::io::error::IOError;
-use crate::runtime::session::error::SessionError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum PlayerMapTransferError {
-    #[error("Packet io error in player map transfer layer")]
+pub enum PingError {
+    #[error("Packet io error in ping layer")]
     IOError(#[from] IOError),
-
-    #[error("Session error in player map transfer layer")]
-    SessionError(#[from] SessionError),
-
-    #[error("Ping error in player map transfer layer")]
-    PingErrror(#[from] PingError),
-
-    #[error("Character model error in player map transfer layer")]
-    CharacterError(#[from] CharacterError),
-
-    #[error("Codec player packet error in player map transfer layer")]
-    CodecPlayerError(#[from] CodecPlayerError),
 }

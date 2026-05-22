@@ -43,6 +43,7 @@ impl PlayerLoggedInStore {
     ) -> Result<Self, PlayerLoggedInError> {
         let char_id: i32 = session.get_char_id()?;
         let mut char: Character = character::service::get_char_by_id(state, char_id).await?;
+        let map_wz = char.model.map_wz;
         let channel_id: u8 = session.get_channel_id()?;
         let mut binds: HashMap<i32, Keybinding> = (0..90)
             .map(|key| {
@@ -63,7 +64,6 @@ impl PlayerLoggedInStore {
         for (key, bind) in char.binds.drain() {
             binds.insert(key, bind);
         }
-        let map_wz = char.model.map_wz;
         Ok(Self {
             binds,
             channel_id,

@@ -72,7 +72,9 @@ pub async fn broadcast_to_one_member_in_map(
             .get_by_map_channel_world(map_wz, channel_id, world_id, no_session_id)
     };
     match sessions.choose(&mut rand::rng()) {
-        Some(s) => s.tx.send(packet.clone())?,
+        Some(s) => {
+            s.tx.send(packet.clone())?;
+        }
         None => (),
     }
     Ok(())
@@ -112,7 +114,9 @@ pub async fn broadcast_to_one_member_in_channel(
             .get_by_channel_world(channel_id, world_id, no_session_id)
     };
     match sessions.choose(&mut rand::rng()) {
-        Some(s) => s.tx.send(packet.clone())?,
+        Some(s) => {
+            s.tx.send(packet.clone())?;
+        }
         None => (),
     }
     Ok(())
@@ -148,7 +152,9 @@ pub async fn broadcast_to_one_member_in_world(
         locked_state.sessions.get_by_world(world_id, no_session_id)
     };
     match sessions.choose(&mut rand::rng()) {
-        Some(s) => s.tx.send(packet.clone())?,
+        Some(s) => {
+            s.tx.send(packet.clone())?;
+        }
         None => (),
     }
     Ok(())
@@ -180,7 +186,9 @@ pub async fn broadcast_to_one_member_globally(
         locked_state.sessions.get_all(no_session_id)
     };
     match sessions.choose(&mut rand::rng()) {
-        Some(s) => s.tx.send(packet.clone())?,
+        Some(s) => {
+            s.tx.send(packet.clone())?;
+        }
         None => (),
     }
     Ok(())

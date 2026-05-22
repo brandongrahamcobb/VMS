@@ -20,7 +20,6 @@
 use crate::net::packet::model::Packet;
 use crate::runtime::session::error::SessionError;
 use tokio::sync::mpsc::UnboundedSender;
-use tokio::time::Instant;
 
 #[derive(Clone)]
 pub struct Session {
@@ -31,7 +30,7 @@ pub struct Session {
     pub map_wz: Option<i32>,
     pub world_id: Option<i16>,
     pub tx: UnboundedSender<Packet>,
-    pub map_lock: bool,
+    pub transitioning: bool,
 }
 
 impl Session {

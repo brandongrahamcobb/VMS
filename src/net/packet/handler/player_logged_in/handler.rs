@@ -23,7 +23,7 @@ use crate::net::packet::handler::player_logged_in::reader::PlayerLoggedInReader;
 use crate::net::packet::handler::player_logged_in::store::PlayerLoggedInStore;
 use crate::net::packet::handler::result::HandlerResult;
 use crate::net::packet::model::Packet;
-use crate::runtime::relay::scope::{MapScope, SessionScope};
+use crate::runtime::relay::scope::SessionScope;
 use crate::runtime::session::model::Session;
 use crate::runtime::state::SharedState;
 
@@ -61,7 +61,7 @@ impl PlayerLoggedInHandler {
             scope: SessionScope::Local,
         }));
         let packet: Packet = Packet::new_empty()
-            .build_set_field_packet(&store.char, store.channel_id, store.char.model.map_wz)?
+            .build_set_field_packet(&store.char, store.channel_id, store.map_wz)?
             .finish();
         result.add_action(Action::Session(SessionAction::Send {
             packet: packet.clone(),
@@ -71,14 +71,6 @@ impl PlayerLoggedInHandler {
             map_wz: store.map_wz,
             scope: SessionScope::Local,
         })));
-        let packet: Packet = Packet::new_empty()
-            .build_spawn_player_packet(&store.char)?
-            .finish();
-        result.add_action(Action::Session(SessionAction::Send {
-            packet: packet.clone(),
-            scope: SessionScope::Map(MapScope::SameChannelSameWorld),
-        }));
-        result.add_action(Action::Session(SessionAction::Retrieve));
         Ok(result)
     }
 }

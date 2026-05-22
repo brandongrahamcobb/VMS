@@ -470,4 +470,65 @@ impl Packet {
         self.write_int(char.model.get_id()?).map_err(WriteError)?;
         Ok(self)
     }
+
+    pub fn build_set_exp_packet(&mut self, exp: i32) -> Result<&mut Self, CodecPlayerError> {
+        let op = SendOpcode::ChangeStats as i16;
+        self.write_short(op).map_err(WriteError)?;
+        self.write_byte(0i16).map_err(WriteError)?; // itemreaction
+        self.write_int(0x10000i32).map_err(WriteError)?; // updatemask: HP
+        self.write_int(exp).map_err(WriteError)?;
+        Ok(self)
+    }
+
+    pub fn build_set_level_packet(&mut self, level: i16) -> Result<&mut Self, CodecPlayerError> {
+        let op = SendOpcode::ChangeStats as i16;
+        self.write_short(op).map_err(WriteError)?;
+        self.write_byte(0i16).map_err(WriteError)?; // itemreaction
+        self.write_int(0x10i32).map_err(WriteError)?; // updatemask: HP
+        self.write_byte(level).map_err(WriteError)?;
+        Ok(self)
+    }
+
+    pub fn build_level_up_effect_packet(
+        &mut self,
+        char_id: i32,
+    ) -> Result<&mut Self, CodecPlayerError> {
+        let op = SendOpcode::ShowForeignEffect as i16;
+        self.write_short(op).map_err(WriteError)?;
+        self.write_int(char_id).map_err(WriteError)?;
+        self.write_byte(1).map_err(WriteError)?; // level up
+        self.write_int(0).map_err(WriteError)?; // skillid
+        self.write_byte(0).map_err(WriteError)?; // direction
+        Ok(self)
+    }
+
+    pub fn build_set_ap_packet(&mut self, ap: i16) -> Result<&mut Self, CodecPlayerError> {
+        let op = SendOpcode::ChangeStats as i16;
+        self.write_short(op).map_err(WriteError)?;
+        self.write_byte(0i16).map_err(WriteError)?; // itemreaction
+        self.write_int(0x4000i32).map_err(WriteError)?; // updatemask: HP
+        self.write_short(ap).map_err(WriteError)?;
+        Ok(self)
+    }
+
+    // 0x1       SKIN short
+    // 0x2       FACE none
+    // 0x4       HAIR int
+    // 0x10      LEVEL byte
+    // 0x20      JOB short
+    // 0x40      STR short
+    // 0x80      DEX short
+    // 0x100     INT short
+    // 0x200     LUK short
+    // 0x400     HP short
+    // 0x800     MAXHP short
+    // 0x1000    MP short
+    // 0x2000    MAXMP short
+    // 0x4000    AP short
+    // 0x8000    SP short
+    // 0x10000   EXP int
+    // 0x20000   FAME short
+    // 0x40000   MESO int
+    // 0x180008  PET short
+    // 0x200000  GACHAEXP short
 }
