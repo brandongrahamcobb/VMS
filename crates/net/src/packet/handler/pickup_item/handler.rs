@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::action::scope::BroadcastScope;
-use crate::action::model::{Action, BroadcastAction};
+use action::scope::BroadcastScope;
+use action::model::{Action, BroadcastAction};
 use crate::packet::handler::pickup_item::error::PickupItemEntityError;
 use crate::packet::handler::pickup_item::reader::PickupItemReader;
 use crate::packet::handler::pickup_item::store::PickupItemStore;

@@ -12,7 +12,6 @@ pub mod error;
 pub mod list_chars;
 pub mod list_worlds;
 pub mod mob_ai;
-pub mod mob_respawn;
 pub mod move_player;
 pub mod party_search;
 pub mod pickup_item;

@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::action::scope::SessionScope;
-use crate::action::model::{Action, SessionAction};
+use action::scope::SessionScope;
+use action::model::{Action, SessionAction};
 use crate::packet::handler::delete_char::error::DeleteCharError;
 use crate::packet::handler::delete_char::reader::DeleteCharReader;
 use crate::packet::handler::delete_char::store::DeleteCharStore;

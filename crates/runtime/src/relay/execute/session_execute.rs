@@ -19,11 +19,11 @@
 
 use crate::relay::execute::error::ExecuteError;
 use crate::relay::execute::{set_channel, set_map, set_world, simple};
-use net::action::scope::SessionScope;
+use action::event::TickEvent;
+use action::scope::SessionScope;
 use core::ops::ControlFlow;
 use entity::map::constants::VACANCY_DURATION;
-use entity::map::model::{MapModel, Point, VacancyState};
-use net::packet::handler::result::HandlerResult;
+use entity::map::model::{Point, VacancyState};
 use packet::model::Packet;
 use session::model::Session;
 use state::model::SharedState;
@@ -138,7 +138,7 @@ pub async fn enter_map(
     session: &Session,
     scope: &SessionScope,
     map_wz: i32,
-) -> Result<broadcast::Receiver<HandlerResult>, ExecuteError> {
+) -> Result<broadcast::Receiver<TickEvent>, ExecuteError> {
     let world_id: i16 = session.get_world_id()?;
     let channel_id: u8 = session.get_channel_id()?;
     let tick_rx = insert_map(state, world_id, channel_id, map_wz).await?;
@@ -279,7 +279,7 @@ pub async fn insert_map(
     world_id: i16,
     channel_id: u8,
     map_wz: i32,
-) -> Result<broadcast::Receiver<HandlerResult>, ExecuteError> {
+) -> Result<broadcast::Receiver<TickEvent>, ExecuteError> {
     let exists = {
         let state = state.lock().await;
         state
@@ -289,7 +289,6 @@ pub async fn insert_map(
             .await?
     };
     if !exists {
-        let map_model: MapModel = MapModel { wz: map_wz };
         let map = assembly::map::assemble::assemble_map_by_map_wz(map_wz)?;
         let state = state.lock().await;
         state
@@ -299,11 +298,7 @@ pub async fn insert_map(
             .await?;
     }
     let state = state.lock().await;
-    let tick_rx = state
-        .with_channel(world_id, channel_id, |channel| {
-            channel.maps.get(&map_wz).unwrap().tick_tx.subscribe()
-        })
-        .await?;
+    let tick_rx = state.tick_tx.subscribe();
     Ok(tick_rx)
 }
 

@@ -16,13 +16,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::action::model::{Action, SessionAction, SetAction};
+use action::model::{Action, SessionAction, SetAction};
 use crate::packet::handler::cc::error::ChangeChannelEntityError;
 use crate::packet::handler::cc::reader::ChangeChannelReader;
 use crate::packet::handler::cc::store::ChangeChannelStore;
 use crate::packet::handler::result::HandlerResult;
 use packet::model::Packet;
-use crate::action::scope::{MapScope, SessionScope};
+use action::scope::{MapScope, SessionScope};
 use session::model::Session;
 use state::model::SharedState;
 

@@ -18,7 +18,7 @@
  */
 
 use crate::relay::types::shared::RuntimeRelay;
-use net::packet::handler::result::HandlerResult;
+use action::event::TickEvent;
 use packet::io::{read::PacketReader, write::PacketWriter};
 use packet::model::Packet;
 use state::model::SharedState;
@@ -38,6 +38,6 @@ pub struct LoginRelay {
 }
 
 pub struct PlayerRelay {
-    pub tick_rx: Option<broadcast::Receiver<HandlerResult>>,
+    pub tick_rx: Option<broadcast::Receiver<TickEvent>>,
     pub session_id: i32,
 }

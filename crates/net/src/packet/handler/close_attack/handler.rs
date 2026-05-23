@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::action::model::{Action, BroadcastAction, SessionAction};
-use crate::action::scope::{BroadcastScope, MapScope, SessionScope};
+use action::model::{Action, BroadcastAction, SessionAction};
+use action::scope::{BroadcastScope, MapScope, SessionScope};
 use crate::packet::handler::close_attack::error::CloseAttackError;
 use crate::packet::handler::close_attack::reader::CloseAttackReader;
 use crate::packet::handler::close_attack::store::CloseAttackStore;

@@ -18,6 +18,7 @@
  */
 
 use crate::error::StateError;
+use action::event::TickEvent;
 use config::settings;
 use db::error::DatabaseError;
 use db::pool::DbPool;
@@ -30,12 +31,13 @@ use entity::world::wrapper::World;
 use session::session_store::SessionStore;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::{Mutex, RwLock};
+use tokio::sync::{Mutex, RwLock, broadcast};
 
 pub struct State {
     pub db: DbPool,
     pub sessions: SessionStore,
     pub worlds: Arc<RwLock<HashMap<i16, World>>>,
+    pub tick_tx: broadcast::Sender<TickEvent>,
 }
 
 pub type SharedState = Arc<Mutex<State>>;
@@ -49,10 +51,12 @@ impl State {
             .map_err(|_| StateError::from(DatabaseError::DatabaseConnectionError))?;
         let sessions = SessionStore::new();
         let worlds = world::service::load_worlds()?;
+        let (tick_tx, _) = broadcast::channel(32);
         let shared_state = State {
             db,
             sessions,
             worlds: Arc::new(RwLock::new(worlds)),
+            tick_tx,
         };
         Ok(shared_state)
     }

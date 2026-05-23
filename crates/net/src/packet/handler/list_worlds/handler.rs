@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::action::model::{Action, SessionAction};
-use crate::action::scope::SessionScope;
+use action::model::{Action, SessionAction};
+use action::scope::SessionScope;
 use crate::packet::handler::list_worlds::error::ListWorldsError;
 use crate::packet::handler::list_worlds::store::ListWorldsStore;
 use crate::packet::handler::result::HandlerResult;

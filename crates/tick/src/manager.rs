@@ -1,6 +1,10 @@
+use action::event::TickEvent;
 use core::sync::atomic::AtomicU64;
 use core::time::Duration;
-use tokio::sync::Notify;
+use state::model::SharedState;
+use tokio::sync::{Notify, broadcast};
+
+use crate::{error::TickError, mob_respawn::tick::MobRespawnTick};
 
 pub const MS_PER_TICK: u8 = 50;
 
@@ -40,5 +44,11 @@ impl TickManager {
 
     pub async fn wait(&self) {
         self.notify.notified().await;
+    }
+
+    pub async fn spawn_ticks(&self, state: &SharedState) -> Result<(), TickError> {
+        let mob_respawn: MobRespawnTick = MobRespawnTick::new();
+        mob_respawn.spawn(state).await?;
+        Ok(())
     }
 }

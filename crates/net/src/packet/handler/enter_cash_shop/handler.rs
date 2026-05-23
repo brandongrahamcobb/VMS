@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::action::model::{Action, SessionAction, SetAction};
-use crate::action::scope::{MapScope, SessionScope};
+use action::model::{Action, SessionAction, SetAction};
+use action::scope::{MapScope, SessionScope};
 use crate::packet::handler::enter_cash_shop::error::EnterCashShopError;
 use crate::packet::handler::enter_cash_shop::store::EnterCashShopStore;
 use crate::packet::handler::result::HandlerResult;

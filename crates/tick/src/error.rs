@@ -1,5 +1,5 @@
-/* entity/src/map/model.rs
- * The purpose of this module is to provide a map models.
+/* tick/error.rs
+ * The purpose of this module is to provide errors related to ticks.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,27 +17,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use tokio::time::Instant;
+use packet::build::error::PacketBuildError;
+use thiserror::Error;
 
-#[derive(Clone)]
-pub struct Point {
-    pub x: i16,
-    pub y: i16,
-}
+use crate::mob_respawn::error::MobRespawnError;
 
-#[derive(Clone)]
-pub struct MapWzInfo {
-    pub death_map_wz: i32,
-    pub wz: i32,
-    pub mob_rate: f32,
-}
+#[derive(Debug, Error)]
+pub enum TickError {
+    #[error("Packet build error in tick layer")]
+    PacketBuildError(#[from] PacketBuildError),
 
-#[derive(Clone)]
-pub struct MapModel {
-    pub wz: i32,
-}
-
-pub enum VacancyState {
-    Populated { start: Instant },
-    Vacant,
+    #[error("Mob respawn error in tick layer")]
+    MobRespawnError(#[from] MobRespawnError),
 }

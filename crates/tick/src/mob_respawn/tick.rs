@@ -17,36 +17,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use entity::map::model::Point;
-use crate::action::model::{Action, BroadcastAction};
-use crate::packet::handler::mob_respawn::error::MobRespawnError;
-use crate::packet::handler::mob_respawn::store::MobRespawnStore;
-use crate::packet::handler::result::HandlerResult;
-use packet::model::Packet;
-use crate::action::scope::BroadcastScope;
-use state::model::SharedState;
-use tick::manager::{MS_PER_TICK, TickManager};
+use crate::mob_respawn::error::MobRespawnError;
+use crate::mob_respawn::store::MobRespawnStore;
+use action::model::{Action, BroadcastAction};
+use action::scope::BroadcastScope;
 use core::time::Duration;
+use entity::map::model::Point;
+use packet::model::Packet;
+use state::model::SharedState;
 use std::sync::Arc;
+use crate::manager::{MS_PER_TICK, TickManager};
 use tokio::sync::broadcast;
 use tokio::time::Instant;
+use action::event::TickEvent;
 
-pub struct MobRespawnHandler;
+pub struct MobRespawnTick;
 
-impl MobRespawnHandler {
+impl MobRespawnTick {
     pub fn new() -> Self {
         Self
     }
 
-    pub async fn handle(
+    pub async fn spawn(
         &self,
         state: &SharedState,
-        tick_tx: broadcast::Sender<HandlerResult>,
-        world_id: i16,
-        channel_id: u8,
-        map_wz: i32,
     ) -> Result<(), MobRespawnError> {
-        let tick_tx_clone = tick_tx.clone();
+        let tick_tx_clone = {
+            let state = state.lock().await;
+            state.tick_tx.clone()
+        };
         let tick_manager = Arc::new(TickManager::new());
         let tick_manager_clone = Arc::clone(&tick_manager);
         let state_clone = Arc::clone(state);
@@ -58,38 +57,45 @@ impl MobRespawnHandler {
                     _ = tick_manager_clone.wait() => {}
                 }
                 let now: Instant = Instant::now();
-                let store: MobRespawnStore = match MobRespawnStore::store_mob_respawn(
-                    &state_clone,
-                    now,
-                    world_id,
-                    channel_id,
-                    map_wz,
-                )
-                .await
-                {
-                    Ok(respawn_store) => respawn_store,
-                    Err(_) => continue,
-                };
-                let respawn_result: HandlerResult =
-                    match MobRespawnHandler::build_respawn_result(&store).await {
-                        Ok(respawn_result) => respawn_result,
-                        Err(_) => continue,
-                    };
-                let _ = tick_tx_clone.send(respawn_result);
+                let state = state_clone.lock().await;
+                for (world_id, world) in state.worlds.read().await.iter() {
+                    for (channel_id, channel) in world.channels.iter() {
+                        for (map_wz, map) in channel.maps.iter() {
+                            let store: MobRespawnStore = match MobRespawnStore::store_mob_respawn(
+                                &state_clone,
+                                now,
+                                *world_id,
+                                *channel_id,
+                                *map_wz,
+                            )
+                            .await
+                            {
+                                Ok(respawn_store) => respawn_store,
+                                Err(_) => continue,
+                            };
+                            let respawn_event: TickEvent =
+                                match MobRespawnTick::build_respawn_event(&store).await {
+                                    Ok(respawn_event) => respawn_event,
+                                    Err(_) => continue,
+                                };
+                            let _ = tick_tx_clone.send(respawn_event);
+                        }
+                    }
+                }
             }
         });
         Ok(())
     }
 
-    pub async fn build_respawn_result(
+    pub async fn build_respawn_event(
         store: &MobRespawnStore,
-    ) -> Result<HandlerResult, MobRespawnError> {
-        let mut result: HandlerResult = HandlerResult::new();
+    ) -> Result<TickEvent, MobRespawnError> {
+        let mut event: TickEvent = TickEvent::new();
         for (mob_id, mob_life) in store.to_respawn.clone() {
             let packet = Packet::new_empty()
                 .build_spawn_mob_packet(mob_id, &mob_life)?
                 .finish();
-            result.add_action(Action::Broadcast(BroadcastAction::Send {
+            event.add_action(Action::Broadcast(BroadcastAction::Send {
                 packet: packet.clone(),
                 scope: BroadcastScope::Map {
                     world_id: store.world_id,
@@ -112,7 +118,7 @@ impl MobRespawnHandler {
                     store.team,
                 )?
                 .finish();
-            result.add_action(Action::Broadcast(BroadcastAction::Send {
+            event.add_action(Action::Broadcast(BroadcastAction::Send {
                 packet: packet.clone(),
                 scope: BroadcastScope::MapChar {
                     world_id: store.world_id,
@@ -121,6 +127,6 @@ impl MobRespawnHandler {
                 },
             }));
         }
-        Ok(result)
+        Ok(event)
     }
 }

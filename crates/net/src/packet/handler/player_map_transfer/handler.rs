@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::action::model::{Action, SessionAction};
-use crate::action::scope::{MapScope, SessionScope};
+use action::model::{Action, SessionAction};
+use action::scope::{MapScope, SessionScope};
 use crate::packet::handler::player_map_transfer::error::PlayerMapTransferError;
 use crate::packet::handler::player_map_transfer::store::PlayerMapTransferStore;
 use crate::packet::handler::result::HandlerResult;

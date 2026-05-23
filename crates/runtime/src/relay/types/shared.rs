@@ -16,12 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use action::event::TickEvent;
 use tokio::sync::broadcast;
 
 use crate::relay::execute;
 use crate::relay::types::error::RelayTypeError;
+use action::model::{Action, BroadcastAction, SessionAction, SetAction};
 use core::ops::ControlFlow;
-use net::action::model::{Action, BroadcastAction, SessionAction, SetAction};
 use net::packet::handler::result::HandlerResult;
 use packet::model::Packet;
 use session::error::SessionError;
@@ -29,9 +30,9 @@ use state::model::SharedState;
 
 #[allow(async_fn_in_trait)]
 pub trait RuntimeRelay: Sized {
-    fn tick_rx(&mut self) -> Option<&mut broadcast::Receiver<HandlerResult>>;
+    fn tick_rx(&mut self) -> Option<&mut broadcast::Receiver<TickEvent>>;
 
-    fn set_tick_rx(&mut self, rx: broadcast::Receiver<HandlerResult>);
+    fn set_tick_rx(&mut self, rx: broadcast::Receiver<TickEvent>);
 
     async fn new(session_id: i32) -> Result<Self, RelayTypeError>;
 
@@ -119,9 +120,9 @@ pub trait RuntimeRelay: Sized {
     async fn execute_via_tick(
         &self,
         state: &SharedState,
-        result: HandlerResult,
+        event: TickEvent,
     ) -> Result<ControlFlow<Packet>, RelayTypeError> {
-        let model = &result.model;
+        let model = &event.model;
         for action in model {
             match action {
                 Action::Broadcast(action) => match action {

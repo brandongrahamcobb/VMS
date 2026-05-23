@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::packet::handler::mob_respawn::error::MobRespawnError;
+use crate::mob_respawn::error::MobRespawnError;
 use core::time::Duration;
 use entity::mob::model::{LifeState, MobWzLife};
 use state::model::SharedState;

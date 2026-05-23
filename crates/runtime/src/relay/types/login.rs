@@ -20,6 +20,7 @@
 use crate::relay::model::LoginRelay;
 use crate::relay::types::error::RelayTypeError;
 use crate::relay::types::shared::RuntimeRelay;
+use action::event::TickEvent;
 use net::packet::handler::check_char_name::handler::CheckCharNameHandler;
 use net::packet::handler::create_char::handler::CreateCharHandler;
 use net::packet::handler::credentials::handler::CredentialsHandler;
@@ -47,11 +48,11 @@ impl RuntimeRelay for LoginRelay {
         Ok(Self { session_id })
     }
 
-    fn tick_rx(&mut self) -> Option<&mut broadcast::Receiver<HandlerResult>> {
+    fn tick_rx(&mut self) -> Option<&mut broadcast::Receiver<TickEvent>> {
         None
     }
 
-    fn set_tick_rx(&mut self, _rx: broadcast::Receiver<HandlerResult>) {}
+    fn set_tick_rx(&mut self, _rx: broadcast::Receiver<TickEvent>) {}
 
     fn session_id(&self) -> i32 {
         self.session_id

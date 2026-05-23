@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::action::model::{Action, SessionAction, SetAction};
-use crate::action::scope::{MapScope, SessionScope};
+use action::model::{Action, SessionAction, SetAction};
+use action::scope::{MapScope, SessionScope};
 use crate::packet::handler::result::HandlerResult;
 use crate::packet::handler::take_damage::error::TakeDamageError;
 use crate::packet::handler::take_damage::reader::TakeDamageReader;

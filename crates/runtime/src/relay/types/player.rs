@@ -20,6 +20,7 @@
 use crate::relay::model::PlayerRelay;
 use crate::relay::types::error::RelayTypeError;
 use crate::relay::types::shared::RuntimeRelay;
+use action::event::TickEvent;
 use net::packet::handler::cc::handler::ChangeChannelHandler;
 use net::packet::handler::change_keymap::handler::ChangeKeymapHandler;
 use net::packet::handler::change_map::handler::ChangeMapHandler;
@@ -51,11 +52,11 @@ impl RuntimeRelay for PlayerRelay {
         })
     }
 
-    fn tick_rx(&mut self) -> Option<&mut broadcast::Receiver<HandlerResult>> {
+    fn tick_rx(&mut self) -> Option<&mut broadcast::Receiver<TickEvent>> {
         self.tick_rx.as_mut()
     }
 
-    fn set_tick_rx(&mut self, rx: broadcast::Receiver<HandlerResult>) {
+    fn set_tick_rx(&mut self, rx: broadcast::Receiver<TickEvent>) {
         self.tick_rx = Some(rx);
     }
 

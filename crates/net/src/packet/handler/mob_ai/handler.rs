@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::action::scope::BroadcastScope;
-use crate::action::model::{Action, BroadcastAction};
+use action::scope::BroadcastScope;
+use action::model::{Action, BroadcastAction};
 use crate::packet::handler::mob_ai::error::MobAiError;
 use crate::packet::handler::mob_ai::reader::MobAiReader;
 use crate::packet::handler::mob_ai::store::MobAiStore;

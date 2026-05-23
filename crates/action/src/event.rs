@@ -1,11 +1,11 @@
-use action::model::Action;
+use crate::model::Action;
 
 #[derive(Clone)]
-pub struct HandlerResult {
+pub struct TickEvent {
     pub model: Vec<Action>,
 }
 
-impl HandlerResult {
+impl TickEvent {
     pub fn new() -> Self {
         Self { model: Vec::new() }
     }

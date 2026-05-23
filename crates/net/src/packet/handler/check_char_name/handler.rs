@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::action::scope::SessionScope;
-use crate::action::model::{Action, SessionAction};
+use action::scope::SessionScope;
+use action::model::{Action, SessionAction};
 use crate::packet::handler::check_char_name::error::CheckCharNameError;
 use crate::packet::handler::check_char_name::reader::CheckCharNameReader;
 use crate::packet::handler::check_char_name::store::CheckCharNameStore;

@@ -30,7 +30,6 @@ use crate::packet::handler::enter_cash_shop::error::EnterCashShopError;
 use crate::packet::handler::list_chars::error::ListCharsError;
 use crate::packet::handler::list_worlds::error::ListWorldsError;
 use crate::packet::handler::mob_ai::error::MobAiError;
-use crate::packet::handler::mob_respawn::error::MobRespawnError;
 use crate::packet::handler::move_player::error::MovePlayerError;
 use crate::packet::handler::party_search::error::PartySearchError;
 use crate::packet::handler::pickup_item::error::PickupItemEntityError;
@@ -85,9 +84,6 @@ pub enum PacketHandlerError {
 
     #[error("Mob AI error in packet handler layer")]
     MobAiError(#[from] MobAiError),
-
-    #[error("Mob respawn error in packet handler layer")]
-    MobRespawnError(#[from] MobRespawnError),
 
     #[error("Move player error in packet handler layer")]
     MovePlayerError(#[from] MovePlayerError),

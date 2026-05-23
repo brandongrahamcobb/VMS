@@ -99,24 +99,3 @@ pub async fn assemble_item_by_id(pool: &DbPool, item_id: i32) -> Result<Item, It
     };
     Ok(item)
 }
-
-pub async fn assemble_item_by_wz_info(
-    pool: &DbPool,
-    item_wz_info: ItemWzInfo,
-) -> Result<Item, ItemAssemblyError> {
-    let item_model: ItemModel = db::item::getters::get_item_model_by_item_id(pool, item_id).await?;
-    let itab: InventoryTab = metadata::item::inventory::get_inventory_tab_by_wz(item_model.wz)?;
-    let item_wz_info: ItemWzInfo = {
-        match itab {
-            InventoryTab::Equip => {
-                metadata::item::equip::build_equip_item_wz_info_by_wz(item_model.wz)?
-            }
-            _ => metadata::item::nonequip::build_nonequip_item_wz_info_by_wz(item_model.wz)?,
-        }
-    };
-    let item: Item = Item {
-        model: item_model,
-        info: item_wz_info,
-    };
-    Ok(item)
-}

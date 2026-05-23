@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::action::scope::SessionScope;
-use crate::action::model::{Action, SessionAction, SetAction};
+use action::scope::SessionScope;
+use action::model::{Action, SessionAction, SetAction};
 use crate::packet::handler::player_logged_in::error::PlayerLoggedInError;
 use crate::packet::handler::player_logged_in::reader::PlayerLoggedInReader;
 use crate::packet::handler::player_logged_in::store::PlayerLoggedInStore;

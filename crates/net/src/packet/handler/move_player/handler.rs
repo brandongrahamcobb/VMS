@@ -17,13 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::action::model::{Action, BroadcastAction};
+use action::model::{Action, BroadcastAction};
 use crate::packet::handler::move_player::error::MovePlayerError;
 use crate::packet::handler::move_player::reader::MovePlayerReader;
 use crate::packet::handler::move_player::store::MovePlayerStore;
 use crate::packet::handler::result::HandlerResult;
 use packet::model::Packet;
-use crate::action::scope::BroadcastScope;
+use action::scope::BroadcastScope;
 use session::model::Session;
 use state::model::SharedState;
 

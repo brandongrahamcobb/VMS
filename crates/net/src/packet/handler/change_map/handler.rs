@@ -17,13 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::action::model::{Action, SessionAction, SetAction};
+use action::model::{Action, SessionAction, SetAction};
 use crate::packet::handler::change_map::error::ChangeMapEntityError;
 use crate::packet::handler::change_map::reader::ChangeMapReader;
 use crate::packet::handler::change_map::store::ChangeMapStore;
 use crate::packet::handler::result::HandlerResult;
 use packet::model::Packet;
-use crate::action::scope::{MapScope, SessionScope};
+use action::scope::{MapScope, SessionScope};
 use session::model::Session;
 use state::model::SharedState;
 

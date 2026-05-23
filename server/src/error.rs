@@ -1,5 +1,5 @@
-/* entity/src/map/model.rs
- * The purpose of this module is to provide a map models.
+/* server/error.rs
+ * The purpose of this module is to provide errors related to VMS.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,27 +17,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use tokio::time::Instant;
+use runtime::error::RuntimeError;
+use state::error::StateError;
+use thiserror::Error;
+use tick::error::TickError;
 
-#[derive(Clone)]
-pub struct Point {
-    pub x: i16,
-    pub y: i16,
-}
+#[derive(Debug, Error)]
+pub enum VMSError {
+    #[error("Tick error in VMS layer")]
+    TickError(#[from] TickError),
 
-#[derive(Clone)]
-pub struct MapWzInfo {
-    pub death_map_wz: i32,
-    pub wz: i32,
-    pub mob_rate: f32,
-}
+    #[error("State error in VMS layer")]
+    StateError(#[from] StateError),
 
-#[derive(Clone)]
-pub struct MapModel {
-    pub wz: i32,
-}
-
-pub enum VacancyState {
-    Populated { start: Instant },
-    Vacant,
+    #[error("Runtime error in VMS layer")]
+    RuntimeError(#[from] RuntimeError),
 }

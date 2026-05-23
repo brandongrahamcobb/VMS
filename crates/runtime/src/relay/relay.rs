@@ -87,10 +87,10 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
                         None => {},
                     }
                 }
-                result = tick => {
-                    match result {
-                        Some(result) => {
-                            match self.relay.execute_via_tick(&self.state, result).await? {
+                event = tick => {
+                    match event {
+                        Some(event) => {
+                            match self.relay.execute_via_tick(&self.state, event).await? {
                                 ControlFlow::Break(packet) => break Ok(Some((self, packet))),
                                 _ => {}
                             }

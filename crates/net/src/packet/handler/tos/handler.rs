@@ -17,14 +17,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::action::model::{Action, SessionAction};
+use action::model::{Action, SessionAction};
 use crate::packet::handler::result::HandlerResult;
 use crate::packet::handler::tos::error::TosError;
 use crate::packet::handler::tos::reader::TosReader;
 use crate::packet::handler::tos::store::TosStore;
 use packet::model::Packet;
 use db::pool::DbPool;
-use crate::action::scope::SessionScope;
+use action::scope::SessionScope;
 use session::model::Session;
 
 pub struct TosHandler;
