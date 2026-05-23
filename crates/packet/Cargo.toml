@@ -1,0 +1,16 @@
+[package]
+name = "packet"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+thiserror = "2"
+aes = "0.9"
+byteorder = "1.5.0"
+tokio = { version = "1.51.1", features = ["full"] }
+tracing = "0.1.44"
+config = { path = "../config" }
+sec = { path = "../sec" }
+num-traits = "0.2.19"
+op = { path = "../op" }
+entity = { path = "../entity" }

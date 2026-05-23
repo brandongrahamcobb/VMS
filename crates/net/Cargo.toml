@@ -1,0 +1,22 @@
+[package]
+name = "net"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+thiserror = "2"
+config = { path = "../config" }
+entity = { path = "../entity" }
+op = { path = "../op" }
+state = { path = "../state" }
+db =  { path = "../db" }
+session = { path = "../session" }
+assembly = { path = "../assembly" }
+domain = { path = "../domain" }
+itertools = "0.14.0"
+tokio = { version = "1.51.1", features = ["full"] }
+inc = { path = "../inc" }
+rand = "0.10.1"
+metadata = { path = "../metadata" }
+packet = { path = "../packet" }
+tick = { path = "../tick" }

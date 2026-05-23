@@ -1,0 +1,45 @@
+/* player_logged_in/builder.rs
+ * The purpose of this module is to build an outgoing player login packet.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+use crate::build::error::PacketBuildError;
+use crate::io::error::IOError::WriteError;
+use crate::model::Packet;
+use crate::prelude::*;
+use entity::keybinding::wrapper::Keybinding;
+use op::send::SendOpcode;
+use std::collections::HashMap;
+
+impl Packet {
+    pub fn build_player_logged_in_keymap_packet(
+        &mut self,
+        binds: &HashMap<i32, Keybinding>,
+    ) -> Result<&mut Self, PacketBuildError> {
+        let op = SendOpcode::KeyMap as i16;
+        self.write_short(op).map_err(WriteError)?;
+        self.write_byte(0).map_err(WriteError)?;
+        let keybindings: Vec<&Keybinding> = (0..90).filter_map(|key| binds.get(&key)).collect();
+        for bind in keybindings {
+            self.write_byte(bind.model.bind_type as i16)
+                .map_err(WriteError)?;
+            self.write_int(bind.model.action as i32)
+                .map_err(WriteError)?;
+        }
+        Ok(self)
+    }
+}

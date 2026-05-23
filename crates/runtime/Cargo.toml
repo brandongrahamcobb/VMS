@@ -1,0 +1,26 @@
+[package]
+name = "runtime"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+thiserror = "2"
+diesel = { version = "2.3.7", features = ["postgres", "network-address", "r2d2"] }
+ipnetwork = "0.21.1"
+rand = "0.10.1"
+tokio = { version = "1.51.1", features = ["full"] }
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+regex = "1.12.3"
+tokio-util = "0.7.18"
+config = { path = "../config" }
+state = { path = "../state" }
+session = { path = "../session" }
+net = { path = "../net" }
+packet = { path = "../packet" }
+op = { path = "../op" }
+dotenvy = "0.15.7"
+entity = { path = "../entity" }
+db = { path = "../db" }
+assembly = { path = "../assembly" }
+inc = { path = "../inc" }

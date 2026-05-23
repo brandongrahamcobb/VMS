@@ -1,0 +1,15 @@
+[package]
+name = "metadata"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+shroom_wz = { git = "https://github.com/brandongrahamcobb/shroom-lib.git", package = "shroom-wz" }
+shroom_img = { git = "https://github.com/brandongrahamcobb/shroom-lib.git", package = "shroom-img" }
+anyhow = "1.0.102"
+binrw = "0.15.1"
+serde_json = "1.0.149"
+config = { path = "../config" }
+inc = { path = "../inc" }
+thiserror = "2"
+entity = { path = "../entity" }
