@@ -27,13 +27,17 @@ pub fn build_nonequip_item_wz_info_by_wz(wz: i32) -> Result<ItemWzInfo, ItemMeta
     let itab: InventoryTab = inventory::get_inventory_tab_by_wz(wz)?;
     let filename: &str = "Item.wz";
     let modified_wz: i32 = wz.div_euclid(10000);
+    let padded_wz: String = format!("{:08}", wz);
     let json = service::wz_to_img(modified_wz, filename)?;
-    let cash = json
+    let item = json
+        .get(padded_wz)
+        .ok_or(ItemMetadataError::NonequipError)?;
+    let cash = item
         .get("info")
         .ok_or(ItemMetadataError::NonequipError)?
         .get("cash")
-        .ok_or(ItemMetadataError::NonequipError)?
-        == 1;
+        .map(|c| c == 1)
+        .unwrap_or(false);
     let wz_info = ItemWzInfo {
         cash,
         islot: None,

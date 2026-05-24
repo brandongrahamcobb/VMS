@@ -17,11 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use crate::error::ConfigError;
-use config::Config;
+use cfg::Config;
 
 pub fn get_settings() -> Result<Config, ConfigError> {
     let settings = Config::builder()
-        .add_source(config::Environment::default())
+        .add_source(cfg::Environment::default())
         .build()
         .unwrap();
     Ok(settings)

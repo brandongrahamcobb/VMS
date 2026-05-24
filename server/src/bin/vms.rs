@@ -29,7 +29,7 @@ use tracing_subscriber::EnvFilter;
 #[tokio::main]
 async fn main() -> Result<(), VMSError> {
     tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::from_default_env().add_directive("vms=debug".parse().unwrap()))
+        .with_env_filter(EnvFilter::from_default_env().add_directive(tracing::Level::DEBUG.into()))
         .init();
     let state: SharedState = Arc::new(Mutex::new(State::new()?));
     {

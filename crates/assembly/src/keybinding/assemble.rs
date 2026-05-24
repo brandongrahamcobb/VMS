@@ -31,8 +31,9 @@ pub async fn assemble_keybindings_by_char_id(
 ) -> Result<HashMap<i32, Keybinding>, KeybindingAssemblyError> {
     let keybinding_models =
         db::keybinding::getters::get_keybinding_models_by_char_id(pool, char_id).await?;
+    let mut keybindings: HashMap<i32, Keybinding> = HashMap::new();
     for keybinding_model in keybinding_models {
-        binds.insert(
+        keybindings.insert(
             keybinding_model.key,
             Keybinding {
                 model: keybinding_model,

@@ -1,0 +1,19 @@
+[package]
+name = "test-suite"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rand = "0.10.1"
+tokio = { version = "1.51.1", features = ["full"] }
+config = { path = "../crates/config" }
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+net = { path = "../crates/net" }
+sec = { path = "../crates/sec" }
+thiserror = "2"
+tracing = "0.1.44"
+inc = { path = "../crates/inc" }
+serde_json = "1.0.149"
+entity = { path = "../crates/entity" }
+metadata = { path = "../crates/metadata" }
+

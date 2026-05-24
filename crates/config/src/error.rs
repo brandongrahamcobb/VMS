@@ -43,5 +43,5 @@ pub enum ConfigError {
     IntConversion(#[from] std::num::TryFromIntError),
 
     #[error("Config backend error in config layer")]
-    Source(#[from] config::ConfigError),
+    Source(#[from] cfg::ConfigError),
 }

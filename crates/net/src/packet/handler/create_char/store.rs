@@ -28,14 +28,14 @@ use entity::item::model::ItemModel;
 use entity::item::wrapper::{Inventory, Item};
 use entity::job::model::JobWzSkill;
 use entity::job::wrapper::Job;
-use entity::keybinding::model::KeybindingModel;
+use entity::keybinding::model::{KeybindType, KeybindingModel};
 use entity::keybinding::wrapper::Keybinding;
 use entity::map::model::Point;
 use entity::skill::model::SkillModel;
 use entity::skill::wrapper::Skill;
 use itertools::izip;
 use session::model::Session;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::time::SystemTime;
 
 pub struct CreateCharStore {
@@ -99,7 +99,7 @@ impl CreateCharStore {
                     updated_at: SystemTime::now(),
                 })
                 .collect();
-        let used_keys: std::collections::HashSet<i16> = bind_models.iter().map(|b| b.key).collect();
+        let used_keys: HashSet<i32> = bind_models.iter().map(|b| b.key).collect();
         for key in 0i32..90 {
             if !used_keys.contains(&key) {
                 bind_models.push(KeybindingModel {
@@ -115,6 +115,7 @@ impl CreateCharStore {
         }
         let bind_models: Vec<KeybindingModel> =
             db::keybinding::setters::update_keybindings(pool, bind_models).await?;
+        let mut binds: HashMap<i32, Keybinding> = HashMap::new();
         for bind_model in bind_models {
             binds.insert(
                 bind_model.get_id()?,
@@ -176,6 +177,15 @@ impl CreateCharStore {
         job_wz_skills: Vec<JobWzSkill>,
     ) -> Result<HashMap<i32, Skill>, CreateCharError> {
         let mut skill_models_insert: Vec<SkillModel> = Vec::new();
+        let close_attack_wz: i32 = 0;
+        skill_models_insert.push(SkillModel {
+            id: None,
+            char_id,
+            level: 0,
+            wz: 0,
+            created_at: Some(SystemTime::now()),
+            updated_at: SystemTime::now(),
+        });
         for job_wz_skill in job_wz_skills {
             skill_models_insert.push(SkillModel {
                 id: None,

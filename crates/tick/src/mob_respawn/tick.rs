@@ -17,8 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::manager::{MS_PER_TICK, TickManager};
 use crate::mob_respawn::error::MobRespawnError;
 use crate::mob_respawn::store::MobRespawnStore;
+use action::event::TickEvent;
 use action::model::{Action, BroadcastAction};
 use action::scope::BroadcastScope;
 use core::time::Duration;
@@ -26,10 +28,8 @@ use entity::map::model::Point;
 use packet::model::Packet;
 use state::model::SharedState;
 use std::sync::Arc;
-use crate::manager::{MS_PER_TICK, TickManager};
 use tokio::sync::broadcast;
 use tokio::time::Instant;
-use action::event::TickEvent;
 
 pub struct MobRespawnTick;
 
@@ -38,10 +38,7 @@ impl MobRespawnTick {
         Self
     }
 
-    pub async fn spawn(
-        &self,
-        state: &SharedState,
-    ) -> Result<(), MobRespawnError> {
+    pub async fn spawn(&self, state: &SharedState) -> Result<(), MobRespawnError> {
         let tick_tx_clone = {
             let state = state.lock().await;
             state.tick_tx.clone()
@@ -57,30 +54,39 @@ impl MobRespawnTick {
                     _ = tick_manager_clone.wait() => {}
                 }
                 let now: Instant = Instant::now();
-                let state = state_clone.lock().await;
-                for (world_id, world) in state.worlds.read().await.iter() {
-                    for (channel_id, channel) in world.channels.iter() {
-                        for (map_wz, map) in channel.maps.iter() {
-                            let store: MobRespawnStore = match MobRespawnStore::store_mob_respawn(
-                                &state_clone,
-                                now,
-                                *world_id,
-                                *channel_id,
-                                *map_wz,
-                            )
-                            .await
-                            {
-                                Ok(respawn_store) => respawn_store,
-                                Err(_) => continue,
-                            };
-                            let respawn_event: TickEvent =
-                                match MobRespawnTick::build_respawn_event(&store).await {
-                                    Ok(respawn_event) => respawn_event,
-                                    Err(_) => continue,
-                                };
-                            let _ = tick_tx_clone.send(respawn_event);
-                        }
-                    }
+                let maps: Vec<(i16, u8, i32)> = {
+                    let state = state_clone.lock().await;
+                    let worlds = state.worlds.read().await;
+                    worlds
+                        .iter()
+                        .flat_map(|(world_id, world)| {
+                            world.channels.iter().flat_map(|(channel_id, channel)| {
+                                channel
+                                    .maps
+                                    .keys()
+                                    .map(|map_wz| (*world_id, *channel_id, *map_wz))
+                            })
+                        })
+                        .collect()
+                };
+                for (world_id, channel_id, map_wz) in maps {
+                    let store = match MobRespawnStore::store_mob_respawn(
+                        &state_clone,
+                        now,
+                        world_id,
+                        channel_id,
+                        map_wz,
+                    )
+                    .await
+                    {
+                        Ok(s) => s,
+                        Err(_) => continue,
+                    };
+                    let event = match MobRespawnTick::build_respawn_event(&store).await {
+                        Ok(e) => e,
+                        Err(_) => continue,
+                    };
+                    let _ = tick_tx_clone.send(event);
                 }
             }
         });

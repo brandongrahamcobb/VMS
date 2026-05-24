@@ -5,4 +5,4 @@ edition = "2024"
 
 [dependencies]
 thiserror = "2"
-config = "0.15.22"
+cfg = { package = "config", version = "0.15.22" }
