@@ -139,6 +139,7 @@ pub async fn enter_map(
     scope: &SessionScope,
     map_wz: i32,
 ) -> Result<broadcast::Receiver<TickEvent>, ExecuteError> {
+    dbg!("enter");
     let world_id: i16 = session.get_world_id()?;
     let channel_id: u8 = session.get_channel_id()?;
     let tick_rx = insert_map(state, world_id, channel_id, map_wz).await?;

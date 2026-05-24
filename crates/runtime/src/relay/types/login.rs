@@ -28,7 +28,7 @@ use net::packet::handler::delete_char::handler::DeleteCharHandler;
 use net::packet::handler::error::PacketHandlerError;
 use net::packet::handler::list_chars::handler::ListCharsHandler;
 use net::packet::handler::list_worlds::handler::ListWorldsHandler;
-// use net::packet::handler::login_start::handler::LoginStartHandler;
+use net::packet::handler::login_start::handler::LoginStartHandler;
 use net::packet::handler::register_pic::handler::RegisterPicHandler;
 use net::packet::handler::result::HandlerResult;
 use net::packet::handler::select_char::handler::SelectCharHandler;
@@ -87,13 +87,10 @@ impl RuntimeRelay for LoginRelay {
                     .await
                     .map_err(PacketHandlerError::from)?)
             }
-            // x if x == RecvOpcode::LoginStarted as i16 => {
-            //     let handler = LoginStartHandler::new();
-            //     Ok(handler
-            //         .handle(state, &session, packet)
-            //         .await
-            //         .map_err(PacketHandlerError::from)?)
-            // }
+            x if x == RecvOpcode::LoginStarted as i16 => {
+                let handler = LoginStartHandler::new();
+                Ok(handler.handle().await.map_err(PacketHandlerError::from)?)
+            }
             x if x == RecvOpcode::AcceptTOS as i16 => {
                 let handler = TosHandler::new();
                 let pool = { state.lock().await.db.clone() };

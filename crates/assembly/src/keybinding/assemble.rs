@@ -19,6 +19,7 @@
 
 use db;
 use db::pool::DbPool;
+use entity::keybinding::model::KeybindingModel;
 use entity::keybinding::wrapper::Keybinding;
 use std::collections::HashMap;
 
@@ -30,9 +31,8 @@ pub async fn assemble_keybindings_by_char_id(
 ) -> Result<HashMap<i32, Keybinding>, KeybindingAssemblyError> {
     let keybinding_models =
         db::keybinding::getters::get_keybinding_models_by_char_id(pool, char_id).await?;
-    let mut keybindings: HashMap<i32, Keybinding> = HashMap::new();
     for keybinding_model in keybinding_models {
-        keybindings.insert(
+        binds.insert(
             keybinding_model.key,
             Keybinding {
                 model: keybinding_model,
@@ -42,7 +42,7 @@ pub async fn assemble_keybindings_by_char_id(
     Ok(keybindings)
 }
 
-pub async fn assemble_keybindings_by_id(
+pub async fn assemble_keybinding_by_id(
     pool: &DbPool,
     bind_id: i32,
 ) -> Result<Keybinding, KeybindingAssemblyError> {

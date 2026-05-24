@@ -11,6 +11,7 @@ pub mod enter_cash_shop;
 pub mod error;
 pub mod list_chars;
 pub mod list_worlds;
+pub mod login_start;
 pub mod mob_ai;
 pub mod move_player;
 pub mod party_search;

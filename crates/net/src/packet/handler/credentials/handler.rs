@@ -17,14 +17,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::scope::SessionScope;
-use action::model::{Action, SessionAction, SetAction};
 use crate::packet::handler::credentials::error::CredentialsError;
 use crate::packet::handler::credentials::reader::CredentialsReader;
 use crate::packet::handler::credentials::store::CredentialsStore;
 use crate::packet::handler::result::HandlerResult;
-use packet::model::Packet;
+use action::model::{Action, SessionAction, SetAction};
+use action::scope::SessionScope;
 use entity::account::wrapper::StatusCode;
+use packet::model::Packet;
 use session::model::Session;
 use state::model::SharedState;
 

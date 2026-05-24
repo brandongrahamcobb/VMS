@@ -3,7 +3,7 @@ target/
 .vscode
 Dockerfile
 docker-compose.yml
-HeavenClient
+client
 cli.txt
 migrations
 LICENSE

@@ -32,28 +32,32 @@ use rand::RngExt;
 use crate::error::DomainError;
 
 pub async fn equip(pool: &DbPool, inv: &mut Inventory, item_id: i32) -> Result<(), DomainError> {
-    let old_pos = inv.equip_tab.iter().find_map(|(pos, stack)| {
-        stack.iter().find_map(|item| {
-            item.model
-                .get_id()
-                .ok()
-                .filter(|id| *id == item_id)
-                .map(|_| *pos)
-        })
-    });
-    if let Some(pos) = old_pos {
-        inv.equip_tab.remove(&pos).ok_or(DomainError::ItemError)?;
-    }
-    let item = get_item_from_inventory(inv, item_id)?;
-    let new_pos = metadata::item::equip::get_equip_ipos_by_wz(item.model.wz)?;
-    let item = inv
+    let item_pos = inv
         .equip_tab
-        .values_mut()
-        .flatten()
+        .iter()
+        .find_map(|(pos, stack)| {
+            stack.iter().find_map(|item| {
+                item.model
+                    .get_id()
+                    .ok()
+                    .filter(|id| *id == item_id)
+                    .map(|_| *pos)
+            })
+        })
+        .ok_or(DomainError::ItemError)?;
+    let mut stack = inv
+        .equip_tab
+        .remove(&item_pos)
+        .ok_or(DomainError::ItemError)?;
+    let item = stack
+        .iter_mut()
         .find(|item| item.model.get_id().map_or(false, |id| id == item_id))
         .ok_or(DomainError::ItemError)?;
+
+    let new_pos = metadata::item::equip::get_equip_ipos_by_wz(item.model.wz)?;
     item.model.ipos = Some(new_pos);
     db::item::setters::update_item(pool, &item.model).await?;
+    inv.equipped_tab.insert(new_pos, stack);
     Ok(())
 }
 
@@ -110,6 +114,7 @@ pub async fn pick_up(
             0,
             metadata::item::inventory::get_inventory_tab_by_wz(item.model.wz)?,
         ));
+
     item.model.ipos = Some(pos);
     item.model.char_id = Some(char_id);
     db::item::setters::update_item(pool, &item.model).await?;

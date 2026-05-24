@@ -45,8 +45,7 @@ pub async fn assemble_acc_by_id(
     let char_models = db::character::getters::get_char_models_by_acc_id(pool, acc_id).await?;
     let mut chars: Vec<Character> = Vec::<Character>::new();
     for char_model in char_models {
-        chars
-            .push(character::assemble::assemble_char_by_id(pool, char_model.get_id()?).await?);
+        chars.push(character::assemble::assemble_char_by_id(pool, char_model.get_id()?).await?);
     }
     let acc = Account {
         model: acc_model,

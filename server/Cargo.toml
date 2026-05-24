@@ -2,6 +2,7 @@
 name = "server"
 version = "0.1.0"
 edition = "2024"
+path = "src/bin/vms.rs"
 
 [dependencies]
 diesel = { version = "2.3.7", features = ["postgres", "network-address", "r2d2"] }

@@ -29,6 +29,7 @@ use crate::packet::handler::delete_char::error::DeleteCharError;
 use crate::packet::handler::enter_cash_shop::error::EnterCashShopError;
 use crate::packet::handler::list_chars::error::ListCharsError;
 use crate::packet::handler::list_worlds::error::ListWorldsError;
+use crate::packet::handler::login_start::error::LoginStartError;
 use crate::packet::handler::mob_ai::error::MobAiError;
 use crate::packet::handler::move_player::error::MovePlayerError;
 use crate::packet::handler::party_search::error::PartySearchError;
@@ -81,6 +82,9 @@ pub enum PacketHandlerError {
 
     #[error("List worlds error in packet handler layer")]
     ListWorldsError(#[from] ListWorldsError),
+
+    #[error("Login start error in packet handler layer")]
+    LoginStartError(#[from] LoginStartError),
 
     #[error("Mob AI error in packet handler layer")]
     MobAiError(#[from] MobAiError),

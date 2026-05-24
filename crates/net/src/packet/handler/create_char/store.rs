@@ -87,24 +87,38 @@ impl CreateCharStore {
         pool: &DbPool,
         char_id: i32,
     ) -> Result<HashMap<i32, Keybinding>, CreateCharError> {
-        let bind_models: Vec<KeybindingModel> = izip!(DEFAULT_KEY, DEFAULT_TYPE, DEFAULT_ACTION)
-            .map(|(key, bind_type, action)| KeybindingModel {
-                id: None,
-                action,
-                bind_type,
-                char_id,
-                created_at: Some(SystemTime::now()),
-                key,
-                updated_at: SystemTime::now(),
-            })
-            .collect();
+        let mut bind_models: Vec<KeybindingModel> =
+            izip!(DEFAULT_KEY, DEFAULT_TYPE, DEFAULT_ACTION)
+                .map(|(key, bind_type, action)| KeybindingModel {
+                    id: None,
+                    action,
+                    bind_type,
+                    char_id,
+                    created_at: Some(SystemTime::now()),
+                    key,
+                    updated_at: SystemTime::now(),
+                })
+                .collect();
+        let used_keys: std::collections::HashSet<i16> = bind_models.iter().map(|b| b.key).collect();
+        for key in 0i32..90 {
+            if !used_keys.contains(&key) {
+                bind_models.push(KeybindingModel {
+                    id: None,
+                    action: 0,
+                    bind_type: KeybindType::Nil as i16,
+                    char_id,
+                    created_at: Some(SystemTime::now()),
+                    key,
+                    updated_at: SystemTime::now(),
+                });
+            }
+        }
         let bind_models: Vec<KeybindingModel> =
             db::keybinding::setters::update_keybindings(pool, bind_models).await?;
-        let mut binds: HashMap<i32, Keybinding> = HashMap::new();
         for bind_model in bind_models {
             binds.insert(
                 bind_model.get_id()?,
-                assembly::keybinding::assemble::assemble_keybindings_by_id(
+                assembly::keybinding::assemble::assemble_keybinding_by_id(
                     pool,
                     bind_model.get_id()?,
                 )
@@ -161,17 +175,9 @@ impl CreateCharStore {
         char_id: i32,
         job_wz_skills: Vec<JobWzSkill>,
     ) -> Result<HashMap<i32, Skill>, CreateCharError> {
-        let mut skill_models: Vec<SkillModel> = Vec::new();
-        skill_models.push(SkillModel {
-            id: None,
-            char_id,
-            level: 0,
-            wz: 0,
-            created_at: Some(SystemTime::now()),
-            updated_at: SystemTime::now(),
-        });
+        let mut skill_models_insert: Vec<SkillModel> = Vec::new();
         for job_wz_skill in job_wz_skills {
-            skill_models.push(SkillModel {
+            skill_models_insert.push(SkillModel {
                 id: None,
                 char_id,
                 level: 0,
@@ -180,7 +186,8 @@ impl CreateCharStore {
                 updated_at: SystemTime::now(),
             });
         }
-        db::skill::setters::update_skills(pool, skill_models.clone()).await?;
+        let skill_models: Vec<SkillModel> =
+            db::skill::setters::update_skills(pool, skill_models_insert.clone()).await?;
         let mut skills: HashMap<i32, Skill> = HashMap::new();
         for skill_model in skill_models {
             skills.insert(
