@@ -183,7 +183,7 @@ impl CreateCharStore {
             id: None,
             char_id,
             level: 0,
-            wz: 0,
+            wz: close_attack_wz,
             created_at: Some(SystemTime::now()),
             updated_at: SystemTime::now(),
         });

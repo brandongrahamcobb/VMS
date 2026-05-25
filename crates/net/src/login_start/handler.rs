@@ -19,7 +19,6 @@
 
 use crate::login_start::error::LoginStartError;
 use crate::result::HandlerResult;
-use session::model::Session;
 
 pub struct LoginStartHandler;
 

@@ -1,13 +1,10 @@
-use config::error::ConfigError;
 use config::settings;
 use core::time::Duration;
 use dotenvy;
-use inc::helpers;
-use state::model::SharedState;
 use std::net::TcpStream;
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode, Stdio};
-use std::{io, thread};
+use std::thread;
 use test_suite::error::HarnessError;
 use tokio::time::Instant;
 use tracing::error;
@@ -79,9 +76,9 @@ fn ensure_docker_available() -> Result<(), HarnessError> {
                 "docker is installed but not usable (status: {status}); ensure Docker daemon is running"
             )));
         }
-        Err(error) => {
+        Err(e) => {
             return Err(HarnessError::DockerVersionError(format!(
-                "docker is not installed or not in PATH"
+                "docker is not installed or not in PATH: {e}"
             )));
         }
     }

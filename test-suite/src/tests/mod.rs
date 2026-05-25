@@ -1,4 +1,5 @@
 pub mod test_char_list;
+pub mod test_create_char;
 pub mod test_credentials;
 pub mod test_handshake;
 pub mod test_last_connected_world;

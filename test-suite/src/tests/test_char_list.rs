@@ -1,6 +1,7 @@
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
 use crate::tests::test_credentials::ACC_ID;
+use crate::tests::test_credentials::GENDER_WZ;
 use entity::character::model::CharacterModel;
 use op::recv::RecvOpcode;
 use packet::io::error::IOError::{ReadError, WriteError};
@@ -11,7 +12,6 @@ use std::io::Cursor;
 use std::time::SystemTime;
 
 const PHASE: &str = "character list request";
-const GENDER_WZ: i16 = 0;
 const WORLD_ID: i16 = 0;
 const MAP_WZ: i32 = 10000;
 const IGN: &str = "Test";
@@ -29,10 +29,10 @@ const AP: i16 = 0;
 const SP: i16 = 0;
 const FAME: i16 = 0;
 const MESO: i32 = 0;
-const HAIR_COLOR: i32 = 0;
-const SKIN: i32 = 0;
-const FACE: i32 = 20000;
-const HAIR: i32 = 30000;
+const HAIR_COLOR_WZ: i32 = 0;
+const SKIN_WZ: i32 = 0;
+const FACE_WZ: i32 = 20000;
+const HAIR_WZ: i32 = 30000;
 const LAST_PORTAL_ID: i16 = 0;
 const JOB_WZ: i16 = 0;
 const CHAR_ID: i32 = 1;
@@ -44,9 +44,9 @@ pub struct CharacterResult {
     pub name: String,
 }
 
-struct CharacterMeta {
-    id: i32,
-    name: String,
+pub struct CharacterMeta {
+    pub id: i32,
+    pub name: String,
     map_id: i32,
 }
 
@@ -80,10 +80,10 @@ pub async fn assert_char_list_request(
             sp: SP,
             fame: FAME,
             meso: MESO,
-            hair_color_wz: HAIR_COLOR,
-            hair_wz: HAIR,
-            skin_wz: SKIN,
-            face_wz: FACE,
+            hair_color_wz: HAIR_COLOR_WZ,
+            hair_wz: HAIR_WZ,
+            skin_wz: SKIN_WZ,
+            face_wz: FACE_WZ,
             last_portal: LAST_PORTAL_ID,
             job_wz: JOB_WZ,
             created_at: Some(SystemTime::now()),
@@ -156,7 +156,7 @@ pub fn read_char_list_packet(packet: &Packet) -> Result<CharListResult, HarnessE
     Ok(CharListResult { characters })
 }
 
-fn read_char_meta(cursor: &mut Cursor<&[u8]>) -> Result<CharacterMeta, HarnessError> {
+pub fn read_char_meta(cursor: &mut Cursor<&[u8]>) -> Result<CharacterMeta, HarnessError> {
     let id = cursor
         .read_int()
         .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;

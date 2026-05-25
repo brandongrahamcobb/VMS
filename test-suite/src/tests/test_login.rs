@@ -7,8 +7,8 @@ use tokio::sync::Mutex;
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
 use crate::tests::{
-    test_char_list, test_credentials, test_handshake, test_last_connected_world, test_server_list,
-    test_tos,
+    test_char_list, test_create_char, test_credentials, test_handshake, test_last_connected_world,
+    test_server_list, test_tos,
 };
 
 pub async fn login_until_redirect() -> Result<(), HarnessError> {
@@ -23,6 +23,7 @@ pub async fn login_until_redirect() -> Result<(), HarnessError> {
     let conn = test_server_list::assert_server_list_request(conn).await?;
     let conn = test_last_connected_world::assert_last_connected_world(conn).await?;
     let conn = test_char_list::assert_char_list_request(&state, conn).await?;
+    let conn = test_create_char::assert_create_char(conn).await?;
     Ok(())
 }
 

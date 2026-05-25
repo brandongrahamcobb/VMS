@@ -19,7 +19,6 @@
 
 use db;
 use db::pool::DbPool;
-use entity::keybinding::model::KeybindingModel;
 use entity::keybinding::wrapper::Keybinding;
 use std::collections::HashMap;
 

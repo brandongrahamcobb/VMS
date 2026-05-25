@@ -3,7 +3,6 @@ use inc::helpers;
 use packet;
 use packet::constants::MAX_PACKET_LENGTH;
 use packet::io::error::IOError;
-use packet::io::read::PacketReader;
 use packet::io::read::PktRead;
 use packet::model::Packet;
 use sec::aes::AES;
