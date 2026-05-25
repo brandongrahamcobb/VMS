@@ -16,4 +16,9 @@ inc = { path = "../crates/inc" }
 serde_json = "1.0.149"
 entity = { path = "../crates/entity" }
 metadata = { path = "../crates/metadata" }
-
+dotenvy = "0.15"
+packet = { path = "../crates/packet" }
+op = { path = "../crates/op" }
+db = { path = "../crates/db" }
+state = { path = "../crates/state" }
+assembly = { path = "../crates/assembly" }

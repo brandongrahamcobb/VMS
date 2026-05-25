@@ -70,3 +70,10 @@ pub async fn update_accounts(
     })
     .await
 }
+
+pub async fn delete_acc_by_id(pool: &DbPool, acc_id: i32) -> Result<usize, DatabaseError> {
+    pool::spawn_db(pool, move |conn| {
+        diesel::delete(accounts::table.filter(accounts::id.eq(acc_id))).execute(conn)
+    })
+    .await
+}

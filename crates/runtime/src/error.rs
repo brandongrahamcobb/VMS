@@ -30,9 +30,6 @@ pub enum RuntimeError {
     #[error("Unexpected end of output in runtime layer")]
     UnexpectedOf(#[from] std::io::Error),
 
-    #[error("Environment loading error in runtime layer")]
-    DotenvError(#[from] dotenvy::Error),
-
     #[error("Failed database in runtime layer")]
     DatabaseError(#[from] DatabaseError),
 

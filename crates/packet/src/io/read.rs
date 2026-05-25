@@ -43,11 +43,6 @@ impl PacketReader {
         })
     }
 
-    pub fn get_packet_length(&self, header: &[u8]) -> i16 {
-        (header[0] as i16 + ((header[1] as i16) << 8))
-            ^ (header[2] as i16 + ((header[3] as i16) << 8))
-    }
-
     async fn read_buffer(&mut self, buf: &mut [u8]) -> Result<(), IOError> {
         self.pkt_reader.read_exact(buf).await.map_err(ReadError)?;
         Ok(())
@@ -61,7 +56,7 @@ impl PacketReader {
     }
 
     async fn read_payload(&mut self, header: &[u8]) -> Result<Packet, IOError> {
-        let length = self.get_packet_length(header);
+        let length = get_packet_length(header);
         service::check_packet_length(length)?;
         let mut buf = vec![0u8; length as usize];
         self.read_buffer(&mut buf).await?;
@@ -125,3 +120,7 @@ pub trait PktRead: ReadBytesExt {
 }
 
 impl<R: Read> PktRead for R {}
+
+pub fn get_packet_length(header: &[u8]) -> i16 {
+    (header[0] as i16 + ((header[1] as i16) << 8)) ^ (header[2] as i16 + ((header[3] as i16) << 8))
+}
