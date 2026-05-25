@@ -19,7 +19,8 @@ pub async fn assert_server_list_request(
 ) -> Result<TestConnection, HarnessError> {
     conn.send_packet(build_server_list_request()?, PHASE)
         .await?;
-    assert_server_list_result(&mut conn).await?;
+    assert_server_list_result(&mut conn, ServerListResult::WorldDetails).await?;
+    assert_server_list_result(&mut conn, ServerListResult::EndOfList).await?;
     Ok(conn)
 }
 
@@ -46,9 +47,12 @@ fn read_server_list_request_packet(packet: &Packet) -> Result<ServerListResult, 
     }
 }
 
-pub async fn assert_server_list_result(conn: &mut TestConnection) -> Result<(), HarnessError> {
+pub async fn assert_server_list_result(
+    conn: &mut TestConnection,
+    kind: ServerListResult,
+) -> Result<(), HarnessError> {
     let packet: Packet = conn.read_packet(PHASE).await?;
     let result: ServerListResult = read_server_list_request_packet(&packet)?;
-    assert_eq!(result, ServerListResult::WorldDetails);
+    assert_eq!(result, kind);
     Ok(())
 }
