@@ -9,7 +9,8 @@ use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
 use crate::tests::{
     test_char_list, test_create_char, test_credentials, test_handshake, test_last_connected_world,
-    test_player_logged_in, test_server_list, test_server_redirect, test_tos,
+    test_player_logged_in, test_recommended_world, test_server_list, test_server_redirect,
+    test_tos,
 };
 
 pub async fn login_until_redirect() -> Result<u8, HarnessError> {
@@ -28,6 +29,7 @@ pub async fn login_until_redirect() -> Result<u8, HarnessError> {
     let conn = test_tos::assert_accept_tos(conn).await?;
     let conn = test_server_list::assert_server_list_request(conn).await?;
     let conn = test_last_connected_world::assert_last_connected_world(conn).await?;
+    let conn = test_recommended_world::assert_recommended_world(conn).await?;
     let conn = test_char_list::assert_char_list_request(&state, conn).await?;
     let conn = test_create_char::assert_create_char(conn).await?;
     let port = test_server_redirect::assert_server_redirect(conn).await?;

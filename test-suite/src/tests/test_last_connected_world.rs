@@ -17,18 +17,8 @@ pub async fn assert_last_connected_world(
     mut conn: TestConnection,
 ) -> Result<TestConnection, HarnessError> {
     dbg!(PHASE);
-    conn.send_packet(build_server_list_request()?, PHASE)
-        .await?;
     assert_last_connected_world_result(&mut conn).await?;
     Ok(conn)
-}
-
-fn build_server_list_request() -> Result<Packet, HarnessError> {
-    let mut packet = Packet::new_empty();
-    packet
-        .write_short(RecvOpcode::ServerListRequest as i16)
-        .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
-    Ok(packet)
 }
 
 fn read_last_connected_world_packet(

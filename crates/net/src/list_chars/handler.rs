@@ -17,14 +17,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::scope::SessionScope;
-use action::model::{Action, SessionAction, SetAction};
 use crate::list_chars::error::ListCharsError;
 use crate::list_chars::reader::ListCharsReader;
 use crate::list_chars::store::ListCharsStore;
 use crate::result::HandlerResult;
-use packet::model::Packet;
+use action::model::{Action, SessionAction, SetAction};
+use action::scope::SessionScope;
 use db::pool::DbPool;
+use packet::model::Packet;
 use session::model::Session;
 
 pub struct ListCharsHandler;

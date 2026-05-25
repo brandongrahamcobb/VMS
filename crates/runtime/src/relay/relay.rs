@@ -82,6 +82,7 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
                 packet = self.rx.recv() => {
                     match packet {
                         Some(mut packet) => {
+                            dbg!(packet.bytes.len());
                             self.pkt_writer.send_encrypted_packet(&mut packet).await?;
                         }
                         None => {},

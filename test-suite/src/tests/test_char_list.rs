@@ -131,6 +131,7 @@ async fn assert_char_list_result(conn: &mut TestConnection) -> Result<(), Harnes
 }
 
 pub fn read_char_list_packet(packet: &Packet) -> Result<CharListResult, HarnessError> {
+    dbg!(&packet.bytes);
     let mut cursor = Cursor::new(&packet.bytes[..]);
     cursor
         .read_short()
@@ -142,9 +143,10 @@ pub fn read_char_list_packet(packet: &Packet) -> Result<CharListResult, HarnessE
         .read_byte()
         .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
     let mut characters = Vec::with_capacity(count as usize);
+    dbg!(count);
     for _ in 0..count {
         let meta = read_char_meta(&mut cursor)?;
-        let skip: usize = 41;
+        let skip: usize = 31;
         cursor
             .read_bytes(skip)
             .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
@@ -169,7 +171,7 @@ pub fn read_char_meta(cursor: &mut Cursor<&[u8]>) -> Result<CharacterMeta, Harne
         .position(|byte| *byte == 0)
         .unwrap_or(name_bytes.len());
     let name = String::from_utf8(name_bytes[..end].to_vec())?;
-    let skip: usize = 33;
+    let skip: usize = 37;
     cursor
         .read_bytes(skip)
         .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
