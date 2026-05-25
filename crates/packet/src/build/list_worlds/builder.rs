@@ -64,40 +64,48 @@ impl Packet {
         self.write_int(0).map_err(WriteError)?;
         Ok(self)
     }
-
-    pub fn build_list_worlds_handler_servers_packet(
-        &mut self,
-        worlds: &HashMap<i16, World>,
-    ) -> Result<&mut Self, PacketBuildError> {
+}
+pub fn build_list_worlds_handler_servers_packets(
+    worlds: &HashMap<i16, World>,
+) -> Result<Vec<Packet>, PacketBuildError> {
+    let mut packets: Vec<Packet> = Vec::new();
+    for (world_id, world) in worlds.iter() {
+        let mut packet: Packet = Packet::new_empty();
         let op = SendOpcode::ServerList as i16;
-        self.write_short(op).map_err(WriteError)?;
-        for (world_id, world) in worlds.iter() {
-            self.write_byte(*world_id as i16).map_err(WriteError)?;
-            self.write_str_with_length(world.model.name.to_string())
+        packet.write_short(op).map_err(WriteError)?;
+        packet.write_byte(*world_id as i16).map_err(WriteError)?;
+        packet
+            .write_str_with_length(world.model.name.to_string())
+            .map_err(WriteError)?;
+        packet.write_byte(world.model.flag).map_err(WriteError)?;
+        packet
+            .write_str_with_length(world.model.event_message.to_string())
+            .map_err(WriteError)?;
+        packet.write_byte(100).map_err(WriteError)?;
+        packet.write_byte(0).map_err(WriteError)?;
+        packet.write_byte(100).map_err(WriteError)?;
+        packet.write_byte(0).map_err(WriteError)?;
+        packet.write_byte(0).map_err(WriteError)?;
+        let channels_length = world.channels.len() as i16;
+        packet.write_byte(channels_length).map_err(WriteError)?;
+        for (channel_id, channel) in world.channels.iter() {
+            let channel_name = String::from("Placeholder");
+            packet
+                .write_str_with_length(channel_name)
                 .map_err(WriteError)?;
-            self.write_byte(world.model.flag).map_err(WriteError)?;
-            self.write_str_with_length(world.model.event_message.to_string())
-                .map_err(WriteError)?;
-            self.write_byte(100).map_err(WriteError)?;
-            self.write_byte(0).map_err(WriteError)?;
-            self.write_byte(100).map_err(WriteError)?;
-            self.write_byte(0).map_err(WriteError)?;
-            self.write_byte(0).map_err(WriteError)?;
-            let channels_length = world.channels.len() as i16;
-            self.write_byte(channels_length).map_err(WriteError)?;
-            for (channel_id, channel) in world.channels.iter() {
-                let channel_name = String::from("Placeholder");
-                self.write_str_with_length(channel_name)
-                    .map_err(WriteError)?;
-                let channel_capacity = channel.model.capacity as i32;
-                self.write_int(channel_capacity).map_err(WriteError)?;
-                self.write_byte(1).map_err(WriteError)?;
-                self.write_byte(*channel_id as i16).map_err(WriteError)?;
-                self.write_byte(*world_id as i16).map_err(WriteError)?;
-            }
-            self.write_short(0).map_err(WriteError)?;
+            let channel_capacity = channel.model.capacity as i32;
+            packet.write_int(channel_capacity).map_err(WriteError)?;
+            packet.write_byte(1).map_err(WriteError)?;
+            packet.write_byte(*channel_id as i16).map_err(WriteError)?;
+            packet.write_byte(*world_id as i16).map_err(WriteError)?;
         }
-        self.write_byte(0xFF).map_err(WriteError)?;
-        Ok(self)
+        packet.write_short(0).map_err(WriteError)?;
+        packets.push(packet.finish());
     }
+    let mut packet: Packet = Packet::new_empty();
+    let op = SendOpcode::ServerList as i16;
+    packet.write_short(op).map_err(WriteError)?;
+    packet.write_byte(0xFF).map_err(WriteError)?;
+    packets.push(packet.finish());
+    Ok(packets)
 }

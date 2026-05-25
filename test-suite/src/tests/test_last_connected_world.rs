@@ -6,7 +6,7 @@ use packet::model::Packet;
 use packet::prelude::*;
 use std::io::Cursor;
 
-const PHASE: &str = "last connected world";
+pub const PHASE: &str = "last connected world";
 const LAST_CONNECTED_WORLD_ID: i32 = 0;
 
 struct LastConnectedWorldResult {
@@ -16,6 +16,7 @@ struct LastConnectedWorldResult {
 pub async fn assert_last_connected_world(
     mut conn: TestConnection,
 ) -> Result<TestConnection, HarnessError> {
+    dbg!(PHASE);
     conn.send_packet(build_server_list_request()?, PHASE)
         .await?;
     assert_last_connected_world_result(&mut conn).await?;

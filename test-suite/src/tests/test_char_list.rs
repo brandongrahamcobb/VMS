@@ -11,8 +11,9 @@ use state::model::SharedState;
 use std::io::Cursor;
 use std::time::SystemTime;
 
-const PHASE: &str = "character list request";
-const WORLD_ID: i16 = 0;
+pub const PHASE: &str = "character list request";
+pub const WORLD_ID: i16 = 0;
+pub const CHANNEL_ID: u8 = 1;
 const MAP_WZ: i32 = 10000;
 const IGN: &str = "Test";
 const STR: i16 = 0;
@@ -36,7 +37,6 @@ const HAIR_WZ: i32 = 30000;
 const LAST_PORTAL_ID: i16 = 0;
 const JOB_WZ: i16 = 0;
 const CHAR_ID: i32 = 1;
-const CHANNEL_ID: u8 = 1;
 
 #[derive(Clone)]
 pub struct CharacterResult {
@@ -47,7 +47,7 @@ pub struct CharacterResult {
 pub struct CharacterMeta {
     pub id: i32,
     pub name: String,
-    map_id: i32,
+    pub map_wz: i32,
 }
 
 pub struct CharListResult {
@@ -58,6 +58,7 @@ pub async fn assert_char_list_request(
     state: &SharedState,
     mut conn: TestConnection,
 ) -> Result<TestConnection, HarnessError> {
+    dbg!(PHASE);
     {
         let char_model: CharacterModel = CharacterModel {
             id: None,
@@ -184,12 +185,12 @@ pub fn read_char_meta(cursor: &mut Cursor<&[u8]>) -> Result<CharacterMeta, Harne
     cursor
         .read_bytes(skip)
         .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
-    let map_id = cursor
+    let map_wz = cursor
         .read_int()
         .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
     let skip: usize = 5;
     cursor
         .read_bytes(skip)
         .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
-    Ok(CharacterMeta { id, name, map_id })
+    Ok(CharacterMeta { id, name, map_wz })
 }

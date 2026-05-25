@@ -10,6 +10,12 @@ pub enum HarnessError {
     #[error("{0} in test harness layer")]
     DockerComposeError(String),
 
+    #[error("TCP connection error in test harness layer")]
+    ConnectionError,
+
+    #[error("Account error in test harness layer: {0}")]
+    AccountError(bcrypt::BcryptError),
+
     #[error("{0} in test harness layer")]
     CargoError(String),
 

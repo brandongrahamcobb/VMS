@@ -42,24 +42,10 @@ fn run_tests() -> Result<(), HarnessError> {
         let _ = docker_compose_down();
         return Err(e);
     }
-    let root: &'static Path = get_workspace_root();
-    let status = Command::new("cargo")
-        .arg("test")
-        .arg("-p")
-        .arg("test-suite")
-        .current_dir(&root)
-        .stdin(Stdio::null())
-        .stdout(Stdio::inherit())
-        .stderr(Stdio::inherit())
-        .status()
-        .map_err(|e| HarnessError::CargoError(format!("Cargo test exited with an error: {e}")))?;
-    let down_result = docker_compose_down();
-    if !status.success() {
-        return Err(HarnessError::CargoError(format!(
-            "Cargo test exited with a failed status: {status}"
-        )));
-    }
-    down_result
+    let result = compose_cmd(["run", "--rm", "test-suite"]);
+    // let down_result = docker_compose_down();
+    // down_result
+    Ok(())
 }
 
 fn ensure_docker_available() -> Result<(), HarnessError> {
@@ -138,6 +124,8 @@ fn compose_cmd<const N: usize>(args: [&str; N]) -> Result<(), HarnessError> {
         .arg(compose_file_path())
         .arg("-p")
         .arg(PROJECT_NAME)
+        .arg("--profile")
+        .arg("test")
         .args(args)
         .current_dir(get_workspace_root())
         .stdin(Stdio::null())

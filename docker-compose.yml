@@ -178,7 +178,25 @@ services:
       - "9209:9209"
       - "9210:9210"
       - "9211:9211"
+  test-suite:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    command: cargo test -p test-suite
+    env_file: .env
+    profiles:
+      - test
+    depends_on:
+      vms:
+        condition: service_healthy
+
+    volumes:
+      - .:/app
+    working_dir: /app
       
 volumes:
   vms-backups:
   data:
+  cargo-cache:
+
+

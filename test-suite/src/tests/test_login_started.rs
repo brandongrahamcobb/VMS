@@ -3,10 +3,12 @@ use packet::io::error::IOError::WriteError;
 use packet::model::Packet;
 use packet::prelude::*;
 
+pub const PHASE: &str = "login started";
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
 
 fn build_login_started() -> Result<Packet, HarnessError> {
+    dbg!(PHASE);
     let mut packet = Packet::new_empty();
     packet
         .write_short(RecvOpcode::LoginStarted as i16)

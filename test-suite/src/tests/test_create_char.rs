@@ -7,8 +7,8 @@ use packet::model::Packet;
 use packet::prelude::*;
 use std::io::Cursor;
 
-const PHASE: &str = "character creation";
-const IGN: &str = "Test2";
+pub const PHASE: &str = "character creation";
+pub const IGN: &str = "Test2";
 const HAIR_COLOR_WZ: i32 = 0;
 const SKIN_WZ: i32 = 0;
 const FACE_WZ: i32 = 20000;
@@ -27,6 +27,7 @@ pub struct NewCharacterResult {
 }
 
 pub async fn assert_create_char(mut conn: TestConnection) -> Result<TestConnection, HarnessError> {
+    dbg!(PHASE);
     conn.send_packet(build_create_char(IGN.to_string())?, PHASE)
         .await?;
     assert_create_char_result(&mut conn).await?;

@@ -17,11 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::model::{Action, SessionAction};
-use action::scope::SessionScope;
 use crate::list_worlds::error::ListWorldsError;
 use crate::list_worlds::store::ListWorldsStore;
 use crate::result::HandlerResult;
+use action::model::{Action, SessionAction};
+use action::scope::SessionScope;
+use packet::build::list_worlds::builder;
 use packet::model::Packet;
 use state::model::SharedState;
 
@@ -44,13 +45,13 @@ impl ListWorldsHandler {
     ) -> Result<HandlerResult, ListWorldsError> {
         let worlds = store.worlds_arc.read().await;
         let mut result: HandlerResult = HandlerResult::new();
-        let packet: Packet = Packet::new_empty()
-            .build_list_worlds_handler_servers_packet(&worlds)?
-            .finish();
-        result.add_action(Action::Session(SessionAction::Send {
-            packet: packet.clone(),
-            scope: SessionScope::Local,
-        }));
+        let packets: Vec<Packet> = builder::build_list_worlds_handler_servers_packets(&worlds)?;
+        for packet in packets {
+            result.add_action(Action::Session(SessionAction::Send {
+                packet: packet.clone(),
+                scope: SessionScope::Local,
+            }));
+        }
         let packet: Packet = Packet::new_empty()
             .build_list_worlds_handler_last_connected_world_packet()?
             .finish();

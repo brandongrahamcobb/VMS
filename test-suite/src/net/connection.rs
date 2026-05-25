@@ -152,18 +152,3 @@ impl Handshake {
         })
     }
 }
-
-pub async fn login_until_redirect() -> Result<(), HarnessError> {
-    let addr: String = settings::get_bind_address()?;
-    let port: i16 = settings::get_login_port()?;
-    let bind = helpers::build_server_addr(addr, port);
-    let login_conn = TestConnection::connect(bind, "login handshake").await?;
-    assert_handshake(login_conn.handshake.version, login_conn.handshake.locale)?;
-    Ok(())
-}
-
-pub fn assert_handshake(version: i16, locale: u8) -> Result<(), HarnessError> {
-    assert_eq!(version, 83);
-    assert_eq!(locale, 8);
-    Ok(())
-}

@@ -83,7 +83,6 @@ CREATE TABLE public.accounts (
     pin text,
     pic text,
     last_login_at timestamp without time zone,
-    character_slots smallint DEFAULT 8 NOT NULL,
     gender_wz smallint NOT NULL,
     accepted_tos boolean DEFAULT false NOT NULL,
     banned boolean DEFAULT false NOT NULL,
@@ -122,6 +121,7 @@ ALTER SEQUENCE public.accounts_id_seq OWNED BY public.accounts.id;
 --
 
 CREATE TABLE public.character_limits (
+    id integer NOT NULL,
     acc_id integer NOT NULL,
     world_id smallint NOT NULL,
     char_max smallint NOT NULL,
@@ -153,6 +153,7 @@ CREATE TABLE public.characters (
     max_hp smallint DEFAULT 50 NOT NULL,
     max_mp smallint DEFAULT 0 NOT NULL,
     ap smallint DEFAULT 0 NOT NULL,
+    sp smallint DEFAULT 0 NOT NULL,
     fame smallint DEFAULT 0 NOT NULL,
     meso integer DEFAULT 0 NOT NULL,
     job_wz smallint NOT NULL,
@@ -194,39 +195,6 @@ ALTER SEQUENCE public.characters_id_seq OWNED BY public.characters.id;
 --
 -- Name: drops; Type: TABLE; Schema: public; Owner: vms
 --
-
-CREATE TABLE public.drops (
-    id bigint NOT NULL,
-    mob_wz integer NOT NULL,
-    item_wz integer DEFAULT 0 NOT NULL,
-    minimum_quantity integer DEFAULT 1 NOT NULL,
-    maximum_quantity integer DEFAULT 1 NOT NULL,
-    chance integer DEFAULT 0 NOT NULL
-);
-
-
-ALTER TABLE public.drops OWNER TO vms;
-
---
--- Name: drops_id_seq; Type: SEQUENCE; Schema: public; Owner: vms
---
-
-CREATE SEQUENCE public.drops_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.drops_id_seq OWNER TO vms;
-
---
--- Name: drops_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: vms
---
-
-ALTER SEQUENCE public.drops_id_seq OWNED BY public.drops.id;
-
 
 --
 -- Name: items; Type: TABLE; Schema: public; Owner: vms
@@ -293,6 +261,7 @@ ALTER SEQUENCE public.items_id_seq OWNED BY public.items.id;
 --
 
 CREATE TABLE public.keybindings (
+    id integer NOT NULL,
     char_id integer NOT NULL,
     key integer NOT NULL,
     bind_type smallint NOT NULL,
@@ -309,6 +278,7 @@ ALTER TABLE public.keybindings OWNER TO vms;
 --
 
 CREATE TABLE public.skills (
+    id integer NOT NULL,
     char_id integer NOT NULL,
     wz integer NOT NULL,
     level smallint NOT NULL,
@@ -334,10 +304,6 @@ ALTER TABLE ONLY public.characters ALTER COLUMN id SET DEFAULT nextval('public.c
 
 
 --
--- Name: drops id; Type: DEFAULT; Schema: public; Owner: vms
---
-
-ALTER TABLE ONLY public.drops ALTER COLUMN id SET DEFAULT nextval('public.drops_id_seq'::regclass);
 
 
 --
@@ -374,9 +340,12 @@ ALTER TABLE ONLY public.accounts
 --
 -- Name: character_limits character_limits_pkey; Type: CONSTRAINT; Schema: public; Owner: vms
 --
+ALTER TABLE ONLY public.character_limits
+    ADD CONSTRAINT character_limits_pkey PRIMARY KEY (id);
+
 
 ALTER TABLE ONLY public.character_limits
-    ADD CONSTRAINT character_limits_pkey PRIMARY KEY (acc_id, world_id);
+    ADD CONSTRAINT character_limits_unique UNIQUE (acc_id, world_id);
 
 
 --
@@ -397,10 +366,6 @@ ALTER TABLE ONLY public.characters
 
 --
 -- Name: drops drops_pkey; Type: CONSTRAINT; Schema: public; Owner: vms
---
-
-ALTER TABLE ONLY public.drops
-    ADD CONSTRAINT drops_pkey PRIMARY KEY (id);
 
 
 --
@@ -419,6 +384,8 @@ ALTER TABLE ONLY public.keybindings
     ADD CONSTRAINT keybindings_unique UNIQUE (char_id, key);
 
 
+ALTER TABLE ONLY public.keybindings
+    ADD CONSTRAINT keybindings_pkey PRIMARY KEY (id);
 --
 -- Name: skills skills_unique; Type: CONSTRAINT; Schema: public; Owner: vms
 --
@@ -426,6 +393,8 @@ ALTER TABLE ONLY public.keybindings
 ALTER TABLE ONLY public.skills
     ADD CONSTRAINT skills_unique UNIQUE (char_id, wz);
 
+ALTER TABLE ONLY public.skills
+    ADD CONSTRAINT skills_pkey PRIMARY KEY (id);
 
 --
 -- Name: character_limits character_limits_acc_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: vms

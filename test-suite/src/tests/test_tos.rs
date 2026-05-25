@@ -1,11 +1,12 @@
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
+use op::recv::RecvOpcode;
 use packet::io::error::IOError::{ReadError, WriteError};
 use packet::model::Packet;
 use packet::prelude::*;
 use std::io::Cursor;
 
-const PHASE: &str = "tos";
+pub const PHASE: &str = "tos";
 const ACC_ID: i32 = 1;
 const GENDER_WZ: i16 = 0;
 const SUCCESS_STATUS: i32 = 0;
@@ -17,6 +18,7 @@ struct TOSResult {
 }
 
 pub async fn assert_accept_tos(mut conn: TestConnection) -> Result<TestConnection, HarnessError> {
+    dbg!(PHASE);
     conn.send_packet(build_accept_tos()?, PHASE).await?;
     assert_accept_tos_result(&mut conn).await?;
     Ok(conn)
@@ -24,6 +26,9 @@ pub async fn assert_accept_tos(mut conn: TestConnection) -> Result<TestConnectio
 
 pub fn build_accept_tos() -> Result<Packet, HarnessError> {
     let mut packet = Packet::new_empty();
+    packet
+        .write_short(RecvOpcode::AcceptTOS as i16)
+        .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
     packet
         .write_byte(0x01)
         .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;

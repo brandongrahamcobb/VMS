@@ -1,12 +1,13 @@
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
+use config::settings;
 use op::recv::RecvOpcode;
 use packet::io::error::IOError::{ReadError, WriteError};
 use packet::model::Packet;
 use packet::prelude::*;
 use std::io::Cursor;
 
-const PHASE: &str = "server list";
+pub const PHASE: &str = "server list";
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ServerListResult {
@@ -17,10 +18,11 @@ pub enum ServerListResult {
 pub async fn assert_server_list_request(
     mut conn: TestConnection,
 ) -> Result<TestConnection, HarnessError> {
+    dbg!(PHASE);
     conn.send_packet(build_server_list_request()?, PHASE)
         .await?;
-    assert_server_list_result(&mut conn, ServerListResult::WorldDetails).await?;
-    assert_server_list_result(&mut conn, ServerListResult::EndOfList).await?;
+    let world_count: i8 = settings::get_world_count()?;
+    assert_server_list_result(&mut conn, world_count).await?;
     Ok(conn)
 }
 
@@ -49,10 +51,16 @@ fn read_server_list_request_packet(packet: &Packet) -> Result<ServerListResult, 
 
 async fn assert_server_list_result(
     conn: &mut TestConnection,
-    kind: ServerListResult,
+    world_count: i8,
 ) -> Result<(), HarnessError> {
-    let packet: Packet = conn.read_packet(PHASE).await?;
-    let result: ServerListResult = read_server_list_request_packet(&packet)?;
-    assert_eq!(result, kind);
+    for i in 0..world_count + 1 {
+        let packet: Packet = conn.read_packet(PHASE).await?;
+        let result = read_server_list_request_packet(&packet)?;
+        if i == world_count {
+            assert_eq!(result, ServerListResult::EndOfList);
+        } else {
+            assert_eq!(result, ServerListResult::WorldDetails);
+        }
+    }
     Ok(())
 }

@@ -7,26 +7,25 @@ use packet::model::Packet;
 use packet::prelude::*;
 use std::io::Cursor;
 
-const PHASE: &str = "server redirect";
+pub const PHASE: &str = "server redirect";
 
 pub struct ServerRedirectResult {
     pub ip: Ipv4Addr,
-    pub port: u16,
+    pub port: u8,
     pub char_id: i32,
 }
 
-pub async fn assert_server_redirect(
-    mut conn: TestConnection,
-) -> Result<TestConnection, HarnessError> {
-    assert_server_redirect_result(&mut conn).await?;
-    Ok(conn)
+pub async fn assert_server_redirect(mut conn: TestConnection) -> Result<u8, HarnessError> {
+    dbg!(PHASE);
+    let port: u8 = assert_server_redirect_result(&mut conn).await?;
+    Ok(port)
 }
 
-async fn assert_server_redirect_result(conn: &mut TestConnection) -> Result<(), HarnessError> {
+async fn assert_server_redirect_result(conn: &mut TestConnection) -> Result<u8, HarnessError> {
     let packet: Packet = conn.read_packet(PHASE).await?;
     let result: ServerRedirectResult = read_server_redirect_packet(&packet)?;
     assert_eq!(result.char_id, CHAR_ID);
-    Ok(())
+    Ok(result.port)
 }
 
 pub fn read_server_redirect_packet(packet: &Packet) -> Result<ServerRedirectResult, HarnessError> {
@@ -48,7 +47,7 @@ pub fn read_server_redirect_packet(packet: &Packet) -> Result<ServerRedirectResu
         .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
     Ok(ServerRedirectResult {
         ip: Ipv4Addr::new(ip_bytes[0], ip_bytes[1], ip_bytes[2], ip_bytes[3]),
-        port: port as u16,
+        port: port as u8,
         char_id,
     })
 }

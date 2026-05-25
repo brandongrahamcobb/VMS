@@ -27,6 +27,15 @@ pub fn get_settings() -> Result<Config, ConfigError> {
     Ok(settings)
 }
 
+pub fn get_host() -> Result<String, ConfigError> {
+    let settings = get_settings()?;
+    let key: &str = "host";
+    let host = settings
+        .get_string(key)
+        .map_err(|_| ConfigError::InvalidString(key.to_string()))?;
+    Ok(host)
+}
+
 pub fn get_bind_address() -> Result<String, ConfigError> {
     let settings = get_settings()?;
     let key: &str = "bind_address";

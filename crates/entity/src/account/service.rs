@@ -19,6 +19,7 @@
 use crate::account::wrapper::{FailedCode, PendingCode, StatusCode, SuccessCode};
 use crate::account::{error::AccountEntityError, model::AccountModel};
 use bcrypt::{DEFAULT_COST, hash, verify};
+use tracing;
 
 pub fn check_pic(acc_pic: Option<String>, pic: String) -> bool {
     if acc_pic == Some(pic) {
@@ -29,8 +30,7 @@ pub fn check_pic(acc_pic: Option<String>, pic: String) -> bool {
 }
 
 pub fn authenticate(acc_pw: String, pw: String) -> Result<bool, AccountEntityError> {
-    let hash = hash(acc_pw, DEFAULT_COST).map_err(AccountEntityError::CryptError)?;
-    Ok(verify(&pw, &hash).map_err(AccountEntityError::CryptError)?)
+    Ok(verify(&pw, &acc_pw).map_err(AccountEntityError::CryptError)?)
 }
 
 pub fn check_if_playing(all_acc_ids: Vec<i32>, acc_id: i32) -> bool {
