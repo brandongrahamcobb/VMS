@@ -29,7 +29,7 @@ struct CredentialsResult {
 pub async fn assert_credentials(
     state: &SharedState,
     mut conn: TestConnection,
-) -> Result<(), HarnessError> {
+) -> Result<TestConnection, HarnessError> {
     {
         let acc_model: AccountModel = AccountModel {
             id: None,
@@ -51,7 +51,7 @@ pub async fn assert_credentials(
     conn.send_packet(build_credentials(USERNAME, PASSWORD)?, PHASE)
         .await?;
     assert_credentials_result(&mut conn).await?;
-    Ok(())
+    Ok(conn)
 }
 
 pub fn build_credentials(username: &str, password: &str) -> Result<Packet, HarnessError> {
@@ -106,10 +106,10 @@ fn read_credentials_packet(packet: &Packet) -> Result<CredentialsResult, Harness
 }
 
 async fn assert_credentials_result(conn: &mut TestConnection) -> Result<(), HarnessError> {
-    let credentials_packet = conn.read_packet(PHASE).await?;
-    let credentials_result = read_credentials_packet(&credentials_packet)?;
-    assert_eq!(credentials_result.status, TOS_STATUS);
-    assert_eq!(credentials_result.acc_id, Some(ACC_ID));
-    assert_eq!(credentials_result.gender_wz, Some(GENDER_WZ));
+    let packet = conn.read_packet(PHASE).await?;
+    let result = read_credentials_packet(&packet)?;
+    assert_eq!(result.status, TOS_STATUS);
+    assert_eq!(result.acc_id, Some(ACC_ID));
+    assert_eq!(result.gender_wz, Some(GENDER_WZ));
     Ok(())
 }

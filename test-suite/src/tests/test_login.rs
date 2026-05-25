@@ -6,7 +6,7 @@ use tokio::sync::Mutex;
 
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
-use crate::tests::{test_credentials, test_handshake};
+use crate::tests::{test_credentials, test_handshake, test_server_list, test_tos};
 
 pub async fn login_until_redirect() -> Result<(), HarnessError> {
     let state: SharedState = Arc::new(Mutex::new(State::new()?));
@@ -15,7 +15,9 @@ pub async fn login_until_redirect() -> Result<(), HarnessError> {
     let bind = helpers::build_server_addr(addr, port);
     let conn = TestConnection::connect(bind, "login handshake").await?;
     test_handshake::assert_handshake(conn.handshake.version, conn.handshake.locale)?;
-    test_credentials::assert_credentials(&state, conn).await?;
+    let conn = test_credentials::assert_credentials(&state, conn).await?;
+    let conn = test_tos::assert_accept_tos(conn).await?;
+    let conn = test_server_list::assert_server_list_request(conn).await?;
     Ok(())
 }
 
