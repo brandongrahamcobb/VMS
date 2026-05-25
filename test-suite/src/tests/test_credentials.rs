@@ -16,7 +16,7 @@ const PIC: &str = "654321";
 const PHASE: &str = "credentials";
 const LOGIN_PADDING_LEN: usize = 6;
 const LOGIN_HWID: [u8; 4] = [0, 0, 0, 0];
-const ACC_ID: i32 = 1;
+pub const ACC_ID: i32 = 1;
 const GENDER_WZ: i16 = 0;
 const TOS_STATUS: i32 = 23;
 

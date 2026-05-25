@@ -23,7 +23,7 @@ use crate::relay::execute;
 use crate::relay::types::error::RelayTypeError;
 use action::model::{Action, BroadcastAction, SessionAction, SetAction};
 use core::ops::ControlFlow;
-use net::packet::handler::result::HandlerResult;
+use net::result::HandlerResult;
 use packet::model::Packet;
 use session::error::SessionError;
 use state::model::SharedState;

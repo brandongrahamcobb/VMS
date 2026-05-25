@@ -24,7 +24,7 @@ pub async fn assert_server_list_request(
     Ok(conn)
 }
 
-pub fn build_server_list_request() -> Result<Packet, HarnessError> {
+fn build_server_list_request() -> Result<Packet, HarnessError> {
     let mut packet = Packet::new_empty();
     packet
         .write_short(RecvOpcode::ServerListRequest as i16)
@@ -47,7 +47,7 @@ fn read_server_list_request_packet(packet: &Packet) -> Result<ServerListResult, 
     }
 }
 
-pub async fn assert_server_list_result(
+async fn assert_server_list_result(
     conn: &mut TestConnection,
     kind: ServerListResult,
 ) -> Result<(), HarnessError> {

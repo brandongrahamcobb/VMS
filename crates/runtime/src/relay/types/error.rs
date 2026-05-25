@@ -18,7 +18,7 @@
  */
 
 use crate::relay::execute::error::ExecuteError;
-use net::packet::handler::error::PacketHandlerError;
+use net::error::PacketHandlerError;
 use session::error::SessionError;
 use thiserror::Error;
 

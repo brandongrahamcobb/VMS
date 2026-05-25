@@ -52,6 +52,7 @@ diesel::table! {
         max_hp -> Int2,
         max_mp -> Int2,
         ap -> Int2,
+        sp -> Int2,
         fame -> Int2,
         meso -> Int4,
         job_wz -> Int2,

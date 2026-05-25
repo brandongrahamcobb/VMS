@@ -6,7 +6,7 @@ use packet::prelude::*;
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
 
-pub fn build_login_started() -> Result<Packet, HarnessError> {
+fn build_login_started() -> Result<Packet, HarnessError> {
     let mut packet = Packet::new_empty();
     packet
         .write_short(RecvOpcode::LoginStarted as i16)

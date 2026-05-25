@@ -2,6 +2,7 @@ use config::error::ConfigError;
 use db::error::DatabaseError;
 use packet::io::error::IOError;
 use state::error::StateError;
+use std::string::FromUtf8Error;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -35,4 +36,7 @@ pub enum HarnessError {
 
     #[error("State error in test harness layer")]
     StateError(#[from] StateError),
+
+    #[error("From UTF-8 error in test harness layer")]
+    FromUtf8Error(#[from] FromUtf8Error),
 }

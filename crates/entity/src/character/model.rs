@@ -40,6 +40,7 @@ pub struct CharacterModel {
     pub max_hp: i16,
     pub max_mp: i16,
     pub ap: i16,
+    pub sp: i16,
     pub fame: i16,
     pub meso: i32,
     pub job_wz: i16,
