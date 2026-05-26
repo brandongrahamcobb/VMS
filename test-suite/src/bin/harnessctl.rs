@@ -43,10 +43,10 @@ fn run_tests() -> Result<(), HarnessError> {
         return Err(e);
     }
     let result = compose_cmd(["run", "--rm", "test-suite"]);
-    // let down_result = docker_compose_down();
+    let down_result = docker_compose_down();
     result?;
-    // down_result
-    Ok(())
+    down_result
+    // Ok(())
 }
 
 fn ensure_docker_available() -> Result<(), HarnessError> {
