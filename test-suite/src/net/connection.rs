@@ -1,5 +1,3 @@
-use config::settings;
-use inc::helpers;
 use packet;
 use packet::constants::MAX_PACKET_LENGTH;
 use packet::io::error::IOError;

@@ -1,8 +1,9 @@
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
-use crate::tests::test_create_char::CHAR_ID;
+use crate::tests::test_char_list::CHAR_ID;
 use core::net::Ipv4Addr;
-use packet::io::error::IOError::ReadError;
+use op::recv::RecvOpcode;
+use packet::io::error::IOError::{ReadError, WriteError};
 use packet::model::Packet;
 use packet::prelude::*;
 use std::io::Cursor;
@@ -11,17 +12,36 @@ pub const PHASE: &str = "server redirect";
 
 pub struct ServerRedirectResult {
     pub ip: Ipv4Addr,
-    pub port: u8,
+    pub port: i16,
     pub char_id: i32,
 }
 
-pub async fn assert_server_redirect(mut conn: TestConnection) -> Result<u8, HarnessError> {
+pub async fn assert_server_redirect(mut conn: TestConnection) -> Result<i16, HarnessError> {
     dbg!(PHASE);
-    let port: u8 = assert_server_redirect_result(&mut conn).await?;
+    conn.send_packet(build_server_redirect(CHAR_ID)?, PHASE)
+        .await?;
+    let port: i16 = assert_server_redirect_result(&mut conn).await?;
     Ok(port)
 }
 
-async fn assert_server_redirect_result(conn: &mut TestConnection) -> Result<u8, HarnessError> {
+pub fn build_server_redirect(character_id: i32) -> Result<Packet, HarnessError> {
+    let mut packet = Packet::new_empty();
+    packet
+        .write_short(RecvOpcode::CharSelect as i16)
+        .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
+    packet
+        .write_int(character_id)
+        .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
+    packet
+        .write_str_with_length(String::from(""))
+        .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
+    packet
+        .write_str_with_length(String::from(""))
+        .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
+    Ok(packet)
+}
+
+async fn assert_server_redirect_result(conn: &mut TestConnection) -> Result<i16, HarnessError> {
     let packet: Packet = conn.read_packet(PHASE).await?;
     let result: ServerRedirectResult = read_server_redirect_packet(&packet)?;
     assert_eq!(result.char_id, CHAR_ID);
@@ -47,7 +67,7 @@ pub fn read_server_redirect_packet(packet: &Packet) -> Result<ServerRedirectResu
         .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
     Ok(ServerRedirectResult {
         ip: Ipv4Addr::new(ip_bytes[0], ip_bytes[1], ip_bytes[2], ip_bytes[3]),
-        port: port as u8,
+        port,
         char_id,
     })
 }

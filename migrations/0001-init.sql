@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict dOrYCGNssLfLkB4OxtI7JWfzUuCU6WX9u8hvXFs54HXTm3rBpN7UOcRT7W5g1Ce
+\restrict qR2iVuah6hqYIQF61XCI0Y2rEc9FK1SgDiMaHPgpj7b5zLKgiEFgyxbmj6KUrUY
 
 -- Dumped from database version 18.3 (Debian 18.3-1.pgdg13+1)
 -- Dumped by pg_dump version 18.3 (Debian 18.3-1.pgdg13+1)
@@ -193,10 +193,6 @@ ALTER SEQUENCE public.characters_id_seq OWNED BY public.characters.id;
 
 
 --
--- Name: drops; Type: TABLE; Schema: public; Owner: vms
---
-
---
 -- Name: items; Type: TABLE; Schema: public; Owner: vms
 --
 
@@ -257,11 +253,26 @@ ALTER SEQUENCE public.items_id_seq OWNED BY public.items.id;
 
 
 --
+-- Name: keybindings_id_seq; Type: SEQUENCE; Schema: public; Owner: vms
+--
+
+CREATE SEQUENCE public.keybindings_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.keybindings_id_seq OWNER TO vms;
+
+--
 -- Name: keybindings; Type: TABLE; Schema: public; Owner: vms
 --
 
 CREATE TABLE public.keybindings (
-    id integer NOT NULL,
+    id integer DEFAULT nextval('public.keybindings_id_seq'::regclass) NOT NULL,
     char_id integer NOT NULL,
     key integer NOT NULL,
     bind_type smallint NOT NULL,
@@ -274,11 +285,26 @@ CREATE TABLE public.keybindings (
 ALTER TABLE public.keybindings OWNER TO vms;
 
 --
+-- Name: skills_id_seq; Type: SEQUENCE; Schema: public; Owner: vms
+--
+
+CREATE SEQUENCE public.skills_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.skills_id_seq OWNER TO vms;
+
+--
 -- Name: skills; Type: TABLE; Schema: public; Owner: vms
 --
 
 CREATE TABLE public.skills (
-    id integer NOT NULL,
+    id integer DEFAULT nextval('public.skills_id_seq'::regclass) NOT NULL,
     char_id integer NOT NULL,
     wz integer NOT NULL,
     level smallint NOT NULL,
@@ -301,9 +327,6 @@ ALTER TABLE ONLY public.accounts ALTER COLUMN id SET DEFAULT nextval('public.acc
 --
 
 ALTER TABLE ONLY public.characters ALTER COLUMN id SET DEFAULT nextval('public.characters_id_seq'::regclass);
-
-
---
 
 
 --
@@ -340,9 +363,14 @@ ALTER TABLE ONLY public.accounts
 --
 -- Name: character_limits character_limits_pkey; Type: CONSTRAINT; Schema: public; Owner: vms
 --
+
 ALTER TABLE ONLY public.character_limits
     ADD CONSTRAINT character_limits_pkey PRIMARY KEY (id);
 
+
+--
+-- Name: character_limits character_limits_unique; Type: CONSTRAINT; Schema: public; Owner: vms
+--
 
 ALTER TABLE ONLY public.character_limits
     ADD CONSTRAINT character_limits_unique UNIQUE (acc_id, world_id);
@@ -365,15 +393,19 @@ ALTER TABLE ONLY public.characters
 
 
 --
--- Name: drops drops_pkey; Type: CONSTRAINT; Schema: public; Owner: vms
-
-
---
 -- Name: items equip_items_pkey; Type: CONSTRAINT; Schema: public; Owner: vms
 --
 
 ALTER TABLE ONLY public.items
     ADD CONSTRAINT equip_items_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: keybindings keybindings_pkey; Type: CONSTRAINT; Schema: public; Owner: vms
+--
+
+ALTER TABLE ONLY public.keybindings
+    ADD CONSTRAINT keybindings_pkey PRIMARY KEY (id);
 
 
 --
@@ -384,8 +416,14 @@ ALTER TABLE ONLY public.keybindings
     ADD CONSTRAINT keybindings_unique UNIQUE (char_id, key);
 
 
-ALTER TABLE ONLY public.keybindings
-    ADD CONSTRAINT keybindings_pkey PRIMARY KEY (id);
+--
+-- Name: skills skills_pkey; Type: CONSTRAINT; Schema: public; Owner: vms
+--
+
+ALTER TABLE ONLY public.skills
+    ADD CONSTRAINT skills_pkey PRIMARY KEY (id);
+
+
 --
 -- Name: skills skills_unique; Type: CONSTRAINT; Schema: public; Owner: vms
 --
@@ -393,8 +431,6 @@ ALTER TABLE ONLY public.keybindings
 ALTER TABLE ONLY public.skills
     ADD CONSTRAINT skills_unique UNIQUE (char_id, wz);
 
-ALTER TABLE ONLY public.skills
-    ADD CONSTRAINT skills_pkey PRIMARY KEY (id);
 
 --
 -- Name: character_limits character_limits_acc_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: vms
@@ -440,5 +476,5 @@ ALTER TABLE ONLY public.skills
 -- PostgreSQL database dump complete
 --
 
-\unrestrict dOrYCGNssLfLkB4OxtI7JWfzUuCU6WX9u8hvXFs54HXTm3rBpN7UOcRT7W5g1Ce
+\unrestrict qR2iVuah6hqYIQF61XCI0Y2rEc9FK1SgDiMaHPgpj7b5zLKgiEFgyxbmj6KUrUY
 

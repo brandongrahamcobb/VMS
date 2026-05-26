@@ -44,6 +44,7 @@ fn run_tests() -> Result<(), HarnessError> {
     }
     let result = compose_cmd(["run", "--rm", "test-suite"]);
     // let down_result = docker_compose_down();
+    result?;
     // down_result
     Ok(())
 }

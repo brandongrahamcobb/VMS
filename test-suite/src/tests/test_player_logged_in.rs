@@ -1,8 +1,7 @@
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
 use crate::tests::test_char_list;
-use crate::tests::test_char_list::CHANNEL_ID;
-use crate::tests::test_create_char::{CHAR_ID, IGN};
+use crate::tests::test_char_list::{CHANNEL_ID, CHAR_ID, IGN, MAP_WZ};
 use op::recv::RecvOpcode;
 use op::send::SendOpcode;
 use packet::io::error::IOError::{ReadError, WriteError};
@@ -28,13 +27,13 @@ pub async fn assert_player_logged_in(
     Ok(conn)
 }
 
-pub fn build_player_logged_in(character_id: i32, channel_id: u8) -> Result<Packet, HarnessError> {
+pub fn build_player_logged_in(char_id: i32, channel_id: u8) -> Result<Packet, HarnessError> {
     let mut packet = Packet::new_empty();
     packet
         .write_short(RecvOpcode::PlayerLoggedIn as i16)
         .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
     packet
-        .write_int(character_id)
+        .write_int(char_id)
         .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
     packet
         .write_byte(channel_id as i16)
@@ -43,11 +42,11 @@ pub fn build_player_logged_in(character_id: i32, channel_id: u8) -> Result<Packe
 }
 
 async fn assert_player_logged_in_result(conn: &mut TestConnection) -> Result<(), HarnessError> {
-    let packet = conn.read_packet(PHASE).await?;
     let mut saw_keymap = false;
     let mut world_entry = None;
-    let max_chars: i32 = 8;
-    for _ in 0..max_chars {
+    let expected_packets: i32 = 2;
+    for _ in 0..expected_packets {
+        let packet = conn.read_packet(PHASE).await?;
         let mut cursor = Cursor::new(&packet.bytes[..]);
         let op = cursor
             .read_short()
@@ -60,7 +59,7 @@ async fn assert_player_logged_in_result(conn: &mut TestConnection) -> Result<(),
                 let result = read_set_field_packet(&packet)?;
                 assert_eq!(result.char_name, IGN);
                 assert_eq!(result.char_id, CHAR_ID);
-                assert_eq!(result.map_wz, CHAR_ID);
+                assert_eq!(result.map_wz, MAP_WZ);
                 world_entry = Some(result);
             }
             _ => (),

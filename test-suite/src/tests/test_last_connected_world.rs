@@ -1,7 +1,6 @@
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
-use op::recv::RecvOpcode;
-use packet::io::error::IOError::{ReadError, WriteError};
+use packet::io::error::IOError::ReadError;
 use packet::model::Packet;
 use packet::prelude::*;
 use std::io::Cursor;

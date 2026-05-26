@@ -2,22 +2,23 @@ use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
 use crate::tests::test_char_list::{self, CharacterResult};
 use crate::tests::test_credentials::GENDER_WZ;
+use op::recv::RecvOpcode;
 use packet::io::error::IOError::{ReadError, WriteError};
 use packet::model::Packet;
 use packet::prelude::*;
 use std::io::Cursor;
 
 pub const PHASE: &str = "character creation";
-pub const IGN: &str = "Test2";
+const IGN: &str = "Test2";
 const HAIR_COLOR_WZ: i32 = 0;
 const SKIN_WZ: i32 = 0;
 const FACE_WZ: i32 = 20000;
 const HAIR_WZ: i32 = 30000;
-pub const CHAR_ID: i32 = 2;
+const CHAR_ID: i32 = 2;
 const TOP_WZ: i32 = 1040002;
 const BOTTOM_WZ: i32 = 1060002;
 const SHOES_WZ: i32 = 1072001;
-const WEAPON_WZ: i32 = 0;
+const WEAPON_WZ: i32 = 1302000;
 const JOB_WZ: i16 = 0;
 const SUCCESS_STATUS: i32 = 0;
 
@@ -36,6 +37,9 @@ pub async fn assert_create_char(mut conn: TestConnection) -> Result<TestConnecti
 
 pub fn build_create_char(name: String) -> Result<Packet, HarnessError> {
     let mut packet: Packet = Packet::new_empty();
+    packet
+        .write_short(RecvOpcode::CreateChar as i16)
+        .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
     packet
         .write_str_with_length(name)
         .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
@@ -82,6 +86,7 @@ async fn assert_create_char_result(conn: &mut TestConnection) -> Result<(), Harn
 }
 
 pub fn read_create_char_packet(packet: &Packet) -> Result<NewCharacterResult, HarnessError> {
+    dbg!(packet.bytes.len());
     let mut cursor = Cursor::new(&packet.bytes[..]);
     cursor
         .read_short()
@@ -90,7 +95,7 @@ pub fn read_create_char_packet(packet: &Packet) -> Result<NewCharacterResult, Ha
         .read_byte()
         .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
     let meta = test_char_list::read_char_meta(&mut cursor)?;
-    let skip: usize = 41;
+    let skip: usize = 31;
     cursor
         .read_bytes(skip)
         .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;

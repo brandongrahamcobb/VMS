@@ -14,8 +14,8 @@ use std::time::SystemTime;
 pub const PHASE: &str = "character list request";
 pub const WORLD_ID: i16 = 0;
 pub const CHANNEL_ID: u8 = 1;
-const MAP_WZ: i32 = 10000;
-const IGN: &str = "Test";
+pub const MAP_WZ: i32 = 10000;
+pub const IGN: &str = "Test";
 const STR: i16 = 0;
 const INT: i16 = 0;
 const LUK: i16 = 0;
@@ -36,7 +36,7 @@ const FACE_WZ: i32 = 20000;
 const HAIR_WZ: i32 = 30000;
 const LAST_PORTAL_ID: i16 = 0;
 const JOB_WZ: i16 = 0;
-const CHAR_ID: i32 = 1;
+pub const CHAR_ID: i32 = 1;
 
 #[derive(Clone)]
 pub struct CharacterResult {
@@ -131,7 +131,6 @@ async fn assert_char_list_result(conn: &mut TestConnection) -> Result<(), Harnes
 }
 
 pub fn read_char_list_packet(packet: &Packet) -> Result<CharListResult, HarnessError> {
-    dbg!(&packet.bytes);
     let mut cursor = Cursor::new(&packet.bytes[..]);
     cursor
         .read_short()
@@ -143,7 +142,6 @@ pub fn read_char_list_packet(packet: &Packet) -> Result<CharListResult, HarnessE
         .read_byte()
         .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
     let mut characters = Vec::with_capacity(count as usize);
-    dbg!(count);
     for _ in 0..count {
         let meta = read_char_meta(&mut cursor)?;
         let skip: usize = 31;

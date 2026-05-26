@@ -18,8 +18,7 @@
  */
 use crate::account::wrapper::{FailedCode, PendingCode, StatusCode, SuccessCode};
 use crate::account::{error::AccountEntityError, model::AccountModel};
-use bcrypt::{DEFAULT_COST, hash, verify};
-use tracing;
+use bcrypt::verify;
 
 pub fn check_pic(acc_pic: Option<String>, pic: String) -> bool {
     if acc_pic == Some(pic) {

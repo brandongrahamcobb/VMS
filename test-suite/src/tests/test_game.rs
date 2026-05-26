@@ -1,5 +1,4 @@
 use config::settings;
-use inc::helpers;
 use state::model::{SharedState, State};
 use std::sync::Arc;
 use tokio::net::lookup_host;
@@ -13,12 +12,11 @@ use crate::tests::{
     test_tos,
 };
 
-pub async fn login_until_redirect() -> Result<u8, HarnessError> {
+pub async fn login_until_redirect() -> Result<i16, HarnessError> {
     let state: SharedState = Arc::new(Mutex::new(State::new()?));
-    let addr: String = settings::get_host()?;
     let port: i16 = settings::get_login_port()?;
-    let addr_str = format!("{addr}:{port}");
-    let bind = lookup_host(&addr_str)
+    let host: String = settings::get_host()?;
+    let bind = lookup_host(format!("{host}:{port}"))
         .await
         .map_err(|e| HarnessError::EndpointError(e.to_string()))?
         .next()
@@ -36,10 +34,14 @@ pub async fn login_until_redirect() -> Result<u8, HarnessError> {
     Ok(port)
 }
 
-pub async fn play(port: u8) -> Result<(), HarnessError> {
+pub async fn play(port: i16) -> Result<(), HarnessError> {
     // let state: SharedState = Arc::new(Mutex::new(State::new()?));
-    let addr: String = settings::get_bind_address()?;
-    let bind = helpers::build_server_addr(addr, port as i16);
+    let host: String = settings::get_host()?;
+    let bind = lookup_host(format!("{host}:{port}"))
+        .await
+        .map_err(|e| HarnessError::EndpointError(e.to_string()))?
+        .next()
+        .ok_or(HarnessError::ConnectionError)?;
     let conn = TestConnection::connect(bind, "world handshake").await?;
     test_handshake::assert_handshake(conn.handshake.version, conn.handshake.locale)?;
     let conn = test_player_logged_in::assert_player_logged_in(conn).await?;
@@ -56,7 +58,8 @@ mod tests {
     async fn test() -> Result<(), HarnessError> {
         dotenvy::dotenv().ok();
         println!("{}", settings::get_db_url()?);
-        let port: u8 = test_game::login_until_redirect().await?;
+        let port: i16 = test_game::login_until_redirect().await?;
+        dbg!(port);
         test_game::play(port).await?;
         Ok(())
     }
