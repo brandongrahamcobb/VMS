@@ -9,12 +9,10 @@ use packet::prelude::*;
 use std::io::Cursor;
 
 pub const PHASE: &str = "character creation";
-const IGN: &str = "Test2";
 const HAIR_COLOR_WZ: i32 = 0;
 const SKIN_WZ: i32 = 0;
 const FACE_WZ: i32 = 20000;
 const HAIR_WZ: i32 = 30000;
-const CHAR_ID: i32 = 2;
 const TOP_WZ: i32 = 1040002;
 const BOTTOM_WZ: i32 = 1060002;
 const SHOES_WZ: i32 = 1072001;
@@ -27,12 +25,15 @@ pub struct NewCharacterResult {
     pub character: CharacterResult,
 }
 
-pub async fn assert_create_char(mut conn: TestConnection) -> Result<TestConnection, HarnessError> {
+pub async fn assert_create_char(
+    mut conn: TestConnection,
+    char_ign: &str,
+) -> Result<(i32, TestConnection), HarnessError> {
     dbg!(PHASE);
-    conn.send_packet(build_create_char(IGN.to_string())?, PHASE)
+    conn.send_packet(build_create_char(char_ign.to_string())?, PHASE)
         .await?;
-    assert_create_char_result(&mut conn).await?;
-    Ok(conn)
+    let char_id: i32 = assert_create_char_result(&mut conn, char_ign).await?;
+    Ok((char_id, conn))
 }
 
 pub fn build_create_char(name: String) -> Result<Packet, HarnessError> {
@@ -76,17 +77,18 @@ pub fn build_create_char(name: String) -> Result<Packet, HarnessError> {
     Ok(packet)
 }
 
-async fn assert_create_char_result(conn: &mut TestConnection) -> Result<(), HarnessError> {
+async fn assert_create_char_result(
+    conn: &mut TestConnection,
+    char_ign: &str,
+) -> Result<i32, HarnessError> {
     let packet = conn.read_packet(PHASE).await?;
     let result = read_create_char_packet(&packet)?;
     assert_eq!(result.status as i32, SUCCESS_STATUS);
-    assert_eq!(result.character.id, CHAR_ID);
-    assert_eq!(result.character.name, IGN);
-    Ok(())
+    assert_eq!(result.character.name, char_ign);
+    Ok(result.character.id)
 }
 
 pub fn read_create_char_packet(packet: &Packet) -> Result<NewCharacterResult, HarnessError> {
-    dbg!(packet.bytes.len());
     let mut cursor = Cursor::new(&packet.bytes[..]);
     cursor
         .read_short()

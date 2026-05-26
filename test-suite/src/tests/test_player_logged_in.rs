@@ -1,7 +1,7 @@
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
 use crate::tests::test_char_list;
-use crate::tests::test_char_list::{CHANNEL_ID, CHAR_ID, IGN, MAP_WZ};
+use crate::tests::test_char_list::{CHANNEL_ID, MAP_WZ};
 use op::recv::RecvOpcode;
 use op::send::SendOpcode;
 use packet::io::error::IOError::{ReadError, WriteError};
@@ -19,11 +19,13 @@ pub struct SetFieldResult {
 
 pub async fn assert_player_logged_in(
     mut conn: TestConnection,
+    char_id: i32,
+    char_ign: &str,
 ) -> Result<TestConnection, HarnessError> {
     dbg!(PHASE);
-    conn.send_packet(build_player_logged_in(CHAR_ID, CHANNEL_ID)?, PHASE)
+    conn.send_packet(build_player_logged_in(char_id, CHANNEL_ID)?, PHASE)
         .await?;
-    assert_player_logged_in_result(&mut conn).await?;
+    assert_player_logged_in_result(&mut conn, char_id, char_ign).await?;
     Ok(conn)
 }
 
@@ -41,7 +43,11 @@ pub fn build_player_logged_in(char_id: i32, channel_id: u8) -> Result<Packet, Ha
     Ok(packet)
 }
 
-async fn assert_player_logged_in_result(conn: &mut TestConnection) -> Result<(), HarnessError> {
+async fn assert_player_logged_in_result(
+    conn: &mut TestConnection,
+    char_id: i32,
+    char_ign: &str,
+) -> Result<(), HarnessError> {
     let mut saw_keymap = false;
     let mut world_entry = None;
     let expected_packets: i32 = 2;
@@ -57,8 +63,8 @@ async fn assert_player_logged_in_result(conn: &mut TestConnection) -> Result<(),
             }
             x if x == SendOpcode::SetField as i16 => {
                 let result = read_set_field_packet(&packet)?;
-                assert_eq!(result.char_name, IGN);
-                assert_eq!(result.char_id, CHAR_ID);
+                assert_eq!(result.char_name, char_ign);
+                assert_eq!(result.char_id, char_id);
                 assert_eq!(result.map_wz, MAP_WZ);
                 world_entry = Some(result);
             }

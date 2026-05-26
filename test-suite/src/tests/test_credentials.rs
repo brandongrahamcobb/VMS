@@ -9,7 +9,6 @@ use state::model::SharedState;
 use std::io::Cursor;
 use std::time::SystemTime;
 
-const USERNAME: &str = "admin";
 const PASSWORD: &str = "admin";
 const PIN: &str = "123456";
 const PIC: &str = "654321";
@@ -29,32 +28,32 @@ struct CredentialsResult {
 pub async fn assert_credentials(
     state: &SharedState,
     mut conn: TestConnection,
-) -> Result<TestConnection, HarnessError> {
+    acc_username: &str,
+) -> Result<(i32, TestConnection), HarnessError> {
     dbg!(PHASE);
-    let hashed =
-        bcrypt::hash(PASSWORD, bcrypt::DEFAULT_COST).map_err(|e| HarnessError::AccountError(e))?;
-    {
-        let acc_model: AccountModel = AccountModel {
-            id: None,
-            username: USERNAME.to_string(),
-            password: hashed,
-            pin: Some(PIN.to_string()),
-            pic: Some(PIC.to_string()),
-            last_login_at: Some(SystemTime::now()),
-            gender_wz: GENDER_WZ,
-            accepted_tos: false,
-            banned: false,
-            admin: true,
-            created_at: Some(SystemTime::now()),
-            updated_at: SystemTime::now(),
-        };
+    let hashed = bcrypt::hash(PASSWORD, bcrypt::DEFAULT_COST)
+        .map_err(|e| HarnessError::EncryptionError(e))?;
+    let acc_model: AccountModel = AccountModel {
+        id: None,
+        username: acc_username.to_string(),
+        password: hashed,
+        pin: Some(PIN.to_string()),
+        pic: Some(PIC.to_string()),
+        last_login_at: Some(SystemTime::now()),
+        gender_wz: GENDER_WZ,
+        accepted_tos: false,
+        banned: false,
+        admin: true,
+        created_at: Some(SystemTime::now()),
+        updated_at: SystemTime::now(),
+    };
+    let acc_models =
         db::account::setters::update_accounts(&state.lock().await.db.clone(), vec![acc_model])
             .await?;
-    }
-    conn.send_packet(build_credentials(USERNAME, PASSWORD)?, PHASE)
+    conn.send_packet(build_credentials(acc_username, PASSWORD)?, PHASE)
         .await?;
     assert_credentials_result(&mut conn).await?;
-    Ok(conn)
+    Ok((acc_models[0].get_id()?, conn))
 }
 
 pub fn build_credentials(username: &str, password: &str) -> Result<Packet, HarnessError> {

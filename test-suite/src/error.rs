@@ -1,5 +1,6 @@
 use config::error::ConfigError;
 use db::error::DatabaseError;
+use entity::account::error::AccountEntityError;
 use packet::io::error::IOError;
 use state::error::StateError;
 use std::string::FromUtf8Error;
@@ -13,8 +14,11 @@ pub enum HarnessError {
     #[error("TCP connection error in test harness layer")]
     ConnectionError,
 
-    #[error("Account error in test harness layer: {0}")]
-    AccountError(bcrypt::BcryptError),
+    #[error("Encryption error in test harness layer: {0}")]
+    EncryptionError(bcrypt::BcryptError),
+
+    #[error("Account entity error in test harness layer")]
+    AccountEntityError(#[from] AccountEntityError),
 
     #[error("{0} in test harness layer")]
     CargoError(String),

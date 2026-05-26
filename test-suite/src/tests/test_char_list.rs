@@ -14,7 +14,7 @@ use std::time::SystemTime;
 pub const PHASE: &str = "character list request";
 pub const WORLD_ID: i16 = 0;
 pub const CHANNEL_ID: u8 = 1;
-pub const MAP_WZ: i32 = 10000;
+pub const MAP_WZ: i32 = 0;
 pub const IGN: &str = "Test";
 const STR: i16 = 0;
 const INT: i16 = 0;

@@ -7,7 +7,6 @@ use packet::prelude::*;
 use std::io::Cursor;
 
 pub const PHASE: &str = "tos";
-const ACC_ID: i32 = 1;
 const GENDER_WZ: i16 = 0;
 const SUCCESS_STATUS: i32 = 0;
 
@@ -17,10 +16,13 @@ struct TOSResult {
     pub gender_wz: Option<i16>,
 }
 
-pub async fn assert_accept_tos(mut conn: TestConnection) -> Result<TestConnection, HarnessError> {
+pub async fn assert_accept_tos(
+    mut conn: TestConnection,
+    acc_id: i32,
+) -> Result<TestConnection, HarnessError> {
     dbg!(PHASE);
     conn.send_packet(build_accept_tos()?, PHASE).await?;
-    assert_accept_tos_result(&mut conn).await?;
+    assert_accept_tos_result(&mut conn, acc_id).await?;
     Ok(conn)
 }
 
@@ -66,11 +68,14 @@ fn read_accept_tos_packet(packet: &Packet) -> Result<TOSResult, HarnessError> {
     })
 }
 
-async fn assert_accept_tos_result(conn: &mut TestConnection) -> Result<(), HarnessError> {
+async fn assert_accept_tos_result(
+    conn: &mut TestConnection,
+    acc_id: i32,
+) -> Result<(), HarnessError> {
     let packet = conn.read_packet(PHASE).await?;
     let result = read_accept_tos_packet(&packet)?;
     assert_eq!(result.status, SUCCESS_STATUS);
-    assert_eq!(result.acc_id, Some(ACC_ID));
+    assert_eq!(result.acc_id, Some(acc_id));
     assert_eq!(result.gender_wz, Some(GENDER_WZ));
     Ok(())
 }

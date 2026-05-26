@@ -31,6 +31,7 @@ use entity::world::wrapper::World;
 use session::session_store::SessionStore;
 use std::collections::HashMap;
 use std::sync::Arc;
+use tokio::net::TcpListener;
 use tokio::sync::{Mutex, RwLock, broadcast};
 
 pub struct State {
@@ -38,6 +39,7 @@ pub struct State {
     pub sessions: SessionStore,
     pub worlds: Arc<RwLock<HashMap<i16, World>>>,
     pub tick_tx: broadcast::Sender<TickEvent>,
+    pub listeners: HashMap<i16, Arc<TcpListener>>,
 }
 
 pub type SharedState = Arc<Mutex<State>>;
@@ -54,6 +56,7 @@ impl State {
         let (tick_tx, _) = broadcast::channel(32);
         let shared_state = State {
             db,
+            listeners: HashMap::new(),
             sessions,
             worlds: Arc::new(RwLock::new(worlds)),
             tick_tx,
