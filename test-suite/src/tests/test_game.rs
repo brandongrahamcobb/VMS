@@ -38,7 +38,7 @@ pub async fn login_until_redirect(
     let conn = test_server_list::assert_server_list_request(conn).await?;
     let conn = test_last_connected_world::assert_last_connected_world(conn).await?;
     let conn = test_recommended_world::assert_recommended_world(conn).await?;
-    let conn = test_char_list::assert_char_list_request(&state, conn).await?;
+    let conn = test_char_list::assert_char_list_request(&state, conn, acc_id).await?;
     let (char_id, conn) = test_create_char::assert_create_char(conn, char_ign).await?;
     let port = test_server_redirect::assert_server_redirect(conn).await?;
     Ok(LoginDetails {
@@ -71,8 +71,8 @@ pub async fn send_player_test(
     a_turn: Arc<Semaphore>,
     b_turn: Arc<Semaphore>,
 ) -> Result<(), HarnessError> {
-    a_turn.acquire().await.unwrap().forget();
-    b_turn.add_permits(1);
+    b_turn.acquire().await.unwrap().forget();
+    a_turn.add_permits(1);
     let conn = test_move_player::send_move_player(conn).await?;
     Ok(())
 }
@@ -83,8 +83,8 @@ pub async fn receive_player_test(
     a_turn: Arc<Semaphore>,
     b_turn: Arc<Semaphore>,
 ) -> Result<(), HarnessError> {
-    b_turn.acquire().await.unwrap().forget();
-    a_turn.add_permits(1);
+    a_turn.acquire().await.unwrap().forget();
+    b_turn.add_permits(1);
     let conn = test_move_player::assert_move_player(conn, char_id).await?;
     Ok(())
 }
@@ -107,6 +107,7 @@ mod tests {
         let b_turn = Arc::new(Semaphore::new(0));
         let a_turn_clone = a_turn.clone();
         let b_turn_clone = b_turn.clone();
+
         let first_char_details = {
             let acc_username: &str = "admin1";
             let char_ign: &str = "Test1";
@@ -133,10 +134,10 @@ mod tests {
             .await?;
             Ok::<_, HarnessError>(())
         });
-        first_char
+        second_char
             .await
             .map_err(|_| HarnessError::ConnectionError)??;
-        second_char
+        first_char
             .await
             .map_err(|_| HarnessError::ConnectionError)??;
         Ok(())

@@ -38,15 +38,16 @@ fn get_workspace_root() -> &'static Path {
 }
 
 fn run_tests() -> Result<(), HarnessError> {
-    // if let Err(e) = docker_compose_up() {
-    let _ = docker_compose_down();
-    //     return Err(e);
-    // }
-    let result = compose_cmd(["run", "--rm", "test-suite"]);
+    if let Err(e) = docker_compose_up() {
+        let _ = docker_compose_down();
+        return Err(e);
+    }
+    compose_cmd(["--profile", "test", "build", "--no-cache", "test-suite"])?;
+    let result = compose_cmd(["--profile", "test", "run", "--rm", "test-suite"]);
     // let down_result = docker_compose_down();
-    // result?;
-    // down_result
+    result?;
     Ok(())
+    // down_result
 }
 
 fn ensure_docker_available() -> Result<(), HarnessError> {
@@ -125,8 +126,6 @@ fn compose_cmd<const N: usize>(args: [&str; N]) -> Result<(), HarnessError> {
         .arg(compose_file_path())
         .arg("-p")
         .arg(PROJECT_NAME)
-        .arg("--profile")
-        .arg("test")
         .args(args)
         .current_dir(get_workspace_root())
         .stdin(Stdio::null())

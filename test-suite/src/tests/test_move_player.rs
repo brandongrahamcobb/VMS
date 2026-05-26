@@ -67,7 +67,7 @@ fn build_move_player() -> Result<Packet, HarnessError> {
         .write_bytes(vec![0u8; 9])
         .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
     packet
-        .write_byte(0)
+        .write_byte(1)
         .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
     Ok(packet)
 }

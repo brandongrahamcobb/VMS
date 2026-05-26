@@ -17,14 +17,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::scope::SessionScope;
-use action::model::{Action, SessionAction, SetAction};
 use crate::player_logged_in::error::PlayerLoggedInError;
 use crate::player_logged_in::reader::PlayerLoggedInReader;
 use crate::player_logged_in::store::PlayerLoggedInStore;
 use crate::result::HandlerResult;
-use packet::model::Packet;
+use action::model::{Action, SessionAction, SetAction};
+use action::scope::SessionScope;
 use db::pool::DbPool;
+use packet::model::Packet;
 
 pub struct PlayerLoggedInHandler;
 
@@ -69,6 +69,7 @@ impl PlayerLoggedInHandler {
             map_wz: store.map_wz,
             scope: SessionScope::Local,
         })));
+        result.add_action(Action::Session(SessionAction::Retrieve));
         Ok(result)
     }
 }

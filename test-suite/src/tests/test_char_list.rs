@@ -1,6 +1,5 @@
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
-use crate::tests::test_credentials::ACC_ID;
 use crate::tests::test_credentials::GENDER_WZ;
 use entity::character::model::CharacterModel;
 use op::recv::RecvOpcode;
@@ -57,12 +56,13 @@ pub struct CharListResult {
 pub async fn assert_char_list_request(
     state: &SharedState,
     mut conn: TestConnection,
+    acc_id: i32,
 ) -> Result<TestConnection, HarnessError> {
     dbg!(PHASE);
     {
         let char_model: CharacterModel = CharacterModel {
             id: None,
-            acc_id: ACC_ID,
+            acc_id,
             gender_wz: GENDER_WZ,
             world_id: WORLD_ID,
             map_wz: MAP_WZ,

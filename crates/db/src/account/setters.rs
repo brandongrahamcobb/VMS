@@ -50,23 +50,17 @@ pub async fn accept_tos_by_acc_id(
     .await
 }
 
-pub async fn update_accounts(
+pub async fn update_account(
     pool: &DbPool,
-    acc_models: Vec<AccountModel>,
-) -> Result<Vec<AccountModel>, DatabaseError> {
+    acc_model: AccountModel,
+) -> Result<AccountModel, DatabaseError> {
     pool::spawn_db(pool, move |conn| {
-        let mut results = Vec::new();
-        for acc_model in &acc_models {
-            results.push(
-                diesel::insert_into(accounts::table)
-                    .values(acc_model)
-                    .on_conflict(accounts::username)
-                    .do_update()
-                    .set(acc_model)
-                    .get_result::<AccountModel>(conn)?,
-            )
-        }
-        Ok(results)
+        diesel::insert_into(accounts::table)
+            .values(acc_model.clone())
+            .on_conflict(accounts::username)
+            .do_update()
+            .set(acc_model)
+            .get_result::<AccountModel>(conn)
     })
     .await
 }

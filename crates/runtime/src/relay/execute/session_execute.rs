@@ -22,6 +22,7 @@ use crate::relay::execute::{set_channel, set_map, set_world, simple};
 use action::event::TickEvent;
 use action::scope::SessionScope;
 use core::ops::ControlFlow;
+use entity::character::wrapper::Character;
 use entity::map::constants::VACANCY_DURATION;
 use entity::map::model::{Point, VacancyState};
 use packet::model::Packet;
@@ -139,6 +140,7 @@ pub async fn enter_map(
     scope: &SessionScope,
     map_wz: i32,
 ) -> Result<broadcast::Receiver<TickEvent>, ExecuteError> {
+    let char_id: i32 = session.get_char_id()?;
     let world_id: i16 = session.get_world_id()?;
     let channel_id: u8 = session.get_channel_id()?;
     let tick_rx = insert_map(state, world_id, channel_id, map_wz).await?;
@@ -154,6 +156,16 @@ pub async fn enter_map(
         }
         SessionScope::World => set_map::set_map_for_world(state, session, map_wz).await?,
         SessionScope::Global => set_map::set_map_globally(state, session, map_wz).await?,
+    }
+    {
+        let state = state.lock().await;
+        let char: Character =
+            assembly::character::assemble::assemble_char_by_id(&state.db.clone(), char_id).await?;
+        state
+            .with_mut_map(world_id, channel_id, map_wz, |map| {
+                map.chars.insert(char_id, char);
+            })
+            .await?;
     }
     Ok(tick_rx)
 }

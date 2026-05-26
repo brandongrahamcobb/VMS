@@ -15,7 +15,6 @@ const PIC: &str = "654321";
 pub const PHASE: &str = "credentials";
 const LOGIN_PADDING_LEN: usize = 6;
 const LOGIN_HWID: [u8; 4] = [0, 0, 0, 0];
-pub const ACC_ID: i32 = 1;
 pub const GENDER_WZ: i16 = 0;
 const TOS_STATUS: i32 = 23;
 
@@ -47,13 +46,13 @@ pub async fn assert_credentials(
         created_at: Some(SystemTime::now()),
         updated_at: SystemTime::now(),
     };
-    let acc_models =
-        db::account::setters::update_accounts(&state.lock().await.db.clone(), vec![acc_model])
-            .await?;
+    let acc_model =
+        db::account::setters::update_account(&state.lock().await.db.clone(), acc_model).await?;
     conn.send_packet(build_credentials(acc_username, PASSWORD)?, PHASE)
         .await?;
-    assert_credentials_result(&mut conn).await?;
-    Ok((acc_models[0].get_id()?, conn))
+    let acc_id = acc_model.get_id()?;
+    assert_credentials_result(&mut conn, acc_id).await?;
+    Ok((acc_id, conn))
 }
 
 pub fn build_credentials(username: &str, password: &str) -> Result<Packet, HarnessError> {
@@ -107,12 +106,15 @@ fn read_credentials_packet(packet: &Packet) -> Result<CredentialsResult, Harness
     })
 }
 
-async fn assert_credentials_result(conn: &mut TestConnection) -> Result<(), HarnessError> {
+async fn assert_credentials_result(
+    conn: &mut TestConnection,
+    acc_id: i32,
+) -> Result<(), HarnessError> {
     let packet = conn.read_packet(PHASE).await?;
     let result = read_credentials_packet(&packet)?;
     assert_eq!(result.status, TOS_STATUS);
     if result.status != 23 {
-        assert_eq!(result.acc_id, Some(ACC_ID));
+        assert_eq!(result.acc_id, Some(acc_id));
         assert_eq!(result.gender_wz, Some(GENDER_WZ));
     }
     Ok(())
