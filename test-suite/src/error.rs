@@ -1,6 +1,6 @@
 use config::error::ConfigError;
 use db::error::DatabaseError;
-use entity::account::error::AccountEntityError;
+use entity::{account::error::AccountEntityError, character::error::CharacterEntityError};
 use packet::io::error::IOError;
 use state::error::StateError;
 use std::string::FromUtf8Error;
@@ -9,7 +9,7 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum HarnessError {
     #[error("{0} in test harness layer")]
-    DockerComposeError(String),
+    DockerError(String),
 
     #[error("TCP connection error in test harness layer")]
     ConnectionError,
@@ -20,14 +20,11 @@ pub enum HarnessError {
     #[error("Account entity error in test harness layer")]
     AccountEntityError(#[from] AccountEntityError),
 
+    #[error("Character entity error in test harness layer")]
+    CharacterEntityError(#[from] CharacterEntityError),
+
     #[error("{0} in test harness layer")]
     CargoError(String),
-
-    #[error("{0} in test harness layer")]
-    DockerInfoError(String),
-
-    #[error("{0} in test harness layer")]
-    DockerVersionError(String),
 
     #[error("{0} in test harness layer")]
     EndpointError(String),

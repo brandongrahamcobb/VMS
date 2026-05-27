@@ -11,3 +11,5 @@ FROM chef AS builder
 WORKDIR /app
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook -p test-suite --recipe-path recipe.json
+
+COPY . .

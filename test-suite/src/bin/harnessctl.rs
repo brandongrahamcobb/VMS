@@ -42,7 +42,7 @@ fn run_tests() -> Result<(), HarnessError> {
         let _ = docker_compose_down();
         return Err(e);
     }
-    compose_cmd(["--profile", "test", "build", "--no-cache", "test-suite"])?;
+    compose_cmd(["--profile", "test", "build", "test-suite"])?;
     let result = compose_cmd(["--profile", "test", "run", "--rm", "test-suite"]);
     // let down_result = docker_compose_down();
     result?;
@@ -60,12 +60,12 @@ fn ensure_docker_available() -> Result<(), HarnessError> {
     match docker_status {
         Ok(status) if status.success() => {}
         Ok(status) => {
-            return Err(HarnessError::DockerVersionError(format!(
+            return Err(HarnessError::DockerError(format!(
                 "docker is installed but not usable (status: {status}); ensure Docker daemon is running"
             )));
         }
         Err(e) => {
-            return Err(HarnessError::DockerVersionError(format!(
+            return Err(HarnessError::DockerError(format!(
                 "docker is not installed or not in PATH: {e}"
             )));
         }
@@ -79,10 +79,10 @@ fn ensure_docker_available() -> Result<(), HarnessError> {
         .status();
     match compose_status {
         Ok(status) if status.success() => Ok(()),
-        Ok(_) => Err(HarnessError::DockerComposeError(format!(
+        Ok(_) => Err(HarnessError::DockerError(format!(
             "Docker is installed but `docker compose` is unavailable; install Docker Compose v2 plugin"
         ))),
-        Err(e) => Err(HarnessError::DockerComposeError(format!(
+        Err(e) => Err(HarnessError::DockerError(format!(
             "Failed to execute `docker compose version`: {e}"
         ))),
     }?;
@@ -94,10 +94,10 @@ fn ensure_docker_available() -> Result<(), HarnessError> {
         .status();
     match daemon_status {
         Ok(status) if status.success() => Ok(()),
-        Ok(_) => Err(HarnessError::DockerInfoError(
+        Ok(_) => Err(HarnessError::DockerError(
             "Docker daemon is not reachable".to_string(),
         )),
-        Err(e) => Err(HarnessError::DockerInfoError(format!(
+        Err(e) => Err(HarnessError::DockerError(format!(
             "Failed to execute `docker info`: {e}"
         ))),
     }
@@ -116,7 +116,13 @@ fn docker_compose_up() -> Result<(), HarnessError> {
 }
 
 fn docker_compose_down() -> Result<(), HarnessError> {
-    compose_cmd(["down", "-v", "--remove-orphans"])
+    compose_cmd(["down", "--remove-orphans"])?;
+    let docker_rm = Command::new("docker").args(["volume", "rm", "db"]).status();
+    match docker_rm {
+        Ok(status) if status.success() => Ok(()),
+        Ok(status) => Err(HarnessError::DockerError(format!("rm db error: {status}"))),
+        Err(e) => Err(HarnessError::DockerError(format!("rm db error: {e}"))),
+    }
 }
 
 fn compose_cmd<const N: usize>(args: [&str; N]) -> Result<(), HarnessError> {
@@ -132,14 +138,12 @@ fn compose_cmd<const N: usize>(args: [&str; N]) -> Result<(), HarnessError> {
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .status()
-        .map_err(|e| {
-            HarnessError::DockerComposeError(format!("Failed to execute docker compose: {e}"))
-        })?;
+        .map_err(|e| HarnessError::DockerError(format!("Failed to execute docker compose: {e}")))?;
 
     if status.success() {
         Ok(())
     } else {
-        Err(HarnessError::DockerComposeError(format!(
+        Err(HarnessError::DockerError(format!(
             "Docker compose command failed with status {status}"
         )))
     }

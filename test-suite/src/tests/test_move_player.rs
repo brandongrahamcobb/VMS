@@ -46,9 +46,18 @@ async fn assert_move_player_result(
     conn: &mut TestConnection,
     char_id: i32,
 ) -> Result<(), HarnessError> {
-    let packet: Packet = conn.read_packet(RECEIVE_PHASE).await?;
-    let result: MovePlayerResult = read_move_player_packet(&packet)?;
-    assert_eq!(result.char_id, char_id);
+    loop {
+        let packet = conn.read_packet(RECEIVE_PHASE).await?;
+        let mut cursor = Cursor::new(&packet.bytes[..]);
+        let op = cursor
+            .read_short()
+            .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+        if op == 185 {
+            let result: MovePlayerResult = read_move_player_packet(&packet)?;
+            assert_eq!(result.char_id, char_id);
+            break;
+        }
+    }
     Ok(())
 }
 
@@ -64,7 +73,7 @@ fn build_move_player() -> Result<Packet, HarnessError> {
         .write_short(RecvOpcode::PlayerMove as i16)
         .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
     packet
-        .write_bytes(vec![0u8; 9])
+        .write_bytes(vec![5u8; 9])
         .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
     packet
         .write_byte(1)

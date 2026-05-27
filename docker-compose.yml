@@ -25,6 +25,7 @@ services:
     volumes:
       - vms-backups:/app/backups
       - ./data:/app/data
+      - cargo-registry:/usr/local/cargo/registry
     healthcheck:
       test: "healthcheck.sh || kill 1"
       interval: 10s
@@ -190,9 +191,12 @@ services:
     depends_on:
       vms:
         condition: service_healthy
+    volumes:
+      - cargo-registry:/usr/local/cargo/registry
 
 volumes:
   vms-backups:
   data:
+  cargo-registry:
 
 

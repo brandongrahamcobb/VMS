@@ -1,6 +1,5 @@
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
-use crate::tests::test_char_list::CHAR_ID;
 use core::net::Ipv4Addr;
 use op::recv::RecvOpcode;
 use packet::io::error::IOError::{ReadError, WriteError};
@@ -16,11 +15,14 @@ pub struct ServerRedirectResult {
     pub char_id: i32,
 }
 
-pub async fn assert_server_redirect(mut conn: TestConnection) -> Result<i16, HarnessError> {
+pub async fn assert_server_redirect(
+    mut conn: TestConnection,
+    char_id: i32,
+) -> Result<i16, HarnessError> {
     dbg!(PHASE);
-    conn.send_packet(build_server_redirect(CHAR_ID)?, PHASE)
+    conn.send_packet(build_server_redirect(char_id)?, PHASE)
         .await?;
-    let port: i16 = assert_server_redirect_result(&mut conn).await?;
+    let port: i16 = assert_server_redirect_result(&mut conn, char_id).await?;
     Ok(port)
 }
 
@@ -41,10 +43,13 @@ pub fn build_server_redirect(character_id: i32) -> Result<Packet, HarnessError> 
     Ok(packet)
 }
 
-async fn assert_server_redirect_result(conn: &mut TestConnection) -> Result<i16, HarnessError> {
+async fn assert_server_redirect_result(
+    conn: &mut TestConnection,
+    char_id: i32,
+) -> Result<i16, HarnessError> {
     let packet: Packet = conn.read_packet(PHASE).await?;
     let result: ServerRedirectResult = read_server_redirect_packet(&packet)?;
-    assert_eq!(result.char_id, CHAR_ID);
+    assert_eq!(result.char_id, char_id);
     Ok(result.port)
 }
 

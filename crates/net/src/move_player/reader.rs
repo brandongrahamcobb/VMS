@@ -39,6 +39,8 @@ impl MovePlayerReader {
         if movement_bytes.is_empty() || movement_bytes[0] == 0 {
             empty = true;
         }
+        dbg!(empty);
+        dbg!(too_short);
         Ok(Self {
             movement_bytes: movement_bytes.to_vec(),
             too_short,

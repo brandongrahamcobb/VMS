@@ -2,7 +2,7 @@ use config::settings;
 use state::model::{SharedState, State};
 use std::sync::Arc;
 use tokio::net::lookup_host;
-use tokio::sync::{Mutex, Semaphore};
+use tokio::sync::{Barrier, Mutex, Semaphore};
 
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
@@ -12,6 +12,7 @@ use crate::tests::{
     test_server_redirect, test_tos,
 };
 
+#[derive(Clone)]
 pub struct LoginDetails {
     pub acc_id: i32,
     pub char_id: i32,
@@ -40,7 +41,7 @@ pub async fn login_until_redirect(
     let conn = test_recommended_world::assert_recommended_world(conn).await?;
     let conn = test_char_list::assert_char_list_request(&state, conn, acc_id).await?;
     let (char_id, conn) = test_create_char::assert_create_char(conn, char_ign).await?;
-    let port = test_server_redirect::assert_server_redirect(conn).await?;
+    let port = test_server_redirect::assert_server_redirect(conn, char_id).await?;
     Ok(LoginDetails {
         acc_id,
         char_id,
@@ -71,9 +72,10 @@ pub async fn send_player_test(
     a_turn: Arc<Semaphore>,
     b_turn: Arc<Semaphore>,
 ) -> Result<(), HarnessError> {
-    b_turn.acquire().await.unwrap().forget();
-    a_turn.add_permits(1);
+    a_turn.acquire().await.unwrap().forget();
     let conn = test_move_player::send_move_player(conn).await?;
+    b_turn.add_permits(1);
+    a_turn.acquire().await.unwrap().forget();
     Ok(())
 }
 
@@ -83,9 +85,9 @@ pub async fn receive_player_test(
     a_turn: Arc<Semaphore>,
     b_turn: Arc<Semaphore>,
 ) -> Result<(), HarnessError> {
-    a_turn.acquire().await.unwrap().forget();
-    b_turn.add_permits(1);
+    b_turn.acquire().await.unwrap().forget();
     let conn = test_move_player::assert_move_player(conn, char_id).await?;
+    a_turn.add_permits(1);
     Ok(())
 }
 
@@ -107,7 +109,6 @@ mod tests {
         let b_turn = Arc::new(Semaphore::new(0));
         let a_turn_clone = a_turn.clone();
         let b_turn_clone = b_turn.clone();
-
         let first_char_details = {
             let acc_username: &str = "admin1";
             let char_ign: &str = "Test1";
@@ -118,8 +119,9 @@ mod tests {
             let char_ign: &str = "Test2";
             test_game::login_until_redirect(acc_username, char_ign).await?
         };
+        let first_details_clone = first_char_details.clone();
         let first_char = tokio::spawn(async move {
-            let conn: TestConnection = test_game::play(&first_char_details).await?;
+            let conn: TestConnection = test_game::play(&first_details_clone).await?;
             test_game::send_player_test(conn, a_turn, b_turn).await?;
             Ok::<_, HarnessError>(())
         });
@@ -127,17 +129,17 @@ mod tests {
             let conn: TestConnection = test_game::play(&second_char_details).await?;
             test_game::receive_player_test(
                 conn,
-                second_char_details.char_id,
+                first_char_details.char_id,
                 a_turn_clone,
                 b_turn_clone,
             )
             .await?;
             Ok::<_, HarnessError>(())
         });
-        second_char
+        first_char
             .await
             .map_err(|_| HarnessError::ConnectionError)??;
-        first_char
+        second_char
             .await
             .map_err(|_| HarnessError::ConnectionError)??;
         Ok(())

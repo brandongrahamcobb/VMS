@@ -35,7 +35,6 @@ const FACE_WZ: i32 = 20000;
 const HAIR_WZ: i32 = 30000;
 const LAST_PORTAL_ID: i16 = 0;
 const JOB_WZ: i16 = 0;
-pub const CHAR_ID: i32 = 1;
 
 #[derive(Clone)]
 pub struct CharacterResult {
@@ -59,43 +58,47 @@ pub async fn assert_char_list_request(
     acc_id: i32,
 ) -> Result<TestConnection, HarnessError> {
     dbg!(PHASE);
-    {
-        let char_model: CharacterModel = CharacterModel {
-            id: None,
-            acc_id,
-            gender_wz: GENDER_WZ,
-            world_id: WORLD_ID,
-            map_wz: MAP_WZ,
-            ign: IGN.to_string(),
-            strength: STR,
-            dexterity: DEX,
-            intelligence: INT,
-            luck: LUK,
-            exp: EXP,
-            level: LEVEL,
-            hp: HP,
-            max_hp: MAX_HP,
-            mp: MP,
-            max_mp: MAX_MP,
-            ap: AP,
-            sp: SP,
-            fame: FAME,
-            meso: MESO,
-            hair_color_wz: HAIR_COLOR_WZ,
-            hair_wz: HAIR_WZ,
-            skin_wz: SKIN_WZ,
-            face_wz: FACE_WZ,
-            last_portal: LAST_PORTAL_ID,
-            job_wz: JOB_WZ,
-            created_at: Some(SystemTime::now()),
-            updated_at: SystemTime::now(),
-        };
+    let char_model: CharacterModel = CharacterModel {
+        id: None,
+        acc_id,
+        gender_wz: GENDER_WZ,
+        world_id: WORLD_ID,
+        map_wz: MAP_WZ,
+        ign: IGN.to_string(),
+        strength: STR,
+        dexterity: DEX,
+        intelligence: INT,
+        luck: LUK,
+        exp: EXP,
+        level: LEVEL,
+        hp: HP,
+        max_hp: MAX_HP,
+        mp: MP,
+        max_mp: MAX_MP,
+        ap: AP,
+        sp: SP,
+        fame: FAME,
+        meso: MESO,
+        hair_color_wz: HAIR_COLOR_WZ,
+        hair_wz: HAIR_WZ,
+        skin_wz: SKIN_WZ,
+        face_wz: FACE_WZ,
+        last_portal: LAST_PORTAL_ID,
+        job_wz: JOB_WZ,
+        created_at: Some(SystemTime::now()),
+        updated_at: SystemTime::now(),
+    };
+    let char_models: Vec<CharacterModel> =
         db::character::setters::update_characters(&state.lock().await.db.clone(), vec![char_model])
             .await?;
-    }
     conn.send_packet(build_char_list_request(WORLD_ID, CHANNEL_ID as i16)?, PHASE)
         .await?;
-    assert_char_list_result(&mut conn).await?;
+    assert_char_list_result(
+        &mut conn,
+        char_models[0].get_id()?,
+        char_models[0].ign.clone(),
+    )
+    .await?;
     Ok(conn)
 }
 
@@ -116,16 +119,20 @@ pub fn build_char_list_request(world_id: i16, channel_id: i16) -> Result<Packet,
     Ok(packet)
 }
 
-async fn assert_char_list_result(conn: &mut TestConnection) -> Result<(), HarnessError> {
+async fn assert_char_list_result(
+    conn: &mut TestConnection,
+    char_id: i32,
+    char_ign: String,
+) -> Result<(), HarnessError> {
     let packet = conn.read_packet(PHASE).await?;
     let result = read_char_list_packet(&packet)?;
     if let Some(character) = result
         .characters
         .iter()
-        .find(|character| character.name == IGN)
+        .find(|character| character.name == char_ign)
         .cloned()
     {
-        assert_eq!(character.id, CHAR_ID);
+        assert_eq!(character.id, char_id);
     }
     Ok(())
 }

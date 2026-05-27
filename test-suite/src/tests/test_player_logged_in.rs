@@ -26,6 +26,8 @@ pub async fn assert_player_logged_in(
     conn.send_packet(build_player_logged_in(char_id, CHANNEL_ID)?, PHASE)
         .await?;
     assert_player_logged_in_result(&mut conn, char_id, char_ign).await?;
+    conn.send_packet(build_player_map_transfer()?, PHASE)
+        .await?;
     Ok(conn)
 }
 
@@ -39,6 +41,14 @@ pub fn build_player_logged_in(char_id: i32, channel_id: u8) -> Result<Packet, Ha
         .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
     packet
         .write_byte(channel_id as i16)
+        .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
+    Ok(packet)
+}
+
+pub fn build_player_map_transfer() -> Result<Packet, HarnessError> {
+    let mut packet = Packet::new_empty();
+    packet
+        .write_short(RecvOpcode::PlayerMapTransfer as i16)
         .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
     Ok(packet)
 }
