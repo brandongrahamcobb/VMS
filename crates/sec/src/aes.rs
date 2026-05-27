@@ -96,7 +96,7 @@ impl AES {
             new_iv[0] =
                 new_iv[0].wrapping_add(shuffle_bytes[(new_iv[1]) as usize].wrapping_sub(byte));
             new_iv[1] = new_iv[1].wrapping_sub(new_iv[2] ^ shuffle_bytes[(byte) as usize]);
-            new_iv[2] &= shuffle_bytes[(new_iv[3]) as usize].wrapping_add(byte);
+            new_iv[2] ^= shuffle_bytes[(new_iv[3]) as usize].wrapping_add(byte);
             new_iv[3] =
                 new_iv[3].wrapping_add((shuffle_bytes[(byte) as usize]).wrapping_sub(new_iv[0]));
             let mut mask = 0usize;
