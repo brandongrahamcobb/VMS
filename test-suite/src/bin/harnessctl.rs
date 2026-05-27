@@ -116,6 +116,14 @@ fn docker_compose_up() -> Result<(), HarnessError> {
 }
 
 fn docker_compose_down() -> Result<(), HarnessError> {
+    let docker_stop = Command::new("sh")
+        .args(["-c", "docker stop $(docker ps -aq) || true"])
+        .status();
+    match docker_stop {
+        Ok(status) if status.success() => {}
+        Ok(status) => return Err(HarnessError::DockerError(format!("stop error: {status}"))),
+        Err(e) => return Err(HarnessError::DockerError(format!("stop error: {e}"))),
+    }
     compose_cmd(["down", "--remove-orphans"])?;
     let docker_rm = Command::new("docker").args(["volume", "rm", "db"]).status();
     match docker_rm {

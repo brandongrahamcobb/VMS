@@ -2,14 +2,14 @@ use config::settings;
 use state::model::{SharedState, State};
 use std::sync::Arc;
 use tokio::net::lookup_host;
-use tokio::sync::{Barrier, Mutex, Semaphore};
+use tokio::sync::{Mutex, Semaphore};
 
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
 use crate::tests::{
-    test_char_list, test_create_char, test_credentials, test_handshake, test_last_connected_world,
-    test_move_player, test_player_logged_in, test_recommended_world, test_server_list,
-    test_server_redirect, test_tos,
+    test_char_list, test_close_attack, test_create_char, test_credentials, test_handshake,
+    test_last_connected_world, test_move_player, test_player_logged_in, test_recommended_world,
+    test_server_list, test_server_redirect, test_tos,
 };
 
 #[derive(Clone)]
@@ -76,6 +76,9 @@ pub async fn send_player_test(
     let conn = test_move_player::send_move_player(conn).await?;
     b_turn.add_permits(1);
     a_turn.acquire().await.unwrap().forget();
+    let conn = test_close_attack::send_close_attack(conn).await?;
+    b_turn.add_permits(1);
+    // a_turn.acquire().await.unwrap().forget();
     Ok(())
 }
 
@@ -87,6 +90,9 @@ pub async fn receive_player_test(
 ) -> Result<(), HarnessError> {
     b_turn.acquire().await.unwrap().forget();
     let conn = test_move_player::assert_move_player(conn, char_id).await?;
+    a_turn.add_permits(1);
+    b_turn.acquire().await.unwrap().forget();
+    let conn = test_close_attack::assert_close_attack(conn, char_id).await?;
     a_turn.add_permits(1);
     Ok(())
 }

@@ -17,12 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use runtime::server::LoginServer;
+use runtime::server::{LoginServer, PlayerServer};
 use server::error::VMSError;
 use state::model::{SharedState, State};
 use std::sync::Arc;
 use tick::manager::TickManager;
-use tokio::sync::Mutex;
+use tokio::{sync::Mutex, try_join};
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
@@ -36,8 +36,10 @@ async fn main() -> Result<(), VMSError> {
         let tick_manager = TickManager::new();
         tick_manager.spawn_ticks(&state).await?;
     }
-    info!("Loading Server...");
-    LoginServer::run(state)
-        .await
-        .map_err(|e| VMSError::RuntimeError(e))
+    info!("Loading login port...");
+    let login = LoginServer::run(state.clone());
+    info!("Loading player ports...");
+    let player = PlayerServer::run(state.clone());
+    try_join!(login, player)?;
+    Ok(())
 }

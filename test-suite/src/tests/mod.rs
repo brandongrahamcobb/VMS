@@ -1,4 +1,5 @@
 pub mod test_char_list;
+pub mod test_close_attack;
 pub mod test_create_char;
 pub mod test_credentials;
 pub mod test_game;
