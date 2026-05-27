@@ -1,6 +1,7 @@
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
 use op::recv::RecvOpcode;
+use op::send::SendOpcode;
 use packet::io::error::IOError::{ReadError, WriteError};
 use packet::model::Packet;
 use packet::prelude::*;
@@ -110,7 +111,7 @@ async fn assert_close_attack_result(
         let op = cursor
             .read_short()
             .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
-        if op == 186 {
+        if op == SendOpcode::AttackedClose as i16 {
             let result: CloseAttackResult = read_close_attack_packet(&packet)?;
             assert_eq!(result.char_id, char_id);
             break;

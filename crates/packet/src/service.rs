@@ -1,4 +1,4 @@
-/* packet/service.rs
+/* packet/src/service.rs
  * The purpose of this module is to provide assisting functions and implementations for packets.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
@@ -22,8 +22,8 @@ use crate::io::error::IOError;
 use sec::aes::AES;
 
 pub fn check_header(aes: &AES, header: &[u8]) -> Result<(), IOError> {
-    if !(((header[0] ^ aes.iv[2]) & 0xFF) == ((aes.version >> 8) as u8 & 0xFF)
-        && ((header[1] ^ aes.iv[3]) & 0xFF) == (aes.version & 0xFF) as u8)
+    if !((header[0] ^ aes.iv[2]) == ((aes.version >> 8) as u8)
+        && (header[1] ^ aes.iv[3]) == (aes.version & 0xFF) as u8)
     {
         return Err(IOError::InvalidHeader);
     }
@@ -31,7 +31,7 @@ pub fn check_header(aes: &AES, header: &[u8]) -> Result<(), IOError> {
 }
 
 pub fn check_packet_length(length: i16) -> Result<(), IOError> {
-    if length < 2 || length > MAX_PACKET_LENGTH {
+    if !(2..=MAX_PACKET_LENGTH).contains(&length) {
         return Err(IOError::InvalidPacketLength(length));
     }
     Ok(())

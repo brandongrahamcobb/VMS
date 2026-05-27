@@ -1,3 +1,4 @@
+pub mod test_change_channel;
 pub mod test_char_list;
 pub mod test_close_attack;
 pub mod test_create_char;

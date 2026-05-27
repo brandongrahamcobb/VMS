@@ -56,7 +56,7 @@ pub async fn assert_char_list_request(
     state: &SharedState,
     mut conn: TestConnection,
     acc_id: i32,
-) -> Result<TestConnection, HarnessError> {
+) -> Result<(i16, TestConnection), HarnessError> {
     dbg!(PHASE);
     let char_model: CharacterModel = CharacterModel {
         id: None,
@@ -99,7 +99,7 @@ pub async fn assert_char_list_request(
         char_models[0].ign.clone(),
     )
     .await?;
-    Ok(conn)
+    Ok((WORLD_ID, conn))
 }
 
 pub fn build_char_list_request(world_id: i16, channel_id: i16) -> Result<Packet, HarnessError> {
