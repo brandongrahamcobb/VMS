@@ -89,6 +89,7 @@ impl TakeDamageHandler {
                 scope: SessionScope::Local,
             }));
             result.add_action(Action::Session(SessionAction::Set(SetAction::SetMap {
+                previous_channel_id: store.channel_id,
                 map_wz: store.return_map_wz,
                 scope: SessionScope::Local,
             })));

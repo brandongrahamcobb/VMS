@@ -92,9 +92,18 @@ pub trait RuntimeRelay: Sized {
                         execute::session_execute::retrieve(state, &session).await?
                     }
                     SessionAction::Set(set_action) => match set_action {
-                        SetAction::SetMap { map_wz, scope } => {
+                        SetAction::SetMap {
+                            previous_channel_id,
+                            map_wz,
+                            scope,
+                        } => {
                             if session.get_map_wz().is_ok() {
-                                execute::session_execute::exit_map(state, &session).await?;
+                                execute::session_execute::exit_map(
+                                    state,
+                                    &session,
+                                    *previous_channel_id,
+                                )
+                                .await?;
                             }
                             let tick_rx = execute::session_execute::enter_map(
                                 state,

@@ -30,8 +30,10 @@ use state::model::SharedState;
 pub struct ChangeChannelStore {
     pub channel_id: u8,
     pub char: Character,
+    pub map_wz: i32,
     pub octets: [u8; 4],
     pub port: i16,
+    pub previous_channel_id: u8,
 }
 
 impl ChangeChannelStore {
@@ -40,6 +42,8 @@ impl ChangeChannelStore {
         session: &Session,
         reader: &ChangeChannelReader,
     ) -> Result<Self, ChangeChannelEntityError> {
+        let previous_channel_id: u8 = session.get_channel_id()?;
+        let map_wz: i32 = session.get_map_wz()?;
         let char_id: i32 = session.get_char_id()?;
         let pool: DbPool = state.lock().await.db.clone();
         let char: Character =
@@ -57,8 +61,10 @@ impl ChangeChannelStore {
         Ok(Self {
             channel_id,
             char,
+            map_wz,
             octets,
             port,
+            previous_channel_id,
         })
     }
 }

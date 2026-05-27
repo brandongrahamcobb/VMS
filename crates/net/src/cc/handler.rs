@@ -61,6 +61,11 @@ impl ChangeChannelHandler {
             channel_id: store.channel_id,
             scope: SessionScope::Local,
         })));
+        result.add_action(Action::Session(SessionAction::Set(SetAction::SetMap {
+            previous_channel_id: store.previous_channel_id,
+            map_wz: store.map_wz,
+            scope: SessionScope::Local,
+        })));
         let packet: Packet = Packet::new_empty()
             .build_despawn_player_packet(&store.char)?
             .finish();

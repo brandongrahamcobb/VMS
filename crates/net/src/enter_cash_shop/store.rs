@@ -26,6 +26,7 @@ use session::model::Session;
 
 pub struct EnterCashShopStore {
     pub char: Character,
+    pub channel_id: u8,
     pub map_wz: i32,
     pub username: String,
 }
@@ -35,6 +36,7 @@ impl EnterCashShopStore {
         pool: &DbPool,
         session: &Session,
     ) -> Result<Self, EnterCashShopError> {
+        let channel_id: u8 = session.get_channel_id()?;
         let acc_id: i32 = session.get_acc_id()?;
         let acc: Account = assembly::account::assemble::assemble_acc_by_id(pool, acc_id).await?;
         let username: String = acc.model.username;
@@ -43,6 +45,7 @@ impl EnterCashShopStore {
             assembly::character::assemble::assemble_char_by_id(pool, char_id).await?;
         Ok(Self {
             char,
+            channel_id,
             map_wz: CASH_SHOP_MAP_ID,
             username: username.clone(),
         })

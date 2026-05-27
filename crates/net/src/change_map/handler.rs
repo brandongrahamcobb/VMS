@@ -76,6 +76,7 @@ impl ChangeMapHandler {
             scope: SessionScope::Local,
         }));
         result.add_action(Action::Session(SessionAction::Set(SetAction::SetMap {
+            previous_channel_id: store.channel_id,
             map_wz: store.after_map_wz,
             scope: SessionScope::Local,
         })));

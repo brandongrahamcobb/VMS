@@ -170,9 +170,12 @@ pub async fn enter_map(
     Ok(tick_rx)
 }
 
-pub async fn exit_map(state: &SharedState, session: &Session) -> Result<(), ExecuteError> {
+pub async fn exit_map(
+    state: &SharedState,
+    session: &Session,
+    channel_id: u8,
+) -> Result<(), ExecuteError> {
     let world_id: i16 = session.get_world_id()?;
-    let channel_id: u8 = session.get_channel_id()?;
     let map_wz: i32 = session.get_map_wz()?;
     let char_id: i32 = session.get_char_id()?;
     let is_vacant = {

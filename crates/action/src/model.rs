@@ -35,11 +35,25 @@ pub enum SessionAction {
 
 #[derive(Clone)]
 pub enum SetAction {
-    SetMap { map_wz: i32, scope: SessionScope },
-    SetChannel { channel_id: u8, scope: SessionScope },
-    SetWorld { world_id: i16, scope: SessionScope },
-    SetAccount { acc_id: i32 },
-    SetChar { char_id: i32 },
+    SetMap {
+        previous_channel_id: u8,
+        map_wz: i32,
+        scope: SessionScope,
+    },
+    SetChannel {
+        channel_id: u8,
+        scope: SessionScope,
+    },
+    SetWorld {
+        world_id: i16,
+        scope: SessionScope,
+    },
+    SetAccount {
+        acc_id: i32,
+    },
+    SetChar {
+        char_id: i32,
+    },
 }
 
 #[derive(Clone)]

@@ -72,6 +72,7 @@ impl PlayerLoggedInHandler {
             scope: SessionScope::Local,
         }));
         result.add_action(Action::Session(SessionAction::Set(SetAction::SetMap {
+            previous_channel_id: store.channel_id,
             map_wz: store.map_wz,
             scope: SessionScope::Local,
         })));
