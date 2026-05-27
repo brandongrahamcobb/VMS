@@ -20,7 +20,7 @@ use crate::map::model::Point;
 
 pub fn get_map_wz_by_job_id(job_id: i16) -> i32 {
     match job_id {
-        1 => 10000,
+        0 => 10000,
         1000 => 130000000,
         2000 => 140000000,
         _ => 0, //placeholder
