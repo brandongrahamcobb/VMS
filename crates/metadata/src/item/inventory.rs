@@ -44,7 +44,7 @@ pub fn get_inventory_tab_by_wz(wz: i32) -> Result<InventoryTab, ItemMetadataErro
             _ => return Ok(InventoryTab::Equip),
         }
     }
-    return Err(ItemMetadataError::InventoryError);
+    Err(ItemMetadataError::InventoryError)
 }
 
 pub fn create_item_model_by_wz(wz: i32) -> Result<ItemModel, ItemMetadataError> {

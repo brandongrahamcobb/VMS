@@ -143,19 +143,19 @@ pub fn get_db_url() -> Result<String, ConfigError> {
     let user_key: &str = "postgres_user";
     let pw_key: &str = "postgres_password";
     let db = settings
-        .get_string(&db_key)
+        .get_string(db_key)
         .map_err(|_| ConfigError::InvalidString(db_key.to_string()))?;
     let ip = settings
-        .get_string(&ip_key)
+        .get_string(ip_key)
         .map_err(|_| ConfigError::InvalidString(ip_key.to_string()))?;
     let port = settings
-        .get_int(&port_key)
+        .get_int(port_key)
         .map_err(|_| ConfigError::InvalidInt(port_key.to_string()))?;
     let user = settings
-        .get_string(&user_key)
+        .get_string(user_key)
         .map_err(|_| ConfigError::InvalidString(user_key.to_string()))?;
     let pw = settings
-        .get_string(&pw_key)
+        .get_string(pw_key)
         .map_err(|_| ConfigError::InvalidString(pw_key.to_string()))?;
     Ok(format!("postgres://{}:{}@{}:{}/{}", user, pw, ip, port, db))
 }
@@ -189,21 +189,21 @@ pub fn get_gender_required() -> Result<bool, ConfigError> {
 
 pub fn get_channel_count() -> Result<i8, ConfigError> {
     let settings = get_settings()?;
-    let key = format!("channel_count");
+    let key: &str = "channel_count";
     let count: i8 = settings
-        .get_int(&key)?
+        .get_int(key)?
         .try_into()
-        .map_err(|e| ConfigError::IntConversion(e))?;
+        .map_err(ConfigError::IntConversion)?;
     Ok(count)
 }
 
 pub fn get_world_count() -> Result<i8, ConfigError> {
     let settings = get_settings()?;
-    let key = format!("world_count");
+    let key: &str = "world_count";
     let count: i8 = settings
-        .get_int(&key)?
+        .get_int(key)?
         .try_into()
-        .map_err(|e| ConfigError::IntConversion(e))?;
+        .map_err(ConfigError::IntConversion)?;
     Ok(count)
 }
 

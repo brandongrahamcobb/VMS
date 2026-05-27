@@ -22,6 +22,12 @@ use crate::result::HandlerResult;
 
 pub struct LoginStartHandler;
 
+impl Default for LoginStartHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LoginStartHandler {
     pub fn new() -> Self {
         Self

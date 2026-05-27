@@ -23,7 +23,6 @@ use packet::model::Packet;
 use packet::prelude::*;
 use std::io::Cursor;
 
-
 pub struct ChangeMapReader {
     pub died: i16,
     pub tm: i32,
@@ -40,7 +39,7 @@ impl ChangeMapReader {
         let tn: String = pkt_reader.read_str_with_length().map_err(ReadError)?;
         let skip: usize = 1;
         pkt_reader.read_bytes(skip).map_err(ReadError)?;
-        let wheel_of_destiny_death_buff: i16 = pkt_reader.read_short().map_err(ReadError)? as i16;
+        let wheel_of_destiny_death_buff: i16 = pkt_reader.read_short().map_err(ReadError)?;
         Ok(Self {
             died,
             tm,

@@ -16,17 +16,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use action::model::{Action, SessionAction, SetAction};
 use crate::cc::error::ChangeChannelEntityError;
 use crate::cc::reader::ChangeChannelReader;
 use crate::cc::store::ChangeChannelStore;
 use crate::result::HandlerResult;
-use packet::model::Packet;
+use action::model::{Action, SessionAction, SetAction};
 use action::scope::{MapScope, SessionScope};
+use packet::model::Packet;
 use session::model::Session;
 use state::model::SharedState;
 
 pub struct ChangeChannelHandler;
+
+impl Default for ChangeChannelHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl ChangeChannelHandler {
     pub fn new() -> Self {
@@ -63,7 +69,7 @@ impl ChangeChannelHandler {
             scope: SessionScope::Map(MapScope::SameChannelSameWorld),
         }));
         let packet: Packet = Packet::new_empty()
-            .build_channel_change_packet(store.octets.clone(), store.port)?
+            .build_channel_change_packet(store.octets, store.port)?
             .finish();
         result.add_action(Action::Session(SessionAction::Break {
             packet: packet.clone(),

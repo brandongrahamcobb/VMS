@@ -73,7 +73,7 @@ pub fn build_list_worlds_handler_servers_packets(
         let mut packet: Packet = Packet::new_empty();
         let op = SendOpcode::ServerList as i16;
         packet.write_short(op).map_err(WriteError)?;
-        packet.write_byte(*world_id as i16).map_err(WriteError)?;
+        packet.write_byte(*world_id).map_err(WriteError)?;
         packet
             .write_str_with_length(world.model.name.to_string())
             .map_err(WriteError)?;
@@ -97,7 +97,7 @@ pub fn build_list_worlds_handler_servers_packets(
             packet.write_int(channel_capacity).map_err(WriteError)?;
             packet.write_byte(1).map_err(WriteError)?;
             packet.write_byte(*channel_id as i16).map_err(WriteError)?;
-            packet.write_byte(*world_id as i16).map_err(WriteError)?;
+            packet.write_byte(*world_id).map_err(WriteError)?;
         }
         packet.write_short(0).map_err(WriteError)?;
         packets.push(packet.finish());

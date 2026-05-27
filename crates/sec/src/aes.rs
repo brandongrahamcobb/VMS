@@ -28,12 +28,12 @@ pub struct AES {
 }
 
 impl AES {
-    pub fn new(iv: &Vec<u8>, version: i16) -> AES {
-        let iv = iv.clone();
+    pub fn new(iv: &[u8], version: i16) -> AES {
+        let iv = iv.to_owned();
         let adjusted_version = (version as u16 >> 8) & 0xFF | (((version as u16) << 8) & 0xFF00);
         AES {
             iv,
-            version: adjusted_version as u16,
+            version: adjusted_version,
         }
     }
 
@@ -69,10 +69,10 @@ impl AES {
         let mlength = (((length as u32) << 8) & 0xFF00) | ((length as u32) >> 8);
         let xored_iv = iiv ^ mlength;
         vec![
-            (iiv >> 8) as u8 & 0xFF,
-            iiv as u8 & 0xFF,
-            (xored_iv >> 8) as u8 & 0xFF,
-            xored_iv as u8 & 0xFF,
+            (iiv >> 8) as u8,
+            iiv as u8,
+            (xored_iv >> 8) as u8,
+            xored_iv as u8,
         ]
     }
 
@@ -88,27 +88,25 @@ impl AES {
         self.iv = self.get_new_iv(&self.iv);
     }
 
-    fn get_new_iv(&self, iv: &Vec<u8>) -> Vec<u8> {
+    fn get_new_iv(&self, iv: &[u8]) -> Vec<u8> {
         let mut new_iv: Vec<u8> = constants::DEFAULT_AES_KEY_VALUE.to_vec();
         let shuffle_bytes = constants::SHUFFLE_BYTES;
-        for i in 0..4 {
-            let byte = iv[i];
-            new_iv[0] = new_iv[0]
-                .wrapping_add(shuffle_bytes[(new_iv[1] & 0xFF) as usize].wrapping_sub(byte));
-            new_iv[1] =
-                new_iv[1].wrapping_sub(new_iv[2] ^ shuffle_bytes[(byte & 0xFF) as usize] & 0xFF);
-            new_iv[2] = new_iv[2] ^ (shuffle_bytes[(new_iv[3] & 0xFF) as usize].wrapping_add(byte));
-            new_iv[3] = new_iv[3].wrapping_add(
-                (shuffle_bytes[(byte & 0xFF) as usize] & 0xFF).wrapping_sub(new_iv[0] & 0xFF),
-            );
+        for item in iv.iter().take(4) {
+            let byte = *item;
+            new_iv[0] =
+                new_iv[0].wrapping_add(shuffle_bytes[(new_iv[1]) as usize].wrapping_sub(byte));
+            new_iv[1] = new_iv[1].wrapping_sub(new_iv[2] ^ shuffle_bytes[(byte) as usize]);
+            new_iv[2] &= shuffle_bytes[(new_iv[3]) as usize].wrapping_add(byte);
+            new_iv[3] =
+                new_iv[3].wrapping_add((shuffle_bytes[(byte) as usize]).wrapping_sub(new_iv[0]));
             let mut mask = 0usize;
             mask |= (new_iv[0] as usize) & 0xFF;
             mask |= ((new_iv[1] as usize) << 8) & 0xFF00;
             mask |= ((new_iv[2] as usize) << 16) & 0xFF0000;
             mask |= ((new_iv[3] as usize) << 24) & 0xFF000000;
             mask = (mask >> 0x1D) | (mask << 3);
-            for j in 0..4 {
-                new_iv[j] = ((mask >> (8 * j)) & 0xFF) as u8;
+            for (j, item) in new_iv.iter_mut().enumerate().take(4) {
+                *item = ((mask >> (8 * j)) & 0xFF) as u8;
             }
         }
         new_iv
@@ -118,7 +116,7 @@ impl AES {
         let mut result: Vec<u8> = Vec::new();
         let iv_len = input.len();
         for i in 0..(iv_len * mul) {
-            result.push(input[(i % iv_len) as usize]);
+            result.push(input[i % iv_len])
         }
         result
     }

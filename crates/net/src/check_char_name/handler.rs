@@ -17,16 +17,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::scope::SessionScope;
-use action::model::{Action, SessionAction};
 use crate::check_char_name::error::CheckCharNameError;
 use crate::check_char_name::reader::CheckCharNameReader;
 use crate::check_char_name::store::CheckCharNameStore;
 use crate::result::HandlerResult;
-use packet::model::Packet;
+use action::model::{Action, SessionAction};
+use action::scope::SessionScope;
 use db::pool::DbPool;
+use packet::model::Packet;
 
 pub struct CheckCharNameHandler;
+
+impl Default for CheckCharNameHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl CheckCharNameHandler {
     pub fn new() -> Self {

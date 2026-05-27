@@ -30,7 +30,7 @@ pub fn next_free_pos(inv: &Inventory, tab: &InventoryTab) -> Result<i16, ItemEnt
         InventoryTab::Cash => &inv.cash_tab,
     };
     if let Some(pos) = (1..=96).find(|pos| !tab.contains_key(pos)) {
-        return Ok(pos);
+        Ok(pos)
     } else {
         Err(ItemEntityError::InventoryFull)
     }

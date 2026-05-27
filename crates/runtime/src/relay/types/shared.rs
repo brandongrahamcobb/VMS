@@ -64,18 +64,29 @@ pub trait RuntimeRelay: Sized {
                         if session.transitioning {
                             return Ok(ControlFlow::Continue(()));
                         }
-                        execute::broadcast_execute::broadcast(state, &packet, &scope).await?;
+                        execute::broadcast_execute::broadcast(state, packet.clone(), scope.clone())
+                            .await?;
                     }
                 },
                 Action::Session(action) => match action {
                     SessionAction::Break { packet, scope } => {
-                        return execute::session_execute::end(state, &session, &packet, &scope)
-                            .await
-                            .map_err(RelayTypeError::from);
+                        return execute::session_execute::end(
+                            state,
+                            &session,
+                            packet.clone(),
+                            scope.clone(),
+                        )
+                        .await
+                        .map_err(RelayTypeError::from);
                     }
                     SessionAction::Send { packet, scope } => {
-                        let _ = execute::session_execute::send(state, &session, &packet, &scope)
-                            .await?;
+                        let _ = execute::session_execute::send(
+                            state,
+                            &session,
+                            packet.clone(),
+                            scope.clone(),
+                        )
+                        .await?;
                     }
                     SessionAction::Retrieve => {
                         execute::session_execute::retrieve(state, &session).await?
@@ -86,7 +97,10 @@ pub trait RuntimeRelay: Sized {
                                 execute::session_execute::exit_map(state, &session).await?;
                             }
                             let tick_rx = execute::session_execute::enter_map(
-                                state, &session, &scope, *map_wz,
+                                state,
+                                &session,
+                                scope.clone(),
+                                *map_wz,
                             )
                             .await?;
                             self.set_tick_rx(tick_rx);
@@ -95,14 +109,19 @@ pub trait RuntimeRelay: Sized {
                             execute::session_execute::set_channel(
                                 state,
                                 &session,
-                                &scope,
+                                scope.clone(),
                                 *channel_id,
                             )
                             .await?
                         }
                         SetAction::SetWorld { world_id, scope } => {
-                            execute::session_execute::set_world(state, &session, &scope, *world_id)
-                                .await?
+                            execute::session_execute::set_world(
+                                state,
+                                &session,
+                                scope.clone(),
+                                *world_id,
+                            )
+                            .await?
                         }
                         SetAction::SetAccount { acc_id } => {
                             execute::session_execute::set_acc(state, &session, *acc_id).await?
@@ -114,7 +133,7 @@ pub trait RuntimeRelay: Sized {
                 },
             }
         }
-        return Ok(ControlFlow::Continue(()));
+        Ok(ControlFlow::Continue(()))
     }
 
     async fn execute_via_tick(
@@ -127,12 +146,13 @@ pub trait RuntimeRelay: Sized {
             match action {
                 Action::Broadcast(action) => match action {
                     BroadcastAction::Send { packet, scope } => {
-                        execute::broadcast_execute::broadcast(state, &packet, &scope).await?
+                        execute::broadcast_execute::broadcast(state, packet.clone(), scope.clone())
+                            .await?
                     }
                 },
                 Action::Session(_) => {}
             }
         }
-        return Ok(ControlFlow::Continue(()));
+        Ok(ControlFlow::Continue(()))
     }
 }

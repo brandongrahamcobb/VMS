@@ -58,12 +58,12 @@ impl TakeDamageStore {
             char.model.hp = max_hp;
             db::character::setters::update_characters(pool, vec![char.model.clone()]).await?;
         }
-        return Ok(Self {
+        Ok(Self {
             channel_id,
             char,
             hp,
             max_hp,
             return_map_wz,
-        });
+        })
     }
 }

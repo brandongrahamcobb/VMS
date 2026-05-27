@@ -46,7 +46,7 @@ impl ChatTextStore {
         let acc_id: i32 = session.get_acc_id()?;
         let acc: Account = assembly::account::assemble::assemble_acc_by_id(pool, acc_id).await?;
         let char_id = session.get_char_id()?;
-        return Ok(Self {
+        Ok(Self {
             admin: acc.model.admin,
             channel_id,
             char_id,
@@ -55,6 +55,6 @@ impl ChatTextStore {
             msg: reader.msg.clone(),
             show: reader.show,
             world_id,
-        });
+        })
     }
 }

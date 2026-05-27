@@ -30,7 +30,7 @@ where
     let pool = pool.clone();
     tokio::task::spawn_blocking(move || {
         let mut conn = pool.get().map_err(|_| diesel::result::Error::NotFound)?;
-        f(&mut *conn)
+        f(&mut conn)
     })
     .await
     .map_err(DatabaseError::JoinError)?

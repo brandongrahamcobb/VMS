@@ -28,6 +28,12 @@ use state::model::SharedState;
 
 pub struct ListWorldsHandler;
 
+impl Default for ListWorldsHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ListWorldsHandler {
     pub fn new() -> Self {
         Self

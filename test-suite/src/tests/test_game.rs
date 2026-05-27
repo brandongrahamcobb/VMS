@@ -1,7 +1,6 @@
 use config::settings;
 use state::model::{SharedState, State};
 use std::sync::Arc;
-use tokio::net::lookup_host;
 use tokio::sync::{Mutex, Semaphore};
 
 use crate::error::HarnessError;
@@ -27,7 +26,7 @@ pub async fn login_until_redirect(
     let state: SharedState = Arc::new(Mutex::new(State::new()?));
     let port: i16 = settings::get_login_port()?;
     let host: String = settings::get_host()?;
-    let bind = lookup_host(format!("{host}:{port}"))
+    let bind = tokio::net::lookup_host(format!("{host}:{port}"))
         .await
         .map_err(|e| HarnessError::EndpointError(e.to_string()))?
         .next()
@@ -54,7 +53,7 @@ pub async fn play(details: &LoginDetails) -> Result<TestConnection, HarnessError
     // let state: SharedState = Arc::new(Mutex::new(State::new()?));
     let host: String = settings::get_host()?;
     let addr_str: String = format!("{}:{}", host, details.port);
-    let bind = lookup_host(addr_str)
+    let bind = tokio::net::lookup_host(addr_str)
         .await
         .map_err(|e| HarnessError::EndpointError(e.to_string()))?
         .next()

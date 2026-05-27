@@ -17,17 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::scope::BroadcastScope;
-use action::model::{Action, BroadcastAction};
 use crate::pickup_item::error::PickupItemEntityError;
 use crate::pickup_item::reader::PickupItemReader;
 use crate::pickup_item::store::PickupItemStore;
 use crate::result::HandlerResult;
-use packet::model::Packet;
+use action::model::{Action, BroadcastAction};
+use action::scope::BroadcastScope;
 use db::pool::DbPool;
+use packet::model::Packet;
 use session::model::Session;
 
 pub struct PickupItemHandler;
+
+impl Default for PickupItemHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl PickupItemHandler {
     pub fn new() -> Self {

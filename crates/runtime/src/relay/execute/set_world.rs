@@ -37,7 +37,7 @@ pub async fn set_world_locally(
 pub async fn set_world_for_map(
     state: &SharedState,
     session: &Session,
-    map_scope: &MapScope,
+    map_scope: MapScope,
     world_id: i16,
 ) -> Result<(), ExecuteError> {
     match map_scope {
@@ -95,7 +95,7 @@ pub async fn set_world_for_map(
 pub async fn set_world_for_channel(
     state: &SharedState,
     session: &Session,
-    channel_scope: &ChannelScope,
+    channel_scope: ChannelScope,
     world_id: i16,
 ) -> Result<(), ExecuteError> {
     match channel_scope {

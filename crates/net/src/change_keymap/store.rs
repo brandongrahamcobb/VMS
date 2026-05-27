@@ -53,6 +53,6 @@ impl ChangeKeymapStore {
         )
         .collect();
         db::keybinding::setters::update_keybindings(pool, new_binds.clone()).await?;
-        return Ok(Self);
+        Ok(Self)
     }
 }

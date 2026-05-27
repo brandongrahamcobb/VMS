@@ -23,7 +23,7 @@ use entity::mob::model::{MobWzInfo, MobWzLife};
 
 pub fn get_mob_rate_by_map_wz(map_wz: i32) -> Result<f32, MapMetadataError> {
     let filename: &str = "Map.wz";
-    let json = service::wz_to_img(map_wz, &filename)?;
+    let json = service::wz_to_img(map_wz, filename)?;
     let mob_rate = json["info"]["mobRate"]
         .as_f64()
         .ok_or(MapMetadataError::MobError)? as f32;

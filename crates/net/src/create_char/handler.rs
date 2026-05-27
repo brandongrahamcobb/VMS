@@ -17,17 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::scope::SessionScope;
-use action::model::{Action, SessionAction};
 use crate::create_char::error::CreateCharError;
 use crate::create_char::reader::CreateCharReader;
 use crate::create_char::store::CreateCharStore;
 use crate::result::HandlerResult;
-use packet::model::Packet;
+use action::model::{Action, SessionAction};
+use action::scope::SessionScope;
 use db::pool::DbPool;
+use packet::model::Packet;
 use session::model::Session;
 
 pub struct CreateCharHandler;
+
+impl Default for CreateCharHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl CreateCharHandler {
     pub fn new() -> Self {

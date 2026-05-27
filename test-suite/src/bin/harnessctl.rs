@@ -1,6 +1,5 @@
 use config::settings;
 use core::time::Duration;
-use dotenvy;
 use std::net::TcpStream;
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode, Stdio};
@@ -79,9 +78,9 @@ fn ensure_docker_available() -> Result<(), HarnessError> {
         .status();
     match compose_status {
         Ok(status) if status.success() => Ok(()),
-        Ok(_) => Err(HarnessError::DockerError(format!(
+        Ok(_) => Err(HarnessError::DockerError(
             "Docker is installed but `docker compose` is unavailable; install Docker Compose v2 plugin"
-        ))),
+        .to_string())),
         Err(e) => Err(HarnessError::DockerError(format!(
             "Failed to execute `docker compose version`: {e}"
         ))),
@@ -109,7 +108,7 @@ fn docker_compose_up() -> Result<(), HarnessError> {
     compose_cmd(["up", "-d", "--no-build", "--remove-orphans"])?;
     let bind_addr: String = settings::get_bind_address()?;
     let server_port: i16 = settings::get_login_port()?;
-    let server_addr = String::from(format!("{bind_addr}:{server_port}"));
+    let server_addr = format!("{bind_addr}:{server_port}");
     // let server_addr = helpers::build_server_addr(login_addr, server_port);
     wait_for_endpoint(&server_addr, Duration::from_secs(60))?;
     Ok(())

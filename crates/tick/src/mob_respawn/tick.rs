@@ -32,6 +32,12 @@ use tokio::time::Instant;
 
 pub struct MobRespawnTick;
 
+impl Default for MobRespawnTick {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MobRespawnTick {
     pub fn new() -> Self {
         Self

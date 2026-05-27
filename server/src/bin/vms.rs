@@ -27,19 +27,20 @@ use tracing::info;
 use tracing_subscriber::EnvFilter;
 
 #[tokio::main]
+#[warn(dead_code)]
 async fn main() -> Result<(), VMSError> {
     tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::from_default_env().add_directive(tracing::Level::DEBUG.into()))
         .init();
-    let state: SharedState = Arc::new(Mutex::new(State::new()?));
+    let state: SharedState = Arc::new(Mutex::new(State::new().map_err(Box::new)?));
     {
         let tick_manager = TickManager::new();
-        tick_manager.spawn_ticks(&state).await?;
+        tick_manager.spawn_ticks(&state).await.map_err(Box::new)?;
     }
     info!("Loading login port...");
     let login = LoginServer::run(state.clone());
     info!("Loading player ports...");
     let player = PlayerServer::run(state.clone());
-    try_join!(login, player)?;
+    let (_, _) = try_join!(login, player).map_err(Box::new)?;
     Ok(())
 }

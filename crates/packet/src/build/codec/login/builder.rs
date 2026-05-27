@@ -45,9 +45,9 @@ impl Packet {
     ) -> Result<&mut Self, PacketBuildError> {
         let pin_required = settings::get_pin_required()? as i16;
         let opcode = SendOpcode::AccountStatus as i16;
-        let acc_id = acc.model.get_id()? as i32;
-        let gender_wz = acc.model.gender_wz as i16;
-        let account_name = acc.model.username.clone();
+        let acc_id: i32 = acc.model.get_id()?;
+        let gender_wz: i16 = acc.model.gender_wz;
+        let account_name: String = acc.model.username.clone();
         let created_at: i64 = acc
             .model
             .get_created_at()?

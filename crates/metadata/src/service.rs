@@ -113,7 +113,7 @@ pub fn wz_debug_dir(
         match entry {
             WzDirEntry::Dir(dir) => {
                 node = wz_reader
-                    .read_dir_node(&dir)
+                    .read_dir_node(dir)
                     .map_err(MetadataServiceError::AnyHowError)?;
             }
             _ => return Err(MetadataServiceError::EntryError),
@@ -173,10 +173,10 @@ impl WzResolver {
                     } else {
                         format!("{}/{}", prefix, name)
                     };
-                    if let Some(id) = name.strip_suffix(".img") {
-                        if let Ok(id_num) = id.parse::<i32>() {
-                            map.insert(id_num, path);
-                        }
+                    if let Some(id) = name.strip_suffix(".img")
+                        && let Ok(id_num) = id.parse::<i32>()
+                    {
+                        map.insert(id_num, path);
                     }
                 }
                 _ => {}
@@ -189,6 +189,6 @@ impl WzResolver {
         self.map
             .get(&id)
             .cloned()
-            .ok_or(MetadataServiceError::NotFound(id).into())
+            .ok_or(MetadataServiceError::NotFound(id))
     }
 }

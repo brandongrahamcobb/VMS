@@ -84,8 +84,8 @@ pub fn get_max_number_of_meso_explosion_hits(skill_level: i16, number_of_meso_ch
         _ => 0,
     };
     if number_of_meso_chunks < skill_max {
-        return number_of_meso_chunks;
+        number_of_meso_chunks
     } else {
-        return skill_max;
+        skill_max
     }
 }

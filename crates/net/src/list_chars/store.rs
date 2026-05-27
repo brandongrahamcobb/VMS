@@ -49,19 +49,16 @@ impl ListCharsStore {
     ) -> Result<Self, ListCharsError> {
         let acc_id: i32 = session.get_acc_id()?;
         let acc: Account = assembly::account::assemble::assemble_acc_by_id(pool, acc_id).await?;
-        let char_slots: i16 = match db::character::getters::get_char_max_by_account_and_world_id(
+        let char_slots: i16 = db::character::getters::get_char_max_by_account_and_world_id(
             pool,
             acc_id,
             reader.world_id,
         )
         .await
-        {
-            Ok(char_max) => char_max,
-            Err(_) => 8,
-        };
+        .unwrap_or(8);
         let mut pic_status: i16 = PicStatus::Disabled as i16;
         let use_pic = settings::get_pic_required()?;
-        if let Some(_) = acc.model.pic.clone() {
+        if acc.model.pic.clone().is_some() {
             if use_pic {
                 pic_status = PicStatus::AlreadyRegistered as i16;
             }

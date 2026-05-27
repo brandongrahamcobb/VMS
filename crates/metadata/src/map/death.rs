@@ -22,7 +22,7 @@ use crate::service;
 
 pub fn get_death_map_by_wz(map_wz: i32) -> Result<i32, MapMetadataError> {
     let filename: &str = "Map.wz";
-    let json = service::wz_to_img(map_wz, &filename)?;
+    let json = service::wz_to_img(map_wz, filename)?;
     let return_map_wz = json["info"]["returnMap"]
         .as_i64()
         .ok_or(MapMetadataError::DeathMapError)? as i32;

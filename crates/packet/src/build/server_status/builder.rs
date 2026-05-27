@@ -30,7 +30,6 @@ impl Packet {
     ) -> Result<&mut Self, PacketBuildError> {
         let op = SendOpcode::ServerStatus as i16;
         self.write_short(op).map_err(WriteError)?;
-        let status = status as i16;
         self.write_short(status) // Highly populated status!
             .map_err(WriteError)?;
         Ok(self)

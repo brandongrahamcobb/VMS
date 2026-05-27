@@ -21,11 +21,17 @@ use crate::change_keymap::error::ChangeKeymapError;
 use crate::change_keymap::reader::ChangeKeymapReader;
 use crate::change_keymap::store::ChangeKeymapStore;
 use crate::result::HandlerResult;
-use packet::model::Packet;
 use db::pool::DbPool;
+use packet::model::Packet;
 use session::model::Session;
 
 pub struct ChangeKeymapHandler;
+
+impl Default for ChangeKeymapHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl ChangeKeymapHandler {
     pub fn new() -> Self {

@@ -35,8 +35,8 @@ use tokio_util::sync::CancellationToken;
 pub async fn end(
     state: &SharedState,
     session: &Session,
-    packet: &Packet,
-    scope: &SessionScope,
+    packet: Packet,
+    scope: SessionScope,
 ) -> Result<ControlFlow<Packet>, ExecuteError> {
     match scope {
         SessionScope::Local => {
@@ -57,8 +57,8 @@ pub async fn end(
 pub async fn send(
     state: &SharedState,
     session: &Session,
-    packet: &Packet,
-    scope: &SessionScope,
+    packet: Packet,
+    scope: SessionScope,
 ) -> Result<ControlFlow<Packet>, ExecuteError> {
     match scope {
         SessionScope::Local => {
@@ -110,7 +110,7 @@ pub async fn retrieve(state: &SharedState, session: &Session) -> Result<(), Exec
                                 .build_spawn_mob_controller_packet(
                                     *mob_id,
                                     1,
-                                    mob.life.wz as i32,
+                                    mob.life.wz,
                                     0,
                                     mob.model.fh,
                                     0,
@@ -137,7 +137,7 @@ pub async fn retrieve(state: &SharedState, session: &Session) -> Result<(), Exec
 pub async fn enter_map(
     state: &SharedState,
     session: &Session,
-    scope: &SessionScope,
+    scope: SessionScope,
     map_wz: i32,
 ) -> Result<broadcast::Receiver<TickEvent>, ExecuteError> {
     let char_id: i32 = session.get_char_id()?;
@@ -217,7 +217,7 @@ pub async fn exit_map(state: &SharedState, session: &Session) -> Result<(), Exec
 pub async fn set_channel(
     state: &SharedState,
     session: &Session,
-    scope: &SessionScope,
+    scope: SessionScope,
     channel_id: u8,
 ) -> Result<(), ExecuteError> {
     match scope {
@@ -243,7 +243,7 @@ pub async fn set_channel(
 pub async fn set_world(
     state: &SharedState,
     session: &Session,
-    scope: &SessionScope,
+    scope: SessionScope,
     world_id: i16,
 ) -> Result<(), ExecuteError> {
     match scope {

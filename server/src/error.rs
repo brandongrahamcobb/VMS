@@ -25,11 +25,11 @@ use tick::error::TickError;
 #[derive(Debug, Error)]
 pub enum VMSError {
     #[error("Tick error in VMS layer")]
-    TickError(#[from] TickError),
+    TickError(#[from] Box<TickError>),
 
     #[error("State error in VMS layer")]
-    StateError(#[from] StateError),
+    StateError(#[from] Box<StateError>),
 
     #[error("Runtime error in VMS layer")]
-    RuntimeError(#[from] RuntimeError),
+    RuntimeError(#[from] Box<RuntimeError>),
 }

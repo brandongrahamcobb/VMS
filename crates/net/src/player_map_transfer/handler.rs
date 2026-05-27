@@ -17,16 +17,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::model::{Action, SessionAction};
-use action::scope::{MapScope, SessionScope};
 use crate::player_map_transfer::error::PlayerMapTransferError;
 use crate::player_map_transfer::store::PlayerMapTransferStore;
 use crate::result::HandlerResult;
+use action::model::{Action, SessionAction};
+use action::scope::{MapScope, SessionScope};
 use packet::model::Packet;
 use session::model::Session;
 use state::model::SharedState;
 
 pub struct PlayerMapTransferHandler;
+
+impl Default for PlayerMapTransferHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl PlayerMapTransferHandler {
     pub fn new() -> Self {

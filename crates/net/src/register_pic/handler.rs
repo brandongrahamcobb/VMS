@@ -17,17 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::model::{Action, SessionAction, SetAction};
 use crate::register_pic::error::RegisterPicError;
 use crate::register_pic::reader::RegisterPicReader;
 use crate::register_pic::store::RegisterPicStore;
 use crate::result::HandlerResult;
-use packet::model::Packet;
+use action::model::{Action, SessionAction, SetAction};
 use action::scope::SessionScope;
+use packet::model::Packet;
 use session::model::Session;
 use state::model::SharedState;
 
 pub struct RegisterPicHandler;
+
+impl Default for RegisterPicHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl RegisterPicHandler {
     pub fn new() -> Self {

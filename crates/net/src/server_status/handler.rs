@@ -17,15 +17,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::model::{Action, SessionAction};
-use action::scope::SessionScope;
 use crate::result::HandlerResult;
 use crate::server_status::error::ServerStatusError;
 use crate::server_status::store::ServerStatusStore;
+use action::model::{Action, SessionAction};
+use action::scope::SessionScope;
 use packet::model::Packet;
 use state::model::SharedState;
 
 pub struct ServerStatusHandler;
+
+impl Default for ServerStatusHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl ServerStatusHandler {
     pub fn new() -> Self {

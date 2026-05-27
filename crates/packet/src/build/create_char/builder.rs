@@ -52,7 +52,7 @@ impl Packet {
         &mut self,
         char: &Character,
     ) -> Result<&mut Self, PacketBuildError> {
-        let gender_wz = char.model.gender_wz as i16;
+        let gender_wz = char.model.gender_wz;
         self.write_byte(gender_wz).map_err(WriteError)?;
         let skin_wz = char.model.skin_wz as i16;
         self.write_byte(skin_wz).map_err(WriteError)?;

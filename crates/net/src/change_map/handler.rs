@@ -17,17 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::model::{Action, SessionAction, SetAction};
 use crate::change_map::error::ChangeMapEntityError;
 use crate::change_map::reader::ChangeMapReader;
 use crate::change_map::store::ChangeMapStore;
 use crate::result::HandlerResult;
-use packet::model::Packet;
+use action::model::{Action, SessionAction, SetAction};
 use action::scope::{MapScope, SessionScope};
+use packet::model::Packet;
 use session::model::Session;
 use state::model::SharedState;
 
 pub struct ChangeMapHandler;
+
+impl Default for ChangeMapHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl ChangeMapHandler {
     pub fn new() -> Self {
@@ -50,7 +56,10 @@ impl ChangeMapHandler {
         Ok(result)
     }
 
-    fn build_change_map(&self, store: &ChangeMapStore) -> Result<HandlerResult, ChangeMapEntityError> {
+    fn build_change_map(
+        &self,
+        store: &ChangeMapStore,
+    ) -> Result<HandlerResult, ChangeMapEntityError> {
         let mut result: HandlerResult = HandlerResult::new();
         let packet: Packet = Packet::new_empty()
             .build_despawn_player_packet(&store.char)?

@@ -33,25 +33,17 @@ impl Packet {
         let op = SendOpcode::SpawnPlayer as i16;
         self.write_short(op).map_err(WriteError)?;
         self.write_int(char.model.get_id()?).map_err(WriteError)?;
-        let level = char.model.level as i16;
+        let level: i16 = char.model.level;
         self.write_byte(level).map_err(WriteError)?;
         self.write_str_with_length(char.model.ign.clone())
             .map_err(WriteError)?;
         let guild_name = String::from("Guild Name");
         self.write_str_with_length(guild_name).map_err(WriteError)?;
-        let skip = 0 as i16;
-        self.write_short(skip).map_err(WriteError)?; // guildlogobg
-        let skip = 0 as i16;
-        self.write_byte(skip).map_err(WriteError)?; //guildlogobgcolor
-        let skip = 0 as i16;
-        self.write_short(skip).map_err(WriteError)?; //guildlogo
-        let skip = 0 as i16;
-        self.write_byte(skip).map_err(WriteError)?; //guildlogocolor
-        let skip = vec![0u8; 8];
+        let skip: Vec<u8> = vec![0u8; 18];
         self.write_bytes(skip).map_err(WriteError)?;
-        let morphed = 0; // 2 if morphed
+        let morphed: i32 = 0; // 2 if morphed
         self.write_int(morphed).map_err(WriteError)?;
-        let buff_mask_one = 0;
+        let buff_mask_one: i32 = 0;
         self.write_int(buff_mask_one).map_err(WriteError)?;
         if buff_mask_one != 0 {
             if morphed == 2 {
@@ -62,27 +54,27 @@ impl Packet {
                 self.write_byte(buff_value).map_err(WriteError)?;
             }
         }
-        let buff_mask_two = 0; // 0 not sure
+        let buff_mask_two: i32 = 0; // 0 not sure
         self.write_int(buff_mask_two).map_err(WriteError)?;
-        let skip = vec![0u8; 43];
+        let skip: Vec<u8> = vec![0u8; 43];
         self.write_bytes(skip).map_err(WriteError)?;
-        let mount = 0; // 0 not sure
+        let mount: i32 = 0; // 0 not sure
         self.write_int(mount).map_err(WriteError)?;
-        let skip = vec![0u8; 61];
+        let skip: Vec<u8> = vec![0u8; 61];
         self.write_bytes(skip).map_err(WriteError)?;
         self.write_short(char.model.job_wz).map_err(WriteError)?;
         self.build_look_meta_part_packet(char)?;
-        let count = 5110000;
+        let count: i32 = 5110000;
         self.write_int(count).map_err(WriteError)?;
-        let item_effect = 0; // 0 not sure
+        let item_effect: i32 = 0; // 0 not sure
         self.write_int(item_effect).map_err(WriteError)?;
-        let chair = 0; // 0 not sure
+        let chair: i32 = 0; // 0 not sure
         self.write_int(chair).map_err(WriteError)?;
-        let position_x = 0; // 0 this is a point so it might be wrong
-        let position_y = 0; // 0 this is a point so it might be wrong
+        let position_x: i16 = 0; // 0 this is a point so it might be wrong
+        let position_y: i16 = 0; // 0 this is a point so it might be wrong
         self.write_short(position_x).map_err(WriteError)?;
         self.write_short(position_y).map_err(WriteError)?;
-        let stance = 0 as i16; // 0 not sure
+        let stance: i16 = 0; // 0 not sure
         self.write_byte(stance).map_err(WriteError)?;
         let skip = vec![0u8; 3];
         self.write_bytes(skip).map_err(WriteError)?;
@@ -90,9 +82,9 @@ impl Packet {
             let available = 0; // 0 not sure
             self.write_byte(available).map_err(WriteError)?;
             if available == 1 {
-                let byte_two = 0 as i16; // 0 not sure
+                let byte_two: i16 = 0; // 0 not sure
                 self.write_byte(byte_two).map_err(WriteError)?;
-                let pet_id = 0; // 0 is definitely not right
+                let pet_id: i32 = 0; // 0 is definitely not right
                 self.write_int(pet_id).map_err(WriteError)?;
                 let pet_name = String::from("George");
                 self.write_str_with_length(pet_name).map_err(WriteError)?;
@@ -115,8 +107,8 @@ impl Packet {
         self.write_int(mount_exp).map_err(WriteError)?;
         let mount_tiredness = 0; // 0 not sure
         self.write_int(mount_tiredness).map_err(WriteError)?;
-        let skip = 0 as i16;
-        self.write_byte(skip).map_err(WriteError)?; // shop stuff
+        let skip: Vec<u8> = vec![0u8; 1];
+        self.write_bytes(skip).map_err(WriteError)?; // shop stuff
         let chalkboard_bool: bool = false; // false not sure
         let chalkboard: i16 = chalkboard_bool as i16; // false not sure
         self.write_byte(chalkboard).map_err(WriteError)?;
@@ -125,9 +117,9 @@ impl Packet {
             self.write_str_with_length(chalkboard_text)
                 .map_err(WriteError)?;
         }
-        let skip = vec![0u8; 3];
+        let skip: Vec<u8> = vec![0u8; 3];
         self.write_bytes(skip).map_err(WriteError)?;
-        let team = 0 as i16; // 0 not sure
+        let team: i16 = 0; // 0 not sure
         self.write_byte(team).map_err(WriteError)?;
         Ok(self)
     }
@@ -154,7 +146,7 @@ impl Packet {
         self.write_str(char.model.ign.clone()).map_err(WriteError)?;
         self.write_bytes(vec![0u8; 13 - char.model.ign.len()])
             .map_err(WriteError)?;
-        let gender_wz = char.model.gender_wz as i16;
+        let gender_wz = char.model.gender_wz;
         self.write_byte(gender_wz).map_err(WriteError)?;
         let skin_wz = char.model.skin_wz as i16;
         self.write_byte(skin_wz).map_err(WriteError)?;
@@ -202,8 +194,7 @@ impl Packet {
         self.write_str(char.model.ign.clone()).map_err(WriteError)?;
         self.write_bytes(vec![0u8; 13 - char.model.ign.len()])
             .map_err(WriteError)?;
-        self.write_byte(char.model.gender_wz as i16)
-            .map_err(WriteError)?;
+        self.write_byte(char.model.gender_wz).map_err(WriteError)?;
         self.write_byte(char.model.skin_wz as i16)
             .map_err(WriteError)?;
         self.write_int(char.model.face_wz).map_err(WriteError)?;
@@ -212,8 +203,7 @@ impl Packet {
         self.write_long(0).map_err(WriteError)?;
         self.write_long(0).map_err(WriteError)?;
         self.write_long(0).map_err(WriteError)?;
-        self.write_byte(char.model.level as i16)
-            .map_err(WriteError)?;
+        self.write_byte(char.model.level).map_err(WriteError)?;
         self.write_short(char.model.job_wz).map_err(WriteError)?;
         self.write_short(char.model.strength).map_err(WriteError)?;
         self.write_short(char.model.dexterity).map_err(WriteError)?;
@@ -241,8 +231,7 @@ impl Packet {
         &mut self,
         char: &Character,
     ) -> Result<&mut Self, PacketBuildError> {
-        self.write_byte(char.model.gender_wz as i16)
-            .map_err(WriteError)?;
+        self.write_byte(char.model.gender_wz).map_err(WriteError)?;
         self.write_byte(char.model.skin_wz as i16)
             .map_err(WriteError)?;
         self.write_int(char.model.face_wz).map_err(WriteError)?;
@@ -267,7 +256,7 @@ impl Packet {
         char: &Character,
         map_wz: i32,
     ) -> Result<&mut Self, PacketBuildError> {
-        let level = char.model.level as i16;
+        let level = char.model.level;
         self.write_byte(level).map_err(WriteError)?;
         self.write_short(char.model.job_wz).map_err(WriteError)?;
         self.write_short(char.model.strength).map_err(WriteError)?;

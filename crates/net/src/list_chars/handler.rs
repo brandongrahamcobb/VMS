@@ -29,6 +29,12 @@ use session::model::Session;
 
 pub struct ListCharsHandler;
 
+impl Default for ListCharsHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ListCharsHandler {
     pub fn new() -> Self {
         Self

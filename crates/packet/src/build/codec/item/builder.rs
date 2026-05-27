@@ -116,8 +116,7 @@ impl Packet {
                 self.write_long(item_model.expire).map_err(WriteError)?;
                 self.write_byte(item_model.slots as i16)
                     .map_err(WriteError)?;
-                self.write_byte(item_model.level as i16)
-                    .map_err(WriteError)?;
+                self.write_byte(item_model.level).map_err(WriteError)?;
                 // stats - order matters, must match EquipStat enum order
                 self.write_short(item_model.strength).map_err(WriteError)?;
                 self.write_short(item_model.dexterity).map_err(WriteError)?;
@@ -143,8 +142,7 @@ impl Packet {
                     self.write_bytes(vec![0u8; 10]).map_err(WriteError)?;
                 } else {
                     self.write_byte(0).map_err(WriteError)?;
-                    self.write_byte(item_model.item_level as i16)
-                        .map_err(WriteError)?;
+                    self.write_byte(item_model.item_level).map_err(WriteError)?;
                     self.write_short(0).map_err(WriteError)?;
                     self.write_short(item_model.item_exp).map_err(WriteError)?;
                     self.write_int(item_model.vicious).map_err(WriteError)?;

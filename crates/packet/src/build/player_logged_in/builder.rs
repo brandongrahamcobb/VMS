@@ -35,10 +35,8 @@ impl Packet {
         self.write_byte(0).map_err(WriteError)?;
         let keybindings: Vec<&Keybinding> = (0..90).filter_map(|key| binds.get(&key)).collect();
         for bind in keybindings {
-            self.write_byte(bind.model.bind_type as i16)
-                .map_err(WriteError)?;
-            self.write_int(bind.model.action as i32)
-                .map_err(WriteError)?;
+            self.write_byte(bind.model.bind_type).map_err(WriteError)?;
+            self.write_int(bind.model.action).map_err(WriteError)?;
         }
         Ok(self)
     }

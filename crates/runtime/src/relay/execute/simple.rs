@@ -26,7 +26,7 @@ use state::model::SharedState;
 pub async fn simply_send_locally(
     _state: &SharedState,
     session: &Session,
-    packet: &Packet,
+    packet: Packet,
 ) -> Result<(), ExecuteError> {
     session.tx.send(packet.clone())?;
     Ok(())
@@ -35,8 +35,8 @@ pub async fn simply_send_locally(
 pub async fn simply_send_to_map(
     state: &SharedState,
     session: &Session,
-    packet: &Packet,
-    map_scope: &MapScope,
+    packet: Packet,
+    map_scope: MapScope,
 ) -> Result<(), ExecuteError> {
     match map_scope {
         MapScope::SameChannelSameWorld => {
@@ -84,8 +84,8 @@ pub async fn simply_send_to_map(
 pub async fn simply_send_to_channel(
     state: &SharedState,
     session: &Session,
-    packet: &Packet,
-    channel_scope: &ChannelScope,
+    packet: Packet,
+    channel_scope: ChannelScope,
 ) -> Result<(), ExecuteError> {
     match channel_scope {
         ChannelScope::SameWorld => {
@@ -119,7 +119,7 @@ pub async fn simply_send_to_channel(
 pub async fn simply_send_to_world(
     state: &SharedState,
     session: &Session,
-    packet: &Packet,
+    packet: Packet,
 ) -> Result<(), ExecuteError> {
     let sessions = {
         let locked_state = state.lock().await;
@@ -136,7 +136,7 @@ pub async fn simply_send_to_world(
 pub async fn simply_send_globally(
     state: &SharedState,
     session: &Session,
-    packet: &Packet,
+    packet: Packet,
 ) -> Result<(), ExecuteError> {
     let sessions = {
         let locked_state = state.lock().await;

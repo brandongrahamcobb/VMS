@@ -27,6 +27,12 @@ use state::model::SharedState;
 
 pub struct PartySearchHandler;
 
+impl Default for PartySearchHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PartySearchHandler {
     pub fn new() -> Self {
         Self

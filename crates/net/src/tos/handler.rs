@@ -17,17 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::model::{Action, SessionAction};
 use crate::result::HandlerResult;
 use crate::tos::error::TosError;
 use crate::tos::reader::TosReader;
 use crate::tos::store::TosStore;
-use packet::model::Packet;
-use db::pool::DbPool;
+use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
+use db::pool::DbPool;
+use packet::model::Packet;
 use session::model::Session;
 
 pub struct TosHandler;
+
+impl Default for TosHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl TosHandler {
     pub fn new() -> Self {

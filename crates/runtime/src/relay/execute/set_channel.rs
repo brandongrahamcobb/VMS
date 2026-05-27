@@ -37,7 +37,7 @@ pub async fn set_channel_locally(
 pub async fn set_channel_for_map(
     state: &SharedState,
     session: &Session,
-    map_scope: &MapScope,
+    map_scope: MapScope,
     channel_id: u8,
 ) -> Result<(), ExecuteError> {
     match map_scope {
@@ -95,7 +95,7 @@ pub async fn set_channel_for_map(
 pub async fn set_channel_for_channel(
     state: &SharedState,
     session: &Session,
-    channel_scope: &ChannelScope,
+    channel_scope: ChannelScope,
     channel_id: u8,
 ) -> Result<(), ExecuteError> {
     match channel_scope {

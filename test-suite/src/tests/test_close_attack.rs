@@ -82,15 +82,8 @@ fn read_close_attack_packet(packet: &Packet) -> Result<CloseAttackResult, Harnes
                 .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
         }
         let mut damages: Vec<i32> = Vec::new();
-        loop {
-            match cursor.read_int() {
-                Ok(damage) => {
-                    damages.push(damage);
-                }
-                Err(_) => {
-                    break;
-                }
-            }
+        while let Ok(damage) = cursor.read_int() {
+            damages.push(damage);
         }
         mob_damages.insert(mob_id as u32, damages);
     }

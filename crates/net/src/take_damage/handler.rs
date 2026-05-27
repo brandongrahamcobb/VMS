@@ -17,17 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::model::{Action, SessionAction, SetAction};
-use action::scope::{MapScope, SessionScope};
 use crate::result::HandlerResult;
 use crate::take_damage::error::TakeDamageError;
 use crate::take_damage::reader::TakeDamageReader;
 use crate::take_damage::store::TakeDamageStore;
-use packet::model::Packet;
+use action::model::{Action, SessionAction, SetAction};
+use action::scope::{MapScope, SessionScope};
 use db::pool::DbPool;
+use packet::model::Packet;
 use session::model::Session;
 
 pub struct TakeDamageHandler;
+
+impl Default for TakeDamageHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl TakeDamageHandler {
     pub fn new() -> Self {

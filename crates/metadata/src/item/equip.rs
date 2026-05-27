@@ -72,17 +72,17 @@ pub fn get_equip_ipos_by_wz(wz: i32) -> Result<i16, ItemMetadataError> {
         .as_i64()
         .ok_or(ItemMetadataError::EquipError)?;
     if cash == 0 {
-        return OTHER_EQUIP_SLOTS
+        OTHER_EQUIP_SLOTS
             .iter()
             .flat_map(|group| group.iter())
             .find(|slot| slot.islot == islot)
             .map(|slot| slot.key)
-            .ok_or(ItemMetadataError::EquipError);
+            .ok_or(ItemMetadataError::EquipError)
     } else {
-        return CASH_EQUIP_SLOTS
+        CASH_EQUIP_SLOTS
             .iter()
             .find(|slot| slot.islot == islot)
             .map(|slot| slot.key)
-            .ok_or(ItemMetadataError::EquipError);
+            .ok_or(ItemMetadataError::EquipError)
     }
 }

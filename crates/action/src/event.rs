@@ -5,6 +5,12 @@ pub struct TickEvent {
     pub model: Vec<Action>,
 }
 
+impl Default for TickEvent {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TickEvent {
     pub fn new() -> Self {
         Self { model: Vec::new() }

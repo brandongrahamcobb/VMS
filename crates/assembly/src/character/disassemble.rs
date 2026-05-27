@@ -29,40 +29,40 @@ pub async fn disassemble_character(
 ) -> Result<(), CharacterAssemblyError> {
     let char_id: i32 = char.model.get_id()?;
     db::character::setters::delete_char_by_id(pool, char_id).await?;
-    for (_, items) in &char.inventory.equipped_tab {
+    for items in char.inventory.equipped_tab.values() {
         for item in items {
             db::item::setters::delete_item_by_id(pool, item.model.get_id()?).await?;
         }
     }
-    for (_, items) in &char.inventory.equip_tab {
+    for items in char.inventory.equip_tab.values() {
         for item in items {
             db::item::setters::delete_item_by_id(pool, item.model.get_id()?).await?;
         }
     }
-    for (_, items) in &char.inventory.cash_tab {
+    for items in char.inventory.cash_tab.values() {
         for item in items {
             db::item::setters::delete_item_by_id(pool, item.model.get_id()?).await?;
         }
     }
-    for (_, items) in &char.inventory.setup_tab {
+    for items in char.inventory.setup_tab.values() {
         for item in items {
             db::item::setters::delete_item_by_id(pool, item.model.get_id()?).await?;
         }
     }
-    for (_, items) in &char.inventory.use_tab {
+    for items in char.inventory.use_tab.values() {
         for item in items {
             db::item::setters::delete_item_by_id(pool, item.model.get_id()?).await?;
         }
     }
-    for (_, items) in &char.inventory.etc_tab {
+    for items in char.inventory.etc_tab.values() {
         for item in items {
             db::item::setters::delete_item_by_id(pool, item.model.get_id()?).await?;
         }
     }
-    for (keybinding_id, _) in &char.binds {
+    for keybinding_id in char.binds.keys() {
         db::keybinding::setters::delete_keybinding_by_id(pool, *keybinding_id).await?;
     }
-    for (skill_id, _) in &char.skills {
+    for skill_id in char.skills.keys() {
         db::skill::setters::delete_skill_by_id(pool, *skill_id).await?;
     }
     Ok(())

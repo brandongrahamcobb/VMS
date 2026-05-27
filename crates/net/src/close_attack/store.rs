@@ -116,22 +116,22 @@ impl CloseAttackStore {
                     |map| -> Result<HashMap<u32, Mob>, CloseAttackError> {
                         let mut dead_mobs: HashMap<u32, Mob> = HashMap::new();
                         for (mob_id, hp_percent) in hp_updates.iter() {
-                            if let Some(mob) = map.mobs.get_mut(mob_id) {
-                                if *hp_percent == 0 {
-                                    let life_state: LifeState = LifeState::Dead(DeathState {
-                                        died_at: Instant::now(),
-                                    });
-                                    mob.life_state = life_state.clone();
-                                    dead_mobs.insert(
-                                        *mob_id,
-                                        Mob {
-                                            model: mob.model.clone(),
-                                            info: mob.info.clone(),
-                                            life: mob.life.clone(),
-                                            life_state,
-                                        },
-                                    );
-                                }
+                            if let Some(mob) = map.mobs.get_mut(mob_id)
+                                && *hp_percent == 0
+                            {
+                                let life_state: LifeState = LifeState::Dead(DeathState {
+                                    died_at: Instant::now(),
+                                });
+                                mob.life_state = life_state.clone();
+                                dead_mobs.insert(
+                                    *mob_id,
+                                    Mob {
+                                        model: mob.model.clone(),
+                                        info: mob.info.clone(),
+                                        life: mob.life.clone(),
+                                        life_state,
+                                    },
+                                );
                             }
                         }
                         Ok(dead_mobs)
@@ -148,7 +148,7 @@ impl CloseAttackStore {
             let mesos: i32 = helpers::calculate_rand_meso_amount(meso_rate, mob.info.level);
             dead_mobs_drops.insert(*mob_id, drops);
             dead_mobs_mesos.insert(*mob_id, mesos);
-            char.model.exp = char.model.exp + mob.info.exp;
+            char.model.exp += mob.info.exp;
             if char.model.exp < EXP_TABLE[char.model.level as usize] as i32 {
                 db::character::setters::update_characters(&pool, vec![char.model.clone()]).await?;
             } else {
@@ -163,7 +163,7 @@ impl CloseAttackStore {
         let owner: i32 = 0; // char id or 0
         let can_pickup: u8 = 0; // 0 everyone 1 owner, 2 party
         let player_drop: bool = false;
-        return Ok(Self {
+        Ok(Self {
             char_id,
             dead_mobs,
             dead_mobs_drops,
@@ -187,6 +187,6 @@ impl CloseAttackStore {
             base_exp: char.model.exp,
             levelup,
             level,
-        });
+        })
     }
 }

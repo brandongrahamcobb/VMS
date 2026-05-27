@@ -17,17 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::scope::BroadcastScope;
-use action::model::{Action, BroadcastAction};
 use crate::chat_text::error::ChatTextError;
 use crate::chat_text::reader::ChatTextReader;
 use crate::chat_text::store::ChatTextStore;
 use crate::result::HandlerResult;
-use packet::model::Packet;
+use action::model::{Action, BroadcastAction};
+use action::scope::BroadcastScope;
 use db::pool::DbPool;
+use packet::model::Packet;
 use session::model::Session;
 
 pub struct ChatTextHandler;
+
+impl Default for ChatTextHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl ChatTextHandler {
     pub fn new() -> Self {

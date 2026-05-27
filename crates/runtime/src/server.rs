@@ -85,7 +85,7 @@ impl LoginServer {
                                             );
                                             return;
                                         };
-                                        let port = match state
+                                        match state
                                             .with_channel(world_id, channel_id, |channel| {
                                                 channel.model.port
                                             })
@@ -99,8 +99,7 @@ impl LoginServer {
                                                 );
                                                 return;
                                             }
-                                        };
-                                        port
+                                        }
                                     };
                                     tokio::spawn(accept(state, id, port));
                                     tokio::task::yield_now().await;
@@ -209,7 +208,7 @@ pub fn accept(
                                         );
                                         return;
                                     };
-                                    let port = match state
+                                    match state
                                         .with_channel(world_id, channel_id, |channel| {
                                             channel.model.port
                                         })
@@ -223,8 +222,7 @@ pub fn accept(
                                             );
                                             return;
                                         }
-                                    };
-                                    port
+                                    }
                                 };
                                 tokio::spawn(accept(state.clone(), id, port));
                                 tokio::task::yield_now().await;

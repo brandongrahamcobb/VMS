@@ -17,17 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::model::{Action, SessionAction, SetAction};
 use crate::result::HandlerResult;
 use crate::select_char_with_pic::error::SelectCharWithPicError;
 use crate::select_char_with_pic::reader::SelectCharWithPicReader;
 use crate::select_char_with_pic::store::SelectCharWithPicStore;
-use packet::model::Packet;
+use action::model::{Action, SessionAction, SetAction};
 use action::scope::SessionScope;
+use packet::model::Packet;
 use session::model::Session;
 use state::model::SharedState;
 
 pub struct SelectCharWithPicHandler;
+
+impl Default for SelectCharWithPicHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl SelectCharWithPicHandler {
     pub fn new() -> Self {

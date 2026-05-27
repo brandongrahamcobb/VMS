@@ -17,17 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::scope::SessionScope;
-use action::model::{Action, SessionAction};
 use crate::delete_char::error::DeleteCharError;
 use crate::delete_char::reader::DeleteCharReader;
 use crate::delete_char::store::DeleteCharStore;
 use crate::result::HandlerResult;
-use packet::model::Packet;
+use action::model::{Action, SessionAction};
+use action::scope::SessionScope;
 use db::pool::DbPool;
+use packet::model::Packet;
 use session::model::Session;
 
 pub struct DeleteCharHandler;
+
+impl Default for DeleteCharHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl DeleteCharHandler {
     pub fn new() -> Self {

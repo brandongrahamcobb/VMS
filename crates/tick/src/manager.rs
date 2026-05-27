@@ -14,6 +14,12 @@ pub struct TickManager {
 
 pub struct Tick(pub u64);
 
+impl Default for TickManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Tick {
     pub fn from(d: Duration) -> Self {
         Self((d.as_millis() / MS_PER_TICK as u128) as u64)

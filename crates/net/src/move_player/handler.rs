@@ -29,6 +29,12 @@ use state::model::SharedState;
 
 pub struct MovePlayerHandler;
 
+impl Default for MovePlayerHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MovePlayerHandler {
     pub fn new() -> Self {
         Self

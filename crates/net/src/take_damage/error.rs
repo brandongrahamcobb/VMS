@@ -17,7 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::change_map::error::ChangeMapEntityError;
 use assembly::character::error::CharacterAssemblyError;
 use db::error::DatabaseError;
 use entity::map::error::MapEntityError;
@@ -43,9 +42,6 @@ pub enum TakeDamageError {
 
     #[error("Map entity error in take damage layer")]
     MapEntityError(#[from] MapEntityError),
-
-    #[error("Change map error in take damage layer")]
-    ChangeMapEntityError(#[from] ChangeMapEntityError), // might be placed better if it was a shared place
 
     #[error("Map metadata error in take damage layer")]
     MapMetadataError(#[from] MapMetadataError),

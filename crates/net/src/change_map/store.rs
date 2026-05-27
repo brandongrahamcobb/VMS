@@ -61,13 +61,12 @@ impl ChangeMapStore {
         let pool: DbPool = state.lock().await.db.clone();
         let char: Character =
             assembly::character::assemble::assemble_char_by_id(&pool, char_id).await?;
-        dbg!("test");
         Ok(Self {
             after_map_wz: tm,
             channel_id,
             char,
             died: reader.died,
-            pid: pid,
+            pid,
             wheel_of_destiny: reader.wod,
         })
     }

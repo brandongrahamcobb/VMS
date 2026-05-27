@@ -17,18 +17,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::scope::BroadcastScope;
-use action::model::{Action, BroadcastAction};
 use crate::mob_ai::error::MobAiError;
 use crate::mob_ai::reader::MobAiReader;
 use crate::mob_ai::store::MobAiStore;
 use crate::result::HandlerResult;
-use packet::model::Packet;
+use action::model::{Action, BroadcastAction};
+use action::scope::BroadcastScope;
 use entity::mob::model::MobMovement;
+use packet::model::Packet;
 use session::model::Session;
 use state::model::SharedState;
 
 pub struct MobAiHandler;
+
+impl Default for MobAiHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl MobAiHandler {
     pub fn new() -> Self {

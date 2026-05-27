@@ -17,16 +17,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::model::{Action, SessionAction, SetAction};
-use action::scope::{MapScope, SessionScope};
 use crate::enter_cash_shop::error::EnterCashShopError;
 use crate::enter_cash_shop::store::EnterCashShopStore;
 use crate::result::HandlerResult;
+use action::model::{Action, SessionAction, SetAction};
+use action::scope::{MapScope, SessionScope};
 use db::pool::DbPool;
 use packet::model::Packet;
 use session::model::Session;
 
 pub struct EnterCashShopHandler;
+
+impl Default for EnterCashShopHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl EnterCashShopHandler {
     pub fn new() -> Self {

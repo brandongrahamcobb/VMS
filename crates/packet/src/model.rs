@@ -27,7 +27,7 @@ pub struct Packet {
 }
 
 impl Packet {
-    pub fn new(buffer: &Vec<u8>) -> Packet {
+    pub fn new(buffer: &[u8]) -> Packet {
         if buffer.len() > MAX_PACKET_LENGTH as usize {
             panic!(
                 "Packet with length {} exceeded max packet length {}",
@@ -36,7 +36,7 @@ impl Packet {
             );
         }
         Packet {
-            bytes: buffer.clone(),
+            bytes: buffer.to_owned(),
         }
     }
 
@@ -56,6 +56,10 @@ impl Packet {
 
     pub fn len(&self) -> i16 {
         (self.bytes.len() - 2) as i16
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.bytes.len() == 0
     }
 
     pub fn finish(&mut self) -> Packet {

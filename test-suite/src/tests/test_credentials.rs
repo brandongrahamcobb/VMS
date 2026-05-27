@@ -30,8 +30,8 @@ pub async fn assert_credentials(
     acc_username: &str,
 ) -> Result<(i32, TestConnection), HarnessError> {
     dbg!(PHASE);
-    let hashed = bcrypt::hash(PASSWORD, bcrypt::DEFAULT_COST)
-        .map_err(|e| HarnessError::EncryptionError(e))?;
+    let hashed =
+        bcrypt::hash(PASSWORD, bcrypt::DEFAULT_COST).map_err(HarnessError::EncryptionError)?;
     let acc_model: AccountModel = AccountModel {
         id: None,
         username: acc_username.to_string(),

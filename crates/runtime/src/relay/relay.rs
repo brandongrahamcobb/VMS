@@ -74,28 +74,19 @@ impl<T: RuntimeRelay + Send> Runtime<T> {
                     let result = self.relay
                         .handle_packet(&self.state, &packet)
                         .await?;
-                    match self.relay.execute_with_session(&self.state, result).await? {
-                        ControlFlow::Break(packet) => break Ok(Some((self, packet))),
-                        _ => {}
+                    if let ControlFlow::Break(packet) = self.relay.execute_with_session(&self.state, result).await? {
+                        break Ok(Some((self, packet)));
                     }
                 }
                 packet = self.rx.recv() => {
-                    match packet {
-                        Some(mut packet) => {
-                            self.pkt_writer.send_encrypted_packet(&mut packet).await?;
-                        }
-                        None => {},
+                    if let Some(mut packet) = packet {
+                        self.pkt_writer.send_encrypted_packet(&mut packet).await?;
                     }
                 }
                 event = tick => {
-                    match event {
-                        Some(event) => {
-                            match self.relay.execute_via_tick(&self.state, event).await? {
-                                ControlFlow::Break(packet) => break Ok(Some((self, packet))),
-                                _ => {}
-                            }
-                        }
-                        None => {},
+                    if let Some(event) = event
+                        && let ControlFlow::Break(packet) = self.relay.execute_via_tick(&self.state, event).await? {
+                            break Ok(Some((self, packet)));
                     }
                 }
             }

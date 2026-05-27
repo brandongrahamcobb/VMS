@@ -35,16 +35,16 @@ impl Packet {
         self.write_short(op).map_err(WriteError)?;
         self.write_int(mob_id as i32).map_err(WriteError)?;
         let skip: Vec<u8> = vec![0; 1];
-        self.write_bytes(skip.clone()).map_err(WriteError)?;
+        self.write_bytes(skip).map_err(WriteError)?;
         self.write_int(mob_life.wz).map_err(WriteError)?;
         let skip: Vec<u8> = vec![0; 22];
-        self.write_bytes(skip.clone()).map_err(WriteError)?;
+        self.write_bytes(skip).map_err(WriteError)?;
         self.write_short(mob_life.x).map_err(WriteError)?;
         self.write_short(mob_life.y).map_err(WriteError)?;
-        let stance = 0 as i16; // 0 not sure
+        let stance: i16 = 0; // 0 not sure
         self.write_byte(stance).map_err(WriteError)?;
         let skip: Vec<u8> = vec![0; 2];
-        self.write_bytes(skip.clone()).map_err(WriteError)?;
+        self.write_bytes(skip).map_err(WriteError)?;
         self.write_short(mob_life.fh as i16).map_err(WriteError)?;
         let effect: i16 = 0; // 0 = none
         self.write_byte(effect).map_err(WriteError)?;

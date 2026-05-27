@@ -130,18 +130,18 @@ pub struct Handshake {
 impl Handshake {
     pub fn parse(bytes: &[u8]) -> Result<Self, HarnessError> {
         let mut cursor = Cursor::new(bytes);
-        let length = cursor.read_short().map_err(|e| IOError::ReadError(e))?;
+        let length = cursor.read_short().map_err(IOError::ReadError)?;
         if length != 0x0E {
             return Err(HarnessError::PacketIOError(IOError::InvalidPacketLength(
                 length,
             )));
         }
-        let version = cursor.read_short().map_err(|e| IOError::ReadError(e))?;
-        let _sub_version = cursor.read_short().map_err(|e| IOError::ReadError(e))?;
-        let _server_type = cursor.read_byte().map_err(|e| IOError::ReadError(e))?;
-        let recv_iv = cursor.read_bytes(4).map_err(|e| IOError::ReadError(e))?;
-        let send_iv = cursor.read_bytes(4).map_err(|e| IOError::ReadError(e))?;
-        let locale = cursor.read_byte().map_err(|e| IOError::ReadError(e))?;
+        let version = cursor.read_short().map_err(IOError::ReadError)?;
+        let _sub_version = cursor.read_short().map_err(IOError::ReadError)?;
+        let _server_type = cursor.read_byte().map_err(IOError::ReadError)?;
+        let recv_iv = cursor.read_bytes(4).map_err(IOError::ReadError)?;
+        let send_iv = cursor.read_bytes(4).map_err(IOError::ReadError)?;
+        let locale = cursor.read_byte().map_err(IOError::ReadError)?;
         Ok(Self {
             version,
             recv_iv,

@@ -51,7 +51,7 @@ pub async fn equip(pool: &DbPool, inv: &mut Inventory, item_id: i32) -> Result<(
         .ok_or(DomainError::ItemError)?;
     let item = stack
         .iter_mut()
-        .find(|item| item.model.get_id().map_or(false, |id| id == item_id))
+        .find(|item| item.model.get_id().is_ok_and(|id| id == item_id))
         .ok_or(DomainError::ItemError)?;
 
     let new_pos = metadata::item::equip::get_equip_ipos_by_wz(item.model.wz)?;
@@ -66,7 +66,7 @@ pub async fn unequip(pool: &DbPool, inv: &mut Inventory, item_id: i32) -> Result
         .equipped_tab
         .values()
         .flatten()
-        .find(|item| item.model.get_id().map_or(false, |id| id == item_id))
+        .find(|item| item.model.get_id().is_ok_and(|id| id == item_id))
         .ok_or(DomainError::ItemError)?;
     let itab: InventoryTab = metadata::item::inventory::get_inventory_tab_by_wz(item.model.wz)?;
     let new_pos = entity::item::service::next_free_pos(inv, &itab)?;
@@ -74,7 +74,7 @@ pub async fn unequip(pool: &DbPool, inv: &mut Inventory, item_id: i32) -> Result
         .equipped_tab
         .values_mut()
         .flatten()
-        .find(|item| item.model.get_id().map_or(false, |id| id == item_id))
+        .find(|item| item.model.get_id().is_ok_and(|id| id == item_id))
         .ok_or(DomainError::ItemError)?;
     item.model.ipos = Some(new_pos);
     db::item::setters::update_item(pool, &item.model).await?;
@@ -108,7 +108,7 @@ pub async fn pick_up(
         })
         .unwrap_or((
             entity::item::service::next_free_pos(
-                &inv,
+                inv,
                 &metadata::item::inventory::get_inventory_tab_by_wz(item.model.wz)?,
             )?,
             0,
@@ -158,7 +158,7 @@ pub fn get_item_from_inventory(inv: &Inventory, item_id: i32) -> Result<&Item, D
     tabs.into_iter()
         .flatten()
         .flatten()
-        .find(|item| item.model.get_id().map_or(false, |id| id == item_id))
+        .find(|item| item.model.get_id().is_ok_and(|id| id == item_id))
         .ok_or(DomainError::ItemError)
 }
 

@@ -68,7 +68,7 @@ pub async fn get_char_max_by_account_and_world_id(
     pool::spawn_db(pool, move |conn| {
         character_limits::table
             .filter(&character_limits::acc_id.eq(acc_id))
-            .filter(&character_limits::world_id.eq(world_id as i16))
+            .filter(&character_limits::world_id.eq(world_id))
             .select(&character_limits::char_max)
             .first(conn)
     })

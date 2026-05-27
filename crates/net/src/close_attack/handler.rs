@@ -17,12 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::model::{Action, BroadcastAction, SessionAction};
-use action::scope::{BroadcastScope, MapScope, SessionScope};
 use crate::close_attack::error::CloseAttackError;
 use crate::close_attack::reader::CloseAttackReader;
 use crate::close_attack::store::CloseAttackStore;
 use crate::result::HandlerResult;
+use action::model::{Action, BroadcastAction, SessionAction};
+use action::scope::{BroadcastScope, MapScope, SessionScope};
 use entity::map::model::Point;
 use packet::model::Packet;
 use rand::RngExt;
@@ -30,6 +30,12 @@ use session::model::Session;
 use state::model::SharedState;
 
 pub struct CloseAttackHandler;
+
+impl Default for CloseAttackHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl CloseAttackHandler {
     pub fn new() -> Self {
@@ -103,7 +109,7 @@ impl CloseAttackHandler {
                 x: mob.model.pos_x + offset_x,
                 y: mob.model.pos_y,
             };
-            if let Some(drops) = store.dead_mobs_drops.get(&mob_id) {
+            if let Some(drops) = store.dead_mobs_drops.get(mob_id) {
                 for drop in drops {
                     let item_id: i32 = drop.model.get_id()?;
                     let item_wz: i32 = drop.model.wz;
@@ -136,7 +142,7 @@ impl CloseAttackHandler {
                 x: mob.model.pos_x + offset_x,
                 y: mob.model.pos_y,
             };
-            if let Some(mesos) = store.dead_mobs_mesos.get(&mob_id) {
+            if let Some(mesos) = store.dead_mobs_mesos.get(mob_id) {
                 let packet = Packet::new_empty()
                     .build_drop_loot_packet(
                         store.mode,
@@ -159,7 +165,7 @@ impl CloseAttackHandler {
                     },
                 }));
             }
-            if let Some(mob) = store.dead_mobs.get(&mob_id) {
+            if let Some(mob) = store.dead_mobs.get(mob_id) {
                 if !store.levelup {
                     let exp = store.base_exp + mob.info.exp;
                     let packet = Packet::new_empty().build_set_exp_packet(exp)?.finish();

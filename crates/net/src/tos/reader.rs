@@ -32,8 +32,6 @@ impl TosReader {
         let mut pkt_reader = Cursor::new(&packet.bytes);
         let _op = pkt_reader.read_short().map_err(ReadError)?;
         let confirmed = pkt_reader.read_byte().map_err(ReadError)? as i16;
-        Ok(Self {
-            confirmed: confirmed,
-        })
+        Ok(Self { confirmed })
     }
 }

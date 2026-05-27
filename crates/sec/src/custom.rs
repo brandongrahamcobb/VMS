@@ -85,7 +85,7 @@ pub fn decrypt(data: &mut [u8]) {
 fn rotl(byte: u8, count: u32) -> u8 {
     let count = count % 8;
     if count > 0 {
-        (byte << count) | (byte >> (8 - count))
+        byte.rotate_left(count)
     } else {
         byte
     }
@@ -94,7 +94,7 @@ fn rotl(byte: u8, count: u32) -> u8 {
 fn rotr(byte: u8, count: u32) -> u8 {
     let count = count % 8;
     if count > 0 {
-        (byte >> count) | (byte << (8 - count))
+        byte.rotate_right(count)
     } else {
         byte
     }

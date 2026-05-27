@@ -28,6 +28,12 @@ use packet::model::Packet;
 
 pub struct PlayerLoggedInHandler;
 
+impl Default for PlayerLoggedInHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PlayerLoggedInHandler {
     pub fn new() -> Self {
         Self

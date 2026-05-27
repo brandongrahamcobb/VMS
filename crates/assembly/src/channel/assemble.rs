@@ -30,7 +30,7 @@ pub fn assemble_channels(
 ) -> Result<HashMap<u8, Channel>, ChannelAssemblyError> {
     (0..count)
         .map(|id| {
-            let port = base_port + (world_id as i16 * count as i16) + id as i16;
+            let port = base_port + (world_id * count as i16) + id as i16;
             let flag = settings::get_channel_flag()?;
             let capacity = settings::get_channel_capacity()?;
             Ok((

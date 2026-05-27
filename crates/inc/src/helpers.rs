@@ -20,7 +20,7 @@
 use core::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
 use rand::RngExt;
 
-pub fn to_hex_string(bytes: &Vec<u8>) -> String {
+pub fn to_hex_string(bytes: &[u8]) -> String {
     let strs: Vec<String> = bytes.iter().map(|b| format!("{:02X}", b)).collect();
     strs.join(" ")
 }

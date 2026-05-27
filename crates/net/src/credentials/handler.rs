@@ -30,6 +30,12 @@ use state::model::SharedState;
 
 pub struct CredentialsHandler;
 
+impl Default for CredentialsHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CredentialsHandler {
     pub fn new() -> Self {
         Self

@@ -21,15 +21,11 @@ use crate::account::{error::AccountEntityError, model::AccountModel};
 use bcrypt::verify;
 
 pub fn check_pic(acc_pic: Option<String>, pic: String) -> bool {
-    if acc_pic == Some(pic) {
-        return true;
-    } else {
-        return false;
-    }
+    acc_pic == Some(pic)
 }
 
 pub fn authenticate(acc_pw: String, pw: String) -> Result<bool, AccountEntityError> {
-    Ok(verify(&pw, &acc_pw).map_err(AccountEntityError::CryptError)?)
+    verify(&pw, &acc_pw).map_err(AccountEntityError::CryptError)
 }
 
 pub fn check_if_playing(all_acc_ids: Vec<i32>, acc_id: i32) -> bool {
@@ -49,5 +45,5 @@ pub async fn get_status_code_by_account(
     if check_if_playing(all_acc_ids, acc_model.get_id()?) {
         return Ok(StatusCode::Failed(FailedCode::Playing));
     }
-    return Ok(StatusCode::Success(SuccessCode::Success));
+    Ok(StatusCode::Success(SuccessCode::Success))
 }

@@ -23,7 +23,6 @@ use packet::model::Packet;
 use packet::prelude::*;
 use std::io::Cursor;
 
-
 pub struct ListCharsReader {
     pub channel_id: u8,
     pub world_id: i16,
@@ -36,7 +35,7 @@ impl ListCharsReader {
         let skip = 1;
         pkt_reader.read_bytes(skip).map_err(ReadError)?;
         let world_id = pkt_reader.read_byte().map_err(ReadError)? as i16;
-        let channel_id = pkt_reader.read_byte().map_err(ReadError)? as u8;
+        let channel_id = pkt_reader.read_byte().map_err(ReadError)?;
         Ok(Self {
             channel_id,
             world_id,
