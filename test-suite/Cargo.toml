@@ -23,3 +23,6 @@ db = { path = "../crates/db" }
 state = { path = "../crates/state" }
 assembly = { path = "../crates/assembly" }
 bcrypt = "0.19.0"
+bevy = "0.18.1"
+bevy_renet = "4.0.1"
+bevy_replicon = "0.40.2"
