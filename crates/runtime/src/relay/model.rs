@@ -19,8 +19,8 @@
 
 use crate::relay::types::shared::RuntimeRelay;
 use action::event::TickEvent;
-use packet::io::{read::PacketReader, write::PacketWriter};
-use packet::model::Packet;
+use net::packet::io::{read::PacketReader, write::PacketWriter};
+use net::packet::model::Packet;
 use state::model::SharedState;
 use tokio::sync::broadcast;
 use tokio::sync::mpsc::UnboundedReceiver;

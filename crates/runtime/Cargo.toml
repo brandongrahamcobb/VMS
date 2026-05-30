@@ -14,10 +14,7 @@ tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 regex = "1.12.3"
 tokio-util = "0.7.18"
 config = { path = "../config" }
-state = { path = "../state" }
 session = { path = "../session" }
-net = { path = "../net" }
-packet = { path = "../packet" }
 op = { path = "../op" }
 dotenvy = "0.15.7"
 entity = { path = "../entity" }
@@ -25,3 +22,4 @@ db = { path = "../db" }
 assembly = { path = "../assembly" }
 inc = { path = "../inc" }
 action = { path = "../action" }
+ipc = { path = "../ipc" }

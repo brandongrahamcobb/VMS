@@ -1,0 +1,12 @@
+[package]
+name = "ipc"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tracing = "0.1.44"
+net = { path = "../net" }
+assembly = { path = "../assembly" }
+db = { path = "../db" }
+domain = { path = "../domain" }
+entity = { path = "../entity" }

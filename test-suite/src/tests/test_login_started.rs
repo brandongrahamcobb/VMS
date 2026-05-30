@@ -1,7 +1,7 @@
 use op::recv::RecvOpcode;
-use packet::io::error::IOError::WriteError;
-use packet::model::Packet;
-use packet::prelude::*;
+use net::packet::io::error::IOError::WriteError;
+use net::packet::model::Packet;
+use net::packet::prelude::*;
 
 pub const PHASE: &str = "login started";
 use crate::error::HarnessError;

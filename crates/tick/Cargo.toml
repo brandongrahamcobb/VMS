@@ -12,6 +12,4 @@ entity = { path = "../entity" }
 session = { path = "../session" }
 config = { path = "../config" }
 db = { path = "../db" }
-state = { path = "../state" }
-packet = { path = "../packet" }
 action = { path = "../action" }

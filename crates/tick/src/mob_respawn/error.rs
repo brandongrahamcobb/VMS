@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use packet::build::error::PacketBuildError;
-use packet::io::error::IOError;
+use net::packet::build::error::PacketBuildError;
+use net::packet::io::error::IOError;
 use state::error::StateError;
 use thiserror::Error;
 

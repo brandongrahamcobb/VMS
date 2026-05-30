@@ -4,9 +4,9 @@ use crate::tests::test_char_list;
 use crate::tests::test_char_list::{CHANNEL_ID, MAP_WZ};
 use op::recv::RecvOpcode;
 use op::send::SendOpcode;
-use packet::io::error::IOError::{ReadError, WriteError};
-use packet::model::Packet;
-use packet::prelude::*;
+use net::packet::io::error::IOError::{ReadError, WriteError};
+use net::packet::model::Packet;
+use net::packet::prelude::*;
 use std::io::Cursor;
 
 pub const PHASE: &str = "player logged in";

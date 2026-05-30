@@ -20,8 +20,8 @@
 use assembly::character::error::CharacterAssemblyError;
 use assembly::map::error::MapAssemblyError;
 use db::error::DatabaseError;
-use packet::build::error::PacketBuildError;
-use packet::model::Packet;
+use net::packet::build::error::PacketBuildError;
+use net::packet::model::Packet;
 use session::error::SessionError;
 use state::error::StateError;
 use thiserror::Error;

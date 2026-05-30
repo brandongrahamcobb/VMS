@@ -1,7 +1,7 @@
 use config::error::ConfigError;
 use db::error::DatabaseError;
 use entity::{account::error::AccountEntityError, character::error::CharacterEntityError};
-use packet::io::error::IOError;
+use net::packet::io::error::IOError;
 use state::error::StateError;
 use std::string::FromUtf8Error;
 use thiserror::Error;

@@ -24,28 +24,3 @@ pub struct Account {
     pub model: AccountModel,
     pub chars: Vec<Character>,
 }
-
-#[derive(Clone)]
-pub enum StatusCode {
-    Failed(FailedCode),
-    Pending(PendingCode),
-    Success(SuccessCode),
-}
-
-#[derive(Clone)]
-pub enum PendingCode {
-    PendingTOS = 23,
-}
-
-#[derive(Clone)]
-pub enum SuccessCode {
-    Success = 0,
-}
-
-#[derive(Clone)]
-pub enum FailedCode {
-    Banned = 2,
-    InvalidCredentials = 4,
-    UnknownCredentials = 5,
-    Playing = 7,
-}

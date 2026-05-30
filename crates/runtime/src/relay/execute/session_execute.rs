@@ -25,7 +25,7 @@ use core::ops::ControlFlow;
 use entity::character::wrapper::Character;
 use entity::map::constants::VACANCY_DURATION;
 use entity::map::model::{Point, VacancyState};
-use packet::model::Packet;
+use net::packet::model::Packet;
 use session::model::Session;
 use state::model::SharedState;
 use std::sync::Arc;

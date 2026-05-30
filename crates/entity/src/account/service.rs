@@ -16,34 +16,3 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::account::wrapper::{FailedCode, PendingCode, StatusCode, SuccessCode};
-use crate::account::{error::AccountEntityError, model::AccountModel};
-use bcrypt::verify;
-
-pub fn check_pic(acc_pic: Option<String>, pic: String) -> bool {
-    acc_pic == Some(pic)
-}
-
-pub fn authenticate(acc_pw: String, pw: String) -> Result<bool, AccountEntityError> {
-    verify(&pw, &acc_pw).map_err(AccountEntityError::CryptError)
-}
-
-pub fn check_if_playing(all_acc_ids: Vec<i32>, acc_id: i32) -> bool {
-    all_acc_ids.contains(&acc_id)
-}
-
-pub async fn get_status_code_by_account(
-    all_acc_ids: Vec<i32>,
-    acc_model: AccountModel,
-) -> Result<StatusCode, AccountEntityError> {
-    if acc_model.banned {
-        return Ok(StatusCode::Failed(FailedCode::Banned));
-    }
-    if !acc_model.accepted_tos {
-        return Ok(StatusCode::Pending(PendingCode::PendingTOS));
-    }
-    if check_if_playing(all_acc_ids, acc_model.get_id()?) {
-        return Ok(StatusCode::Failed(FailedCode::Playing));
-    }
-    Ok(StatusCode::Success(SuccessCode::Success))
-}

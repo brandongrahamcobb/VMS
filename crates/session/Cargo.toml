@@ -9,4 +9,3 @@ tokio = { version = "1.51.1", features = ["full"] }
 diesel = { version = "2.3.7", features = ["postgres", "network-address", "r2d2"] }
 tokio-util = "0.7.18"
 entity = { path = "../entity" }
-packet = { path = "../packet" }

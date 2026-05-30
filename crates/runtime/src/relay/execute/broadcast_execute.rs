@@ -19,7 +19,7 @@
 
 use crate::relay::execute::error::ExecuteError;
 use action::scope::BroadcastScope;
-use packet::model::Packet;
+use net::packet::model::Packet;
 use rand::seq::IndexedRandom;
 use state::model::SharedState;
 

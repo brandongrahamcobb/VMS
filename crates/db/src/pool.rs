@@ -19,6 +19,7 @@
 use crate::error::DatabaseError;
 use diesel::PgConnection;
 use diesel::r2d2::{ConnectionManager, Pool};
+use config::settings;
 
 pub type DbPool = Pool<ConnectionManager<PgConnection>>;
 
@@ -29,10 +30,21 @@ where
 {
     let pool = pool.clone();
     tokio::task::spawn_blocking(move || {
-        let mut conn = pool.get().map_err(|_| diesel::result::Error::NotFound)?;
+        let mut conn = pool.get().map_err(DatabaseError::DatabaseConnectionError)?;
         f(&mut conn)
     })
     .await
     .map_err(DatabaseError::JoinError)?
     .map_err(DatabaseError::from)
 }
+
+pub fn new() -> Result<DbPool, DatabaseError> {
+    let db_url = settings::get_db_url()?;
+    let manager = ConnectionManager::<PgConnection>::new(db_url);
+    let db = Pool::builder()
+        .build(manager)
+        .map_err(DatabaseError::DatabaseConnectionError)?;
+    Ok(db)
+}
+
+

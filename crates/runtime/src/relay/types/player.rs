@@ -21,24 +21,24 @@ use crate::relay::model::PlayerRelay;
 use crate::relay::types::error::RelayTypeError;
 use crate::relay::types::shared::RuntimeRelay;
 use action::event::TickEvent;
-use net::cc::handler::ChangeChannelHandler;
-use net::change_keymap::handler::ChangeKeymapHandler;
-use net::change_map::handler::ChangeMapHandler;
-use net::chat_text::handler::ChatTextHandler;
-use net::close_attack::handler::CloseAttackHandler;
-use net::enter_cash_shop::handler::EnterCashShopHandler;
-use net::error::PacketHandlerError;
-use net::mob_ai::handler::MobAiHandler;
-use net::move_player::handler::MovePlayerHandler;
-use net::party_search::handler::PartySearchHandler;
-use net::pickup_item::handler::PickupItemHandler;
-use net::player_logged_in::handler::PlayerLoggedInHandler;
-use net::player_map_transfer::handler::PlayerMapTransferHandler;
-use net::result::HandlerResult;
-use net::take_damage::handler::TakeDamageHandler;
+use net::packet::cc::handler::ChangeChannelHandler;
+use net::packet::change_keymap::handler::ChangeKeymapHandler;
+use net::packet::change_map::handler::ChangeMapHandler;
+use net::packet::chat_text::handler::ChatTextHandler;
+use net::packet::close_attack::handler::CloseAttackHandler;
+use net::packet::enter_cash_shop::handler::EnterCashShopHandler;
+use net::packet::error::PacketHandlerError;
+use net::packet::mob_ai::handler::MobAiHandler;
+use net::packet::move_player::handler::MovePlayerHandler;
+use net::packet::party_search::handler::PartySearchHandler;
+use net::packet::pickup_item::handler::PickupItemHandler;
+use net::packet::player_logged_in::handler::PlayerLoggedInHandler;
+use net::packet::player_map_transfer::handler::PlayerMapTransferHandler;
+use net::packet::result::HandlerResult;
+use net::packet::take_damage::handler::TakeDamageHandler;
 use op::recv::RecvOpcode;
-use packet::model::Packet;
-use packet::prelude::*;
+use net::packet::model::Packet;
+use net::packet::prelude::*;
 use session::error::SessionError;
 use state::model::SharedState;
 use tokio::sync::broadcast;
@@ -76,117 +76,4 @@ impl RuntimeRelay for PlayerRelay {
                 .get(self.session_id())
                 .ok_or(SessionError::NotFound(self.session_id()))?
         };
-        let op = packet.opcode();
-        let en = RecvOpcode::from_i16(op).ok_or(RelayTypeError::UnsupportedOpcodeError(
-            op,
-            String::from("not expected in channel"),
-        ));
-        debug!(
-            "Received opcode in channel: {} (0x{:02X}) ({:?})",
-            op, op, en
-        );
-        match op {
-            x if x == RecvOpcode::PlayerLoggedIn as i16 => {
-                let handler = PlayerLoggedInHandler::new();
-                let pool = { state.lock().await.db.clone() };
-                Ok(handler
-                    .handle(&pool, packet)
-                    .await
-                    .map_err(PacketHandlerError::from)?)
-            }
-            x if x == RecvOpcode::ChangeChannel as i16 => {
-                let handler = ChangeChannelHandler::new();
-                Ok(handler
-                    .handle(state, &session, packet)
-                    .await
-                    .map_err(PacketHandlerError::from)?)
-            }
-            x if x == RecvOpcode::PartySearch as i16 => {
-                let handler = PartySearchHandler::new();
-                Ok(handler
-                    .handle(state, &session, packet)
-                    .await
-                    .map_err(PacketHandlerError::from)?)
-            }
-            x if x == RecvOpcode::PlayerMapTransfer as i16 => {
-                let handler = PlayerMapTransferHandler::new();
-                Ok(handler
-                    .handle(state, &session)
-                    .await
-                    .map_err(PacketHandlerError::from)?)
-            }
-            x if x == RecvOpcode::PlayerMove as i16 => {
-                let handler = MovePlayerHandler::new();
-                Ok(handler
-                    .handle(state, &session, packet)
-                    .await
-                    .map_err(PacketHandlerError::from)?)
-            }
-            x if x == RecvOpcode::EnterCashShop as i16 => {
-                let handler = EnterCashShopHandler::new();
-                let pool = { state.lock().await.db.clone() };
-                Ok(handler
-                    .handle(&pool, &session)
-                    .await
-                    .map_err(PacketHandlerError::from)?)
-            }
-            x if x == RecvOpcode::ChangeKeymap as i16 => {
-                let handler = ChangeKeymapHandler::new();
-                let pool = { state.lock().await.db.clone() };
-                Ok(handler
-                    .handle(&pool, &session, packet)
-                    .await
-                    .map_err(PacketHandlerError::from)?)
-            }
-            x if x == RecvOpcode::CloseAttack as i16 => {
-                let handler = CloseAttackHandler::new();
-                Ok(handler
-                    .handle(state, &session, packet)
-                    .await
-                    .map_err(PacketHandlerError::from)?)
-            }
-            x if x == RecvOpcode::AllChat as i16 => {
-                let handler = ChatTextHandler::new();
-                let pool = { state.lock().await.db.clone() };
-                Ok(handler
-                    .handle(&pool, &session, packet)
-                    .await
-                    .map_err(PacketHandlerError::from)?)
-            }
-            x if x == RecvOpcode::ChangeMap as i16 => {
-                let handler = ChangeMapHandler::new();
-                Ok(handler
-                    .handle(state, &session, packet)
-                    .await
-                    .map_err(PacketHandlerError::from)?)
-            }
-            x if x == RecvOpcode::MobMoved as i16 => {
-                let handler = MobAiHandler::new();
-                Ok(handler
-                    .handle(state, &session, packet)
-                    .await
-                    .map_err(PacketHandlerError::from)?)
-            }
-            x if x == RecvOpcode::TakeDamage as i16 => {
-                let handler = TakeDamageHandler::new();
-                let pool = { state.lock().await.db.clone() };
-                Ok(handler
-                    .handle(&pool, &session, packet)
-                    .await
-                    .map_err(PacketHandlerError::from)?)
-            }
-            x if x == RecvOpcode::PickupItem as i16 => {
-                let handler = PickupItemHandler::new();
-                let pool = { state.lock().await.db.clone() };
-                Ok(handler
-                    .handle(&pool, &session, packet)
-                    .await
-                    .map_err(PacketHandlerError::from)?)
-            }
-            _ => Err(RelayTypeError::UnsupportedOpcodeError(
-                op,
-                String::from("expected in channel"),
-            )),
-        }
-    }
 }

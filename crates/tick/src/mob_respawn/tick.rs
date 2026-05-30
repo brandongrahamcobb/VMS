@@ -25,7 +25,7 @@ use action::model::{Action, BroadcastAction};
 use action::scope::BroadcastScope;
 use core::time::Duration;
 use entity::map::model::Point;
-use packet::model::Packet;
+use net::packet::model::Packet;
 use state::model::SharedState;
 use std::sync::Arc;
 use tokio::time::Instant;

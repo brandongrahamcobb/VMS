@@ -18,9 +18,9 @@
  */
 
 use crate::relay::types::error::RelayTypeError;
-use net::error::PacketHandlerError;
-use packet::build::error::PacketBuildError;
-use packet::io::error::IOError;
+use net::packet::error::PacketHandlerError;
+use net::packet::build::error::PacketBuildError;
+use net::packet::io::error::IOError;
 use session::error::SessionError;
 use thiserror::Error;
 

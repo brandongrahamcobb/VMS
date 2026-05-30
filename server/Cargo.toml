@@ -11,5 +11,6 @@ tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 tokio = { version = "1.51.1", features = ["full"] }
 tracing = "0.1.44"
 runtime = { path = "../crates/runtime" }
-state = { path = "../crates/state" }
 tick = { path = "../crates/tick" }
+bevy = "0.18.1"
+bevy_renet = "4.0.1"

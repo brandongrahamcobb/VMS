@@ -24,7 +24,7 @@ use crate::map::model::{MapModel, MapWzInfo, VacancyState};
 use crate::mob::wrapper::Mob;
 use crate::portal::error::PortalEntityError;
 use crate::portal::wrapper::Portal;
-// use net::packet::handler::result::HandlerResult;
+// use net::packet::packet::handler::result::HandlerResult;
 use std::collections::HashMap;
 // use tokio::sync::broadcast;
 use tokio_util::sync::CancellationToken;

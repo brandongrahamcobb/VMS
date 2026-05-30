@@ -1,8 +1,8 @@
-use packet;
-use packet::constants::MAX_PACKET_LENGTH;
-use packet::io::error::IOError;
-use packet::io::read::PktRead;
-use packet::model::Packet;
+use net;
+use net::packet::constants::MAX_PACKET_LENGTH;
+use net::packet::io::error::IOError;
+use net::packet::io::read::PktRead;
+use net::packet::model::Packet;
 use sec::aes::AES;
 use sec::custom;
 use std::collections::VecDeque;

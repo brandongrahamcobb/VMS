@@ -19,7 +19,7 @@
 
 use crate::relay::execute::error::ExecuteError;
 use action::scope::{ChannelScope, MapScope};
-use packet::model::Packet;
+use net::packet::model::Packet;
 use session::model::Session;
 use state::model::SharedState;
 

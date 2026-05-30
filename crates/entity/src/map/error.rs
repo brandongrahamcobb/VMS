@@ -19,7 +19,7 @@
 
 use crate::portal::error::PortalEntityError;
 use core::num::ParseIntError;
-// use net::packet::handler::mob_respawn::error::MobRespawnError;
+// use net::packet::packet::handler::mob_respawn::error::MobRespawnError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]

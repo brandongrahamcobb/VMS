@@ -18,7 +18,7 @@
  */
 
 use crate::error::SessionError;
-use packet::model::Packet;
+use net::packet::model::Packet;
 use tokio::sync::mpsc::UnboundedSender;
 
 #[derive(Clone)]

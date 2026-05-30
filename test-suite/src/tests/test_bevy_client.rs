@@ -18,7 +18,6 @@ pub mod tests {
     use bevy_renet::netcode::{ClientAuthentication, NetcodeClientPlugin, NetcodeClientTransport};
     use bevy_renet::renet::ConnectionConfig;
     use bevy_renet::{RenetClient, RenetClientPlugin};
-    use config::settings;
 
     use crate::error::HarnessError;
 
@@ -35,7 +34,7 @@ pub mod tests {
 
         let authentication = ClientAuthentication::Unsecure {
             server_addr: super::get_server_addr()?,
-            client_id: 09,
+            client_id: 0,
             user_data: None,
             protocol_id: 0,
         };

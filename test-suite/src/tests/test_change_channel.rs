@@ -5,9 +5,9 @@ use config::settings;
 use inc::helpers;
 use op::recv::RecvOpcode;
 use op::send::SendOpcode;
-use packet::io::error::IOError::{ReadError, WriteError};
-use packet::model::Packet;
-use packet::prelude::*;
+use net::packet::io::error::IOError::{ReadError, WriteError};
+use net::packet::model::Packet;
+use net::packet::prelude::*;
 use state::model::SharedState;
 use std::io::Cursor;
 

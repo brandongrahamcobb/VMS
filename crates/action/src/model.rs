@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use crate::scope::{BroadcastScope, SessionScope};
-use packet::model::Packet;
+use net::packet::model::Packet;
 
 #[derive(Clone)]
 pub enum Action {

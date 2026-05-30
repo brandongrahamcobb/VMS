@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use packet::build::error::PacketBuildError;
+use net::packet::build::error::PacketBuildError;
 use thiserror::Error;
 
 use crate::mob_respawn::error::MobRespawnError;

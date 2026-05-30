@@ -2,9 +2,9 @@ use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
 use op::recv::RecvOpcode;
 use op::send::SendOpcode;
-use packet::io::error::IOError::{ReadError, WriteError};
-use packet::model::Packet;
-use packet::prelude::*;
+use net::packet::io::error::IOError::{ReadError, WriteError};
+use net::packet::model::Packet;
+use net::packet::prelude::*;
 use std::collections::HashMap;
 use std::io::Cursor;
 
