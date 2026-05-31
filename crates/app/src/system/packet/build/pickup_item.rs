@@ -19,28 +19,26 @@
 
 use crate::system::packet::build::error::PacketBuildError;
 use net::packet::io::error::IOError::WriteError;
-use net::packet::model::Packet;
 use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use op::send::SendOpcode;
 
-impl Packet {
-    pub fn build_pickup_item_packet(
-        &mut self,
-        char_id: i32,
-        item_id: i32,
-        pet_pickup: bool,
-    ) -> Result<&mut Self, PacketBuildError> {
-        let op = SendOpcode::RemoveLoot as i16;
-        self.write_short(op).map_err(WriteError)?;
-        let mode: u8 = 0;
-        self.write_byte(mode as i16).map_err(WriteError)?;
-        self.write_int(item_id).map_err(WriteError)?;
-        if mode > 1 {
-            self.write_int(char_id).map_err(WriteError)?;
-            if pet_pickup {
-                self.write_byte(pet_pickup as i16).map_err(WriteError)?;
-            }
+pub fn build_pickup_item_packet(
+    char_id: i32,
+    item_id: i32,
+    pet_pickup: bool,
+) -> Result<&mut Packet, PacketBuildError> {
+    let mut packet: Packet = Packet::new_empty();
+    let op = SendOpcode::RemoveLoot as i16;
+    packet.write_short(op).map_err(WriteError)?;
+    let mode: u8 = 0;
+    packet.write_byte(mode as i16).map_err(WriteError)?;
+    packet.write_int(item_id).map_err(WriteError)?;
+    if mode > 1 {
+        packet.write_int(char_id).map_err(WriteError)?;
+        if pet_pickup {
+            packet.write_byte(pet_pickup as i16).map_err(WriteError)?;
         }
-        Ok(self)
     }
+    Ok(packet)
 }

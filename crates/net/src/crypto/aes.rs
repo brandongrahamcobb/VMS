@@ -17,10 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::constants;
-use aes::Aes256;
-use aes::cipher::BlockCipherEncrypt;
+use crate::crypto::constants;
+use aes::cipher::BlockEncrypt;
 use aes::cipher::KeyInit;
+use aes::{Aes256, Block};
 
 pub struct AES {
     pub iv: Vec<u8>,
@@ -45,7 +45,8 @@ impl AES {
         let cipher = Aes256::new_from_slice(&key).expect("Invalid key length");
         while remaining > 0 {
             let iv = self.repeat_bytes(&self.iv, 4);
-            let mut block = aes::Block::try_from(&iv[..16]).expect("Invalid block length");
+            let mut block = Block::default();
+            block.copy_from_slice(&iv[..16]);
             if remaining < llength {
                 llength = remaining;
             }

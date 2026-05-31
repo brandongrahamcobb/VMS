@@ -38,8 +38,7 @@ fn handle_server_status(
         } else {
             2
         };
-        let Some(status_packet): Option<Packet> = server_status::build_server_status_packet(status)
-        else {
+        let Ok(status_packet) = server_status::build_server_status_packet(status) else {
             continue;
         };
         results.write(HandlerResult {

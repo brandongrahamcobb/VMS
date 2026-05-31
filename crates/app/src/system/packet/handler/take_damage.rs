@@ -44,16 +44,7 @@ pub fn handle_take_damage(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Some(session) = sessions.get_mut(client_entity) else {
-            continue;
-        };
         let Some(char) = chars.get_mut(client_entity) else {
-            continue;
-        };
-        let Some(channel) = channels.get(client_entity) else {
-            continue;
-        };
-        let Some(map) = map.get(client_entity) else {
             continue;
         };
 
@@ -67,9 +58,7 @@ pub fn handle_take_damage(
         };
         if hp != 0 {
             char.hp = hp;
-            let Some(take_damage_packet): Option<Packet> =
-                take_damage::build_take_damage_packet(hp)
-            else {
+            let Ok(take_damage_packet) = take_damage::build_take_damage_packet(hp) else {
                 continue;
             };
             results.write(HandlerResult {
@@ -82,12 +71,11 @@ pub fn handle_take_damage(
         } else {
             char.hp = max_hp;
             session.map_wz = return_map_wz;
-            let Some(despawn_packet): Option<Packet> =
-                codec::player::builder::build_despawn_player_packet(char.id)
+            let Ok(despawn_packet) = codec::player::builder::build_despawn_player_packet(char.id)
             else {
                 continue;
             };
-            let Some(set_field_packet): Option<Packet> =
+            let Ok(set_field_packet) =
                 change_map::build_set_field_change_map_packet(channel.id, return_map_wz, 0)
             else {
                 continue;

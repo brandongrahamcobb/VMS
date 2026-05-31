@@ -80,12 +80,12 @@ pub async fn handle_select_char(
         let Some(port): Option<i16> =
             domain::channel::find_channel_port(&worlds, &channels, world.id, channel.id);
 
-        let Some(addr): Option<String> = settings::get_routing_address() else {
+        let Ok(addr) = settings::get_routing_address() else {
             continue;
         };
         let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
 
-        let Some(select_char_packet): Option<Packet> =
+        let Ok(select_char_packet) =
             codec::login::builder::build_select_char_packet(msg.char.id, octets, port)
         else {
             continue;

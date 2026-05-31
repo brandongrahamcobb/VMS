@@ -1,5 +1,5 @@
 /* runtime/error.rs
- * The purpose of this module is to provide errors related to the runtime loop.
+ * The purpose of this module is to provide errors related to the runtime.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -18,21 +18,17 @@
  */
 
 use config::error::ConfigError;
-use db::error::DatabaseError;
-use state::error::StateError;
 use thiserror::Error;
+use tokio::task::JoinError;
 
 #[derive(Debug, Error)]
 pub enum RuntimeError {
-    #[error("Config error in runtime layer")]
+    #[error("Configuration error in runtime layer")]
     ConfigError(#[from] ConfigError),
 
-    #[error("Unexpected end of output in runtime layer")]
-    UnexpectedOf(#[from] std::io::Error),
+    #[error("Generic error in runtime layer")]
+    Error(#[from] std::io::Error),
 
-    #[error("Failed database in runtime layer")]
-    DatabaseError(#[from] DatabaseError),
-
-    #[error("State error in runtime layer")]
-    StateError(#[from] StateError),
+    #[error("Join error in runtime layer")]
+    JoinError(#[from] JoinError),
 }

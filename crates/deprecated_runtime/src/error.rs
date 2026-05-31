@@ -1,5 +1,5 @@
-/* constants.rs
- * The purpose of this module is to provide constants for creating characters.
+/* runtime/error.rs
+ * The purpose of this module is to provide errors related to the runtime loop.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -16,14 +16,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-pub const DEFAULT_KEY: [i32; 23] = [
-    59, 60, 61, 62, 63, 64, 65, 56, 87, 18, 23, 31, 37, 19, 17, 46, 50, 16, 43, 40, 21, 4, 84,
-];
 
-pub const DEFAULT_TYPE: [i16; 23] = [
-    6, 6, 6, 6, 6, 6, 6, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-];
+use config::error::ConfigError;
+use db::error::DatabaseError;
+use state::error::StateError;
+use thiserror::Error;
 
-pub const DEFAULT_ACTION: [i32; 23] = [
-    100, 101, 102, 103, 104, 105, 106, 54, 54, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15,
-];
+#[derive(Debug, Error)]
+pub enum RuntimeError {
+    #[error("Config error in runtime layer")]
+    ConfigError(#[from] ConfigError),
+
+    #[error("Unexpected end of output in runtime layer")]
+    UnexpectedOf(#[from] std::io::Error),
+
+    #[error("Failed database in runtime layer")]
+    DatabaseError(#[from] DatabaseError),
+
+    #[error("State error in runtime layer")]
+    StateError(#[from] StateError),
+}

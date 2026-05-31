@@ -39,7 +39,7 @@ pub async fn store_register_pic(
         let Some(client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Some(acc) = accounts.get(client_entity) else {
+        let Ok(acc) = accounts.get(client_entity) else {
             continue;
         };
 
@@ -53,7 +53,7 @@ pub async fn store_register_pic(
             .unwrap();
 
         let success_status: bool = true;
-        let Some(spw_packet): Option<Packet> = spw::build_spw_packet(success_status) else {
+        let Ok(spw_packet): Option<Packet> = spw::build_spw_packet(success_status) else {
             continue;
         };
 

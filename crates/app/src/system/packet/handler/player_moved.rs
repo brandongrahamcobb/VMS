@@ -37,8 +37,8 @@ pub async fn handle_player_moved(
     client_map: Res<ClientMap>,
     mut messages: MessageReader<PlayerMovedMessage>,
     mut results: MessageWriter<HandlerResult>,
-    chars: Query<(Entity, &mut MapleCharacter)>,
-    positions: Query<(&mut MaplePosition, &ChildOf)>,
+    chars: Query<&mut MapleCharacter>,
+    curr_positions: Query<&mut MapleCurrentPosition>,
 ) -> () {
     for msg in messages.read() {
         if !msg.too_short && !msg.empty {
@@ -48,7 +48,7 @@ pub async fn handle_player_moved(
             let Ok(char) = chars.get(client_entity) else {
                 continue;
             };
-            let Ok(pos) = positions.get_mut(client_entity) else {
+            let Ok(curr_pos) = curr_positions.get_mut(client_entity) else {
                 continue;
             };
             let new_pos: Point =

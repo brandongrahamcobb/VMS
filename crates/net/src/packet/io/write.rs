@@ -17,15 +17,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::io::error::IOError;
-use crate::io::error::IOError::WriteError;
-use crate::model::Packet;
-use crate::prelude::*;
+use crate::crypto::aes::AES;
+use crate::crypto::custom;
+use crate::packet::io::error::IOError;
+use crate::packet::io::error::IOError::WriteError;
+use crate::packet::io::prelude::*;
+use crate::packet::model::Packet;
 use byteorder::{LittleEndian, WriteBytesExt};
 use config::settings;
 use op::send::SendOpcode;
-use sec::aes::AES;
-use sec::custom;
 use std::io::Write;
 use tokio::io::{AsyncWriteExt, BufWriter};
 use tokio::net::tcp::OwnedWriteHalf;
@@ -40,7 +40,7 @@ impl PacketWriter {
     pub async fn new(write_half: OwnedWriteHalf, send_iv: &[u8]) -> Result<Self, IOError> {
         Ok(Self {
             pkt_writer: BufWriter::new(write_half),
-            aes: AES::new(&send_iv.to_vec(), settings::get_version()?),
+            aes: AES::new(&send_iv, settings::get_version()?),
         })
     }
 

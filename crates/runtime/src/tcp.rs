@@ -17,20 +17,42 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::error::RuntimeError;
+use crate::error::{NetworkError, RuntimeError};
 use crate::relay::model::{LoginRelay, PlayerRelay, Runtime};
 use config::settings;
 use core::net::SocketAddr;
-use core::pin::Pin;
 use inc::helpers;
 use ipc::channel::{TcpCommand, TcpEvent};
-use session::model::Session;
-use state::model::SharedState;
-use std::sync::Arc;
 use std::sync::mpsc::{Receiver, Sender};
+use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener;
 use tokio::try_join;
 use tracing::info;
+
+pub async fn start_server(
+    event_tx: Sender<TcpEvent>,
+    command_rx: Receiver<TcpCommand>,
+    db: DbPool,
+) -> Result<(), NetworkError> {
+    let command_rx = Arc::new(Mutex::new(command_rx));
+    // tokio::spawn({
+    //     let command_tx = Arc::clone(&command_rx);
+    //     let db = db.clone();
+    //     let event_tx = event_tx.clone();
+    //     async move {
+    //         login_worker(command_rx, db, event_tx).await;
+    //     }
+    // });
+
+    info!("Binding to login server...");
+    let login = LoginServer::run(event_tx.clone(), Arc::clone(&command_rx));
+
+    info!("Binding to player server...");
+    let player = PlayerServer::run(event_tx.clone(), Arc::clone(&command_rx));
+
+    let (_, _) = try_join!(login, player).map_err(Box::new)?;
+    Ok(())
+}
 
 pub struct LoginServer;
 
@@ -38,7 +60,7 @@ impl LoginServer {
     pub async fn run(
         command_rx: Arc<Mutex<Receiver<TcpCommand>>>,
         event_tx: Sender<TcpEvent>,
-    ) -> Result<(), RuntimeError> {
+    ) -> Result<(), NetworkError> {
         let port = settings::get_login_port()?;
         let addr = settings::get_bind_address()?;
         let bind = helpers::build_server_addr(addr, port);
@@ -79,7 +101,7 @@ impl PlayerServer {
     pub async fn run(
         command_rx: Arc<Mutex<Receiver<TcpCommand>>>,
         event_tx: Sender<TcpEvent>,
-    ) -> Result<(), RuntimeError> {
+    ) -> Result<(), NetworkError> {
         let addr = settings::get_bind_address()?;
         loop {
             let cmd = { command_rx.lock().unwrap().try_recv() };

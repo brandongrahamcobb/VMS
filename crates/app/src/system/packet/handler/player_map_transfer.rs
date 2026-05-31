@@ -35,8 +35,6 @@ pub async fn handle_player_map_transfer(
     mut messages: MessageReader<PlayerMapTransferMessage>,
     mut results: MessageWriter<HandlerResult>,
     mut sessions: Query<&mut MapleSession>,
-    worlds: Query<(Entity, &MapleWorld)>,
-    channels: Query<(&MapleChannel, &ChildOf)>,
 ) -> () {
     for msg in messages.read() {
         let Some(client_entity) = client_map.0.get(&msg.client_id) else {

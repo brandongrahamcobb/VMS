@@ -23,10 +23,5 @@ use config::settings;
 #[derive(Component)]
 pub struct MapleSession {
     pub client_id: i32,
-    pub acc_id: Option<i32>,
-    pub char_id: Option<i32>,
-    pub world_id: Option<i16>,
-    pub channel_id: Option<u8>,
-    pub map_wz: Option<i32>,
     pub transtitioning: bool,
 }

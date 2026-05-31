@@ -204,3 +204,23 @@ pub async fn get_random_drops(
     }
     Ok(items)
 }
+
+
+        let char: Character =
+            assembly::character::assemble::assemble_char_by_id(pool, char_id).await?;
+        let mut inv: Inventory =
+            assembly::item::assemble::assemble_inventory_by_char_id(pool, char_id).await?;
+        let item: Item =
+            assembly::item::assemble::assemble_item_by_id(pool, reader.item_id).await?;
+        domain::item::pick_up(pool, &mut inv, char.model.ign.clone(), char_id, item).await?;
+        let pet_pickup: bool = false; //placeholder
+        Ok(Self {
+            char_id,
+            item_id: reader.item_id,
+            world_id,
+            channel_id,
+            map_wz,
+            pet_pickup,
+            pos: reader.pos.clone(),
+        })
+

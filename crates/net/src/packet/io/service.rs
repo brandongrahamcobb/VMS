@@ -17,9 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::constants::MAX_PACKET_LENGTH;
-use crate::io::error::IOError;
-use sec::aes::AES;
+use crate::crypto::aes::AES;
+use crate::packet::io::constants::MAX_PACKET_LENGTH;
+use crate::packet::io::error::IOError;
 
 pub fn check_header(aes: &AES, header: &[u8]) -> Result<(), IOError> {
     if !((header[0] ^ aes.iv[2]) == ((aes.version >> 8) as u8)

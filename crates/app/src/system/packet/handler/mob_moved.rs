@@ -37,6 +37,8 @@ pub async fn handle_mob_moved(
     positions: Query<(&mut MaplePosition, &ChildOf)>,
     in_map: Query<&InMap>,
     mobs: Query<(Entity, &mut MapleMob, &ChildOf)>,
+    curr_positions: Query<&mut MapleCurrentPosition>,
+    last_positions: Query<&mut MapleLastPosition>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
@@ -48,18 +50,26 @@ pub async fn handle_mob_moved(
         let Some((mob_entity, mob, _)) = mobs
             .iter_mut()
             .find(|(_, m, parent)| m.id == msg.mob_id && parent.0 == in_map.0);
+        let Ok(curr_pos) = curr_positions.get_mut(mob.0) else {
+            continue;
+        };
 
-        let mob_pos = Point {
+        let pos = Point {
             x: msg.origin_x,
             y: msg.origin_y,
         };
-        mob.pos = mob_pos;
-        mob.fh = msg.fh;
-        let last_pos = Point {
+        curr_position = MapleCurrentPosition {
+            pos: pos,
+            fh: msg.fh,
+        };
+        let Ok(last_pos) = last_positions.get_mut(mob.0) else {
+            continue;
+        };
+        let pos = Point {
             x: msg.last_x,
             y: msg.last_y,
         };
-        mob.last_pos = last_pos;
+        last_position = pos;
 
         let Ok(mob_moved_packet) = codec::mob::builder::build_mob_move_packet(
             msg.mob_id,

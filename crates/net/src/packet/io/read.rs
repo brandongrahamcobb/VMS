@@ -17,15 +17,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::constants::HEADER_SIZE;
-use crate::io::error::IOError;
-use crate::io::error::IOError::ReadError;
-use crate::model::Packet;
-use crate::service;
+use crate::crypto::aes::AES;
+use crate::crypto::custom;
+use crate::packet::io::constants::HEADER_SIZE;
+use crate::packet::io::error::IOError;
+use crate::packet::io::error::IOError::ReadError;
+use crate::packet::io::service;
+use crate::packet::model::Packet;
 use byteorder::{LittleEndian, ReadBytesExt};
 use config::settings;
-use sec::aes::AES;
-use sec::custom;
 use std::io::Read;
 use tokio::io::{AsyncReadExt, BufReader};
 use tokio::net::tcp::OwnedReadHalf;
@@ -39,7 +39,7 @@ impl PacketReader {
     pub fn new(read_half: OwnedReadHalf, recv_iv: &[u8]) -> Result<Self, IOError> {
         Ok(Self {
             pkt_reader: BufReader::new(read_half),
-            aes: AES::new(&recv_iv.to_vec(), settings::get_version()?),
+            aes: AES::new(&recv_iv, settings::get_version()?),
         })
     }
 

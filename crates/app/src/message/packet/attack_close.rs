@@ -16,12 +16,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 use bevy::prelude::Message;
+use core::convert::From;
+use entity::item::wrapper::Item;
 use ipc::data::attack_close::CloseAttackCommand;
 use std::collections::HashMap;
 
 #[derive(Message)]
-pub struct CloseAttackMessage {
+pub struct CloseAttackRequestMessage {
     pub client_id: i32,
     pub count: i16,
     pub skill_id: i32,
@@ -30,4 +33,38 @@ pub struct CloseAttackMessage {
     pub stance: i16,
     pub speed: i16,
     pub mob_damages: HashMap<u32, Vec<i32>>,
+}
+
+#[derive(Message)]
+pub struct CloseAttackResponseMessage {
+    pub client_id: i32,
+    pub skill: Skill,
+    pub count: i16,
+    pub display: i16,
+    pub toleft: i16,
+    pub stance: i16,
+    pub speed: i16,
+    pub mob_damages: HashMap<u32, Vec<i32>>,
+}
+
+impl From<(CloseAttackRequestMessage, Skill)> for CloseAttackResponseMessage {
+    fn from((msg, skill): (CloseAttackRequestMessage, Skill)) -> Self {
+        Self {
+            client_id: msg.client_id,
+            count: msg.count,
+            skill,
+            display: msg.display,
+            toleft: msg.toleft,
+            stance: msg.stance,
+            speed: msg.speed,
+            mob_damages: msg.mob_damages,
+        }
+    }
+}
+
+#[derive(Message)]
+pub struct DeadMobMessage {
+    pub client_id: i32,
+    pub mob_id: i32,
+    pub item: Vec<Item>,
 }

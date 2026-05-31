@@ -17,6 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-pub use crate::io::read::PktRead;
-pub use crate::io::write::PktWrite;
+pub use crate::packet::io::read::PktRead;
+pub use crate::packet::io::write::PktWrite;
 pub use num_traits::FromPrimitive;
