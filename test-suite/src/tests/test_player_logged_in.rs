@@ -6,7 +6,7 @@ use op::recv::RecvOpcode;
 use op::send::SendOpcode;
 use net::packet::io::error::IOError::{ReadError, WriteError};
 use net::packet::model::Packet;
-use net::packet::prelude::*;
+use net::packet::io::prelude::*;
 use std::io::Cursor;
 
 pub const PHASE: &str = "player logged in";

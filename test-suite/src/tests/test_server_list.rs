@@ -4,7 +4,7 @@ use config::settings;
 use op::recv::RecvOpcode;
 use net::packet::io::error::IOError::{ReadError, WriteError};
 use net::packet::model::Packet;
-use net::packet::prelude::*;
+use net::packet::io::prelude::*;
 use std::io::Cursor;
 
 pub const PHASE: &str = "server list";

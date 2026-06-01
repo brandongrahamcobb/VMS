@@ -19,6 +19,7 @@
 
 use crate::map::error::MapMetadataError;
 use crate::service;
+use base::map::Point;
 use base::portal::BasePortal;
 
 pub fn get_portal_wz_info_by_map_wz_and_pid(

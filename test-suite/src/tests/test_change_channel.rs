@@ -3,17 +3,17 @@ use crate::net::connection::TestConnection;
 use crate::tests::test_player_logged_in;
 use config::settings;
 use inc::helpers;
+use net::packet::io::error::IOError::{ReadError, WriteError};
+use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use op::recv::RecvOpcode;
 use op::send::SendOpcode;
-use net::packet::io::error::IOError::{ReadError, WriteError};
-use net::packet::model::Packet;
-use net::packet::prelude::*;
-use state::model::SharedState;
 use std::io::Cursor;
 
 pub const SEND_PHASE: &str = "send change channel";
 pub const RECEIVE_PHASE: &str = "receive change channel";
 pub const CHANNEL_ID: u8 = 2;
+pub const PORT: i16 = 8587;
 
 struct ChangeChannelResult {
     octets: Vec<u8>,
@@ -21,19 +21,11 @@ struct ChangeChannelResult {
 }
 
 pub async fn assert_change_channel(
-    state: &SharedState,
     mut conn: TestConnection,
-    world_id: i16,
     char_id: i32,
 ) -> Result<TestConnection, HarnessError> {
     dbg!(RECEIVE_PHASE);
-    let port = {
-        let state = state.lock().await;
-        state
-            .with_channel(world_id, CHANNEL_ID, |channel| channel.model.port)
-            .await?
-    };
-    let conn = assert_change_channel_result(&mut conn, char_id, port).await?;
+    let conn = assert_change_channel_result(&mut conn, char_id, PORT).await?;
     Ok(conn)
 }
 

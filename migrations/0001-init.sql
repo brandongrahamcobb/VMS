@@ -2,15 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict qR2iVuah6hqYIQF61XCI0Y2rEc9FK1SgDiMaHPgpj7b5zLKgiEFgyxbmj6KUrUY
-
--- Dumped from database version 18.3 (Debian 18.3-1.pgdg13+1)
--- Dumped by pg_dump version 18.3 (Debian 18.3-1.pgdg13+1)
+-- Dumped from database version 14.22 (Homebrew)
+-- Dumped by pg_dump version 14.18 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -107,7 +104,7 @@ CREATE SEQUENCE public.accounts_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.accounts_id_seq OWNER TO vms;
+ALTER TABLE public.accounts_id_seq OWNER TO vms;
 
 --
 -- Name: accounts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: vms
@@ -183,7 +180,7 @@ CREATE SEQUENCE public.characters_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.characters_id_seq OWNER TO vms;
+ALTER TABLE public.characters_id_seq OWNER TO vms;
 
 --
 -- Name: characters_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: vms
@@ -193,31 +190,72 @@ ALTER SEQUENCE public.characters_id_seq OWNED BY public.characters.id;
 
 
 --
+-- Name: inventory_capacity; Type: TABLE; Schema: public; Owner: vms
+--
+
+CREATE TABLE public.inventory_capacity (
+    id integer NOT NULL,
+    char_id integer NOT NULL,
+    equip_slot_capacity smallint NOT NULL,
+    use_slot_capacity smallint NOT NULL,
+    etc_slot_capacity smallint NOT NULL,
+    setup_slot_capacity smallint NOT NULL,
+    cash_slot_capacity smallint NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.inventory_capacity OWNER TO vms;
+
+--
+-- Name: inventory_id_seq; Type: SEQUENCE; Schema: public; Owner: vms
+--
+
+CREATE SEQUENCE public.inventory_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.inventory_id_seq OWNER TO vms;
+
+--
+-- Name: inventory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: vms
+--
+
+ALTER SEQUENCE public.inventory_id_seq OWNED BY public.inventory_capacity.id;
+
+
+--
 -- Name: items; Type: TABLE; Schema: public; Owner: vms
 --
 
 CREATE TABLE public.items (
-    id integer CONSTRAINT equip_items_id_not_null NOT NULL,
+    id integer NOT NULL,
     char_id integer,
-    wz integer CONSTRAINT equip_items_wz_not_null NOT NULL,
+    wz integer NOT NULL,
     ipos smallint,
-    strength smallint DEFAULT 0 CONSTRAINT equip_items_strength_not_null NOT NULL,
-    dexterity smallint DEFAULT 0 CONSTRAINT equip_items_dexterity_not_null NOT NULL,
-    intelligence smallint DEFAULT 0 CONSTRAINT equip_items_intelligence_not_null NOT NULL,
-    luck smallint DEFAULT 0 CONSTRAINT equip_items_luck_not_null NOT NULL,
-    attack smallint DEFAULT 0 CONSTRAINT equip_items_attack_not_null NOT NULL,
-    weapon_defense smallint DEFAULT 0 CONSTRAINT equip_items_weapon_defense_not_null NOT NULL,
-    magic smallint DEFAULT 0 CONSTRAINT equip_items_magic_not_null NOT NULL,
-    magic_defense smallint DEFAULT 0 CONSTRAINT equip_items_magic_defense_not_null NOT NULL,
-    hp smallint DEFAULT 0 CONSTRAINT equip_items_hp_not_null NOT NULL,
-    mp smallint DEFAULT 0 CONSTRAINT equip_items_mp_not_null NOT NULL,
-    accuracy smallint DEFAULT 0 CONSTRAINT equip_items_accuracy_not_null NOT NULL,
-    avoid smallint DEFAULT 0 CONSTRAINT equip_items_avoid_not_null NOT NULL,
-    hands smallint DEFAULT 0 CONSTRAINT equip_items_hands_not_null NOT NULL,
-    speed smallint DEFAULT 0 CONSTRAINT equip_items_speed_not_null NOT NULL,
-    jump smallint DEFAULT 0 CONSTRAINT equip_items_jump_not_null NOT NULL,
-    created_at timestamp without time zone DEFAULT now() CONSTRAINT equip_items_created_at_not_null NOT NULL,
-    updated_at timestamp without time zone DEFAULT now() CONSTRAINT equip_items_updated_at_not_null NOT NULL,
+    strength smallint DEFAULT 0 NOT NULL,
+    dexterity smallint DEFAULT 0 NOT NULL,
+    intelligence smallint DEFAULT 0 NOT NULL,
+    luck smallint DEFAULT 0 NOT NULL,
+    attack smallint DEFAULT 0 NOT NULL,
+    weapon_defense smallint DEFAULT 0 NOT NULL,
+    magic smallint DEFAULT 0 NOT NULL,
+    magic_defense smallint DEFAULT 0 NOT NULL,
+    hp smallint DEFAULT 0 NOT NULL,
+    mp smallint DEFAULT 0 NOT NULL,
+    accuracy smallint DEFAULT 0 NOT NULL,
+    avoid smallint DEFAULT 0 NOT NULL,
+    hands smallint DEFAULT 0 NOT NULL,
+    speed smallint DEFAULT 0 NOT NULL,
+    jump smallint DEFAULT 0 NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
     slots integer NOT NULL,
     expire bigint NOT NULL,
     level smallint NOT NULL,
@@ -243,7 +281,7 @@ CREATE SEQUENCE public.items_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.items_id_seq OWNER TO vms;
+ALTER TABLE public.items_id_seq OWNER TO vms;
 
 --
 -- Name: items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: vms
@@ -265,7 +303,7 @@ CREATE SEQUENCE public.keybindings_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.keybindings_id_seq OWNER TO vms;
+ALTER TABLE public.keybindings_id_seq OWNER TO vms;
 
 --
 -- Name: keybindings; Type: TABLE; Schema: public; Owner: vms
@@ -297,7 +335,7 @@ CREATE SEQUENCE public.skills_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.skills_id_seq OWNER TO vms;
+ALTER TABLE public.skills_id_seq OWNER TO vms;
 
 --
 -- Name: skills; Type: TABLE; Schema: public; Owner: vms
@@ -330,10 +368,123 @@ ALTER TABLE ONLY public.characters ALTER COLUMN id SET DEFAULT nextval('public.c
 
 
 --
+-- Name: inventory_capacity id; Type: DEFAULT; Schema: public; Owner: vms
+--
+
+ALTER TABLE ONLY public.inventory_capacity ALTER COLUMN id SET DEFAULT nextval('public.inventory_id_seq'::regclass);
+
+
+--
 -- Name: items id; Type: DEFAULT; Schema: public; Owner: vms
 --
 
 ALTER TABLE ONLY public.items ALTER COLUMN id SET DEFAULT nextval('public.items_id_seq'::regclass);
+
+
+--
+-- Data for Name: __diesel_schema_migrations; Type: TABLE DATA; Schema: public; Owner: vms
+--
+
+COPY public.__diesel_schema_migrations (version, run_on) FROM stdin;
+\.
+
+
+--
+-- Data for Name: accounts; Type: TABLE DATA; Schema: public; Owner: vms
+--
+
+COPY public.accounts (id, username, password, pin, pic, last_login_at, gender_wz, accepted_tos, banned, admin, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: character_limits; Type: TABLE DATA; Schema: public; Owner: vms
+--
+
+COPY public.character_limits (id, acc_id, world_id, char_max, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: characters; Type: TABLE DATA; Schema: public; Owner: vms
+--
+
+COPY public.characters (id, acc_id, world_id, map_wz, ign, level, exp, strength, dexterity, luck, intelligence, hp, mp, max_hp, max_mp, ap, sp, fame, meso, job_wz, face_wz, hair_wz, hair_color_wz, skin_wz, gender_wz, created_at, updated_at, last_portal) FROM stdin;
+\.
+
+
+--
+-- Data for Name: inventory_capacity; Type: TABLE DATA; Schema: public; Owner: vms
+--
+
+COPY public.inventory_capacity (id, char_id, equip_slot_capacity, use_slot_capacity, etc_slot_capacity, setup_slot_capacity, cash_slot_capacity, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: items; Type: TABLE DATA; Schema: public; Owner: vms
+--
+
+COPY public.items (id, char_id, wz, ipos, strength, dexterity, intelligence, luck, attack, weapon_defense, magic, magic_defense, hp, mp, accuracy, avoid, hands, speed, jump, created_at, updated_at, slots, expire, level, item_level, flag, item_exp, vicious) FROM stdin;
+\.
+
+
+--
+-- Data for Name: keybindings; Type: TABLE DATA; Schema: public; Owner: vms
+--
+
+COPY public.keybindings (id, char_id, key, bind_type, action, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: skills; Type: TABLE DATA; Schema: public; Owner: vms
+--
+
+COPY public.skills (id, char_id, wz, level, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Name: accounts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: vms
+--
+
+SELECT pg_catalog.setval('public.accounts_id_seq', 1, false);
+
+
+--
+-- Name: characters_id_seq; Type: SEQUENCE SET; Schema: public; Owner: vms
+--
+
+SELECT pg_catalog.setval('public.characters_id_seq', 1, false);
+
+
+--
+-- Name: inventory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: vms
+--
+
+SELECT pg_catalog.setval('public.inventory_id_seq', 1, false);
+
+
+--
+-- Name: items_id_seq; Type: SEQUENCE SET; Schema: public; Owner: vms
+--
+
+SELECT pg_catalog.setval('public.items_id_seq', 1, false);
+
+
+--
+-- Name: keybindings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: vms
+--
+
+SELECT pg_catalog.setval('public.keybindings_id_seq', 1, false);
+
+
+--
+-- Name: skills_id_seq; Type: SEQUENCE SET; Schema: public; Owner: vms
+--
+
+SELECT pg_catalog.setval('public.skills_id_seq', 1, false);
 
 
 --
@@ -398,6 +549,14 @@ ALTER TABLE ONLY public.characters
 
 ALTER TABLE ONLY public.items
     ADD CONSTRAINT equip_items_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: inventory_capacity inventory_capacity_key; Type: CONSTRAINT; Schema: public; Owner: vms
+--
+
+ALTER TABLE ONLY public.inventory_capacity
+    ADD CONSTRAINT inventory_capacity_key UNIQUE (char_id);
 
 
 --
@@ -475,6 +634,4 @@ ALTER TABLE ONLY public.skills
 --
 -- PostgreSQL database dump complete
 --
-
-\unrestrict qR2iVuah6hqYIQF61XCI0Y2rEc9FK1SgDiMaHPgpj7b5zLKgiEFgyxbmj6KUrUY
 

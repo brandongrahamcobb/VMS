@@ -16,14 +16,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use std::sync::{Mutex, mpsc::Receiver};
+use std::collections::HashMap;
+use std::sync::Mutex;
+use std::sync::mpsc::Receiver;
 
 use bevy::ecs::entity::Entity;
+use bevy::ecs::resource::Resource;
 use db::pool::DbPool;
-use session::session_store::SessionStore;
 
 #[derive(Resource)]
-pub struct CustomReceiver(Mutex<Receiver<CustomPluginEvent>>);
+pub struct CustomReceiver(pub Mutex<Receiver<CustomPluginEvent>>);
 
 #[derive(Resource)]
 pub struct CustomSender(pub Mutex<Sender<CustomPluginCommand>>);
@@ -32,4 +34,4 @@ pub struct CustomSender(pub Mutex<Sender<CustomPluginCommand>>);
 pub struct Pool(DbPool);
 
 #[derive(Resource)]
-pub struct ClientMap(pub HashMap<i32, Entity>)
+pub struct ClientMap(pub HashMap<i32, Entity>);

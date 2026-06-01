@@ -18,8 +18,12 @@
  */
 
 use config::error::ConfigError;
+use db::error::DatabaseError;
+use ipc::asyncronous::command::AsyncCommand;
+use ipc::asyncronous::db_command::DatabaseCommand;
+use net::packet::io::error::IOError;
 use thiserror::Error;
-use tokio::task::JoinError;
+use tokio::sync::mpsc::error::SendError;
 
 #[derive(Debug, Error)]
 pub enum RuntimeError {
@@ -29,6 +33,15 @@ pub enum RuntimeError {
     #[error("Generic error in runtime layer")]
     Error(#[from] std::io::Error),
 
-    #[error("Join error in runtime layer")]
-    JoinError(#[from] JoinError),
+    #[error("Packet io error in runtime layer")]
+    IOError(#[from] IOError),
+
+    #[error("Database error in runtime layer")]
+    DatabaseError(#[from] DatabaseError),
+
+    #[error("Tokio asyncronous command send error in runtime layer")]
+    TokioSendAsyncCommandError(#[from] SendError<AsyncCommand>),
+
+    #[error("Tokio db command send error in runtime layer")]
+    TokioSendDbCommandError(#[from] SendError<DatabaseCommand>),
 }

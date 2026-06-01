@@ -1,11 +1,11 @@
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
-use entity::account::model::AccountModel;
-use op::recv::RecvOpcode;
+use db::account::model::AccountModel;
+use db::pool::DbPool;
 use net::packet::io::error::IOError::{ReadError, WriteError};
+use net::packet::io::prelude::*;
 use net::packet::model::Packet;
-use net::packet::prelude::*;
-use state::model::SharedState;
+use op::recv::RecvOpcode;
 use std::io::Cursor;
 use std::time::SystemTime;
 
@@ -25,7 +25,7 @@ struct CredentialsResult {
 }
 
 pub async fn assert_credentials(
-    state: &SharedState,
+    pool: &DbPool,
     mut conn: TestConnection,
     acc_username: &str,
 ) -> Result<(i32, TestConnection), HarnessError> {
@@ -46,8 +46,7 @@ pub async fn assert_credentials(
         created_at: Some(SystemTime::now()),
         updated_at: SystemTime::now(),
     };
-    let acc_model =
-        db::account::setters::update_account(&state.lock().await.db.clone(), acc_model).await?;
+    let acc_model = db::account::setters::update_account(pool, acc_model).await?;
     conn.send_packet(build_credentials(acc_username, PASSWORD)?, PHASE)
         .await?;
     let acc_id = acc_model.get_id()?;

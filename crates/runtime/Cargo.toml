@@ -12,3 +12,5 @@ tokio = { version = "1.51.1", features = ["full"] }
 db = { path = "../db" }
 ipc = { path = "../ipc" }
 base = { path = "../base" }
+net = { path = "../net" }
+rand = "0.10.1"

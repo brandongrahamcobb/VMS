@@ -1,12 +1,12 @@
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
 use crate::tests::test_credentials::GENDER_WZ;
-use entity::character::model::CharacterModel;
-use op::recv::RecvOpcode;
+use db::character::model::CharacterModel;
+use db::pool::DbPool;
 use net::packet::io::error::IOError::{ReadError, WriteError};
+use net::packet::io::prelude::*;
 use net::packet::model::Packet;
-use net::packet::prelude::*;
-use state::model::SharedState;
+use op::recv::RecvOpcode;
 use std::io::Cursor;
 use std::time::SystemTime;
 
@@ -53,7 +53,7 @@ pub struct CharListResult {
 }
 
 pub async fn assert_char_list_request(
-    state: &SharedState,
+    pool: &DbPool,
     mut conn: TestConnection,
     acc_id: i32,
 ) -> Result<(i16, TestConnection), HarnessError> {
@@ -89,8 +89,7 @@ pub async fn assert_char_list_request(
         updated_at: SystemTime::now(),
     };
     let char_models: Vec<CharacterModel> =
-        db::character::setters::update_characters(&state.lock().await.db.clone(), vec![char_model])
-            .await?;
+        db::character::setters::update_characters(pool, vec![char_model]).await?;
     conn.send_packet(build_char_list_request(WORLD_ID, CHANNEL_ID as i16)?, PHASE)
         .await?;
     assert_char_list_result(

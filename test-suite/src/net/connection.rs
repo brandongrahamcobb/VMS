@@ -1,10 +1,11 @@
 use net;
-use net::packet::constants::MAX_PACKET_LENGTH;
+use net::crypto::aes::AES;
+use net::crypto::custom;
+use net::packet;
+use net::packet::io::constants::MAX_PACKET_LENGTH;
 use net::packet::io::error::IOError;
 use net::packet::io::read::PktRead;
 use net::packet::model::Packet;
-use sec::aes::AES;
-use sec::custom;
 use std::collections::VecDeque;
 use std::io::Cursor;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -51,7 +52,7 @@ impl TestConnection {
             .read_exact(&mut header)
             .await
             .map_err(|source| HarnessError::IOError(phase, self.endpoint.to_string(), source))?;
-        packet::service::check_header(&self.recv_cipher, &header)?;
+        packet::io::service::check_header(&self.recv_cipher, &header)?;
         let length = packet::io::read::get_packet_length(&header);
         if !(2..=MAX_PACKET_LENGTH).contains(&length) {
             return Err(HarnessError::PacketIOError(IOError::InvalidPacketLength(

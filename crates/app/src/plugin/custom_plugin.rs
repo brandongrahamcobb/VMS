@@ -37,12 +37,12 @@ use crate::system::{event_handler, packet_dispatch, startup, tcp_transition};
 pub struct CustomPlugin;
 
 impl Plugin for CustomPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, app: &mut App, pool: Res<DbPool>) {
         let (command_tx, command_rx) = channel::<AsyncCommand>();
         let (event_tx, event_rx) = channel::<AsyncEvent>();
         std::thread::spawn(move || {
             tokio::runtime::Runtime::new().unwrap().block_on(async {
-                runtime::server::start_server(event_tx, command_rx)
+                runtime::server::start_server(command_rx, pool, event_tx)
                     .await
                     .unwrap();
             });

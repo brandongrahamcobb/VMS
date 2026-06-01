@@ -21,7 +21,9 @@ use crate::close_attack::constants::EXP_TABLE;
 use crate::component::character::MapleCharacter;
 use crate::component::item::MapleItem;
 use crate::component::map::InMap;
-use crate::message::packet::attack_close::{CloseAttackRequestMessage, CloseAttackResponseMessage, DeadMobMessage};
+use crate::message::packet::attack_close::{
+    CloseAttackRequestMessage, CloseAttackResponseMessage, DeadMobMessage,
+};
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{attack_close, codec};
 use crate::system::packet::handler::result::HandlerResult;
@@ -33,7 +35,6 @@ use config::settings;
 use inc::helpers;
 use ipc::tcp_command::AsyncCommand;
 use std::collections::HashMap;
-
 
 pub async fn handle_close_attack_request(
     client_map: Res<ClientMap>,
@@ -49,22 +50,38 @@ pub async fn handle_close_attack_request(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(char) = chars.get(client_entity) else { continue; };
+        let Ok(char) = chars.get(client_entity) else {
+            continue;
+        };
 
-        command_tx.0.send(AsyncCommand::CloseAttackRequest { client_id: msg.client_id, char_id: char.id, skill_id: msg.skill_id, mob_damages: msg.mob_damages.clone() });
+        command_tx.0.send(AsyncCommand::CloseAttackRequest {
+            client_id: msg.client_id,
+            char_id: char.id,
+            skill_id: msg.skill_id,
+            mob_damages: msg.mob_damages.clone(),
+        });
 
         for (mob_id, damage) in msg.mob_damages.iter() {
-            let Some(mob) = mobs.iter().find(|(_, m, parent)| parent.0 == map && m.id == mob_id);
+            let Some(mob) = mobs
+                .iter()
+                .find(|(_, m, parent)| parent.0 == map && m.id == mob_id);
             let total_damage: i32 = damage.iter().sum();
             mob.hp -= total_damage;
             let hp_percent = (mob.hp * 100 / mob.max_hp) as i16;
             hp_updates.insert(mob, hp_percent);
             if hp_percent == 0 {
-                command_tx.0.send(AsyncCommand::RandomizedDrops { client_id: msg.client_id, mob_id: mob_id });
+                command_tx.0.send(AsyncCommand::RandomizedDrops {
+                    client_id: msg.client_id,
+                    mob_id: mob_id,
+                });
             }
         }
         for (mob, hp_percent) in hp_updates {
-            let Ok(mob_damage_hp_packet) = mob::builder::build_mob_damage_show_hp_packet(mob.id, hp_percent) else { continue; };
+            let Ok(mob_damage_hp_packet) =
+                mob::builder::build_mob_damage_show_hp_packet(mob.id, hp_percent)
+            else {
+                continue;
+            };
             actions.push(Action::Session(SessionAction::Send {
                 packet: mob_damage_hp_packet.finish(),
                 scope: SessionScope::Local,
@@ -72,7 +89,7 @@ pub async fn handle_close_attack_request(
         }
         results.write(HandlerResult {
             client_id: msg.client_id,
-            actions
+            actions,
         });
     }
 }
@@ -93,18 +110,28 @@ pub async fn handle_dead_mob(
         let owner: i32 = 0; // char id or 0
         let can_pickup: u8 = 0; // 0 everyone 1 owner, 2 party
         let player_drop: bool = false;
-        let Ok(meso_rate) = settings::get_meso_drop_rate() else { continue; };
+        let Ok(meso_rate) = settings::get_meso_drop_rate() else {
+            continue;
+        };
 
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(char) = chars.get_mut(client_entity) else { continue; };
-        let Ok(in_map) = in_maps.get(client_entity) else { continue; };
-        let Some(mob) = mobs.iter().find(|(_, m, parent)| parent.0 == in_map.0 && m.id == msg.mob_id);
+        let Ok(char) = chars.get_mut(client_entity) else {
+            continue;
+        };
+        let Ok(in_map) = in_maps.get(client_entity) else {
+            continue;
+        };
+        let Some(mob) = mobs
+            .iter()
+            .find(|(_, m, parent)| parent.0 == in_map.0 && m.id == msg.mob_id);
 
         let mesos: i32 = helpers::calculate_rand_meso_amount(meso_rate, mob.level);
 
-        let Ok(kill_mob_packet) = mob::builder::build_kill_mob_packet(msg.mob_id) else { continue; };
+        let Ok(kill_mob_packet) = mob::builder::build_kill_mob_packet(msg.mob_id) else {
+            continue;
+        };
         actions.push(Action::Broadcast(BroadcastAction::Send {
             packet: kill_mob_packet,
             scope: BroadcastScope::Map,
@@ -115,22 +142,29 @@ pub async fn handle_dead_mob(
             char.exp = 0;
             char.level += 1;
             stats_update.push(StatsUpdate::Level { level: char.level });
-            let Ok(set_level_packet) = codec::player::builder::build_set_level_packet(char.level) else { continue; };
+            let Ok(set_level_packet) = codec::player::builder::build_set_level_packet(char.level)
+            else {
+                continue;
+            };
             actions.push(Action::Session(SessionAction::Send {
                 packet: set_level_packet.finish(),
                 scope: SessionScope::Local,
             }));
-            let Ok(set_exp_packet) = codec::player::builder::build_set_exp_packet(0) else { continue; };
+            let Ok(set_exp_packet) = codec::player::builder::build_set_exp_packet(0) else {
+                continue;
+            };
             actions.push(Action::Session(SessionAction::Send {
                 packet: set_exp_packet.finish(),
                 scope: SessionScope::Local,
             }));
-            let Ok(level_up_packet) = codec::player::builder::build_level_up_effect_packet(char.id) else { continue; };
+            let Ok(level_up_packet) = codec::player::builder::build_level_up_effect_packet(char.id)
+            else {
+                continue;
+            };
             actions.push(Action::Session(SessionAction::Send {
                 packet: level_up_packet.finish(),
                 scope: SessionScope::Map(MapScope::SameChannelSameWorld),
             }));
- 
         } else {
             let Ok(set_exp_packet) = Packet::new_empty().build_set_exp_packet(char.exp)?.finish();
             actions.push(Action::Session(SessionAction::Send {
@@ -138,9 +172,14 @@ pub async fn handle_dead_mob(
                 scope: SessionScope::Local,
             }));
         }
-        command_tx.0.send(AsyncCommand::UpdateStats { client_id: msg.client_id, updates: vec![StatsUpdate::Exp { exp: char.exp }] });
+        command_tx.0.send(AsyncCommand::UpdateStats {
+            client_id: msg.client_id,
+            updates: vec![StatsUpdate::Exp { exp: char.exp }],
+        });
 
-        let drop_from_pos = curr_positions.get(mob.0) else { continue; };
+        let drop_from_pos = curr_positions.get(mob.0) else {
+            continue;
+        };
         let drop_from_point: Point = Point {
             x: drop_from_pos.x,
             y: drop_from_pos.y,
@@ -152,44 +191,47 @@ pub async fn handle_dead_mob(
         };
         for (base_item, item_model) in msg.items.iter() {
             commands.spawn((MapleItem::from((base_item, item_model)), ChildOf(in_map.0)));
-            let Ok(drop_loot_packet) = item::builder::build_drop_loot_packet(mode,
-                    msg.item.id as u32,
-                    false,
-                    msg.item.wz,
-                    owner,
-                    can_pickup,
-                    drop_to_point.clone(),
-                    drop_from_point.clone(),
-                    player_drop,
-                ) else { continue; };
+            let Ok(drop_loot_packet) = item::builder::build_drop_loot_packet(
+                mode,
+                msg.item.id as u32,
+                false,
+                msg.item.wz,
+                owner,
+                can_pickup,
+                drop_to_point.clone(),
+                drop_from_point.clone(),
+                player_drop,
+            ) else {
+                continue;
+            };
             actions.push(Action::Broadcast(BroadcastAction::Send {
                 packet: drop_loot_packet.finish(),
                 scope: BroadcastScope::Map,
             }));
         }
         let Ok(meso_packet) = item::builder::build_drop_loot_packet(
-                mode,
-                0, // item ID
-                true,
-                mesos,
-                owner,
-                can_pickup,
-                drop_to_point.clone(),
-                drop_from_point.clone(),
-                player_drop,
-            ) else { continue; };
+            mode,
+            0, // item ID
+            true,
+            mesos,
+            owner,
+            can_pickup,
+            drop_to_point.clone(),
+            drop_from_point.clone(),
+            player_drop,
+        ) else {
+            continue;
+        };
         actions.push(Action::Broadcast(BroadcastAction::Send {
             packet: meso_packet.finish(),
             scope: BroadcastScope::Map,
         }));
         results.write(HandlerResult {
             client_id: msg.client_id,
-            actions
+            actions,
         });
     }
 }
- 
- 
 
 pub async fn handle_close_attack_response(
     client_map: Res<ClientMap>,
@@ -202,25 +244,29 @@ pub async fn handle_close_attack_response(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(char) = chars.get(client_entity) else { continue; };
+        let Ok(char) = chars.get(client_entity) else {
+            continue;
+        };
 
         let Ok(close_attack_packet) = attack_close::build_close_attack_packet(
-                msg.char_id,
-                msg.count,
-                msg.skill.level,
-                msg.skill.wz,
-                msg.display,
-                msg.toleft,
-                msg.stance,
-                msg.speed,
-                msg.mob_damages.clone(),
-            ) else { continue; };
+            msg.char_id,
+            msg.count,
+            msg.skill.level,
+            msg.skill.wz,
+            msg.display,
+            msg.toleft,
+            msg.stance,
+            msg.speed,
+            msg.mob_damages.clone(),
+        ) else {
+            continue;
+        };
         results.write(HandleResult {
             client_id: msg.client_id,
             actions: vec![Action::Broadcast(BroadcastAction::Send {
                 packet: close_attack_packet.finish(),
-                scope: BroadcastScope::Map
-            })]
+                scope: BroadcastScope::Map,
+            })],
         });
-    })
+    }
 }

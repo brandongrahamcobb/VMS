@@ -1,8 +1,8 @@
 use config::error::ConfigError;
-use db::error::DatabaseError;
-use entity::{account::error::AccountEntityError, character::error::CharacterEntityError};
+use db::{
+    account::error::AccountModelError, character::error::CharacterModelError, error::DatabaseError,
+};
 use net::packet::io::error::IOError;
-use state::error::StateError;
 use std::string::FromUtf8Error;
 use thiserror::Error;
 
@@ -16,12 +16,12 @@ pub enum HarnessError {
 
     #[error("Encryption error in test harness layer: {0}")]
     EncryptionError(bcrypt::BcryptError),
+    //
+    #[error("Account database model error in test harness layer")]
+    AccountModelError(#[from] AccountModelError),
 
-    #[error("Account entity error in test harness layer")]
-    AccountEntityError(#[from] AccountEntityError),
-
-    #[error("Character entity error in test harness layer")]
-    CharacterEntityError(#[from] CharacterEntityError),
+    #[error("Character database model error in test harness layer")]
+    CharacterModelError(#[from] CharacterModelError),
 
     #[error("{0} in test harness layer")]
     CargoError(String),
@@ -41,8 +41,8 @@ pub enum HarnessError {
     #[error("Database error in test harness layer")]
     DatabaseError(#[from] DatabaseError),
 
-    #[error("State error in test harness layer")]
-    StateError(#[from] StateError),
+    #[error("Database error in test harness layer")]
+    R2d2Error(#[from] r2d2::Error),
 
     #[error("From UTF-8 error in test harness layer")]
     FromUtf8Error(#[from] FromUtf8Error),

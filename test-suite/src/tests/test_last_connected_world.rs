@@ -2,7 +2,7 @@ use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
 use net::packet::io::error::IOError::ReadError;
 use net::packet::model::Packet;
-use net::packet::prelude::*;
+use net::packet::io::prelude::*;
 use std::io::Cursor;
 
 pub const PHASE: &str = "last connected world";

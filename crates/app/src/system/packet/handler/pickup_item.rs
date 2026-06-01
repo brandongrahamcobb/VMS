@@ -18,23 +18,14 @@
  */
 
 use crate::component::character::MapleCharacter;
-use crate::pickup_item::error::PickupItemEntityError;
-use crate::pickup_item::reader::PickupItemReader;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::pickup_item;
 use crate::system::packet::handler::result::HandlerResult;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::query::With;
-use bevy::ecs::system::{Res, Query};
-use db::pool::DbPool;
-use domain;
-use entity::character::wrapper::Character;
-use entity::item::wrapper::{Inventory, Item};
-use entity::map::model::Point;
-use ipc::tcp_command::AsyncCommand;
-use session::model::Session;
+use bevy::ecs::system::{Query, Res};
 
-pub async fn handle_pickup_item_request(
+pub fn handle_pickup_item_request(
     client_map: Res<ClientMap>,
     mut messages: MessageReader<PickupItemRequestMessage>,
     command_tx: CustomSender<AsyncCommand>,
@@ -49,15 +40,21 @@ pub async fn handle_pickup_item_request(
             continue;
         };
 
-        command_tx.0.send(AsyncCommand::PickupItem { client_id: msg.client_id, char_id: char.id, item_id: msg.item_id });
+        command_tx.0.send(AsyncCommand::PickupItem {
+            client_id: msg.client_id,
+            char_id: char.id,
+            item_id: msg.item_id,
+        });
+    }
+}
 
-pub async fn handle_pickup_response(
+pub fn handle_pickup_response(
     client_map: Res<ClientMap>,
     mut messages: MessageReader<PickupItemResponseMessage>,
     command_tx: CustomSender<AsyncCommand>,
     mut results: MessageWriter<HandlerResult>,
     chars: Query<&MapleCharacter>,
-    empty_slots: Query<With<EmptySlot>>
+    empty_slots: Query<Entity, With<EmptySlot>>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
@@ -68,16 +65,19 @@ pub async fn handle_pickup_response(
         };
 
         let ipos: EmptySlot = empty_slots.iter().next();
-// get item from inventory items.iter().find(|i| i.id == item_id);
+        // get item from inventory items.iter().find(|i| i.id == item_id);
 
-        let Ok(pickup_item_packet) = pickup_item::build_pickup_item_packet(char.id, msg.item_id, msg.pet_pickup) else { continue; };
+        let Ok(pickup_item_packet) =
+            pickup_item::build_pickup_item_packet(char.id, msg.item_id, msg.pet_pickup)
+        else {
+            continue;
+        };
         results.write(HandlerResult {
             client_id: msg.client_id,
             actions: vec![Action::Broadcast(BroadcastAction::Send {
                 packet: pickup_item_packet.finish(),
                 scope: BroadcastScope::Map,
-            })]
+            })],
         });
- 
     }
 }

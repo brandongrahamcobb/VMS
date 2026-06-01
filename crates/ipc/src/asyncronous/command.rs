@@ -17,9 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use db::keybinding::model::KeybindingModel;
 use net::packet::model::Packet;
 
+use crate::asyncronous::db_command::DatabaseCommand;
+
+#[derive(Clone)]
 pub enum AsyncCommand {
     // General
     SendPacket {
@@ -32,50 +34,7 @@ pub enum AsyncCommand {
     AcceptTransition {
         client_id: i32,
         port: i16,
+        packet: Packet,
     },
-
-    // Login
-    LoginRequest {
-        client_id: i32,
-        username: String,
-        password: String,
-    },
-    ListChars {
-        client_id: i32,
-        acc_id: i32,
-        channel_id: u8,
-        world_id: i16,
-    },
-    SetPic {
-        client_id: i32,
-        acc_id: i32,
-        pic: String,
-    },
-    SetTosAccepted {
-        client_id: i32,
-        acc_id: i32,
-    },
-    CheckCharName {
-        client_id: i32,
-        ign: String,
-    },
-    SelectCharWithPic {
-        client_id: i32,
-        acc_id: i32,
-        char_id: i32,
-        mac: String,
-        hwid: String,
-        pic: String,
-    },
-
-    // In-Game
-    UpdateKeybindings {
-        client_id: i32,
-        binds: Vec<KeybindingModel>,
-    },
-    UpdateHealth {
-        client_id: i32,
-        char_id: i32,
-        hp: i16,
-    },
+    DatabaseOperation(DatabaseCommand),
 }

@@ -18,66 +18,94 @@
  */
 
 use crate::error::RuntimeError;
-use crate::relay::model::{LoginRelay, PlayerRelay, Runtime};
+use crate::relay::Runtime;
+use crate::worker::db_worker;
 use config::settings;
 use core::net::SocketAddr;
 use db::pool::DbPool;
 use inc::helpers;
-use ipc::channel::{AsyncCommand, AsyncEvent};
+use ipc::asyncronous::command::AsyncCommand;
+use ipc::asyncronous::db_command::DatabaseCommand;
+use ipc::asyncronous::event::AsyncEvent;
+use net::packet::model::Packet;
+use std::collections::HashMap;
 use std::sync::mpsc::{Receiver, Sender};
-use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener;
-use tokio::try_join;
+use tokio::sync::mpsc;
 use tracing::info;
 
+pub struct Register {
+    pub id: i32,
+    pub tx: mpsc::Sender<Packet>,
+}
+
 pub async fn start_server(
-    event_tx: Sender<AsyncEvent>,
     command_rx: Receiver<AsyncCommand>,
-    db: DbPool,
+    event_tx: Sender<AsyncEvent>,
+    pool: DbPool,
 ) -> Result<(), RuntimeError> {
-    let command_rx = Arc::new(Mutex::new(command_rx));
-    // tokio::spawn({
-    //     let command_tx = Arc::clone(&command_rx);
-    //     let db = db.clone();
-    //     let event_tx = event_tx.clone();
-    //     async move {
-    //         login_worker(command_rx, db, event_tx).await;
-    //     }
-    // });
+    let mut relays: HashMap<i32, mpsc::Sender<Packet>> = HashMap::new();
+    let (register_tx, mut register_rx) = mpsc::channel::<Register>(32);
+    let (transition_tx, transition_rx) = mpsc::channel::<AsyncCommand>(32);
+    let (db_tx, db_rx) = mpsc::channel::<DatabaseCommand>(32);
 
-    info!("Binding to login server...");
-    let login = LoginServer::run(event_tx.clone(), Arc::clone(&command_rx));
+    tokio::spawn(LoginServer::run(event_tx.clone(), register_tx.clone()));
+    tokio::spawn(PlayerServer::run(
+        event_tx.clone(),
+        register_tx.clone(),
+        transition_rx,
+    ));
+    tokio::spawn(db_worker(db_rx, pool, event_tx.clone()));
 
-    info!("Binding to player server...");
-    let player = PlayerServer::run(event_tx.clone(), Arc::clone(&command_rx));
-
-    let (_, _) = try_join!(login, player)?;
-    Ok(())
+    loop {
+        while let Ok(client) = register_rx.try_recv() {
+            relays.insert(client.id, client.tx);
+        }
+        while let Ok(cmd) = command_rx.recv() {
+            match cmd {
+                AsyncCommand::SendPacket { client_id, packet } => {
+                    if let Some(tx) = relays.get(&client_id) {
+                        let _ = tx.send(packet);
+                    }
+                }
+                AsyncCommand::AcceptTransition { .. } => {
+                    transition_tx.send(cmd).await?;
+                }
+                AsyncCommand::DatabaseOperation(cmd) => {
+                    db_tx.send(cmd).await?;
+                }
+                _ => {}
+            }
+        }
+        tokio::task::yield_now().await;
+    }
 }
 
 pub struct LoginServer;
 
 impl LoginServer {
     pub async fn run(
-        command_rx: Arc<Mutex<Receiver<AsyncCommand>>>,
         event_tx: Sender<AsyncEvent>,
+        register_tx: mpsc::Sender<Register>,
     ) -> Result<(), RuntimeError> {
         let port = settings::get_login_port()?;
         let addr = settings::get_bind_address()?;
         let bind = helpers::build_server_addr(addr, port);
         let listener: TcpListener = TcpListener::bind(bind).await?;
         loop {
+            let event_tx = event_tx.clone();
             match listener.accept().await {
                 Ok((stream, _)) => {
-                    let client_id = ipc::client::next_client_id();
-                    let command_rx = Arc::clone(&command_rx);
-                    let event_tx = event_tx.clone();
+                    let client_id = crate::client::next_client_id();
+                    let (tx, rx) = mpsc::channel::<Packet>(32);
+                    register_tx.send(Register { id: client_id, tx });
                     event_tx
                         .send(AsyncEvent::ClientConnected { client_id })
                         .unwrap();
                     tokio::spawn(async move {
-                        match Runtime::<LoginRelay>::new(stream, client_id).await {
-                            Ok(runtime) => match runtime.run(command_rx, event_tx).await {
+                        match Runtime::new(stream, None).await {
+                            Ok(runtime) => match runtime.run(client_id, event_tx.clone(), rx).await
+                            {
                                 Ok(_) => {}
                                 Err(e) => {
                                     info!("Login server error: {}", e);
@@ -92,6 +120,7 @@ impl LoginServer {
                 }
                 Err(e) => info!("Login listener error: {}", e),
             }
+            tokio::task::yield_now().await;
         }
     }
 }
@@ -100,28 +129,37 @@ pub struct PlayerServer;
 
 impl PlayerServer {
     pub async fn run(
-        command_rx: Arc<Mutex<Receiver<AsyncCommand>>>,
         event_tx: Sender<AsyncEvent>,
+        register_tx: mpsc::Sender<Register>,
+        mut transition_rx: mpsc::Receiver<AsyncCommand>,
     ) -> Result<(), RuntimeError> {
         let addr = settings::get_bind_address()?;
         loop {
-            let cmd = { command_rx.lock().unwrap().try_recv() };
-            if let Ok(AsyncCommand::AcceptTransition { client_id, port }) = cmd {
-                let command_rx = Arc::clone(&command_rx);
-                let event_tx = event_tx.clone();
-                let bind: SocketAddr = helpers::build_server_addr(addr, port);
+            if let Some(AsyncCommand::AcceptTransition {
+                client_id,
+                port,
+                packet,
+            }) = transition_rx.recv().await
+            {
+                let bind: SocketAddr = helpers::build_server_addr(addr.clone(), port);
                 let listener = TcpListener::bind(bind).await?;
+                let event_tx = event_tx.clone();
+                let register_tx = register_tx.clone();
                 tokio::spawn(async move {
                     match listener.accept().await {
                         Ok((stream, _)) => {
+                            let (tx, rx) = mpsc::channel::<Packet>(32);
+                            register_tx.send(Register { id: client_id, tx });
                             event_tx
-                                .send(AsyncEvent::ClientConencted { client_id })
+                                .send(AsyncEvent::ClientConnected { client_id })
                                 .unwrap();
-                            match Runtime::<PlayerRelay>::new(stream, client_id).await {
-                                Ok(runtime) => match runtime.run(command_rx, event_tx).await {
-                                    Ok(_) => {}
-                                    Err(e) => info!("Player runtime error: {}", e),
-                                },
+                            match Runtime::new(stream, Some(packet)).await {
+                                Ok(runtime) => {
+                                    match runtime.run(client_id, event_tx.clone(), rx).await {
+                                        Ok(_) => {}
+                                        Err(e) => info!("Player runtime error: {}", e),
+                                    }
+                                }
                                 Err(e) => {
                                     event_tx
                                         .send(AsyncEvent::ClientDisconnected { client_id })

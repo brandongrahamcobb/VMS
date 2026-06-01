@@ -26,16 +26,19 @@ use net::packet::model::Packet;
 use op::send::SendOpcode;
 
 pub fn build_spawn_player_packet(char: &MapleCharacter) -> Result<&mut Packet, PacketBuildError> {
-    let mut packet: Packet = Packet::new_empty(); 
+    let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SpawnPlayer as i16;
     packet.write_short(op).map_err(WriteError)?;
     packet.write_int(char.id).map_err(WriteError)?;
     let level: i16 = char.level;
     packet.write_byte(level).map_err(WriteError)?;
-    packet.write_str_with_length(char.ign.clone())
+    packet
+        .write_str_with_length(char.ign.clone())
         .map_err(WriteError)?;
     let guild_name = String::from("Guild Name");
-    packet.write_str_with_length(guild_name).map_err(WriteError)?;
+    packet
+        .write_str_with_length(guild_name)
+        .map_err(WriteError)?;
     let skip: Vec<u8> = vec![0u8; 18];
     packet.write_bytes(skip).map_err(WriteError)?;
     let morphed: i32 = 0; // 2 if morphed
@@ -111,7 +114,8 @@ pub fn build_spawn_player_packet(char: &MapleCharacter) -> Result<&mut Packet, P
     packet.write_byte(chalkboard).map_err(WriteError)?;
     if chalkboard_bool {
         let chalkboard_text = String::from("Placeholder");
-        packet.write_str_with_length(chalkboard_text)
+        packet
+            .write_str_with_length(chalkboard_text)
             .map_err(WriteError)?;
     }
     let skip: Vec<u8> = vec![0u8; 3];
@@ -126,14 +130,14 @@ pub fn build_set_field_packet(
     channel_id: u8,
     map_wz: i32,
 ) -> Result<&mut Packet, PacketBuildError> {
-    let mut packet: Packet = Packet::new_empty(); 
+    let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SetField as i16;
     packet.write_short(op).map_err(WriteError)?;
     packet.write_int(channel_id as i32).map_err(WriteError)?;
-    packet//mode 1
+    packet //mode 1
         .write_byte(1)
         .map_err(WriteError)?;
-    packet//mode 2
+    packet //mode 2
         .write_byte(2)
         .map_err(WriteError)?;
     // Skip 23 bytes
@@ -141,7 +145,8 @@ pub fn build_set_field_packet(
     packet.write_bytes(skip).map_err(WriteError)?;
     packet.write_int(char.id).map_err(WriteError)?;
     packet.write_str(char.ign.clone()).map_err(WriteError)?;
-    packet.write_bytes(vec![0u8; 13 - char.ign.len()])
+    packet
+        .write_bytes(vec![0u8; 13 - char.ign.len()])
         .map_err(WriteError)?;
     let gender_wz = char.gender_wz;
     packet.write_byte(gender_wz).map_err(WriteError)?;
@@ -189,11 +194,11 @@ pub fn build_list_char_meta_part_packet(
 ) -> Result<&mut Packet, PacketBuildError> {
     packet.write_int(char.id).map_err(WriteError)?;
     packet.write_str(char.ign.clone()).map_err(WriteError)?;
-    packet.write_bytes(vec![0u8; 13 - char.ign.len()])
+    packet
+        .write_bytes(vec![0u8; 13 - char.ign.len()])
         .map_err(WriteError)?;
     packet.write_byte(char.gender_wz).map_err(WriteError)?;
-    packet.write_byte(char.skin_wz as i16)
-        .map_err(WriteError)?;
+    packet.write_byte(char.skin_wz as i16).map_err(WriteError)?;
     packet.write_int(char.face_wz).map_err(WriteError)?;
     packet.write_int(char.hair_wz).map_err(WriteError)?;
     // Pets... Not implemented yet
@@ -204,8 +209,7 @@ pub fn build_list_char_meta_part_packet(
     packet.write_short(char.job_wz).map_err(WriteError)?;
     packet.write_short(char.strength).map_err(WriteError)?;
     packet.write_short(char.dexterity).map_err(WriteError)?;
-    packet.write_short(char.intelligence)
-        .map_err(WriteError)?;
+    packet.write_short(char.intelligence).map_err(WriteError)?;
     packet.write_short(char.luck).map_err(WriteError)?;
     packet.write_short(char.hp).map_err(WriteError)?;
     packet.write_short(char.max_hp).map_err(WriteError)?;
@@ -229,17 +233,18 @@ pub fn build_look_meta_part_packet(
     char: &MapleCharacter,
 ) -> Result<&mut Packet, PacketBuildError> {
     packet.write_byte(char.gender_wz).map_err(WriteError)?;
-    packet.write_byte(char.skin_wz as i16)
-        .map_err(WriteError)?;
+    packet.write_byte(char.skin_wz as i16).map_err(WriteError)?;
     packet.write_int(char.face_wz).map_err(WriteError)?;
-    packet.write_byte(0) // megaphone
+    packet
+        .write_byte(0) // megaphone
         .map_err(WriteError)?;
     packet.write_int(char.hair_wz).map_err(WriteError)?;
     packet.build_look_regular_equipment_part_packet(packet, char)?;
     packet.write_byte(0xFF).map_err(WriteError)?;
     packet.build_look_cash_equipment_part_packet(packet, char)?;
     packet.write_byte(0xFF).map_err(WriteError)?;
-    packet.write_int(0) //maskedequips -111
+    packet
+        .write_int(0) //maskedequips -111
         .map_err(WriteError)?;
     // Pet stuff...
     packet.write_int(0).map_err(WriteError)?;
@@ -258,8 +263,7 @@ pub fn build_player_logged_in_meta_part_packet(
     packet.write_short(char.job_wz).map_err(WriteError)?;
     packet.write_short(char.strength).map_err(WriteError)?;
     packet.write_short(char.dexterity).map_err(WriteError)?;
-    packet.write_short(char.intelligence)
-        .map_err(WriteError)?;
+    packet.write_short(char.intelligence).map_err(WriteError)?;
     packet.write_short(char.luck).map_err(WriteError)?;
     packet.write_short(char.hp).map_err(WriteError)?;
     packet.write_short(char.max_hp).map_err(WriteError)?;
@@ -278,7 +282,8 @@ pub fn build_player_logged_in_meta_part_packet(
     let bl_capacity = 25;
     packet.write_byte(bl_capacity).map_err(WriteError)?;
     packet.write_byte(0).map_err(WriteError)?;
-    packet.build_inventory_part_packet(packet, char)?
+    packet
+        .build_inventory_part_packet(packet, char)?
         .build_skills_part_packet(packet)?
         .build_quests_part_packet(packet)?
         .build_minigames_part_packet(packet)?
@@ -319,7 +324,9 @@ fn build_rings_part_packet(packet: &mut Packet) -> Result<&mut Packet, PacketBui
     let num_crush_rings = 0;
     let num_friendship_rings = 0;
     packet.write_short(num_crush_rings).map_err(WriteError)?;
-    packet.write_short(num_friendship_rings).map_err(WriteError)?;
+    packet
+        .write_short(num_friendship_rings)
+        .map_err(WriteError)?;
     // Not married
     packet.write_short(0).map_err(WriteError)?;
     Ok(packet)
@@ -401,7 +408,8 @@ fn build_inventory_regular_equip_meta_part_packet(
     for _ in 0..NUM_EQUIP_STATS {
         packet.write_short(0).map_err(WriteError)?;
     }
-    packet.write_str_with_length(String::new())
+    packet
+        .write_str_with_length(String::new())
         .map_err(WriteError)?;
     packet.write_short(0).map_err(WriteError)?;
     packet.write_byte(0).map_err(WriteError)?;
@@ -467,9 +475,7 @@ pub fn build_set_level_packet(level: i16) -> Result<&mut Packet, PacketBuildErro
     Ok(packet)
 }
 
-pub fn build_level_up_effect_packet(
-    char_id: i32,
-) -> Result<&mut Packet, PacketBuildError> {
+pub fn build_level_up_effect_packet(char_id: i32) -> Result<&mut Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::ShowForeignEffect as i16;
     packet.write_short(op).map_err(WriteError)?;
@@ -487,7 +493,7 @@ pub fn build_set_ap_packet(ap: i16) -> Result<&mut Packet, PacketBuildError> {
     packet.write_byte(0i16).map_err(WriteError)?; // itemreaction
     packet.write_int(0x4000i32).map_err(WriteError)?; // updatemask: HP
     packet.write_short(ap).map_err(WriteError)?;
-    Ok(packet.
+    Ok(packet)
 }
 
 // 0x1       SKIN short

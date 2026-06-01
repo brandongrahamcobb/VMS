@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#[derive(Clone)]
 pub enum StatsUpdate {
     Exp { exp: i32 },
     Str { strength: i16 },

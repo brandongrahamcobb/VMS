@@ -1,7 +1,6 @@
 [workspace]
 members = [
     "crates/*",
-    "server",
     "test-suite"
 ]
 
