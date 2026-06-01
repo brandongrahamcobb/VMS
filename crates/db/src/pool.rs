@@ -17,9 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use crate::error::DatabaseError;
+use config::settings;
 use diesel::PgConnection;
 use diesel::r2d2::{ConnectionManager, Pool};
-use config::settings;
 
 pub type DbPool = Pool<ConnectionManager<PgConnection>>;
 
@@ -30,7 +30,12 @@ where
 {
     let pool = pool.clone();
     tokio::task::spawn_blocking(move || {
-        let mut conn = pool.get().map_err(DatabaseError::DatabaseConnectionError)?;
+        let mut conn = pool.get().map_err(|e| {
+            diesel::result::Error::DatabaseError(
+                diesel::result::DatabaseErrorKind::UnableToSendCommand,
+                Box::new(e.to_string()),
+            )
+        })?;
         f(&mut conn)
     })
     .await
@@ -46,5 +51,3 @@ pub fn new() -> Result<DbPool, DatabaseError> {
         .map_err(DatabaseError::DatabaseConnectionError)?;
     Ok(db)
 }
-
-

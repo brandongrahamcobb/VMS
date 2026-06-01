@@ -19,13 +19,12 @@
 
 use crate::map::error::MapMetadataError;
 use crate::service;
-use entity::map::model::Point;
-use entity::portal::model::PortalWzInfo;
+use base::portal::BasePortal;
 
 pub fn get_portal_wz_info_by_map_wz_and_pid(
     map_wz: i32,
     pid: u8,
-) -> Result<PortalWzInfo, MapMetadataError> {
+) -> Result<BasePortal, MapMetadataError> {
     let filename: String = String::from("Map.wz");
     let json = service::wz_to_img(map_wz, &filename)?;
     let portal_map = json["portal"]
@@ -38,7 +37,12 @@ pub fn get_portal_wz_info_by_map_wz_and_pid(
         .map(|v| v as i32)
         .ok_or(MapMetadataError::PortalError)?;
     let tn = portal["tn"].as_str().unwrap_or("sp").to_string();
-    Ok(PortalWzInfo { pid, pn, tm, tn })
+    Ok(BasePortal {
+        portal_wz: pid,
+        portal_name: pn,
+        target_map_wz: tm,
+        target_portal_name: tn,
+    })
 }
 
 pub fn get_zeroeth_portal_spawnpoint(map_wz: i32) -> Result<Point, MapMetadataError> {

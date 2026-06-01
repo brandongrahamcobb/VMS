@@ -66,5 +66,5 @@ impl From<(CloseAttackRequestMessage, Skill)> for CloseAttackResponseMessage {
 pub struct DeadMobMessage {
     pub client_id: i32,
     pub mob_id: i32,
-    pub item: Vec<Item>,
+    pub items: HashMap<BaseItem, ItemModel>,
 }

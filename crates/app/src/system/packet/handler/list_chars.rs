@@ -28,7 +28,7 @@ use crate::{component::account::MapleAccount, message::packet::list_chars::ListC
 use bevy::ecs::message::MessageReader;
 use bevy::ecs::system::{Commands, Query, Res};
 use config::settings;
-use ipc::tcp_command::TcpCommand;
+use ipc::tcp_command::AsyncCommand;
 
 pub enum PicStatus {
     Disabled = 2,
@@ -39,7 +39,7 @@ pub enum PicStatus {
 pub async fn handle_load_char_slots(
     client_map: Res<ClientMap>,
     mut messages: MessageReader<ListCharsRequestMessage>,
-    command_tx: CustomSender<TcpCommand>,
+    command_tx: CustomSender<AsyncCommand>,
     accounts: Query<&MapleAccount>,
 ) -> () {
     for msg in messages.read() {
@@ -52,7 +52,7 @@ pub async fn handle_load_char_slots(
 
         command_tx
             .0
-            .send(TcpCommand::ListChars((msg, acc.id).into()))
+            .send(AsyncCommand::ListChars((msg, acc.id).into()))
             .unwrap();
     }
 }

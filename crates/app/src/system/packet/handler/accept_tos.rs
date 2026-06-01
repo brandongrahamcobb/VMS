@@ -25,12 +25,12 @@ use crate::{message::packet::accept_tos::TosMessage, resource::custom_resource::
 use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Res;
-use ipc::tcp_command::TcpCommand;
+use ipc::tcp_command::AsyncCommand;
 
 pub async fn handle_tos(
     client_map: Res<ClientMap>,
     mut messages: MessageReader<TosMessage>,
-    command_tx: CustomSender<TcpCommand>,
+    command_tx: CustomSender<AsyncCommand>,
     mut results: MessageWriter<HandlerResult>,
     accounts: Query<&MapleAccount>,
 ) -> () {
@@ -47,7 +47,7 @@ pub async fn handle_tos(
         if accepted {
             command_tx
                 .0
-                .send(TcpCommand::SetTosAccepted {
+                .send(AsyncCommand::SetTosAccepted {
                     client_id: msg.client_id,
                     acc_id: acc.id,
                 })

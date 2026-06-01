@@ -30,7 +30,7 @@ use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Query, Res};
 use config::settings;
 use inc::helpers;
-use ipc::tcp_command::TcpCommand;
+use ipc::tcp_command::AsyncCommand;
 
 pub async fn handle_select_char_with_pic_request(
     client_map: Res<ClientMap>,
@@ -53,7 +53,7 @@ pub async fn handle_select_char_with_pic_request(
 
         command_tx
             .0
-            .send(TcpCommand::SelectCharWithPicCommand((msg, acc_id).into()))
+            .send(AsyncCommand::SelectCharWithPicCommand((msg, acc_id).into()))
             .unwrap()
     }
 }

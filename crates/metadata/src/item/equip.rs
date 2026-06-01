@@ -20,7 +20,8 @@
 use crate::item::error::ItemMetadataError;
 use crate::item::inventory;
 use crate::service;
-use entity::item::model::{CASH_EQUIP_SLOTS, InventoryTab, ItemWzInfo, OTHER_EQUIP_SLOTS};
+use base::inventory::{CASH_EQUIP_SLOTS, InventoryTab, OTHER_EQUIP_SLOTS};
+use base::item::BaseItem;
 use serde_json::Value;
 
 fn get_equip_stats_by_wz(root: &Value, key: &str) -> Result<Option<i16>, ItemMetadataError> {
@@ -28,7 +29,7 @@ fn get_equip_stats_by_wz(root: &Value, key: &str) -> Result<Option<i16>, ItemMet
     Ok(map.get(key).and_then(|v| v.as_i64().map(|n| n as i16)))
 }
 
-pub fn build_equip_item_wz_info_by_wz(wz: i32) -> Result<ItemWzInfo, ItemMetadataError> {
+pub fn build_equip_item_wz_info_by_wz(wz: i32) -> Result<BaseItem, ItemMetadataError> {
     let itab: InventoryTab = inventory::get_inventory_tab_by_wz(wz)?;
     let filename: String = String::from("Character.wz");
     let json = service::wz_to_img(wz, &filename)?;
@@ -37,7 +38,7 @@ pub fn build_equip_item_wz_info_by_wz(wz: i32) -> Result<ItemWzInfo, ItemMetadat
         .ok_or(ItemMetadataError::EquipError)?
         .to_string();
     let cash = json["info"]["cash"] == 1;
-    let wz_info = ItemWzInfo {
+    let wz_info = BaseItem {
         cash,
         islot: Some(islot),
         itab: itab as i8,

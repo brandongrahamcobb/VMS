@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::component::mob::MapleMob;
+use crate::component::position::MaplePosition;
 use crate::system::packet::build::error::PacketBuildError;
 use entity::map::model::Point;
 use entity::mob::model::{MobMovement, MobWzLife};
@@ -26,29 +28,32 @@ use net::packet::model::Packet;
 use op::send::SendOpcode;
 
 pub fn build_spawn_mob_packet(
-    mob_id: u32,
-    mob_life: &MobWzLife,
+    mob: MapleMob,
+    pos: MaplePosition,
+    stance: i8,
+    effect: i8,
+    team: i8,
 ) -> Result<&mut Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SpawnMob as i16;
     packet.write_short(op).map_err(WriteError)?;
-    packet.write_int(mob_id as i32).map_err(WriteError)?;
+    packet.write_int(mob.id as i32).map_err(WriteError)?;
     let skip: Vec<u8> = vec![0; 1];
     packet.write_bytes(skip).map_err(WriteError)?;
-    packet.write_int(mob_life.wz).map_err(WriteError)?;
+    packet.write_int(mob.base.wz).map_err(WriteError)?;
     let skip: Vec<u8> = vec![0; 22];
     packet.write_bytes(skip).map_err(WriteError)?;
-    packet.write_short(mob_life.x).map_err(WriteError)?;
-    packet.write_short(mob_life.y).map_err(WriteError)?;
+    packet.write_short(mob.base.x).map_err(WriteError)?;
+    packet.write_short(mob.base.y).map_err(WriteError)?;
     let stance: i16 = 0; // 0 not sure
-    packet.write_byte(stance).map_err(WriteError)?;
+    packet.write_byte(stance as i16).map_err(WriteError)?;
     let skip: Vec<u8> = vec![0; 2];
     packet.write_bytes(skip).map_err(WriteError)?;
-    packet.write_short(mob_life.fh as i16).map_err(WriteError)?;
+    packet.write_short(mob.base.fh as i16).map_err(WriteError)?;
     let effect: i16 = 0; // 0 = none
-    packet.write_byte(effect).map_err(WriteError)?;
+    packet.write_byte(effect as i16).map_err(WriteError)?;
     let team: i16 = -1; // -1 = no team
-    packet.write_byte(team).map_err(WriteError)?;
+    packet.write_byte(team as i16).map_err(WriteError)?;
     let skip: Vec<u8> = vec![0; 4];
     packet.write_bytes(skip).map_err(WriteError)?;
     Ok(packet)
@@ -129,30 +134,27 @@ pub fn build_mob_move_packet(
 }
 
 pub fn build_spawn_mob_controller_packet(
-    mob_id: u32,
+    mob: MapleMob,
     mode: i8,
-    wz_id: i32,
     stance: i8,
-    fh: u16,
     effect: i8,
-    pos: &Point,
     team: i8,
 ) -> Result<&mut Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SpawnMobController as i16;
     packet.write_short(op).map_err(WriteError)?;
     packet.write_byte(mode as i16).map_err(WriteError)?;
-    packet.write_int(mob_id as i32).map_err(WriteError)?;
+    packet.write_int(mob.id as i32).map_err(WriteError)?;
     if mode != 0 {
         packet.write_byte(1).map_err(WriteError)?; // skip
-        packet.write_int(wz_id).map_err(WriteError)?;
+        packet.write_int(mob.base.wz).map_err(WriteError)?;
         // 22 bytes skip in client read
         packet.write_bytes(vec![0u8; 22]).map_err(WriteError)?;
-        packet.write_short(pos.x).map_err(WriteError)?;
-        packet.write_short(pos.y).map_err(WriteError)?;
+        packet.write_short(mob.base.x).map_err(WriteError)?;
+        packet.write_short(mob.base.y).map_err(WriteError)?;
         packet.write_byte(stance as i16).map_err(WriteError)?;
         packet.write_bytes(vec![0u8; 2]).map_err(WriteError)?; // skip 2
-        packet.write_short(fh as i16).map_err(WriteError)?;
+        packet.write_short(mob.base.fh).map_err(WriteError)?;
         packet.write_byte(effect as i16).map_err(WriteError)?;
         if effect > 0 {
             packet.write_byte(0).map_err(WriteError)?;

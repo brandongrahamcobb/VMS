@@ -20,7 +20,7 @@ use crate::component::channel::MapleChannel;
 use crate::component::world::MapleWorld;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::system::Query;
-use ipc::channel::{TcpCommand, TcpEvent};
+use ipc::channel::{AsyncCommand, AsyncEvent};
 
 pub fn handle_transition_system(
     receiver: Res<CustomReceiver>,
@@ -29,7 +29,7 @@ pub fn handle_transition_system(
     channels: Query<(&MapleChannel, &ChildOf)>,
 ) {
     while let Ok(event) = receiver.0.lock().unwrap().try_recv() {
-        let TcpEvent::ClientTransitioning {
+        let AsyncEvent::ClientTransitioning {
             client_id,
             channel_id,
             world_id,
@@ -48,7 +48,7 @@ pub fn handle_transition_system(
         };
         command_tx
             .0
-            .send(TcpCommand::AcceptTransition {
+            .send(AsyncCommand::AcceptTransition {
                 client_id,
                 port: channel.port,
             })

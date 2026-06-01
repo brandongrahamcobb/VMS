@@ -19,11 +19,10 @@
 
 use crate::job::error::JobMetadataError;
 use crate::service;
-use entity::job::model::JobWzSkill;
 
-pub fn get_job_skills_by_job_wz(job_wz: i16) -> Result<Vec<JobWzSkill>, JobMetadataError> {
+pub fn get_job_skill_wzs_by_job_wz(job_wz: i16) -> Result<Vec<i32>, JobMetadataError> {
     let modified_wz: i16 = job_wz * 100;
-    let mut skills: Vec<JobWzSkill> = Vec::new();
+    let mut skills: Vec<i32> = Vec::new();
     let filename: String = String::from("Skill.wz");
     let json = service::wz_to_img(modified_wz as i32, &filename)?;
     let job_wz_skill = json["skill"]
@@ -31,7 +30,7 @@ pub fn get_job_skills_by_job_wz(job_wz: i16) -> Result<Vec<JobWzSkill>, JobMetad
         .ok_or(JobMetadataError::NoSkill(modified_wz))?;
     for (wz, _) in job_wz_skill {
         let wz: i32 = wz.parse::<i32>()?;
-        skills.push(JobWzSkill { wz });
+        skills.push(wz);
     }
     Ok(skills)
 }

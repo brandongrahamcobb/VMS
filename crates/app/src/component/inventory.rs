@@ -17,29 +17,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use bevy::ecs::component::Component;
-use bevy::ecs::entity::Entity;
-use bevy::ecs::system::Commands;
-use config::settings;
 
 #[derive(Component)]
-pub struct MapleInventory {
-    pub equip_tab_capacity: i8,
-    pub use_tab_capacity: i8,
-    pub etc_tab_capacity: i8,
-    pub setup_tab_capacity: i8,
-    pub cash_tab_capacity: i8,
+pub struct MapleInventory;
+
+#[derive(Component)]
+pub struct MapleEquippedTab;
+
+#[derive(Component)]
+pub struct MapleEquipTab {
+    pub capacity: i8,
 }
 
-fn spawn_inventory(mut commands: Commands, character_entity: Entity) {
-    let capacity = settings::get_default_inventory_capacity()?;
-    commands.spawn((
-        MapleInventory {
-            equip_tab_capacity: capacity,
-            use_tab_capacity: capacity,
-            etc_tab_capacity: capacity,
-            setup_tab_capacity: capacity,
-            cash_tab_capacity: capacity,
-        },
-        ChildOf(character_entity),
-    ));
+#[derive(Component)]
+pub struct MapleUseTab {
+    pub capacity: i8,
+}
+
+#[derive(Component)]
+pub struct MapleEtcTab {
+    pub capacity: i8,
+}
+
+#[derive(Component)]
+pub struct MapleSetupTab {
+    pub capacity: i8,
+}
+
+#[derive(Component)]
+pub struct MapleCashTab {
+    pub capacity: i8,
 }

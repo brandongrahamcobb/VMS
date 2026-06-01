@@ -26,17 +26,19 @@ use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{attack_close, codec};
 use crate::system::packet::handler::result::HandlerResult;
 use action::model::Action;
+use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
+use bevy::ecs::system::Commands;
 use config::settings;
 use inc::helpers;
-use ipc::tcp_command::TcpCommand;
+use ipc::tcp_command::AsyncCommand;
 use std::collections::HashMap;
 
 
 pub async fn handle_close_attack_request(
     client_map: Res<ClientMap>,
     mut messages: MessageReader<CloseAttackRequestMessage>,
-    command_tx: CustomSender<TcpCommand>,
+    command_tx: CustomSender<AsyncCommand>,
     mut results: MessageWriter<HandlerResult>,
     chars: Query<&MapleCharacter>,
 ) -> () {
@@ -49,7 +51,7 @@ pub async fn handle_close_attack_request(
         };
         let Ok(char) = chars.get(client_entity) else { continue; };
 
-        command_tx.0.send(TcpCommand::CloseAttackRequest { client_id: msg.client_id, char_id: char.id, skill_id: msg.skill_id, mob_damages: msg.mob_damages.clone() });
+        command_tx.0.send(AsyncCommand::CloseAttackRequest { client_id: msg.client_id, char_id: char.id, skill_id: msg.skill_id, mob_damages: msg.mob_damages.clone() });
 
         for (mob_id, damage) in msg.mob_damages.iter() {
             let Some(mob) = mobs.iter().find(|(_, m, parent)| parent.0 == map && m.id == mob_id);
@@ -58,7 +60,7 @@ pub async fn handle_close_attack_request(
             let hp_percent = (mob.hp * 100 / mob.max_hp) as i16;
             hp_updates.insert(mob, hp_percent);
             if hp_percent == 0 {
-                command_tx.0.send(TcpCommand::RandomizedDrops { client_id: msg.client_id, mob_id: mob_id });
+                command_tx.0.send(AsyncCommand::RandomizedDrops { client_id: msg.client_id, mob_id: mob_id });
             }
         }
         for (mob, hp_percent) in hp_updates {
@@ -76,9 +78,10 @@ pub async fn handle_close_attack_request(
 }
 
 pub async fn handle_dead_mob(
+    commands: Commands,
     client_map: Res<ClientMap>,
     mut messages: MessageReader<DeadMobMessage>,
-    command_tx: CustomSender<TcpCommand>,
+    command_tx: CustomSender<AsyncCommand>,
     mut results: MessageWriter<HandlerResult>,
     chars: Query<&MapleCharacter>,
     in_map: Query<&InMap>,
@@ -135,7 +138,7 @@ pub async fn handle_dead_mob(
                 scope: SessionScope::Local,
             }));
         }
-        command_tx.0.send(TcpCommand::UpdateStats { client_id: msg.client_id, updates: vec![StatsUpdate::Exp { exp: char.exp }] });
+        command_tx.0.send(AsyncCommand::UpdateStats { client_id: msg.client_id, updates: vec![StatsUpdate::Exp { exp: char.exp }] });
 
         let drop_from_pos = curr_positions.get(mob.0) else { continue; };
         let drop_from_point: Point = Point {
@@ -147,7 +150,8 @@ pub async fn handle_dead_mob(
             x: drop_from_pos.x + offset_x,
             y: drop_from_pos.y,
         };
-        for item in msg.items {
+        for (base_item, item_model) in msg.items.iter() {
+            commands.spawn((MapleItem::from((base_item, item_model)), ChildOf(in_map.0)));
             let Ok(drop_loot_packet) = item::builder::build_drop_loot_packet(mode,
                     msg.item.id as u32,
                     false,
@@ -190,7 +194,7 @@ pub async fn handle_dead_mob(
 pub async fn handle_close_attack_response(
     client_map: Res<ClientMap>,
     mut messages: MessageReader<CloseAttackResponseMessage>,
-    command_tx: CustomSender<TcpCommand>,
+    command_tx: CustomSender<AsyncCommand>,
     mut results: MessageWriter<HandlerResult>,
     chars: Query<&MapleCharacter>,
 ) -> () {

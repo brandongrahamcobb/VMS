@@ -22,13 +22,13 @@ use crate::resource::custom_resource::{ClientMap, CustomSender};
 use bevy::ecs::message::MessageReader;
 use bevy::ecs::system::{Query, Res};
 use config::settings;
-use ipc::tcp_command::TcpCommand;
+use ipc::tcp_command::AsyncCommand;
 
 pub async fn handle_delete_char_request(
     client_map: Res<ClientMap>,
     commands: Commands,
     mut messages: MessageReader<DeleteCharRequestMessage>,
-    command_tx: CustomSender<TcpCommand>,
+    command_tx: CustomSender<AsyncCommand>,
     accounts: Query<&MapleAccount>,
 ) -> () {
     for msg in messages.read() {
@@ -48,7 +48,7 @@ pub async fn handle_delete_char_request(
             pic_status = domain::account::check_pic(acc.pic, msg.pic.clone());
         }
         if !pic_status {
-            commands_tx.0.send(TcpCommand::DeleteChar {
+            commands_tx.0.send(AsyncCommand::DeleteChar {
                 client_id: msg.clinet_id,
                 char_id: msg.char_id,
             });

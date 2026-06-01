@@ -21,8 +21,8 @@ use crate::error::DatabaseError;
 use crate::pool::{self, DbPool};
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, RunQueryDsl};
-use entity::account::model::AccountModel;
-use entity::schema::accounts;
+use crate::account::model::AccountModel;
+use crate::schema::accounts;
 
 pub async fn get_acc_model_by_username(
     pool: &DbPool,

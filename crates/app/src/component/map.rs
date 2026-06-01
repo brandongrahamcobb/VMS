@@ -23,6 +23,7 @@ pub struct MapleMap {
     pub death_map_wz: i32,
     pub wz: i32,
     pub mob_rate: f32,
+    pub vacant: bool
 }
 
 #[derive(Component)]

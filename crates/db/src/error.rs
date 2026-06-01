@@ -17,17 +17,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use config::error::ConfigError;
 use diesel;
+use r2d2;
 use thiserror::Error;
 use tokio::task::JoinError;
 
 #[derive(Debug, Error)]
 pub enum DatabaseError {
     #[error("Failed to connect to database in database layer")]
-    DatabaseConnectionError,
+    DatabaseConnectionError(#[from] r2d2::Error),
 
     #[error("Invalid database url error: {0}")]
     InvalidDatabaseUrlError(String),
+
+    #[error("Configuration error in database layer")]
+    ConfigError(#[from] ConfigError),
 
     #[error("Entry in database not found in database layer")]
     DieselError(#[from] diesel::result::Error),

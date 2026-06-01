@@ -24,7 +24,7 @@ use bevy::ecs::system::Res;
 use bevy::prelude::Resource;
 use db::pool::{self, DbPool};
 use net::packet::model::Packet;
-use runtime::tcp::{TcpCommand, TcpEvent};
+use runtime::tcp::{AsyncCommand, AsyncEvent};
 use session::session_store::SessionStore;
 use state::model::{SharedState, State};
 use tokio::sync::broadcast;
@@ -38,8 +38,8 @@ pub struct CustomPlugin;
 
 impl Plugin for CustomPlugin {
     fn build(&self, app: &mut App) {
-        let (command_tx, command_rx) = channel::<TcpCommand>();
-        let (event_tx, event_rx) = channel::<TcpEvent>();
+        let (command_tx, command_rx) = channel::<AsyncCommand>();
+        let (event_tx, event_rx) = channel::<AsyncEvent>();
         std::thread::spawn(move || {
             tokio::runtime::Runtime::new().unwrap().block_on(async {
                 runtime::server::start_server(event_tx, command_rx)

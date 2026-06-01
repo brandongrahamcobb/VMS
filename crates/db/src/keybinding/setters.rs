@@ -21,8 +21,8 @@ use crate::error::DatabaseError;
 use crate::pool::{self, DbPool};
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, RunQueryDsl};
-use entity::keybinding::model::KeybindingModel;
-use entity::schema::keybindings;
+use crate::keybinding::model::KeybindingModel;
+use crate::schema::keybindings;
 
 pub async fn update_keybindings(
     pool: &DbPool,

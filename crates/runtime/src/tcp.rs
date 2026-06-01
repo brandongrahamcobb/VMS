@@ -17,12 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::error::{NetworkError, RuntimeError};
+use crate::error::RuntimeError;
 use crate::relay::model::{LoginRelay, PlayerRelay, Runtime};
 use config::settings;
 use core::net::SocketAddr;
+use db::pool::DbPool;
 use inc::helpers;
-use ipc::channel::{TcpCommand, TcpEvent};
+use ipc::channel::{AsyncCommand, AsyncEvent};
 use std::sync::mpsc::{Receiver, Sender};
 use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener;
@@ -30,10 +31,10 @@ use tokio::try_join;
 use tracing::info;
 
 pub async fn start_server(
-    event_tx: Sender<TcpEvent>,
-    command_rx: Receiver<TcpCommand>,
+    event_tx: Sender<AsyncEvent>,
+    command_rx: Receiver<AsyncCommand>,
     db: DbPool,
-) -> Result<(), NetworkError> {
+) -> Result<(), RuntimeError> {
     let command_rx = Arc::new(Mutex::new(command_rx));
     // tokio::spawn({
     //     let command_tx = Arc::clone(&command_rx);
@@ -50,7 +51,7 @@ pub async fn start_server(
     info!("Binding to player server...");
     let player = PlayerServer::run(event_tx.clone(), Arc::clone(&command_rx));
 
-    let (_, _) = try_join!(login, player).map_err(Box::new)?;
+    let (_, _) = try_join!(login, player)?;
     Ok(())
 }
 
@@ -58,9 +59,9 @@ pub struct LoginServer;
 
 impl LoginServer {
     pub async fn run(
-        command_rx: Arc<Mutex<Receiver<TcpCommand>>>,
-        event_tx: Sender<TcpEvent>,
-    ) -> Result<(), NetworkError> {
+        command_rx: Arc<Mutex<Receiver<AsyncCommand>>>,
+        event_tx: Sender<AsyncEvent>,
+    ) -> Result<(), RuntimeError> {
         let port = settings::get_login_port()?;
         let addr = settings::get_bind_address()?;
         let bind = helpers::build_server_addr(addr, port);
@@ -72,7 +73,7 @@ impl LoginServer {
                     let command_rx = Arc::clone(&command_rx);
                     let event_tx = event_tx.clone();
                     event_tx
-                        .send(TcpEvent::ClientConnected { client_id })
+                        .send(AsyncEvent::ClientConnected { client_id })
                         .unwrap();
                     tokio::spawn(async move {
                         match Runtime::<LoginRelay>::new(stream, client_id).await {
@@ -81,7 +82,7 @@ impl LoginServer {
                                 Err(e) => {
                                     info!("Login server error: {}", e);
                                     event_tx
-                                        .send(TcpEvent::ClientDisconnected { client_id })
+                                        .send(AsyncEvent::ClientDisconnected { client_id })
                                         .unwrap();
                                 }
                             },
@@ -99,13 +100,13 @@ pub struct PlayerServer;
 
 impl PlayerServer {
     pub async fn run(
-        command_rx: Arc<Mutex<Receiver<TcpCommand>>>,
-        event_tx: Sender<TcpEvent>,
-    ) -> Result<(), NetworkError> {
+        command_rx: Arc<Mutex<Receiver<AsyncCommand>>>,
+        event_tx: Sender<AsyncEvent>,
+    ) -> Result<(), RuntimeError> {
         let addr = settings::get_bind_address()?;
         loop {
             let cmd = { command_rx.lock().unwrap().try_recv() };
-            if let Ok(TcpCommand::AcceptTransition { client_id, port }) = cmd {
+            if let Ok(AsyncCommand::AcceptTransition { client_id, port }) = cmd {
                 let command_rx = Arc::clone(&command_rx);
                 let event_tx = event_tx.clone();
                 let bind: SocketAddr = helpers::build_server_addr(addr, port);
@@ -114,7 +115,7 @@ impl PlayerServer {
                     match listener.accept().await {
                         Ok((stream, _)) => {
                             event_tx
-                                .send(TcpEvent::ClientConencted { client_id })
+                                .send(AsyncEvent::ClientConencted { client_id })
                                 .unwrap();
                             match Runtime::<PlayerRelay>::new(stream, client_id).await {
                                 Ok(runtime) => match runtime.run(command_rx, event_tx).await {
@@ -123,7 +124,7 @@ impl PlayerServer {
                                 },
                                 Err(e) => {
                                     event_tx
-                                        .send(TcpEvent::ClientDisconnected { client_id })
+                                        .send(AsyncEvent::ClientDisconnected { client_id })
                                         .unwrap();
                                     info!("Player runtime init error: {}", e);
                                 }

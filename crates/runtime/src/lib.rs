@@ -1,2 +1,3 @@
-pub mod tcp;
 pub mod error;
+pub mod tcp;
+pub mod workers;

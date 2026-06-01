@@ -27,9 +27,7 @@ use net::packet::model::Packet;
 use op::send::SendOpcode;
 use std::time::UNIX_EPOCH;
 
-pub fn build_credentials_handler_failed_login_packet(
-    status: i16,
-) -> Result<&mut Packet, PacketBuildError> {
+pub fn build_failed_login_packet(status: i16) -> Result<&mut Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::AccountStatus as i16;
     packet.write_short(op).map_err(WriteError)?;
@@ -39,9 +37,7 @@ pub fn build_credentials_handler_failed_login_packet(
     Ok(self)
 }
 
-pub fn build_credentials_handler_successful_login_packet(
-    acc: &MapleAccount,
-) -> Result<&mut Packet, PacketBuildError> {
+pub fn build_successful_login_packet(acc: &MapleAccount) -> Result<&mut Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let opcode = SendOpcode::AccountStatus as i16;
     let pin_required = settings::get_pin_required()? as i16;

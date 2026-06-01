@@ -17,12 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::character::model::CharacterModel;
 use crate::error::DatabaseError;
 use crate::pool::{self, DbPool};
+use crate::schema::{character_limits, characters};
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, RunQueryDsl};
-use entity::character::model::CharacterModel;
-use entity::schema::{character_limits, characters};
 
 pub async fn get_char_models_by_acc_id(
     pool: &DbPool,
@@ -31,6 +31,20 @@ pub async fn get_char_models_by_acc_id(
     pool::spawn_db(pool, move |conn| {
         characters::table
             .filter(characters::acc_id.eq(acc_id))
+            .load::<CharacterModel>(conn)
+    })
+    .await
+}
+
+pub async fn get_char_models_by_acc_id_and_world_id(
+    pool: &DbPool,
+    acc_id: i32,
+    world_id: i16,
+) -> Result<Vec<CharacterModel>, DatabaseError> {
+    pool::spawn_db(pool, move |conn| {
+        characters::table
+            .filter(characters::acc_id.eq(acc_id))
+            .filter(characters::world_id.eq(world_id))
             .load::<CharacterModel>(conn)
     })
     .await

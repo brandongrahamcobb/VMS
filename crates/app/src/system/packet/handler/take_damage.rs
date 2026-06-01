@@ -29,7 +29,7 @@ use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Query;
 use core::cmp::Ordering;
-use ipc::tcp_command::TcpCommand;
+use ipc::tcp_command::AsyncCommand;
 
 pub fn handle_take_damage(
     client_map: Res<ClientMap>,
@@ -96,7 +96,7 @@ pub fn handle_take_damage(
         };
         command_tx
             .0
-            .send(TcpCommand::UpdateHealth {
+            .send(AsyncCommand::UpdateHealth {
                 client_id: msg.client_id,
                 char_id: char.id,
                 hp,

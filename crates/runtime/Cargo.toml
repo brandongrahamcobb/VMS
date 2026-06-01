@@ -9,3 +9,6 @@ config = { path = "../config" }
 inc = { path = "../inc" }
 tracing = "0.1.44"
 tokio = { version = "1.51.1", features = ["full"] }
+db = { path = "../db" }
+ipc = { path = "../ipc" }
+base = { path = "../base" }

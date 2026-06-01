@@ -18,26 +18,28 @@
  */
 
 use crate::message::packet::check_char_name::CheckCharNameResponseMessage;
-use crate::message::packet::list_chars::{CharSlotsLoadedMessage, ListCharsSuccessMessage};
+use crate::message::packet::list_chars::{
+    CharSlotsLoadedMessage, ListCharsFailedMessage, ListCharsSuccessMessage,
+};
 use crate::plugin::event::CustomPluginEvent;
 use crate::resource::custom_resource::CustomReceiver;
 use bevy::ecs::message::MessageWriter;
 use bevy::ecs::system::Res;
-use ipc::tcp_event::TcpEvent;
+use ipc::tcp_event::AsyncEvent;
 
 pub fn handle_events_system(
     receiver: Res<CustomReceiver>,
-    mut check_char_name_writer: MessageWriter<CheckCharNameResponseMessage>,
+    mut check_char_name_response_writer: MessageWriter<CheckCharNameResponseMessage>,
     mut list_chars_success_writer: MessageWriter<ListCharsSuccessMessage>,
-    mut list_chars_failed_writer: MessageWriter<ListCharsFailedMessage>,
+    mut list_chars_fail_writer: MessageWriter<ListCharsFailedMessage>,
 ) {
-    let rx: MutexGuard<Receiver<TcpEvent>> = receiver.0.lock().unwrap();
+    let rx: MutexGuard<Receiver<AsyncEvent>> = receiver.0.lock().unwrap();
     while let Ok(event) = rx.try_recv() {
         match event {
-            TcpEvent::ClientConnected { client_id } => {}
-            TcpEvent::ClientDisconnected { client_id } => {}
-            TcpEvent::PacketReceived { client_id, packet } => {}
-            TcpEvent::ListCharsSuccess {
+            AsyncEvent::ClientConnected { client_id } => {}
+            AsyncEvent::ClientDisconnected { client_id } => {}
+            AsyncEvent::PacketReceived { client_id, packet } => {}
+            AsyncEvent::ListCharsSuccess {
                 client_id,
                 channel_id,
                 chars,
@@ -52,10 +54,10 @@ pub fn handle_events_system(
                     world_id,
                 });
             }
-            TcpEvent::ListCharsFailed { client_id } => {
-                list_chars_failure_wrtier.write(ListCharsFailedMessage { client_id });
+            AsyncEvent::ListCharsFailed { client_id } => {
+                list_chars_fail_wrtier.write(ListCharsFailedMessage { client_id });
             }
-            TcpEvent::CheckCharName {
+            AsyncEvent::CheckCharName {
                 client_id,
                 exists,
                 ign,

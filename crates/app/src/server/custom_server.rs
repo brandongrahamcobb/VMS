@@ -19,7 +19,7 @@
 use core::net::SocketAddr;
 
 use crate::error::HarnessError;
-use crate::plugin::tcp::TcpEvent;
+use crate::plugin::tcp::AsyncEvent;
 use crate::resource::custom_resource::CustomReceiver;
 use crate::resource::custom_resource::CustomSender;
 use bevy::app::App;

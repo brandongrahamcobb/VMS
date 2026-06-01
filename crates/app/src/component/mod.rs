@@ -1,13 +1,17 @@
 pub mod account;
 pub mod channel;
 pub mod character;
+pub mod hp;
 pub mod inventory;
 pub mod item;
 pub mod job;
 pub mod keybinding;
 pub mod map;
 pub mod mob;
+pub mod mp;
 pub mod portal;
+pub mod position;
 pub mod session;
 pub mod skill;
+pub mod slot;
 pub mod world;

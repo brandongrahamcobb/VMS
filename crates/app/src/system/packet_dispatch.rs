@@ -60,7 +60,7 @@ pub fn packet_dispatch_system(
 ) {
     let rx: MutexGuard<Receiver<RawPacketMessage>> = receiver.0.lock().unwrap();
     while let Ok(message) = rx.try_recv() {
-        if let TcpEvent::PacketReceived { client_id, packet } = message {
+        if let AsyncEvent::PacketReceived { client_id, packet } = message {
             writer.write(message);
         }
     }

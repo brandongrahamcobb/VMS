@@ -20,6 +20,7 @@
 use core::convert::From;
 
 use bevy::ecs::component::Component;
+use db::character::model::CharacterModel;
 
 #[derive(Component)]
 pub struct MapleCharacter {
@@ -51,32 +52,32 @@ pub struct MapleCharacter {
 #[derive(Component)]
 pub struct InChar(pub Entity);
 
-impl From<Character> for MapleCharacter {
-    fn from(c: Character) -> Self {
+impl From<CharacterModel> for MapleCharacter {
+    fn from(model: CharacterModel) -> Self {
         Self {
-            id: c.id,
-            ign: c.ign,
-            level: c.level,
-            exp: c.exp,
-            strength: c.stregth,
-            dexterity: c.dexterity,
-            luck: c.luck,
-            intelligence: c.intelligence,
-            hp: c.hp,
-            mp: c.mp,
-            max_hp: c.max_hp,
-            max_mp: c.max_mp,
-            ap: c.ap,
-            sp: c.sp,
-            fame: c.fame,
-            meso: c.meso,
-            job_wz: c.job_wz,
-            face_wz: c.face_wz,
-            hair_wz: c.hair_wz,
-            hair_color_wz: c.hair_color_wz,
-            skin_wz: c.skin_wz,
-            gender_wz: c.gender_wz,
-            last_portal: c.last_portal,
+            id: model.id,
+            ign: model.ign,
+            level: model.level,
+            exp: model.exp,
+            strength: model.stregth,
+            dexterity: model.dexterity,
+            luck: model.luck,
+            intelligence: model.intelligence,
+            hp: model.hp,
+            mp: model.mp,
+            max_hp: model.max_hp,
+            max_mp: model.max_mp,
+            ap: model.ap,
+            sp: model.sp,
+            fame: model.fame,
+            meso: model.meso,
+            job_wz: model.job_wz,
+            face_wz: model.face_wz,
+            hair_wz: model.hair_wz,
+            hair_color_wz: model.hair_color_wz,
+            skin_wz: model.skin_wz,
+            gender_wz: model.gender_wz,
+            last_portal: model.last_portal,
         }
     }
 }

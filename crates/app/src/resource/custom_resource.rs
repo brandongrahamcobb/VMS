@@ -29,9 +29,6 @@ pub struct CustomReceiver(Mutex<Receiver<CustomPluginEvent>>);
 pub struct CustomSender(pub Mutex<Sender<CustomPluginCommand>>);
 
 #[derive(Resource)]
-pub struct Sessions(SessionStore);
-
-#[derive(Resource)]
 pub struct Pool(DbPool);
 
 #[derive(Resource)]

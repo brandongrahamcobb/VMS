@@ -19,7 +19,7 @@
 
 use crate::map::error::MapMetadataError;
 use crate::service;
-use entity::mob::model::{MobWzInfo, MobWzLife};
+use base::mob::BaseMob;
 
 pub fn get_mob_rate_by_map_wz(map_wz: i32) -> Result<f32, MapMetadataError> {
     let filename: &str = "Map.wz";
@@ -52,7 +52,7 @@ fn get_life_json_from_metadata_by_map_wz(
     Ok(life)
 }
 
-pub fn get_mob_wz_life(mob_life: serde_json::Value) -> Result<MobWzLife, MapMetadataError> {
+pub fn get_mob_wz_info(mob_life: serde_json::Value) -> Result<BaseMob, MapMetadataError> {
     let wz: i32 = mob_life["id"]
         .as_str()
         .ok_or(MapMetadataError::MobError)?
@@ -62,18 +62,8 @@ pub fn get_mob_wz_life(mob_life: serde_json::Value) -> Result<MobWzLife, MapMeta
     let y = mob_life["y"].as_i64().unwrap_or(0) as i16;
     let fh = mob_life["fh"].as_i64().unwrap_or(0) as u16;
     let mob_time = mob_life["mobTime"].as_i64().unwrap_or(0) as u64;
-    Ok(MobWzLife {
-        wz,
-        x,
-        y,
-        fh,
-        mob_time,
-    })
-}
-
-pub fn get_mob_wz_info(mob_metadata: &MobWzLife) -> Result<MobWzInfo, MapMetadataError> {
     let filename: String = String::from("Mob.wz");
-    let json = service::wz_to_img(mob_metadata.wz, &filename)?;
+    let json = service::wz_to_img(wz, &filename)?;
     let info = json["info"].as_object().ok_or(MapMetadataError::MobError)?;
     let mad: i16 = info["MADamage"].as_i64().unwrap_or(0) as i16;
     let mdd: i16 = info["MDDamage"].as_i64().unwrap_or(0) as i16;
@@ -92,7 +82,7 @@ pub fn get_mob_wz_info(mob_metadata: &MobWzLife) -> Result<MobWzInfo, MapMetadat
     let speed: i16 = info["speed"].as_i64().unwrap_or(0) as i16;
     let summon_type: i16 = info["summonType"].as_i64().unwrap_or(0) as i16;
     let undead: i8 = info["undead"].as_i64().unwrap_or(0) as i8;
-    Ok(MobWzInfo {
+    Ok(BaseMob {
         mad,
         mdd,
         pad,
@@ -110,5 +100,10 @@ pub fn get_mob_wz_info(mob_metadata: &MobWzLife) -> Result<MobWzInfo, MapMetadat
         speed,
         summon_type,
         undead,
+        fh,
+        mob_time,
+        wz,
+        x,
+        y,
     })
 }

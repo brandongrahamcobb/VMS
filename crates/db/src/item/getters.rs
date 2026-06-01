@@ -21,8 +21,8 @@ use crate::error::DatabaseError;
 use crate::pool::{self, DbPool};
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, RunQueryDsl};
-use entity::item::model::{DropData, ItemModel};
-use entity::schema::{drops, items};
+use crate::item::model::{DropData, ItemModel};
+use crate::schema::{drops, items};
 
 pub async fn get_item_models_by_char_id(
     pool: &DbPool,

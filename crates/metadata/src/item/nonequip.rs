@@ -17,13 +17,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use entity::item::model::{InventoryTab, ItemWzInfo};
+use base::inventory::InventoryTab;
+use base::item::BaseItem;
 
 use crate::item::error::ItemMetadataError;
 use crate::item::inventory;
 use crate::service;
 
-pub fn build_nonequip_item_wz_info_by_wz(wz: i32) -> Result<ItemWzInfo, ItemMetadataError> {
+pub fn build_nonequip_item_wz_info_by_wz(wz: i32) -> Result<BaseItem, ItemMetadataError> {
     let itab: InventoryTab = inventory::get_inventory_tab_by_wz(wz)?;
     let filename: &str = "Item.wz";
     let modified_wz: i32 = wz.div_euclid(10000);
@@ -38,7 +39,7 @@ pub fn build_nonequip_item_wz_info_by_wz(wz: i32) -> Result<ItemWzInfo, ItemMeta
         .get("cash")
         .map(|c| c == 1)
         .unwrap_or(false);
-    let wz_info = ItemWzInfo {
+    let wz_info = BaseItem {
         cash,
         islot: None,
         itab: itab as i8,

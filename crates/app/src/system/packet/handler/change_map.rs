@@ -21,7 +21,7 @@ use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Query, Res};
-use ipc::tcp_command::TcpCommand;
+use ipc::tcp_command::AsyncCommand;
 use net::packet::model::Packet;
 
 use crate::component::channel::InChannel;
@@ -37,7 +37,7 @@ pub async fn handle_map_change(
     mut commands: Commands,
     client_map: Res<ClientMap>,
     mut messages: MessageReader<ChangeMapMessage>,
-    command_tx: CustomSender<TcpCommand>,
+    command_tx: CustomSender<AsyncCommand>,
     mut results: MessageWriter<HandlerResult>,
     chars: Query<&MapleCharacter>,
     channels: Query<&MapleChannel>,
@@ -75,7 +75,7 @@ pub async fn handle_map_change(
 
         command_tx
             .0
-            .send(TcpCommand::SetMap {
+            .send(AsyncCommand::SetMap {
                 client_id: msg.client_id,
                 char_id: char.id,
                 map_wz: map.wz,

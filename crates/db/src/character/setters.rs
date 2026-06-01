@@ -21,8 +21,8 @@ use crate::error::DatabaseError;
 use crate::pool::{self, DbPool};
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, RunQueryDsl};
-use entity::character::model::CharacterModel;
-use entity::schema::characters;
+use crate::character::model::CharacterModel;
+use crate::schema::characters;
 
 pub async fn update_characters(
     pool: &DbPool,

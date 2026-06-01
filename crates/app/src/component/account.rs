@@ -16,8 +16,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+use core::convert::From;
+
 use bevy::ecs::component::Component;
 use bevy::ecs::entity::Entity;
+use db::account::model::AccountModel;
 
 #[derive(Component)]
 pub struct MapleAccount {
@@ -30,4 +34,23 @@ pub struct MapleAccount {
     pub accepted_tos: bool,
     pub banned: bool,
     pub admin: bool,
+}
+
+#[derive(Component)]
+pub struct InAccount(pub Entity);
+
+impl From<(AccountModel, i32)> for MapleAccount {
+    fn from((model, id): (AccountModel, i32)) -> Self {
+        Self {
+            id,
+            username: model.username,
+            password: model.password,
+            pin: model.pin,
+            pic: model.pic,
+            gender_wz: model.gender_wz,
+            accepted_tos: model.accepted_tos,
+            banned: model.banned,
+            admin: model.admin,
+        }
+    }
 }

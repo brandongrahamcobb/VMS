@@ -19,7 +19,7 @@
 
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Query, Res};
-use ipc::tcp_command::TcpCommand;
+use ipc::tcp_command::AsyncCommand;
 use net::packet::model::Packet;
 
 use crate::component::session::MapleSession;
@@ -31,7 +31,7 @@ use crate::system::packet::handler::result::HandlerResult;
 pub async fn store_register_pic(
     client_map: Res<ClientMap>,
     mut messages: MessageReader<RegisterPicMessage>,
-    command_tx: CustomSender<TcpCommand>,
+    command_tx: CustomSender<AsyncCommand>,
     mut results: MessageWriter<HandlerResult>,
     accounts: Query<(Entity, &MapleAccount)>,
 ) -> () {
@@ -45,7 +45,7 @@ pub async fn store_register_pic(
 
         command_tx
             .0
-            .send(TcpCommand::SetPic {
+            .send(AsyncCommand::SetPic {
                 client_id: msg.client_id,
                 acc_id: acc.id,
                 pic: msg.pic,

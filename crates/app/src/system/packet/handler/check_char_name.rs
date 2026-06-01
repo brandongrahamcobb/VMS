@@ -22,23 +22,23 @@ use crate::resource::custom_resource::CustomSender;
 use crate::system::packet::build::check_char_name;
 use crate::system::packet::handler::result::HandlerResult;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use ipc::tcp_command::TcpCommand;
+use ipc::tcp_command::AsyncCommand;
 
 pub async fn handle_check_char_name_request(
     mut messages: MessageReader<CheckCharNameRequestMessage>,
-    command_tx: CustomSender<TcpCommand>,
+    command_tx: CustomSender<AsyncCommand>,
 ) -> () {
     for msg in messages.read() {
         command_tx
             .0
-            .send(TcpCommand::CheckCharNameRequest { ign: msg.ign })
+            .send(AsyncCommand::CheckCharNameRequest { ign: msg.ign })
             .unwrap();
     }
 }
 
 pub async fn handle_check_char_name_response(
     mut messages: MessageReader<CheckCharNameResponseMessage>,
-    command_tx: CustomSender<TcpCommand>,
+    command_tx: CustomSender<AsyncCommand>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {

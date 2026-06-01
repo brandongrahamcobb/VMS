@@ -4,9 +4,14 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+thiserror = "2"
+itertools = "0.14.0"
 tracing = "0.1.44"
 net = { path = "../net" }
-assembly = { path = "../assembly" }
 db = { path = "../db" }
-domain = { path = "../domain" }
-entity = { path = "../entity" }
+base = { path = "../base" }
+inc = { path = "../inc" }
+metadata = { path = "../metadata" }
+bcrypt = "0.19.0"
+rand = "0.10.1"
+config = { path = "../config" }

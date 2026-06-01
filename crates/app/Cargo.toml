@@ -6,7 +6,6 @@ edition = "2024"
 [dependencies]
 bevy = "0.18.1"
 bevy_renet = "4.0.1"
-session = { path = "../session" }
 db = { path = "../db" }
 runtime = { path = "../runtime" }
 config = { path = "../config" }
@@ -14,5 +13,5 @@ metadata = { path = "../metadata" }
 ipc = { path = "../ipc" }
 net = { path = "../net" }
 op = { path = "../op" }
-entity = { path = "../entity" }
+base = { path = "../base" }
 action = { path = "../action" }

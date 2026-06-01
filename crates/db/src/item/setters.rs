@@ -21,8 +21,8 @@ use crate::error::DatabaseError;
 use crate::pool::{self, DbPool};
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, RunQueryDsl};
-use entity::item::model::ItemModel;
-use entity::schema::items;
+use crate::item::model::ItemModel;
+use crate::schema::items;
 
 pub async fn delete_item_by_id(pool: &DbPool, item_id: i32) -> Result<usize, DatabaseError> {
     pool::spawn_db(pool, move |conn| {

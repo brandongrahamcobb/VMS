@@ -31,7 +31,7 @@ use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Query, Res};
 use entity::map::model::Point;
-use ipc::tcp_command::TcpCommand;
+use ipc::tcp_command::AsyncCommand;
 
 pub async fn handle_player_moved(
     client_map: Res<ClientMap>,

@@ -23,12 +23,12 @@ use crate::system::packet::build::{codec, player_logged_in};
 use crate::system::packet::handler::result::HandlerResult;
 use bevy::ecs::message::MessageWriter;
 use bevy::ecs::system::{Query, Res};
-use ipc::tcp_command::TcpCommand;
+use ipc::tcp_command::AsyncCommand;
 
 pub async fn handle_player_logged_in_request(
     client_map: Res<ClientMap>,
     mut messages: MessageReader<PlayerLoggedInRequestMessage>,
-    command_tx: CustomSender<TcpCommand>,
+    command_tx: CustomSender<AsyncCommand>,
     mut results: MessageWriter<HandlerResult>,
     chars: Query<&MapleCharacter>,
 ) -> () {
@@ -40,7 +40,7 @@ pub async fn handle_player_logged_in_request(
             continue;
         };
 
-        command_tx.0.send(TcpCommand::JoinPlayer {
+        command_tx.0.send(AsyncCommand::JoinPlayer {
             client_id: msg.client_id,
         });
     }
@@ -49,7 +49,7 @@ pub async fn handle_player_logged_in_request(
 pub async fn handle_player_logged_in_response(
     client_map: Res<ClientMap>,
     mut messages: MessageReader<PlayerLoggedInResponseMessage>,
-    command_tx: CustomSender<TcpCommand>,
+    command_tx: CustomSender<AsyncCommand>,
     mut results: MessageWriter<HandlerResult>,
     chars: Query<(Entity, &MapleCharacter)>,
 ) -> () {

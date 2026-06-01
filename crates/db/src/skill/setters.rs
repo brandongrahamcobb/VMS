@@ -21,8 +21,8 @@ use crate::error::DatabaseError;
 use crate::pool::{self, DbPool};
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, RunQueryDsl};
-use entity::schema::skills;
-use entity::skill::model::SkillModel;
+use crate::schema::skills;
+use crate::skill::model::SkillModel;
 
 pub async fn update_skills(
     pool: &DbPool,

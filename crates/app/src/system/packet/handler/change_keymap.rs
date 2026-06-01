@@ -23,7 +23,7 @@ use crate::message::packet::change_keymap::ChangeKeymapMessage;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::handler::result::HandlerResult;
 use entity::keybinding::model::KeybindingModel;
-use ipc::tcp_command::TcpCommand;
+use ipc::tcp_command::AsyncCommand;
 use itertools::izip;
 use std::time::SystemTime;
 
@@ -31,7 +31,7 @@ pub async fn handle_change_keymap(
     mut commands: Commands,
     client_map: Res<ClientMap>,
     mut messages: MessageReader<ChangeKeymapMessage>,
-    command_tx: CustomSender<TcpCommand>,
+    command_tx: CustomSender<AsyncCommand>,
     chars: Query<&MapleCharacter>,
 ) -> () {
     for msg in messages.read() {
@@ -58,7 +58,7 @@ pub async fn handle_change_keymap(
                 .collect();
         command_tx
             .0
-            .send(TcpCommand::UpdateKeybindings {
+            .send(AsyncCommand::UpdateKeybindings {
                 client_id: msg.client_id,
                 binds,
             })

@@ -16,7 +16,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+use core::convert::From;
+
+use base::item::BaseItem;
 use bevy::ecs::component::Component;
+use db::item::model::ItemModel;
 
 #[derive(Component)]
 pub struct MapleItem {
@@ -39,11 +44,44 @@ pub struct MapleItem {
     pub speed: i16,
     pub jump: i16,
     pub wz: i32,
-    pub slots: i32,
     pub expire: i64,
     pub level: i16,
     pub item_level: i16,
     pub flag: i16,
     pub item_exp: i16,
     pub vicious: i32,
+    pub base: BaseItem,
+}
+
+impl From<BaseItem, ItemModel> for MapleItem {
+    fn from((base, model): (BaseItem, ItemModel)) -> Self {
+        Self {
+            map_wz: None,
+            char_id: model.char_id,
+            ipos: model.ipos,
+            strength: model.strength,
+            dexterity: model.dexterity,
+            intelligence: model.intelligence,
+            luck: model.luck,
+            attack: model.attack,
+            weapon_defense: model.weapon_defense,
+            magic: model.magic,
+            magic_defense: model.magic_defense,
+            hp: model.hp,
+            mp: model.mp,
+            accuracy: model.accuracy,
+            avoid: model.avoid,
+            hands: model.hands,
+            speed: model.speed,
+            jump: model.jump,
+            wz: model.wz,
+            expire: model.expire,
+            level: model.level,
+            item_level: model.item_level,
+            flag: model.flag,
+            item_exp: model.item_exp,
+            vicious: model.vicious,
+            base,
+        }
+    }
 }
