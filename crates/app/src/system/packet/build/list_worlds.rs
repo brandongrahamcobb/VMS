@@ -19,10 +19,14 @@
 
 use config::settings;
 use net::packet::io::error::IOError::WriteError;
+use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use op::send::SendOpcode;
 
-pub fn build_last_connected_world_packet() -> Result<&mut Packet, PacketBuildError> {
+use crate::component::world::MapleWorld;
+use crate::system::packet::build::error::PacketBuildError;
+
+pub fn build_last_connected_world_packet() -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::LastConnectedWorld as i16;
     packet.write_short(op).map_err(WriteError)?;
@@ -32,7 +36,7 @@ pub fn build_last_connected_world_packet() -> Result<&mut Packet, PacketBuildErr
 
 pub fn build_recommended_worlds_packet(
     worlds: Vec<MapleWorld>,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let recommended_world_names = settings::get_recommended_worlds()?;
     let op = SendOpcode::RecommendedWorlds as i16;
@@ -99,9 +103,9 @@ pub fn build_list_worlds_packets(
     packet.write_short(op).map_err(WriteError)?;
     packet.write_byte(0xFF).map_err(WriteError)?;
     packets.push(packet);
-    let mut packet: Packet = build_last_connected_world_packet()?;
+    let packet: Packet = build_last_connected_world_packet()?;
     packets.push(packet);
-    let mut packet: Packet = build_recommended_worlds_packet(worlds)?;
+    let packet: Packet = build_recommended_worlds_packet(worlds)?;
     packets.push(packet);
     Ok(packets)
 }

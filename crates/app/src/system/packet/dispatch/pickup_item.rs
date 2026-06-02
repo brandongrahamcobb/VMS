@@ -20,7 +20,7 @@
 use entity::map::model::Point;
 use net::packet::io::error::IOError::ReadError;
 use net::packet::model::Packet;
-use net::packet::prelude::*;
+use net::packet::io::prelude::*;
 use std::io::Cursor;
 
 use crate::message::packet::pickup_item::PickupItemMessage;

@@ -30,28 +30,28 @@ pub fn build_list_chars_packet(
     channel_id: u8,
     char_slots: i16,
     pic_status: i16,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::CharList as i16;
     packet.write_short(op).map_err(WriteError)?;
     packet.write_byte(channel_id as i16).map_err(WriteError)?;
     packet.write_byte(chars.len() as i16).map_err(WriteError)?;
     for char in chars.iter() {
-        build_look_part_packet(&packet, char)?;
+        build_look_part_packet(&mut packet, char)?;
     }
     packet.write_byte(pic_status).map_err(WriteError)?;
     packet.write_int(char_slots as i32).map_err(WriteError)?;
-    Ok(self)
+    Ok(packet)
 }
 
 fn build_look_part_packet(
-    packet: &Packet,
+    packet: &mut Packet,
     char: &MapleCharacter,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<(), PacketBuildError> {
     codec::player::builder::build_list_char_meta_part_packet(packet, char)?;
     codec::player::builder::build_look_meta_part_packet(packet, char)?;
     packet.write_byte(0).map_err(WriteError)?;
     // Disable rank.
     packet.write_byte(0).map_err(WriteError)?;
-    Ok(packet)
+    Ok(())
 }

@@ -20,74 +20,97 @@
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Query, Res};
-use ipc::tcp_command::AsyncCommand;
-use net::packet::model::Packet;
+use bevy::ecs::system::{Commands, Query, Res};
+use ipc::asyncronous::db_command::DatabaseCommand;
 
-use crate::component::channel::InChannel;
-use crate::component::character::MapleCharacter;
-use crate::component::map::InMap;
-use crate::component::session::MapleSession;
+use crate::component::channel::{InChannel, MapleChannel};
+use crate::component::character::{InChar, MapleCharacter};
+use crate::component::map::{InMap, MapleMap};
+use crate::component::session::{InSession, MapleSession};
 use crate::message::packet::change_map::ChangeMapMessage;
-use crate::resource::custom_resource::{ClientMap, CustomSender, Sessions};
+use crate::message::result::HandlerResult;
+use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{change_map, codec};
-use crate::system::packet::handler::result::HandlerResult;
+use action::model::{Action, SessionAction};
+use action::scope::{MapScope, SessionScope};
 
-pub async fn handle_map_change(
+pub fn handle_map_change(
     mut commands: Commands,
+    command_tx: CustomSender,
     client_map: Res<ClientMap>,
-    mut messages: MessageReader<ChangeMapMessage>,
-    command_tx: CustomSender<AsyncCommand>,
-    mut results: MessageWriter<HandlerResult>,
-    chars: Query<&MapleCharacter>,
+    mut sessions: Query<&mut MapleSession>,
+    in_sessions: Query<(Entity, &InSession)>,
     channels: Query<&MapleChannel>,
-    in_channel: Query<&InChannel>,
-    in_map: Query<&InMap>,
+    in_channels: Query<&InChannel>,
+    maps: Query<&MapleMap>,
+    in_maps: Query<(Entity, &InMap)>,
     portals: Query<(&MaplePortal, &ChildOf)>,
+    chars: Query<&MapleCharacter>,
+    in_chars: Query<(Entity, &InChar)>,
+    mut messages: MessageReader<ChangeMapMessage>,
+    mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(in_map) = in_map.get(client_entity) else {
+        let Ok((in_session_entity, _)) = in_sessions.get(client_entity) else {
+            continue;
+        };
+        let Ok(mut session) = sessions.get_mut(in_session_entity) else {
+            continue;
+        };
+        let Ok((in_map_entity, _)) = in_maps.get(client_entity) else {
             continue;
         };
         let Some((portal, _)) = portals
             .iter()
-            .find(|(p, parent)| p.target_name == msg.target_name && parent.0 == in_map_entity.0)
+            .find(|(p, parent)| p.target_name == msg.target_name && parent.0 == in_map_entity)
         else {
             continue;
         };
-        commands.entity(client_entity).remove::<InMap>();
-        let Ok(in_channel) = in_channel.get(client_entity) else {
+        let Ok((in_channel_entity, _)) = in_channels.get(client_entity) else {
             continue;
         };
-        let Ok((map_entity, map, _)) = maps
+        let Ok(channel) = channels.get(in_channel_entity) else {
+            continue;
+        };
+        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+            continue;
+        };
+        let Ok(char) = chars.get(in_char_entity) else {
+            continue;
+        };
+
+        session.transitioning = true;
+        commands.entity(client_entity).remove::<InMap>();
+
+        let Some((map_entity, map, _)) = maps
             .iter()
             .find(|(_, m, parent)| m.wz = portal.target_map_wz && parent.0 == in_channel.0)
         else {
             continue;
         };
+
         commands.entity(client_entity).insert(InMap(map_entity));
-        let Ok(char) = chars.get(client_entity) else {
-            continue;
-        };
 
         command_tx
             .0
-            .send(AsyncCommand::SetMap {
+            .lock()
+            .unwrap()
+            .send(DatabaseCommand::SetMap {
                 client_id: msg.client_id,
                 char_id: char.id,
                 map_wz: map.wz,
             })
             .unwrap();
 
-        let Ok(despawn_packet) = codec::player::builder::build_despawn_player_packet(char.id)
+        let Ok(mut despawn_packet) = codec::player::builder::build_despawn_player_packet(char.id)
         else {
             continue;
         };
-        let Ok(set_field_packet) =
-            change_map::build_set_field_change_map_packet(in_channel.id, map.wz, portal.portal_wz)
+        let Ok(mut set_field_packet) =
+            change_map::build_set_field_change_map_packet(channel.id, map.wz, portal.portal_wz)
         else {
             continue;
         };

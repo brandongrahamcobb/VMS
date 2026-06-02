@@ -177,6 +177,7 @@ pub async fn db_worker(
                         StatsUpdate::MaxMana { max_mp } => char_model.max_mp = max_mp,
                         StatsUpdate::AbilityPoints { ap } => char_model.ap = ap,
                         StatsUpdate::SkillPoints { sp } => char_model.sp = sp,
+                        StatsUpdate::Level { level } => char_model.level = level,
                     }
                 }
                 db::character::setters::update_characters(&pool, vec![char_model]).await?;

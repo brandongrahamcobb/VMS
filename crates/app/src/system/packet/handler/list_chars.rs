@@ -17,18 +17,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::component::account::InAccount;
 use crate::component::channel::InChannel;
-use crate::component::session::MapleSession;
-use crate::component::world::InWorld;
-use crate::message::packet::list_chars::CharSlotsLoadedMessage;
-use crate::resource::custom_resource::CustomSender;
+use crate::component::character::MapleCharacter;
+use crate::component::world::{InWorld, MapleWorld};
+use crate::message::packet::list_chars::{
+    CharSlotsLoadedMessage, ListCharsRequestMessage, ListCharsSuccessMessage,
+};
+use crate::message::result::HandlerResult;
+use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::list_chars;
-use crate::system::packet::handler::result::HandlerResult;
 use crate::{component::account::MapleAccount, message::packet::list_chars::ListCharsMessage};
-use bevy::ecs::message::MessageReader;
+use action::model::{Action, SessionAction};
+use action::scope::SessionScope;
+use bevy::ecs::entity::Entity;
+use bevy::ecs::hierarchy::ChildOf;
+use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
 use config::settings;
-use ipc::tcp_command::AsyncCommand;
+use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub enum PicStatus {
     Disabled = 2,
@@ -36,47 +43,65 @@ pub enum PicStatus {
     NeedsToRegister = 0,
 }
 
-pub async fn handle_load_char_slots(
+pub fn handle_load_char_slots(
+    command_tx: CustomSender,
     client_map: Res<ClientMap>,
-    mut messages: MessageReader<ListCharsRequestMessage>,
-    command_tx: CustomSender<AsyncCommand>,
+    worlds: Query<&MapleWorld>,
+    in_worlds: Query<(Entity, &InWorld)>,
     accounts: Query<&MapleAccount>,
+    in_accounts: Query<(Entity, &InAccount)>,
+    mut messages: MessageReader<ListCharsRequestMessage>,
 ) -> () {
     for msg in messages.read() {
-        let Some(client_entity) = client_map.0.get(&msg.client_id) else {
+        let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Some(acc) = accounts.get(client_entity) else {
+        let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
+            continue;
+        };
+        let Ok(acc) = accounts.get(in_acc_entity) else {
+            continue;
+        };
+        let Ok((in_world_entity, _)) = in_worlds.get(client_entity) else {
+            continue;
+        };
+        let Ok(world) = worlds.get(in_world_entity) else {
             continue;
         };
 
         command_tx
             .0
-            .send(AsyncCommand::ListChars((msg, acc.id).into()))
+            .lock()
+            .unwrap()
+            .send(DatabaseCommand::ListChars((msg, acc.id, world.id).into()))
             .unwrap();
     }
 }
 
-pub async fn handle_list_chars(
+pub fn handle_list_chars(
     mut commands: Commands,
     client_map: Res<ClientMap>,
+    accounts: Query<(Entity, &MapleAccount)>,
+    in_accounts: Query<(Entity, &InAccount)>,
     mut messages: MessageReader<ListCharsSuccessMessage>,
     mut results: MessageWriter<HandlerResult>,
-    accounts: Query<&MapleAccount>,
 ) -> () {
     for msg in messages.read() {
-        let Some(client_entity) = client_map.0.get(&msg.client_id) else {
+        let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        for char in &msg.chars {
-            commands.spawn((MapleCharacter::from(char), ChildOf(client_entity)));
+        let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
+            continue;
+        };
+        let Ok((acc_entity, acc)) = accounts.get(in_acc_entity) else {
+            continue;
+        };
+        for char_model in &msg.char_models {
+            commands.spawn((MapleCharacter::from(char_model), ChildOf(acc_entity)));
         }
-        let Some(acc) = accounts.get(client_entity) else {
-            continue;
-        };
 
         let mut pic_status: i16 = PicStatus::Disabled as i16;
-        let Some(use_pic) = settings::get_pic_required() else {
+        let Ok(use_pic) = settings::get_pic_required() else {
             continue;
         };
         if acc.pic.clone().is_some() {
@@ -87,7 +112,7 @@ pub async fn handle_list_chars(
             pic_status = PicStatus::NeedsToRegister as i16;
         };
 
-        let Ok(list_chars_packet) =
+        let Ok(mut list_chars_packet) =
             list_chars::build_list_chars_packet(msg.chars, msg.channel_id, msg.slots, pic_status)
         else {
             continue;

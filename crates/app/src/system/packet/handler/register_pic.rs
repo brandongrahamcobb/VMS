@@ -17,35 +17,42 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Query, Res};
-use ipc::tcp_command::AsyncCommand;
-use net::packet::model::Packet;
-
-use crate::component::session::MapleSession;
+use crate::component::account::{InAccount, MapleAccount};
 use crate::message::packet::register_pic::RegisterPicMessage;
-use crate::resource::custom_resource::{ClientMap, CustomSender, Sessions};
+use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::spw;
 use crate::system::packet::handler::result::HandlerResult;
+use action::model::{Action, SessionAction};
+use action::scope::SessionScope;
+use bevy::ecs::entity::Entity;
+use bevy::ecs::message::{MessageReader, MessageWriter};
+use bevy::ecs::system::{Query, Res};
+use ipc::asyncronous::db_command::DatabaseCommand;
 
-pub async fn store_register_pic(
+pub fn store_register_pic(
+    command_tx: CustomSender,
     client_map: Res<ClientMap>,
+    accounts: Query<&MapleAccount>,
+    in_accounts: Query<(Entity, &InAccount)>,
     mut messages: MessageReader<RegisterPicMessage>,
-    command_tx: CustomSender<AsyncCommand>,
     mut results: MessageWriter<HandlerResult>,
-    accounts: Query<(Entity, &MapleAccount)>,
 ) -> () {
     for msg in messages.read() {
-        let Some(client_entity) = client_map.0.get(&msg.client_id) else {
+        let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(acc) = accounts.get(client_entity) else {
+        let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
+            continue;
+        };
+        let Ok(acc) = accounts.get(in_acc_entity) else {
             continue;
         };
 
         command_tx
             .0
-            .send(AsyncCommand::SetPic {
+            .lock()
+            .unwrap()
+            .send(DatabaseCommand::SetPic {
                 client_id: msg.client_id,
                 acc_id: acc.id,
                 pic: msg.pic,
@@ -53,7 +60,7 @@ pub async fn store_register_pic(
             .unwrap();
 
         let success_status: bool = true;
-        let Ok(spw_packet): Option<Packet> = spw::build_spw_packet(success_status) else {
+        let Ok(mut spw_packet) = spw::build_spw_packet(success_status) else {
             continue;
         };
 

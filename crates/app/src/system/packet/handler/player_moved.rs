@@ -17,45 +17,46 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::channel::MapleChannel;
-use crate::component::character::MapleCharacter;
-use crate::component::map::MapleMap;
-use crate::component::session::MapleSession;
-use crate::component::world::MapleWorld;
+use crate::component::character::{InChar, MapleCharacter};
 use crate::message::packet::player_moved::PlayerMovedMessage;
-use crate::resource::custom_resource::{ClientMap, CustomSender};
+use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::player_moved;
 use crate::system::packet::handler::result::HandlerResult;
+use action::model::{Action, BroadcastAction};
+use action::scope::BroadcastScope;
+use base::map::Point;
 use bevy::ecs::entity::Entity;
-use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Query, Res};
-use entity::map::model::Point;
-use ipc::tcp_command::AsyncCommand;
+use ipc::syncronous;
 
-pub async fn handle_player_moved(
+pub fn handle_player_moved(
     client_map: Res<ClientMap>,
+    chars: Query<(Entity, &MapleCharacter)>,
+    in_chars: Query<(Entity, &InChar)>,
+    curr_positions: Query<&mut MapleCurrentPosition>,
     mut messages: MessageReader<PlayerMovedMessage>,
     mut results: MessageWriter<HandlerResult>,
-    chars: Query<&mut MapleCharacter>,
-    curr_positions: Query<&mut MapleCurrentPosition>,
 ) -> () {
     for msg in messages.read() {
         if !msg.too_short && !msg.empty {
             let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
                 continue;
             };
-            let Ok(char) = chars.get(client_entity) else {
+            let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+                continue;
+            };
+            let Ok((char_entity, char)) = chars.get(in_char_entity) else {
                 continue;
             };
             let Ok(curr_pos) = curr_positions.get_mut(client_entity) else {
                 continue;
             };
-            let new_pos: Point =
-                domain::map::parse_position(&msg.movement_bytes).unwrap_or(Point { x: 0, y: 0 });
-            pos = new_pos;
+            let new_pos: Point = syncronous::map::parse_position(&msg.movement_bytes)
+                .unwrap_or(Point { x: 0, y: 0 });
+            curr_pos = new_pos;
 
-            let Some(player_moved_packet): Option<Packet> =
+            let Ok(mut player_moved_packet) =
                 player_moved::build_player_move_packet(char.id, msg.movement_bytes)
             else {
                 continue;

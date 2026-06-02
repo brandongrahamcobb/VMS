@@ -17,10 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use base::item::BaseItem;
 use bevy::prelude::Message;
 use core::convert::From;
-use entity::item::wrapper::Item;
-use ipc::data::attack_close::CloseAttackCommand;
+use db::{item::model::ItemModel, skill::model::SkillModel};
 use std::collections::HashMap;
 
 #[derive(Message)]
@@ -38,7 +38,7 @@ pub struct CloseAttackRequestMessage {
 #[derive(Message)]
 pub struct CloseAttackResponseMessage {
     pub client_id: i32,
-    pub skill: Skill,
+    pub skill: SkillModel,
     pub count: i16,
     pub display: i16,
     pub toleft: i16,
@@ -47,12 +47,12 @@ pub struct CloseAttackResponseMessage {
     pub mob_damages: HashMap<u32, Vec<i32>>,
 }
 
-impl From<(CloseAttackRequestMessage, Skill)> for CloseAttackResponseMessage {
-    fn from((msg, skill): (CloseAttackRequestMessage, Skill)) -> Self {
+impl From<(CloseAttackRequestMessage, SkillModel)> for CloseAttackResponseMessage {
+    fn from((msg, model): (CloseAttackRequestMessage, SkillModel)) -> Self {
         Self {
             client_id: msg.client_id,
             count: msg.count,
-            skill,
+            skill: model,
             display: msg.display,
             toleft: msg.toleft,
             stance: msg.stance,
@@ -65,6 +65,6 @@ impl From<(CloseAttackRequestMessage, Skill)> for CloseAttackResponseMessage {
 #[derive(Message)]
 pub struct DeadMobMessage {
     pub client_id: i32,
-    pub mob_id: i32,
+    pub mob_id: u32,
     pub items: HashMap<BaseItem, ItemModel>,
 }

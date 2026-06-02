@@ -17,18 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::character::MapleCharacter;
+use crate::component::character::{InChar, MapleCharacter};
+use crate::component::slot::MapleEmptyItemSlot;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::pickup_item;
 use crate::system::packet::handler::result::HandlerResult;
+use action::model::{Action, SessionAction};
+use action::scope::SessionScope;
+use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::query::With;
 use bevy::ecs::system::{Query, Res};
+use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub fn handle_pickup_item_request(
     client_map: Res<ClientMap>,
     mut messages: MessageReader<PickupItemRequestMessage>,
-    command_tx: CustomSender<AsyncCommand>,
+    command_tx: CustomSender,
     mut results: MessageWriter<HandlerResult>,
     chars: Query<&MapleCharacter>,
 ) -> () {
@@ -40,7 +45,7 @@ pub fn handle_pickup_item_request(
             continue;
         };
 
-        command_tx.0.send(AsyncCommand::PickupItem {
+        command_tx.0.send(DatabaseCommand::PickupItem {
             client_id: msg.client_id,
             char_id: char.id,
             item_id: msg.item_id,
@@ -49,34 +54,37 @@ pub fn handle_pickup_item_request(
 }
 
 pub fn handle_pickup_response(
+    command_tx: CustomSender,
     client_map: Res<ClientMap>,
-    mut messages: MessageReader<PickupItemResponseMessage>,
-    command_tx: CustomSender<AsyncCommand>,
-    mut results: MessageWriter<HandlerResult>,
     chars: Query<&MapleCharacter>,
-    empty_slots: Query<Entity, With<EmptySlot>>,
+    in_chars: Query<(Entity, &InChar)>,
+    empty_slots: Query<Entity, With<MapleEmptyItemSlot>>,
+    mut messages: MessageReader<PickupItemResponseMessage>,
+    mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(char) = chars.get(client_entity) else {
+        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+            continue;
+        };
+        let Ok(char) = chars.get(in_char_entity) else {
             continue;
         };
 
-        let ipos: EmptySlot = empty_slots.iter().next();
-        // get item from inventory items.iter().find(|i| i.id == item_id);
+        let ipos: MapleEmptyItemSlot = empty_slots.iter().next();
 
-        let Ok(pickup_item_packet) =
-            pickup_item::build_pickup_item_packet(char.id, msg.item_id, msg.pet_pickup)
+        let Ok(mut pickup_item_packet) =
+            pickup_item::build_pickup_item_packet(char.id, msg.item_id, msg.pet_pickup, ipos)
         else {
             continue;
         };
         results.write(HandlerResult {
             client_id: msg.client_id,
-            actions: vec![Action::Broadcast(BroadcastAction::Send {
+            actions: vec![Action::Session(SessionAction::Send {
                 packet: pickup_item_packet.finish(),
-                scope: BroadcastScope::Map,
+                scope: SessionScope::Local,
             })],
         });
     }

@@ -18,6 +18,7 @@
  */
 
 use crate::component::character::MapleCharacter;
+use crate::system::packet::build::codec;
 use crate::system::packet::build::error::PacketBuildError;
 use net::packet::io::error::IOError::WriteError;
 use net::packet::io::prelude::*;
@@ -27,7 +28,7 @@ use op::send::SendOpcode;
 pub fn build_enter_cash_shop_packet(
     username: String,
     char: &MapleCharacter,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SetCashShop as i16;
     packet.write_short(op).map_err(WriteError)?;
@@ -35,12 +36,16 @@ pub fn build_enter_cash_shop_packet(
     packet.write_long(0).map_err(WriteError)?;
     // Flag
     packet.write_byte(0).map_err(WriteError)?;
-    packet.build_player_logged_in_meta_part_packet(char, char.map_wz)?;
-    build_cash_shop_meta(username.clone())?;
-    Ok(self)
+    codec::player::builder::build_player_logged_in_meta_part_packet(
+        &mut packet,
+        char,
+        char.map_wz,
+    )?;
+    build_cash_shop_meta(&mut packet, username.clone())?;
+    Ok(packet)
 }
 
-fn build_cash_shop_meta(username: String) -> Result<&mut Packet, PacketBuildError> {
+fn build_cash_shop_meta(packet: &mut Packet, username: String) -> Result<(), PacketBuildError> {
     // Dummy values
     // Not MTS
     packet.write_byte(0).map_err(WriteError)?;
@@ -61,5 +66,5 @@ fn build_cash_shop_meta(username: String) -> Result<&mut Packet, PacketBuildErro
     packet.write_short(0).map_err(WriteError)?;
     packet.write_byte(0).map_err(WriteError)?;
     packet.write_int(0).map_err(WriteError)?;
-    Ok(packet)
+    Ok(())
 }

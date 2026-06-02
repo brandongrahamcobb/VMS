@@ -30,7 +30,7 @@ use ipc::tcp_command::AsyncCommand;
 pub async fn handle_tos(
     client_map: Res<ClientMap>,
     mut messages: MessageReader<TosMessage>,
-    command_tx: CustomSender<AsyncCommand>,
+    command_tx: CustomSender,
     mut results: MessageWriter<HandlerResult>,
     accounts: Query<&MapleAccount>,
 ) -> () {
@@ -52,7 +52,7 @@ pub async fn handle_tos(
                     acc_id: acc.id,
                 })
                 .unwrap();
-            let Ok(credentials_packet) =
+            let Ok(mut credentials_packet) =
                 codec::login::builder::build_credentials_handler_successful_login_packet(acc)
             else {
                 continue;

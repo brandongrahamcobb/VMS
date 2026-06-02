@@ -23,7 +23,7 @@ use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use op::send::SendOpcode;
 
-pub fn build_spw_packet(status: bool) -> Result<&mut Packet, PacketBuildError> {
+pub fn build_spw_packet(status: bool) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::CheckSpwResult as i16;
     packet.write_short(op).map_err(WriteError)?;

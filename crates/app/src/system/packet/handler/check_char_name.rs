@@ -17,33 +17,38 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::message::packet::check_char_name::CheckCharNameMessage;
+use crate::message::packet::check_char_name::{
+    CheckCharNameRequestMessage, CheckCharNameResponseMessage,
+};
+use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::CustomSender;
 use crate::system::packet::build::check_char_name;
-use crate::system::packet::handler::result::HandlerResult;
+use action::model::{Action, SessionAction};
+use action::scope::SessionScope;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use ipc::tcp_command::AsyncCommand;
+use ipc::asyncronous::db_command::DatabaseCommand;
 
-pub async fn handle_check_char_name_request(
+pub fn handle_check_char_name_request(
     mut messages: MessageReader<CheckCharNameRequestMessage>,
-    command_tx: CustomSender<AsyncCommand>,
+    command_tx: CustomSender,
 ) -> () {
     for msg in messages.read() {
         command_tx
             .0
-            .send(AsyncCommand::CheckCharNameRequest { ign: msg.ign })
+            .lock()
+            .unwrap()
+            .send(DatabaseCommand::CheckCharNameRequest { ign: msg.ign })
             .unwrap();
     }
 }
 
-pub async fn handle_check_char_name_response(
+pub fn handle_check_char_name_response(
     mut messages: MessageReader<CheckCharNameResponseMessage>,
-    command_tx: CustomSender<AsyncCommand>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
-        let Ok(check_char_name_packet) =
-            check_char_name::build_check_char_name_packet(msg.exists, msg.ign)
+        let Ok(mut check_char_name_packet) =
+            check_char_name::build_check_char_name_packet(msg.exists, msg.ign.clone())
         else {
             continue;
         };

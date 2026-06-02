@@ -17,31 +17,41 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::close_attack::constants::EXP_TABLE;
-use crate::component::character::MapleCharacter;
+use crate::component::character::{InChar, MapleCharacter};
+use crate::component::hp::MapleHealth;
 use crate::component::item::MapleItem;
-use crate::component::map::InMap;
+use crate::component::map::{InMap, MapleMap};
+use crate::component::mob::MapleMob;
 use crate::message::packet::attack_close::{
     CloseAttackRequestMessage, CloseAttackResponseMessage, DeadMobMessage,
 };
+use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{attack_close, codec};
-use crate::system::packet::handler::result::HandlerResult;
-use action::model::Action;
+use crate::system::packet::handler::constants::EXP_TABLE;
+use action::model::{Action, BroadcastAction, SessionAction};
+use action::scope::{BroadcastScope, SessionScope};
+use base::character::StatsUpdate;
+use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::Commands;
+use bevy::ecs::system::{Commands, Query, Res};
 use config::settings;
 use inc::helpers;
-use ipc::tcp_command::AsyncCommand;
+use ipc::asyncronous::db_command::DatabaseCommand;
 use std::collections::HashMap;
 
-pub async fn handle_close_attack_request(
+pub fn handle_close_attack_request(
+    command_tx: CustomSender,
     client_map: Res<ClientMap>,
-    mut messages: MessageReader<CloseAttackRequestMessage>,
-    command_tx: CustomSender<AsyncCommand>,
-    mut results: MessageWriter<HandlerResult>,
+    maps: Query<(Entity, &MapleMap)>,
+    in_maps: Query<(Entity, &InMap)>,
     chars: Query<&MapleCharacter>,
+    in_chars: Query<(Entity, &InChar)>,
+    mobs: Query<(Entity, &MapleMob, &ChildOf)>,
+    healths: Query<(&MapleHealth, &ChildOf)>,
+    mut messages: MessageReader<CloseAttackRequestMessage>,
+    mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
         let mut actions: Vec<Action> = Vec::new();
@@ -50,11 +60,20 @@ pub async fn handle_close_attack_request(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(char) = chars.get(client_entity) else {
+        let Ok((in_map_entity, _)) = in_maps.get(client_entity) else {
+            continue;
+        };
+        let Ok((map_entity, _)) = maps.get(in_map_entity) else {
+            continue;
+        };
+        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+            continue;
+        };
+        let Ok(char) = chars.get(in_char_entity) else {
             continue;
         };
 
-        command_tx.0.send(AsyncCommand::CloseAttackRequest {
+        command_tx.0.send(DatabaseCommand::CloseAttackRequest {
             client_id: msg.client_id,
             char_id: char.id,
             skill_id: msg.skill_id,
@@ -62,15 +81,21 @@ pub async fn handle_close_attack_request(
         });
 
         for (mob_id, damage) in msg.mob_damages.iter() {
-            let Some(mob) = mobs
+            let Some((mob_entity, mob, _)) = mobs
                 .iter()
-                .find(|(_, m, parent)| parent.0 == map && m.id == mob_id);
+                .find(|(_, m, parent)| parent.0 == map_entity && m.id == *mob_id);
+            let Some((health, _)) = healths
+                .iter_mut()
+                .find(|(_, parent)| parent.0 == mob_entity)
+            else {
+                continue;
+            };
             let total_damage: i32 = damage.iter().sum();
-            mob.hp -= total_damage;
-            let hp_percent = (mob.hp * 100 / mob.max_hp) as i16;
+            health.amount -= total_damage;
+            let hp_percent = (health.amount * 100 / mob.base.max_hp) as i16;
             hp_updates.insert(mob, hp_percent);
             if hp_percent == 0 {
-                command_tx.0.send(AsyncCommand::RandomizedDrops {
+                command_tx.0.send(DatabaseCommand::RandomizedDrops {
                     client_id: msg.client_id,
                     mob_id: mob_id,
                 });
@@ -78,7 +103,7 @@ pub async fn handle_close_attack_request(
         }
         for (mob, hp_percent) in hp_updates {
             let Ok(mob_damage_hp_packet) =
-                mob::builder::build_mob_damage_show_hp_packet(mob.id, hp_percent)
+                codec::mob::builder::build_mob_damage_show_hp_packet(mob.id, hp_percent)
             else {
                 continue;
             };
@@ -94,18 +119,21 @@ pub async fn handle_close_attack_request(
     }
 }
 
-pub async fn handle_dead_mob(
+pub fn handle_dead_mob(
     commands: Commands,
+    command_tx: CustomSender,
     client_map: Res<ClientMap>,
-    mut messages: MessageReader<DeadMobMessage>,
-    command_tx: CustomSender<AsyncCommand>,
-    mut results: MessageWriter<HandlerResult>,
+    maps: Query<(Entity, &MapleMap)>,
+    in_maps: Query<(Entity, &InMap)>,
     chars: Query<&MapleCharacter>,
-    in_map: Query<&InMap>,
+    in_chars: Query<(Entity, &InChar)>,
+    mobs: Query<(Entity, &MapleMob, &ChildOf)>,
+    mut messages: MessageReader<DeadMobMessage>,
+    mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
         let mut actions: Vec<Action> = Vec::new();
-        let stats_updated: Vec<StatsUpdate> = Vec::new();
+        let stats_updates: Vec<StatsUpdate> = Vec::new();
         let mode: u8 = 1; // animation 0 fade, 1 drop mob, 2 spawn in
         let owner: i32 = 0; // char id or 0
         let can_pickup: u8 = 0; // 0 everyone 1 owner, 2 party
@@ -117,19 +145,25 @@ pub async fn handle_dead_mob(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
+        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+            continue;
+        };
         let Ok(char) = chars.get_mut(client_entity) else {
             continue;
         };
-        let Ok(in_map) = in_maps.get(client_entity) else {
+        let Ok((in_map_entity, _)) = in_maps.get(client_entity) else {
             continue;
         };
-        let Some(mob) = mobs
+        let Ok((map_entity, _)) = maps.get(in_map_entity) else {
+            continue;
+        };
+        let Some((_, mob, _)) = mobs
             .iter()
-            .find(|(_, m, parent)| parent.0 == in_map.0 && m.id == msg.mob_id);
+            .find(|(_, m, parent)| parent.0 == map_entity && m.id == msg.mob_id);
 
-        let mesos: i32 = helpers::calculate_rand_meso_amount(meso_rate, mob.level);
+        let mesos: i32 = helpers::calculate_rand_meso_amount(meso_rate, mob.base.level);
 
-        let Ok(kill_mob_packet) = mob::builder::build_kill_mob_packet(msg.mob_id) else {
+        let Ok(kill_mob_packet) = codec::mob::builder::build_kill_mob_packet(msg.mob_id) else {
             continue;
         };
         actions.push(Action::Broadcast(BroadcastAction::Send {
@@ -141,7 +175,7 @@ pub async fn handle_dead_mob(
         if char.exp >= EXP_TABLE[char.level as usize] as i32 {
             char.exp = 0;
             char.level += 1;
-            stats_update.push(StatsUpdate::Level { level: char.level });
+            stats_updates.push(StatsUpdate::Level { level: char.level });
             let Ok(set_level_packet) = codec::player::builder::build_set_level_packet(char.level)
             else {
                 continue;
@@ -191,7 +225,7 @@ pub async fn handle_dead_mob(
         };
         for (base_item, item_model) in msg.items.iter() {
             commands.spawn((MapleItem::from((base_item, item_model)), ChildOf(in_map.0)));
-            let Ok(drop_loot_packet) = item::builder::build_drop_loot_packet(
+            let Ok(mut drop_loot_packet) = item::builder::build_drop_loot_packet(
                 mode,
                 msg.item.id as u32,
                 false,
@@ -209,7 +243,7 @@ pub async fn handle_dead_mob(
                 scope: BroadcastScope::Map,
             }));
         }
-        let Ok(meso_packet) = item::builder::build_drop_loot_packet(
+        let Ok(mut meso_packet) = item::builder::build_drop_loot_packet(
             mode,
             0, // item ID
             true,
@@ -236,7 +270,7 @@ pub async fn handle_dead_mob(
 pub async fn handle_close_attack_response(
     client_map: Res<ClientMap>,
     mut messages: MessageReader<CloseAttackResponseMessage>,
-    command_tx: CustomSender<AsyncCommand>,
+    command_tx: CustomSender,
     mut results: MessageWriter<HandlerResult>,
     chars: Query<&MapleCharacter>,
 ) -> () {
@@ -248,7 +282,7 @@ pub async fn handle_close_attack_response(
             continue;
         };
 
-        let Ok(close_attack_packet) = attack_close::build_close_attack_packet(
+        let Ok(mut close_attack_packet) = attack_close::build_close_attack_packet(
             msg.char_id,
             msg.count,
             msg.skill.level,

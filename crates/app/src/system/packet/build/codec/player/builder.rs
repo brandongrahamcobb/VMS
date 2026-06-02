@@ -25,7 +25,7 @@ use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use op::send::SendOpcode;
 
-pub fn build_spawn_player_packet(char: &MapleCharacter) -> Result<&mut Packet, PacketBuildError> {
+pub fn build_spawn_player_packet(char: &MapleCharacter) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SpawnPlayer as i16;
     packet.write_short(op).map_err(WriteError)?;
@@ -63,7 +63,7 @@ pub fn build_spawn_player_packet(char: &MapleCharacter) -> Result<&mut Packet, P
     let skip: Vec<u8> = vec![0u8; 61];
     packet.write_bytes(skip).map_err(WriteError)?;
     packet.write_short(char.job_wz).map_err(WriteError)?;
-    packet.build_look_meta_part_packet(char)?;
+    build_look_meta_part_packet(&mut packet, char)?;
     let count: i32 = 5110000;
     packet.write_int(count).map_err(WriteError)?;
     let item_effect: i32 = 0; // 0 not sure
@@ -129,7 +129,7 @@ pub fn build_set_field_packet(
     char: &MapleCharacter,
     channel_id: u8,
     map_wz: i32,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SetField as i16;
     packet.write_short(op).map_err(WriteError)?;
@@ -158,40 +158,40 @@ pub fn build_set_field_packet(
     packet.write_long(0).map_err(WriteError)?;
     packet.write_long(0).map_err(WriteError)?;
     packet.write_long(0).map_err(WriteError)?;
-    packet.build_player_logged_in_meta_part_packet(packet, char, map_wz)?;
+    build_player_logged_in_meta_part_packet(&mut packet, char, map_wz)?;
     Ok(packet)
 }
 
 pub fn build_look_cash_equipment_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<(), PacketBuildError> {
     for (ipos, equips) in char.inventory.equipped_tab.iter() {
         if equips[0].info.cash {
             packet.write_byte(-*ipos).map_err(WriteError)?;
             packet.write_int(equips[0].model.wz).map_err(WriteError)?;
         }
     }
-    Ok(packet)
+    Ok(())
 }
 
 pub fn build_look_regular_equipment_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<(), PacketBuildError> {
     for (ipos, equips) in char.inventory.equipped_tab.iter() {
         if !equips[0].info.cash {
             packet.write_byte(-*ipos).map_err(WriteError)?;
             packet.write_int(equips[0].model.wz).map_err(WriteError)?;
         }
     }
-    Ok(packet)
+    Ok(())
 }
 
 pub fn build_list_char_meta_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<(), PacketBuildError> {
     packet.write_int(char.id).map_err(WriteError)?;
     packet.write_str(char.ign.clone()).map_err(WriteError)?;
     packet
@@ -225,13 +225,13 @@ pub fn build_list_char_meta_part_packet(
     packet.write_int(char.map_wz).map_err(WriteError)?;
     packet.write_byte(0).map_err(WriteError)?;
     packet.write_int(0).map_err(WriteError)?;
-    Ok(packet)
+    Ok(())
 }
 
 pub fn build_look_meta_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<(), PacketBuildError> {
     packet.write_byte(char.gender_wz).map_err(WriteError)?;
     packet.write_byte(char.skin_wz as i16).map_err(WriteError)?;
     packet.write_int(char.face_wz).map_err(WriteError)?;
@@ -239,9 +239,9 @@ pub fn build_look_meta_part_packet(
         .write_byte(0) // megaphone
         .map_err(WriteError)?;
     packet.write_int(char.hair_wz).map_err(WriteError)?;
-    packet.build_look_regular_equipment_part_packet(packet, char)?;
+    build_look_regular_equipment_part_packet(packet, char)?;
     packet.write_byte(0xFF).map_err(WriteError)?;
-    packet.build_look_cash_equipment_part_packet(packet, char)?;
+    build_look_cash_equipment_part_packet(packet, char)?;
     packet.write_byte(0xFF).map_err(WriteError)?;
     packet
         .write_int(0) //maskedequips -111
@@ -250,14 +250,14 @@ pub fn build_look_meta_part_packet(
     packet.write_int(0).map_err(WriteError)?;
     packet.write_int(0).map_err(WriteError)?;
     packet.write_int(0).map_err(WriteError)?;
-    Ok(packet)
+    Ok(())
 }
 
 pub fn build_player_logged_in_meta_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
     map_wz: i32,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<(), PacketBuildError> {
     let level = char.level;
     packet.write_byte(level).map_err(WriteError)?;
     packet.write_short(char.job_wz).map_err(WriteError)?;
@@ -282,44 +282,43 @@ pub fn build_player_logged_in_meta_part_packet(
     let bl_capacity = 25;
     packet.write_byte(bl_capacity).map_err(WriteError)?;
     packet.write_byte(0).map_err(WriteError)?;
-    packet
-        .build_inventory_part_packet(packet, char)?
-        .build_skills_part_packet(packet)?
-        .build_quests_part_packet(packet)?
-        .build_minigames_part_packet(packet)?
-        .build_rings_part_packet(packet)?
-        .build_teleport_part_packet(packet)?
-        .build_codex_part_packet(packet)?
-        .build_new_year_cards_part_packet()?
-        .build_area_info_part_packet(packet)?;
-    Ok(packet)
+    build_inventory_part_packet(packet, char)?;
+    build_skills_part_packet(packet)?;
+    build_quests_part_packet(packet)?;
+    build_minigames_part_packet(packet)?;
+    build_rings_part_packet(packet)?;
+    build_teleport_part_packet(packet)?;
+    build_codex_part_packet(packet)?;
+    build_new_year_cards_part_packet(packet)?;
+    build_area_info_part_packet(packet)?;
+    Ok(())
 }
 
-fn build_skills_part_packet(packet: &mut Packet) -> Result<&mut Packet, PacketBuildError> {
+fn build_skills_part_packet(packet: &mut Packet) -> Result<(), PacketBuildError> {
     // Dummy values
     // No skills!
     packet.write_short(0).map_err(WriteError)?;
     // No no cooldowns!
     packet.write_short(0).map_err(WriteError)?;
-    Ok(packet)
+    Ok(())
 }
 
-fn build_quests_part_packet(packet: &mut Packet) -> Result<&mut Packet, PacketBuildError> {
+fn build_quests_part_packet(packet: &mut Packet) -> Result<(), PacketBuildError> {
     // Dummy values
     let started_quests = 0;
-    self.write_short(started_quests).map_err(WriteError)?;
+    packet.write_short(started_quests).map_err(WriteError)?;
     let completed_quests = 0;
     packet.write_short(completed_quests).map_err(WriteError)?;
-    Ok(packet)
+    Ok(())
 }
 
-fn build_minigames_part_packet(packet: &mut Packet) -> Result<&mut Packet, PacketBuildError> {
+fn build_minigames_part_packet(packet: &mut Packet) -> Result<(), PacketBuildError> {
     // Dummy values
-    self.write_short(0).map_err(WriteError)?;
-    Ok(packet)
+    packet.write_short(0).map_err(WriteError)?;
+    Ok(())
 }
 
-fn build_rings_part_packet(packet: &mut Packet) -> Result<&mut Packet, PacketBuildError> {
+fn build_rings_part_packet(packet: &mut Packet) -> Result<(), PacketBuildError> {
     // Dummy values
     let num_crush_rings = 0;
     let num_friendship_rings = 0;
@@ -329,10 +328,10 @@ fn build_rings_part_packet(packet: &mut Packet) -> Result<&mut Packet, PacketBui
         .map_err(WriteError)?;
     // Not married
     packet.write_short(0).map_err(WriteError)?;
-    Ok(packet)
+    Ok(())
 }
 
-fn build_teleport_part_packet(packet: &mut Packet) -> Result<&mut Packet, PacketBuildError> {
+fn build_teleport_part_packet(packet: &mut Packet) -> Result<(), PacketBuildError> {
     // Dummy values
     for _ in 0..5 {
         packet.write_int(0).map_err(WriteError)?;
@@ -340,62 +339,62 @@ fn build_teleport_part_packet(packet: &mut Packet) -> Result<&mut Packet, Packet
     for _ in 0..10 {
         packet.write_int(0).map_err(WriteError)?;
     }
-    Ok(packet)
+    Ok(())
 }
 
-fn build_codex_part_packet(packet: &mut Packet) -> Result<&mut Packet, PacketBuildError> {
+fn build_codex_part_packet(packet: &mut Packet) -> Result<(), PacketBuildError> {
     // Dummy values
     let codex_cover = 1;
     let num_cards = 0;
     packet.write_int(codex_cover).map_err(WriteError)?;
     packet.write_byte(0).map_err(WriteError)?;
     packet.write_short(num_cards).map_err(WriteError)?;
-    Ok(packet)
+    Ok(())
 }
 
-fn build_new_year_cards_part_packet(packet: &mut Packet) -> Result<&mut Packet, PacketBuildError> {
+fn build_new_year_cards_part_packet(packet: &mut Packet) -> Result<(), PacketBuildError> {
     // Dummy values
     let num_cards = 0;
     packet.write_short(num_cards).map_err(WriteError)?;
-    Ok(packet)
+    Ok(())
 }
 
-fn build_area_info_part_packet(packet: &mut Packet) -> Result<&mut Packet, PacketBuildError> {
+fn build_area_info_part_packet(packet: &mut Packet) -> Result<(), PacketBuildError> {
     let num_areas = 0;
     packet.write_short(num_areas).map_err(WriteError)?;
-    Ok(packet)
+    Ok(())
 }
 
 pub fn build_inventory_cash_equipment_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<(), PacketBuildError> {
     for (ipos, equips) in char.inventory.equipped_tab.iter() {
         if equips[0].info.cash {
             packet.write_short(-*ipos).map_err(WriteError)?;
             packet.write_int(equips[0].model.wz).map_err(WriteError)?;
         }
     }
-    Ok(packet)
+    Ok(())
 }
 
 pub fn build_inventory_regular_equipment_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<(), PacketBuildError> {
     for (ipos, equips) in char.inventory.equipped_tab.iter() {
         if !equips[0].info.cash {
             packet.write_short(-*ipos).map_err(WriteError)?;
-            packet.build_inventory_regular_equip_meta_part_packet(packet, &equips[0])?;
+            build_inventory_regular_equip_meta_part_packet(packet, &equips[0])?;
         }
     }
-    Ok(packet)
+    Ok(())
 }
 
 fn build_inventory_regular_equip_meta_part_packet(
     packet: &mut Packet,
     equip: &MapleItem,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<(), PacketBuildError> {
     // Dummy values
     packet.write_byte(1).map_err(WriteError)?;
     packet.write_int(equip.wz).map_err(WriteError)?;
@@ -419,21 +418,21 @@ fn build_inventory_regular_equip_meta_part_packet(
     packet.write_int(0).map_err(WriteError)?;
     packet.write_long(0).map_err(WriteError)?;
     packet.write_bytes(vec![0u8; 12]).map_err(WriteError)?;
-    Ok(packet)
+    Ok(())
 }
 
 pub fn build_inventory_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<(), PacketBuildError> {
     packet.write_int(char.meso).map_err(WriteError)?;
     // Dummy values
     // Inventory slot Capacities
     packet.write_bytes(vec![8u8; 5]).map_err(WriteError)?;
     // Time?
     packet.write_long(0).map_err(WriteError)?;
-    packet.build_inventory_regular_equipment_part_packet(packet, char)?;
-    packet.build_inventory_cash_equipment_part_packet(packet, char)?;
+    build_inventory_regular_equipment_part_packet(packet, char)?;
+    build_inventory_cash_equipment_part_packet(packet, char)?;
     // End of equipment equipped (all id's) MUST BE ENDED WITH A SHORT 0
     packet.write_short(0).map_err(WriteError)?;
     // Start of equipment inventory (negative id's) MUST BE ENDED WITH A SHORT 0
@@ -452,10 +451,10 @@ pub fn build_inventory_part_packet(
     packet.write_byte(0).map_err(WriteError)?;
     // Start of CASH
     packet.write_byte(0).map_err(WriteError)?;
-    Ok(packet)
+    Ok(())
 }
 
-pub fn build_set_exp_packet(exp: i32) -> Result<&mut Packet, PacketBuildError> {
+pub fn build_set_exp_packet(exp: i32) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::ChangeStats as i16;
     packet.write_short(op).map_err(WriteError)?;
@@ -465,7 +464,7 @@ pub fn build_set_exp_packet(exp: i32) -> Result<&mut Packet, PacketBuildError> {
     Ok(packet)
 }
 
-pub fn build_set_level_packet(level: i16) -> Result<&mut Packet, PacketBuildError> {
+pub fn build_set_level_packet(level: i16) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::ChangeStats as i16;
     packet.write_short(op).map_err(WriteError)?;
@@ -475,7 +474,7 @@ pub fn build_set_level_packet(level: i16) -> Result<&mut Packet, PacketBuildErro
     Ok(packet)
 }
 
-pub fn build_level_up_effect_packet(char_id: i32) -> Result<&mut Packet, PacketBuildError> {
+pub fn build_level_up_effect_packet(char_id: i32) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::ShowForeignEffect as i16;
     packet.write_short(op).map_err(WriteError)?;
@@ -486,10 +485,10 @@ pub fn build_level_up_effect_packet(char_id: i32) -> Result<&mut Packet, PacketB
     Ok(packet)
 }
 
-pub fn build_set_ap_packet(ap: i16) -> Result<&mut Packet, PacketBuildError> {
+pub fn build_set_ap_packet(ap: i16) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::ChangeStats as i16;
-    self.write_short(op).map_err(WriteError)?;
+    packet.write_short(op).map_err(WriteError)?;
     packet.write_byte(0i16).map_err(WriteError)?; // itemreaction
     packet.write_int(0x4000i32).map_err(WriteError)?; // updatemask: HP
     packet.write_short(ap).map_err(WriteError)?;
@@ -516,7 +515,7 @@ pub fn build_set_ap_packet(ap: i16) -> Result<&mut Packet, PacketBuildError> {
 // 0x40000   MESO int
 // 0x180008  PET short
 // 0x200000  GACHAEXP short
-pub fn build_despawn_player_packet(char_id: i32) -> Result<&mut Packet, PacketBuildError> {
+pub fn build_despawn_player_packet(char_id: i32) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::DespawnPlayer as i16;
     packet.write_short(op).map_err(WriteError)?;

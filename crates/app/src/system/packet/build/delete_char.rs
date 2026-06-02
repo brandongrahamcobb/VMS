@@ -19,20 +19,18 @@
 
 use crate::system::packet::build::error::PacketBuildError;
 use net::packet::io::error::IOError::WriteError;
-use net::packet::model::Packet;
 use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use op::send::SendOpcode;
 
-impl Packet {
-    pub fn build_delete_char_packet(
-        &mut self,
-        char_id: i32,
-        pic_status: bool,
-    ) -> Result<&mut Self, PacketBuildError> {
-        let op = SendOpcode::DeleteCharacter as i16;
-        self.write_short(op).map_err(WriteError)?;
-        self.write_int(char_id).map_err(WriteError)?;
-        self.write_byte(pic_status as i16).map_err(WriteError)?;
-        Ok(self)
-    }
+pub fn build_delete_char_packet(
+    char_id: i32,
+    pic_status: bool,
+) -> Result<Packet, PacketBuildError> {
+    let mut packet: Packet = Packet::new_empty();
+    let op = SendOpcode::DeleteCharacter as i16;
+    packet.write_short(op).map_err(WriteError)?;
+    packet.write_int(char_id).map_err(WriteError)?;
+    packet.write_byte(pic_status as i16).map_err(WriteError)?;
+    Ok(packet)
 }

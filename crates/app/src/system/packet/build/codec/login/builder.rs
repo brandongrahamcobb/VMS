@@ -20,24 +20,23 @@
 use crate::component::account::MapleAccount;
 use crate::system::packet::build::error::PacketBuildError;
 use config::settings;
-use entity::account::wrapper::Account;
 use net::packet::io::error::IOError::WriteError;
 use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use op::send::SendOpcode;
 use std::time::UNIX_EPOCH;
 
-pub fn build_failed_login_packet(status: i16) -> Result<&mut Packet, PacketBuildError> {
+pub fn build_failed_login_packet(status: i16) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::AccountStatus as i16;
     packet.write_short(op).map_err(WriteError)?;
     packet.write_byte(status).map_err(WriteError)?;
     packet.write_byte(0).map_err(WriteError)?;
     packet.write_int(0).map_err(WriteError)?;
-    Ok(self)
+    Ok(packet)
 }
 
-pub fn build_successful_login_packet(acc: &MapleAccount) -> Result<&mut Packet, PacketBuildError> {
+pub fn build_successful_login_packet(acc: &MapleAccount) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let opcode = SendOpcode::AccountStatus as i16;
     let pin_required = settings::get_pin_required()? as i16;
@@ -68,14 +67,14 @@ pub fn build_successful_login_packet(acc: &MapleAccount) -> Result<&mut Packet, 
     packet.write_int(1).map_err(WriteError)?;
     packet.write_byte(pin_required).map_err(WriteError)?;
     packet.write_byte(1).map_err(WriteError)?;
-    Ok(self)
+    Ok(packet)
 }
 
 pub fn build_select_char_packet(
     char_id: i32,
     octets: [u8; 4],
     port: i16,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::ServerIp as i16;
     packet.write_short(op).map_err(WriteError)?;

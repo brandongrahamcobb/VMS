@@ -17,63 +17,100 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::component::channel::{InChannel, MapleChannel};
 use crate::component::character::{InChar, MapleCharacter};
+use crate::component::map::{InMap, MapleMap};
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{codec, player_logged_in};
 use crate::system::packet::handler::result::HandlerResult;
-use bevy::ecs::message::MessageWriter;
-use bevy::ecs::system::{Query, Res};
-use ipc::tcp_command::AsyncCommand;
+use action::model::{Action, SessionAction};
+use action::scope::SessionScope;
+use bevy::ecs::entity::Entity;
+use bevy::ecs::hierarchy::ChildOf;
+use bevy::ecs::message::{MessageReader, MessageWriter};
+use bevy::ecs::system::{Commands, Query, Res};
+use ipc::asyncronous::db_command::DatabaseCommand;
 
-pub async fn handle_player_logged_in_request(
+pub fn handle_player_logged_in_request(
+    command_tx: CustomSender,
     client_map: Res<ClientMap>,
-    mut messages: MessageReader<PlayerLoggedInRequestMessage>,
-    command_tx: CustomSender<AsyncCommand>,
-    mut results: MessageWriter<HandlerResult>,
     chars: Query<&MapleCharacter>,
+    in_chars: Query<(Entity, &InChar)>,
+    mut messages: MessageReader<PlayerLoggedInRequestMessage>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(char) = chars.get(client_entity) else {
+        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+            continue;
+        };
+        let Ok(char) = chars.get(in_char_entity) else {
             continue;
         };
 
-        command_tx.0.send(AsyncCommand::JoinPlayer {
-            client_id: msg.client_id,
-        });
+        command_tx
+            .0
+            .lock()
+            .unwrap()
+            .send(DatabaseCommand::JoinPlayer {
+                client_id: msg.client_id,
+                char_id: char.id,
+            })
+            .unwrap();
     }
 }
 
-pub async fn handle_player_logged_in_response(
+pub fn handle_player_logged_in_response(
+    commands: Commands,
+    command_tx: CustomSender,
     client_map: Res<ClientMap>,
-    mut messages: MessageReader<PlayerLoggedInResponseMessage>,
-    command_tx: CustomSender<AsyncCommand>,
-    mut results: MessageWriter<HandlerResult>,
+    channels: Query<&MapleChannel>,
+    in_channels: Query<(Entity, &InChannel)>,
+    maps: Query<&MapleMap>,
+    in_maps: Query<(Entity, &InMap)>,
     chars: Query<(Entity, &MapleCharacter)>,
+    in_chars: Query<(Entity, &InChar)>,
+    mut messages: MessageReader<PlayerLoggedInResponseMessage>,
+    mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Some(char_entity, char) = chars.iter().find(|(_, c)| c.id == msg.char_id);
+        let Ok((in_channel_entity, _)) = in_channels.get(client_entity) else {
+            continue;
+        };
+        let Ok(channel) = channels.get(in_channel_entity) else {
+            continue;
+        };
+        let Ok((in_map_entity, _)) = in_maps.get(client_entity) else {
+            continue;
+        };
+        let Ok(map) = maps.get(in_map_entity) else {
+            continue;
+        };
+        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+            continue;
+        };
+        let Ok((char_entity, char)) = chars.get(in_char_entity) else {
+            continue;
+        };
 
-        commands.spawn((MapleKeybindings::from(binds), ChildOf(char)));
-        commands.spawn((MapleKeybindings::from(binds), ChildOf(char)));
-        commands.entity(client_entity).insert(InChar(char_entity));
+        commands.spawn((MapleKeybindings::from(msg.binds), ChildOf(char_entity)));
+        commands.spawn((MapleKeybindings::from(msg.binds), ChildOf(char_entity)));
 
         let Ok(keymap_packet) = player_logged_in::build_player_logged_in_keymap_packet(&msg.binds)
         else {
             continue;
         };
-        let Ok(set_field_packet) =
-            codec::player::builder::build_set_field_packet(&char, channel.id, char.map_wz)
+        let Ok(mut set_field_packet) =
+            codec::player::builder::build_set_field_packet(&char, channel.id, map.wz)
         else {
             continue;
         };
 
-        results.write(HandleResult {
+        results.write(HandlerResult {
             client_id: msg.client_id,
             actions: vec![
                 Action::Session(SessionAction::Send {
@@ -81,7 +118,7 @@ pub async fn handle_player_logged_in_response(
                     scope: SessionScope::Local,
                 }),
                 Action::Session(SessionAction::Send {
-                    packet: packet.clone(),
+                    packet: set_field_packet.finish(),
                     scope: SessionScope::Local,
                 }),
                 Action::Session(SessionAction::Retrieve),
@@ -89,20 +126,3 @@ pub async fn handle_player_logged_in_response(
         });
     }
 }
-
-//     let mut char: Character =
-//         assembly::character::assemble::assemble_char_by_id(pool, reader.char_id).await?;
-//     let map_wz = char.model.map_wz;
-//     let mut binds: HashMap<i32, Keybinding> =
-//         assembly::keybinding::assemble::assemble_keybindings_by_char_id(pool, reader.char_id)
-//             .await?;
-//     for (key, bind) in char.binds.drain() {
-//         binds.insert(key, bind);
-//     }
-//     Ok(Self {
-//         binds,
-//         channel_id: reader.channel_id as u8,
-//         char,
-//         map_wz,
-//     })
-// }

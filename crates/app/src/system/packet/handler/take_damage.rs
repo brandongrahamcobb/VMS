@@ -17,38 +17,59 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::channel::MapleChannel;
+use crate::component::channel::{InChannel, MapleChannel};
 use crate::component::character::MapleCharacter;
-use crate::component::map::MapleMap;
-use crate::component::session::MapleSession;
+use crate::component::map::{InMap, MapleMap};
 use crate::message::packet::take_damage::TakeDamageMessage;
-use crate::resource::custom_resource::ClientMap;
+use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{change_map, codec, take_damage};
 use crate::system::packet::handler::result::HandlerResult;
+use action::model::{Action, SessionAction};
+use action::scope::{MapScope, SessionScope};
+use base::character::StatsUpdate;
+use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::Query;
+use bevy::ecs::system::{Commands, Query, Res};
 use core::cmp::Ordering;
-use ipc::tcp_command::AsyncCommand;
+use ipc::asyncronous::command::AsyncCommand;
+use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub fn handle_take_damage(
+    commands: Commands,
+    command_tx: CustomSender,
     client_map: Res<ClientMap>,
-    mut messages: MessageReader<TakeDamageMessage>,
+    chars: Query<&mut MapleCharacter>,
+    channels: Query<(Entity, &MapleChannel)>,
+    maps: Query<(Entity, &MapleMap, &ChildOf)>,
+    in_channels: Query<(Entity, &InChannel)>,
+    in_maps: Query<(Entity, &InMap)>,
     mut results: MessageWriter<HandlerResult>,
-    mut sessions: Query<&mut MapleSession>,
-    chars: Query<(&mut MapleCharacter, &ChildOf)>,
-    channels: Query<(&MapleChannel, &ChildOf)>,
-    maps: Query<(&MapleMap, &ChildOf)>,
+    mut messages: MessageReader<TakeDamageMessage>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Some(char) = chars.get_mut(client_entity) else {
+        let Ok(char) = chars.get_mut(client_entity) else {
+            continue;
+        };
+        let Ok((in_channel_entity, _)) = in_channels.get(client_entity) else {
+            continue;
+        };
+        let Ok((channel_entity, channel)) = channels.get(in_channel_entity) else {
+            continue;
+        };
+        let Ok((in_map_entity, _)) = in_maps.get(client_entity) else {
+            continue;
+        };
+        let Ok((map_entity, map, _)) = maps.get(in_map_entity) else {
             continue;
         };
 
-        let return_map_wz: i32 = metadata::map::death::get_death_map_by_wz(map_wz)?;
+        let Ok(return_map_wz) = metadata::map::death::get_death_map_by_wz(map.wz) else {
+            continue;
+        };
 
         let max_hp = char.max_hp;
         let calc: i16 = char.hp - msg.damage as i16;
@@ -70,12 +91,33 @@ pub fn handle_take_damage(
             });
         } else {
             char.hp = max_hp;
-            session.map_wz = return_map_wz;
-            let Ok(despawn_packet) = codec::player::builder::build_despawn_player_packet(char.id)
+            let update = StatsUpdate::Health { hp: max_hp };
+            command_tx
+                .0
+                .lock()
+                .unwrap()
+                .send(AsyncCommand::DatabaseOperation(
+                    DatabaseCommand::UpdateStats {
+                        client_id: msg.client_id,
+                        char_id: char.id,
+                        updates: vec![update],
+                    },
+                ))
+                .unwrap();
+            commands.entity(client_entity).remove::<InMap>();
+            let Some((map_entity, _, _)) = maps
+                .iter()
+                .find(|(_, m, parent)| m.wz == return_map_wz && parent.0 == channel_entity)
             else {
                 continue;
             };
-            let Ok(set_field_packet) =
+            commands.entity(client_entity).insert(InMap(map_entity));
+            let Ok(mut despawn_packet) =
+                codec::player::builder::build_despawn_player_packet(char.id)
+            else {
+                continue;
+            };
+            let Ok(mut set_field_packet) =
                 change_map::build_set_field_change_map_packet(channel.id, return_map_wz, 0)
             else {
                 continue;
@@ -94,13 +136,5 @@ pub fn handle_take_damage(
                 ],
             });
         };
-        command_tx
-            .0
-            .send(AsyncCommand::UpdateHealth {
-                client_id: msg.client_id,
-                char_id: char.id,
-                hp,
-            })
-            .unwrap();
     }
 }

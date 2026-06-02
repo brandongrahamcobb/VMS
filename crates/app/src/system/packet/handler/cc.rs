@@ -18,62 +18,71 @@
  */
 
 use crate::component::channel::{InChannel, MapleChannel};
-use crate::component::session::MapleSession;
+use crate::component::character::{InChar, MapleCharacter};
 use crate::component::world::{InWorld, MapleWorld};
 use crate::message::packet::cc::ChangeChannelMessage;
-use crate::resource::custom_resource::{ClientMap, Sessions};
+use crate::message::result::HandlerResult;
+use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::{cc, codec};
-use crate::system::packet::handler::result::HandlerResult;
+use action::model::{Action, SessionAction};
+use action::scope::{MapScope, SessionScope};
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Res;
 use bevy::ecs::system::{Commands, Query};
-use bevy::gizmos::circles;
 use config::settings;
 use inc::helpers;
-use net::packet::model::Packet;
-use session::model::Session;
 
 pub fn handle_change_channel(
     mut commands: Commands,
     client_map: Res<ClientMap>,
     mut messages: MessageReader<ChangeChannelMessage>,
     mut results: MessageWriter<HandlerResult>,
-    in_world: Query<&InWorld>,
+    worlds: Query<(Entity, &MapleWorld)>,
+    in_world: Query<(Entity, &InWorld)>,
     channels: Query<(Entity, &MapleChannel, &ChildOf)>,
+    chars: Query<&MapleCharacter>,
+    in_chars: Query<(Entity, &InChar)>,
 ) -> () {
     for msg in messages.read() {
-        let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
-            continue;
-        };
-        commands.entity(client_entity).remove::<InChannel>();
-        let Ok(in_world) = in_world.get(client_entity) else {
-            continue;
-        };
-        let Some((channel_entity, channel, _)) = channels
-            .iter()
-            .find(|(c, parent)| c.id == msg.channel_id && parent.0 == in_world.0)
-        else {
-            continue;
-        };
-        commands
-            .entity(client_entity)
-            .insert(InChannel(channel_entity));
-        let Ok(char) = characters.get(client_entity) else {
-            continue;
-        };
-
         let Ok(addr) = settings::get_routing_address() else {
             continue;
         };
         let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
 
-        let Ok(despawn_packet) = codec::player::builder::build_despawn_player_packet(char.id)
+        let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
+            continue;
+        };
+        let Ok((in_world_entity, _)) = in_world.get(client_entity) else {
+            continue;
+        };
+        let Ok((world_entity, _)) = worlds.get(in_world_entity) else {
+            continue;
+        };
+        let Some((channel_entity, channel, _)) = channels
+            .iter()
+            .find(|(_, c, parent)| c.id == msg.channel_id && parent.0 == world_entity)
         else {
             continue;
         };
-        let Ok(cc_packet) = cc::build_channel_change_packet(octets, channel.port) else {
+        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+            continue;
+        };
+        let Ok(char) = chars.get(in_char_entity) else {
+            continue;
+        };
+
+        commands.entity(client_entity).remove::<InChannel>();
+        commands
+            .entity(client_entity)
+            .insert(InChannel(channel_entity));
+
+        let Ok(mut despawn_packet) = codec::player::builder::build_despawn_player_packet(char.id)
+        else {
+            continue;
+        };
+        let Ok(mut cc_packet) = cc::build_channel_change_packet(octets, channel.port) else {
             continue;
         };
 
@@ -84,9 +93,10 @@ pub fn handle_change_channel(
                     packet: despawn_packet.finish(),
                     scope: SessionScope::Map(MapScope::SameChannelSameWorld),
                 }),
-                result.add_action(Action::Session(SessionAction::Break {
+                Action::Session(SessionAction::Break {
                     packet: cc_packet.finish(),
-                })),
+                    scope: SessionScope::Local,
+                }),
             ],
         });
     }

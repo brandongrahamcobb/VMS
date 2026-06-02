@@ -34,7 +34,7 @@ pub fn build_close_attack_packet(
     stance: i16,
     speed: i16,
     mob_damages: HashMap<u32, Vec<i32>>,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::AttackedClose as i16;
     packet.write_short(op).map_err(WriteError)?;

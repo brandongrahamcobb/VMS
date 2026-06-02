@@ -18,10 +18,7 @@
  */
 
 use crate::component::mob::MapleMob;
-use crate::component::position::MaplePosition;
 use crate::system::packet::build::error::PacketBuildError;
-use entity::map::model::Point;
-use entity::mob::model::{MobMovement, MobWzLife};
 use net::packet::io::error::IOError::WriteError;
 use net::packet::io::prelude::*;
 use net::packet::model::Packet;
@@ -29,11 +26,10 @@ use op::send::SendOpcode;
 
 pub fn build_spawn_mob_packet(
     mob: MapleMob,
-    pos: MaplePosition,
     stance: i8,
     effect: i8,
     team: i8,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SpawnMob as i16;
     packet.write_short(op).map_err(WriteError)?;
@@ -45,14 +41,11 @@ pub fn build_spawn_mob_packet(
     packet.write_bytes(skip).map_err(WriteError)?;
     packet.write_short(mob.base.x).map_err(WriteError)?;
     packet.write_short(mob.base.y).map_err(WriteError)?;
-    let stance: i16 = 0; // 0 not sure
     packet.write_byte(stance as i16).map_err(WriteError)?;
     let skip: Vec<u8> = vec![0; 2];
     packet.write_bytes(skip).map_err(WriteError)?;
     packet.write_short(mob.base.fh as i16).map_err(WriteError)?;
-    let effect: i16 = 0; // 0 = none
     packet.write_byte(effect as i16).map_err(WriteError)?;
-    let team: i16 = -1; // -1 = no team
     packet.write_byte(team as i16).map_err(WriteError)?;
     let skip: Vec<u8> = vec![0; 4];
     packet.write_bytes(skip).map_err(WriteError)?;
@@ -62,7 +55,7 @@ pub fn build_spawn_mob_packet(
 pub fn build_mob_damage_show_hp_packet(
     mob_id: u32,
     hp_percent: i16,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::ShowMobHp as i16;
     packet.write_short(op).map_err(WriteError)?;
@@ -91,7 +84,7 @@ pub fn build_mob_move_packet(
     pos_x: i16,
     pos_y: i16,
     movements: Vec<MobMovement>,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::MoveMonster as i16;
     packet.write_short(op).map_err(WriteError)?;
@@ -139,7 +132,7 @@ pub fn build_spawn_mob_controller_packet(
     stance: i8,
     effect: i8,
     team: i8,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SpawnMobController as i16;
     packet.write_short(op).map_err(WriteError)?;

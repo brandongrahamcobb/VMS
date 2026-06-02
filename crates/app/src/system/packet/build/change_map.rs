@@ -19,15 +19,15 @@
 
 use crate::system::packet::build::error::PacketBuildError;
 use net::packet::io::error::IOError::WriteError;
-use net::packet::model::Packet;
 use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use op::send::SendOpcode;
 
 pub fn build_set_field_change_map_packet(
     channel_id: u8,
     map_wz: i32,
     portal_wz: u8,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SetField as i16;
     packet.write_short(op).map_err(WriteError)?;
@@ -41,6 +41,6 @@ pub fn build_set_field_change_map_packet(
     let skip: Vec<u8> = vec![0; 3];
     packet.write_bytes(skip).map_err(WriteError)?;
     packet.write_int(map_wz).map_err(WriteError)?;
-    packet.write_byte(pid as i16).map_err(WriteError)?;
+    packet.write_byte(portal_wz as i16).map_err(WriteError)?;
     Ok(packet)
 }

@@ -17,35 +17,46 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::character::MapleCharacter;
-use crate::component::session::MapleSession;
+use crate::component::account::{InAccount, MapleAccount};
+use crate::component::character::{InChar, MapleCharacter};
 use crate::message::packet::chat_text::ChatTextMessage;
-use crate::resource::custom_resource::{ClientMap, Sessions};
+use crate::message::result::HandlerResult;
+use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::chat_text;
-use crate::system::packet::handler::result::HandlerResult;
+use action::model::{Action, BroadcastAction};
+use action::scope::BroadcastScope;
+use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Query, Res};
-use net::packet::model::Packet;
 
-pub async fn handle_chat_text(
+pub fn handle_chat_text(
     client_map: Res<ClientMap>,
+    accounts: Query<&MapleAccount>,
+    in_accounts: Query<(Entity, &InAccount)>,
+    chars: Query<&MapleCharacter>,
+    in_chars: Query<(Entity, &InChar)>,
     mut messages: MessageReader<ChatTextMessage>,
     mut results: MessageWriter<HandlerResult>,
-    accounts: Query<&MapleAccount>,
-    chars: Query<&MapleCharacter>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(acc) = accounts.get(client_entity) else {
+        let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok(char) = chars.get(client_entity) else {
+        let Ok(acc) = accounts.get(in_acc_entity) else {
+            continue;
+        };
+        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+            continue;
+        };
+        let Ok(char) = chars.get(in_char_entity) else {
             continue;
         };
 
-        let Ok(packet) = chat_text::build_chat_text_packet(acc.admin, char.id, msg.msg, msg.show)
+        let Ok(mut chat_packet) =
+            chat_text::build_chat_text_packet(acc.admin, char.id, msg.msg, msg.show)
         else {
             continue;
         };
@@ -53,7 +64,7 @@ pub async fn handle_chat_text(
         results.write(HandlerResult {
             client_id: msg.client_id,
             actions: vec![Action::Broadcast(BroadcastAction::Send {
-                packet: packet.clone(),
+                packet: chat_packet.finish(),
                 scope: BroadcastScope::Map,
             })],
         });

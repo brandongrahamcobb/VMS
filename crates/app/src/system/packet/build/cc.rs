@@ -26,7 +26,7 @@ use op::send::SendOpcode;
 pub fn build_channel_change_packet(
     octets: [u8; 4],
     port: i16,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::ChangeChannel as i16;
     packet.write_short(op).map_err(WriteError)?;

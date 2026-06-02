@@ -18,24 +18,22 @@
  */
 
 use crate::system::packet::build::error::PacketBuildError;
-use entity::keybinding::wrapper::Keybinding;
 use net::packet::io::error::IOError::WriteError;
 use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use op::send::SendOpcode;
-use std::collections::HashMap;
 
 pub fn build_player_logged_in_keymap_packet(
     binds: &MapleKeybindings,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::KeyMap as i16;
-    self.write_short(op).map_err(WriteError)?;
-    self.write_byte(0).map_err(WriteError)?;
+    packet.write_short(op).map_err(WriteError)?;
+    packet.write_byte(0).map_err(WriteError)?;
     let keybindings: Vec<&Keybinding> = (0..90).filter_map(|key| binds.0.get(&key)).collect();
     for bind in keybindings {
-        self.write_byte(bind.bind_type).map_err(WriteError)?;
-        self.write_int(bind.action).map_err(WriteError)?;
+        packet.write_byte(bind.bind_type).map_err(WriteError)?;
+        packet.write_int(bind.action).map_err(WriteError)?;
     }
-    Ok(self)
+    Ok(packet)
 }

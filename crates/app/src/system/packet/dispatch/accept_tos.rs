@@ -20,7 +20,7 @@
 use crate::message::packet::accept_tos::TosMessage;
 use net::packet::io::error::IOError::ReadError;
 use net::packet::model::Packet;
-use net::packet::prelude::*;
+use net::packet::io::prelude::*;
 use std::io::Cursor;
 
 pub fn read_tos_packet(packet: &Packet, client_id: i32) -> Result<TosMessage, DispatchError> {

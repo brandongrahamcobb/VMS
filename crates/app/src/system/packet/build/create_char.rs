@@ -25,7 +25,7 @@ use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use op::send::SendOpcode;
 
-pub fn build_create_char_packet(char: &MapleCharacter) -> Result<&mut Packet, PacketBuildError> {
+pub fn build_create_char_packet(char: &MapleCharacter) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::NewChar as i16;
     packet.write_short(op).map_err(WriteError)?;
@@ -37,31 +37,31 @@ pub fn build_create_char_packet(char: &MapleCharacter) -> Result<&mut Packet, Pa
 fn build_new_character_look_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<(), PacketBuildError> {
     codec::player::builder::build_list_char_meta_part_packet(packet, char)?;
     build_new_character_look_meta_part_packet(packet, char)?;
     packet.write_byte(0).map_err(WriteError)?;
     // Disable rank.
     packet.write_byte(0).map_err(WriteError)?;
-    Ok(packet)
+    Ok(())
 }
 
 fn build_new_character_look_meta_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-) -> Result<&mut Packet, PacketBuildError> {
-    let gender_wz = char.model.gender_wz;
+) -> Result<(), PacketBuildError> {
+    let gender_wz = char.gender_wz;
     packet.write_byte(gender_wz).map_err(WriteError)?;
-    let skin_wz = char.model.skin_wz as i16;
+    let skin_wz = char.skin_wz as i16;
     packet.write_byte(skin_wz).map_err(WriteError)?;
-    packet.write_int(char.model.face_wz).map_err(WriteError)?;
+    packet.write_int(char.face_wz).map_err(WriteError)?;
     packet
         .write_byte(0) // megaphone
         .map_err(WriteError)?;
-    packet.write_int(char.model.hair_wz).map_err(WriteError)?;
-    packet.build_look_regular_equipment_part_packet(char)?;
+    packet.write_int(char.hair_wz).map_err(WriteError)?;
+    codec::player::builder::build_look_regular_equipment_part_packet(packet, char)?;
     packet.write_byte(0xFF).map_err(WriteError)?;
-    packet.build_look_cash_equipment_part_packet(char)?;
+    codec::player::builder::build_look_cash_equipment_part_packet(packet, char)?;
     packet.write_byte(0xFF).map_err(WriteError)?;
     packet
         .write_int(0) //maskedequips -111
@@ -70,5 +70,5 @@ fn build_new_character_look_meta_part_packet(
     packet.write_int(0).map_err(WriteError)?;
     packet.write_int(0).map_err(WriteError)?;
     packet.write_int(0).map_err(WriteError)?;
-    Ok(packet)
+    Ok(())
 }

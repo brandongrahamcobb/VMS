@@ -17,40 +17,44 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::channel::MapleChannel;
-use crate::component::map::MapleMap;
-use crate::component::world::MapleWorld;
+use crate::component::map::{InMap, MapleMap};
+use crate::component::mob::MapleMob;
 use crate::message::packet::mob_moved::MobMovedMessage;
+use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::codec;
-use crate::system::packet::handler::result::HandlerResult;
+use action::model::{Action, BroadcastAction};
+use action::scope::BroadcastScope;
+use base::map::Point;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Query, Res};
-use entity::map::model::Point;
 
-pub async fn handle_mob_moved(
+pub fn handle_mob_moved(
     client_map: Res<ClientMap>,
-    mut messages: MessageReader<MobMovedMessage>,
-    mut results: MessageWriter<HandlerResult>,
-    positions: Query<(&mut MaplePosition, &ChildOf)>,
-    in_map: Query<&InMap>,
+    maps: Query<(Entity, &MapleMap)>,
+    in_map: Query<(Entity, &InMap)>,
     mobs: Query<(Entity, &mut MapleMob, &ChildOf)>,
     curr_positions: Query<&mut MapleCurrentPosition>,
     last_positions: Query<&mut MapleLastPosition>,
+    mut messages: MessageReader<MobMovedMessage>,
+    mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(in_map) = in_map.get(client_entity) else {
+        let Ok((in_map_entity, _)) = in_map.get(client_entity) else {
+            continue;
+        };
+        let Ok((map_entity, _)) = maps.get(in_map_entity) else {
             continue;
         };
         let Some((mob_entity, mob, _)) = mobs
             .iter_mut()
-            .find(|(_, m, parent)| m.id == msg.mob_id && parent.0 == in_map.0);
-        let Ok(curr_pos) = curr_positions.get_mut(mob.0) else {
+            .find(|(_, m, parent)| m.id == msg.mob_id && parent.0 == map_entity);
+        let Ok(curr_pos) = curr_positions.get_mut(mob_entity) else {
             continue;
         };
 
@@ -58,20 +62,20 @@ pub async fn handle_mob_moved(
             x: msg.origin_x,
             y: msg.origin_y,
         };
-        curr_position = MapleCurrentPosition {
+        curr_pos = MapleCurrentPosition {
             pos: pos,
             fh: msg.fh,
         };
-        let Ok(last_pos) = last_positions.get_mut(mob.0) else {
+        let Ok(last_pos) = last_positions.get_mut(mob_entity) else {
             continue;
         };
         let pos = Point {
             x: msg.last_x,
             y: msg.last_y,
         };
-        last_position = pos;
+        last_pos = pos;
 
-        let Ok(mob_moved_packet) = codec::mob::builder::build_mob_move_packet(
+        let Ok(mut mob_moved_packet) = codec::mob::builder::build_mob_move_packet(
             msg.mob_id,
             msg.skill0,
             msg.skill1,

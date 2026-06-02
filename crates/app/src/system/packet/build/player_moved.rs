@@ -26,7 +26,7 @@ use op::send::SendOpcode;
 pub fn build_player_move_packet(
     char_id: i32,
     movement_bytes: Vec<u8>,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::MovePlayer as i16;
     packet.write_short(op).map_err(WriteError)?;

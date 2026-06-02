@@ -17,11 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use bevy::ecs::component::Component;
-use bevy::ecs::entity::Entity;
-use config::settings;
 
 #[derive(Component)]
 pub struct MapleSession {
     pub client_id: i32,
-    pub transtitioning: bool,
+    pub transitioning: bool,
 }
+
+#[derive(Component)]
+pub struct InSession(pub Entity);

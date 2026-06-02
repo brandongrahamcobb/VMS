@@ -1,45 +1,48 @@
+use crate::component::account::InAccount;
 use crate::component::account::MapleAccount;
 use crate::message::packet::login_started::LoginRequestMessage;
 use crate::message::packet::login_started::LoginResponseMessage;
+use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::resource::custom_resource::CustomSender;
 use crate::system::packet::build::codec;
-use crate::system::packet::handler::result::HandlerResult;
+use action::model::{Action, SessionAction};
+use action::scope::SessionScope;
+use base::account::FailedCode;
 use bevy::ecs::message::MessageReader;
 use bevy::ecs::message::MessageWriter;
 use bevy::ecs::system::Commands;
 use bevy::ecs::system::{Query, Res};
-use net::packet::packet::model::Packet;
+use ipc::asyncronous::db_command::DatabaseCommand;
 
 fn handle_login_request(
+    command_tx: CustomSender,
     client_map: Res<ClientMap>,
+    accounts: Query<&MapleAccount>,
     mut messages: MessageReader<LoginRequestMessage>,
-    command_tx: CustomSender<AsyncCommand>,
     mut results: MessageWriter<HandlerResult>,
-    accounts: Query<(Entity, &MapleAccount)>,
 ) {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Some(already_logged_in) = accounts.iter().find(|a| a.username == msg.username) else {
+        let already_logged_in = accounts.iter().find(|a| a.username == msg.username) else {
             continue;
         };
-        if already_logged_in {
-            let Ok(login_failed_packet) = codec::login::builder::build_failed_login_packet(
-                FailedCode::AlreadyLoggedIn as i16,
-            );
+        if already_logged_in.is_some() {
+            let Ok(mut login_failed_packet) =
+                codec::login::builder::build_failed_login_packet(FailedCode::Playing as i16);
             results.write(HandlerResult {
                 client_id: msg.client_id,
                 actions: vec![Action::Session(SessionAction::Send {
-                    login_failed_packet.finish(),
+                    packet: login_failed_packet.finish(),
                     scope: SessionScope::Local,
                 })],
             });
         }
         command_tx
             .0
-            .send(AsyncCommand::RequestLogin {
+            .send(DatabaseCommand::RequestLogin {
                 client_id: msg.client_id,
                 username: msg.username,
                 password: msg.password,
@@ -50,14 +53,19 @@ fn handle_login_request(
 
 fn handle_login_success_response(
     commands: Commands,
+    client_map: Res<ClientMap>,
     mut messages: MessageReader<LoginSuccessResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) {
     for msg in messages.read() {
+        let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
+            continue;
+        };
         let acc: MapleAccount = MapleAccount::from((msg.acc_model, msg.acc_id));
-        commands.spawn((acc));
-        let Ok(credentials_packet) =
-            codec::login::builder::build_credentials_handler_successful_login_packet(acc)
+        let acc_entity = commands.spawn(acc).id();
+        commands.entity(client_entity).insert(InAccount(acc_entity));
+
+        let Ok(mut credentials_packet) = codec::login::builder::build_successful_login_packet(&acc)
         else {
             continue;
         };
@@ -76,7 +84,7 @@ fn handle_login_failed_response(
     mut results: MessageWriter<HandlerResult>,
 ) {
     for msg in messages.read() {
-        let Ok(login_failed_packet) =
+        let Ok(mut login_failed_packet) =
             codec::login::builder::build_failed_login_packet(msg.status as i16);
         results.write(HandlerResult {
             client_id: msg.client_id,

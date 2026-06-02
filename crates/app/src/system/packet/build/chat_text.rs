@@ -28,7 +28,7 @@ pub fn build_chat_text_packet(
     char_id: i32,
     msg: String,
     show: i16,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::ChatText as i16;
     packet.write_short(op).map_err(WriteError)?;

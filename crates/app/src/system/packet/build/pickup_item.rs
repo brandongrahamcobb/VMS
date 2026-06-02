@@ -27,7 +27,7 @@ pub fn build_pickup_item_packet(
     char_id: i32,
     item_id: i32,
     pet_pickup: bool,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::RemoveLoot as i16;
     packet.write_short(op).map_err(WriteError)?;

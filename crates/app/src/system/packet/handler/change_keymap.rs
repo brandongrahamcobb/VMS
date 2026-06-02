@@ -17,33 +17,38 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::character::MapleCharacter;
-use crate::component::session::MapleSession;
+use crate::component::character::{InChar, MapleCharacter};
 use crate::message::packet::change_keymap::ChangeKeymapMessage;
-use crate::resource::custom_resource::ClientMap;
-use crate::system::packet::handler::result::HandlerResult;
-use entity::keybinding::model::KeybindingModel;
-use ipc::tcp_command::AsyncCommand;
+use crate::resource::custom_resource::{ClientMap, CustomSender};
+use bevy::ecs::entity::Entity;
+use bevy::ecs::message::MessageReader;
+use bevy::ecs::system::{Commands, Query, Res};
+use db::keybinding::model::KeybindingModel;
+use ipc::asyncronous::db_command::DatabaseCommand;
 use itertools::izip;
 use std::time::SystemTime;
 
-pub async fn handle_change_keymap(
+pub fn handle_change_keymap(
     mut commands: Commands,
+    command_tx: CustomSender,
     client_map: Res<ClientMap>,
-    mut messages: MessageReader<ChangeKeymapMessage>,
-    command_tx: CustomSender<AsyncCommand>,
     chars: Query<&MapleCharacter>,
+    in_chars: Query<(Entity, &InChar)>,
+    mut messages: MessageReader<ChangeKeymapMessage>,
 ) -> () {
     for msg in messages.read() {
-        let Some(client_entity) = client_map.0.get(&msg.client_id) else {
+        let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(char) = chars.get(client_entity) else {
+        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+            continue;
+        };
+        let Ok(char) = chars.get(in_char_entity) else {
             continue;
         };
 
         let binds: Vec<KeybindingModel> =
-            izip!(msg.keys.clone(), msg.types.clone(), msg.model.clone())
+            izip!(msg.keys.clone(), msg.types.clone(), msg.actions.clone())
                 .map(
                     |(key, bind_type, action): (i32, i16, i32)| KeybindingModel {
                         id: None,
@@ -58,7 +63,9 @@ pub async fn handle_change_keymap(
                 .collect();
         command_tx
             .0
-            .send(AsyncCommand::UpdateKeybindings {
+            .lock()
+            .unwrap()
+            .send(DatabaseCommand::UpdateKeybindings {
                 client_id: msg.client_id,
                 binds,
             })

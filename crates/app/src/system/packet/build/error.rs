@@ -17,14 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use core::num::TryFromIntError;
-use std::time::SystemTimeError;
-
-use net::packet::io::error::IOError;
 use config::error::ConfigError;
-use entity::account::error::AccountEntityError;
-use entity::character::error::CharacterEntityError;
-use entity::item::error::ItemEntityError;
+use net::packet::io::error::IOError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -32,21 +26,6 @@ pub enum PacketBuildError {
     #[error("Packet io error in packet build layer")]
     IOError(#[from] IOError),
 
-    #[error("Item entity error in packet build layer")]
-    ItemEntityError(#[from] ItemEntityError),
-
-    #[error("Character entity error in packet build layer")]
-    CharacterEntityError(#[from] CharacterEntityError),
-
-    #[error("Account entity error in packet build layer")]
-    AccountEntityError(#[from] AccountEntityError),
-
     #[error("Configuration error in packet build layer")]
     ConfigError(#[from] ConfigError),
-
-    #[error("System time error in packet build layer")]
-    SystemTimeError(#[from] SystemTimeError),
-
-    #[error("Try into integer error in packet build layer")]
-    TryFromIntError(#[from] TryFromIntError),
 }

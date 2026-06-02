@@ -30,4 +30,5 @@ pub enum StatsUpdate {
     MaxMana { max_mp: i16 },
     AbilityPoints { ap: i16 },
     SkillPoints { sp: i16 },
+    Level { level: i16 },
 }

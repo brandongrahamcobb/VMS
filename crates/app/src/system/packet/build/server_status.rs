@@ -23,7 +23,7 @@ use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use op::send::SendOpcode;
 
-pub fn build_server_status_packet(status: i16) -> Result<&mut Packet, PacketBuildError> {
+pub fn build_server_status_packet(status: i16) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::ServerStatus as i16;
     packet.write_short(op).map_err(WriteError)?;

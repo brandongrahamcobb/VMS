@@ -26,25 +26,25 @@ pub struct MapleEquippedTab;
 
 #[derive(Component)]
 pub struct MapleEquipTab {
-    pub capacity: i8,
+    pub capacity: i16,
 }
 
 #[derive(Component)]
 pub struct MapleUseTab {
-    pub capacity: i8,
+    pub capacity: i16,
 }
 
 #[derive(Component)]
 pub struct MapleEtcTab {
-    pub capacity: i8,
+    pub capacity: i16,
 }
 
 #[derive(Component)]
 pub struct MapleSetupTab {
-    pub capacity: i8,
+    pub capacity: i16,
 }
 
 #[derive(Component)]
 pub struct MapleCashTab {
-    pub capacity: i8,
+    pub capacity: i16,
 }

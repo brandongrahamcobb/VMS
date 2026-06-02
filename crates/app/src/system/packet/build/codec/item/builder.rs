@@ -36,7 +36,7 @@ pub fn build_drop_loot_packet(
     drop_to: Point,
     drop_from: Point,
     player_drop: bool,
-) -> Result<&mut Self, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::DropLoot as i16;
     packet.write_short(op).map_err(WriteError)?;
@@ -67,7 +67,7 @@ pub fn build_drop_loot_packet(
 pub fn build_add_to_inventory_packet(
     packet: &mut Packet,
     mods: Vec<InventoryMod>,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<(), PacketBuildError> {
     packet
         .write_short(SendOpcode::ModifyInventory as i16)
         .map_err(WriteError)?;
@@ -82,7 +82,8 @@ pub fn build_add_to_inventory_packet(
         match m.mode {
             InventoryModMode::Add => {
                 // write full item data
-                packet.build_item_data(
+                build_item_data(
+                    packet,
                     m.char_name.clone(),
                     m.count,
                     &m.get_item_model()?,
@@ -95,15 +96,16 @@ pub fn build_add_to_inventory_packet(
             _ => {}
         }
     }
-    Ok(packet)
+    Ok(())
 }
 
 pub fn build_item_data(
+    packet: &mut Packet,
     char_name: String,
     count: i16,
     item_model: &ItemModel,
     item_info: &ItemWzInfo,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<(), PacketBuildError> {
     let equip: i8 = InventoryTab::Equip as i8;
     match item_info.itab {
         x if x == equip => {
@@ -190,5 +192,5 @@ pub fn build_item_data(
             }
         }
     }
-    Ok(packet)
+    Ok(())
 }

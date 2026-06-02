@@ -17,40 +17,44 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use action::model::{Action, SessionAction};
+use action::scope::{MapScope, SessionScope};
 use bevy::ecs::entity::Entity;
-use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Query, Res};
 
-use crate::component::channel::MapleChannel;
+use crate::component::character::{InChar, MapleCharacter};
 use crate::component::session::MapleSession;
-use crate::component::world::MapleWorld;
 use crate::message::packet::player_map_transferred::PlayerMapTransferMessage;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::codec;
 use crate::system::packet::handler::result::HandlerResult;
 
-pub async fn handle_player_map_transfer(
+pub fn handle_player_map_transfer(
     client_map: Res<ClientMap>,
+    sessions: Query<&MapleSession>,
+    chars: Query<&MapleCharacter>,
+    in_chars: Query<(Entity, &InChar)>,
     mut messages: MessageReader<PlayerMapTransferMessage>,
     mut results: MessageWriter<HandlerResult>,
-    mut sessions: Query<&mut MapleSession>,
 ) -> () {
     for msg in messages.read() {
-        let Some(client_entity) = client_map.0.get(&msg.client_id) else {
+        let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Some(session) = sessions.get_mut(client_entity) else {
+        let Ok(session) = sessions.get_mut(client_entity) else {
             continue;
         };
-        let Some(char) = chars.get(client_entity) else {
+        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+            continue;
+        };
+        let Ok(char) = chars.get(in_char_entity) else {
             continue;
         };
 
         session.transitioning = false;
 
-        let Some(spawn_player_packet): Option<Packet> =
-            codec::player::builder::build_spawn_player_packet(char)
+        let Ok(mut spawn_player_packet) = codec::player::builder::build_spawn_player_packet(char)
         else {
             continue;
         };

@@ -26,7 +26,7 @@ use op::send::SendOpcode;
 pub fn build_check_char_name_packet(
     exists: bool,
     ign: String,
-) -> Result<&mut Packet, PacketBuildError> {
+) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::CharNameResponse as i16;
     packet.write_short(op).map_err(WriteError)?;

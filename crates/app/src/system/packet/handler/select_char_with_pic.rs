@@ -17,103 +17,122 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::channel::MapleChannel;
-use crate::component::session::MapleSession;
-use crate::component::world::MapleWorld;
-use crate::message::packet::select_char_with_pic::SelectCharWithPicResponseMessage;
-use crate::resource::custom_resource::ClientMap;
-use crate::system::packet::build::spw;
+use crate::component::account::{InAccount, MapleAccount};
+use crate::component::channel::{InChannel, MapleChannel};
+use crate::component::character::{InChar, MapleCharacter};
+use crate::component::map::{InMap, MapleMap};
+use crate::component::world::{InWorld, MapleWorld};
+use crate::message::packet::select_char_with_pic::{
+    SelectCharWithPicRequestMessage, SelectCharWithPicResponseMessage,
+};
+use crate::resource::custom_resource::{ClientMap, CustomSender};
+use crate::system::packet::build::{codec, spw};
 use crate::system::packet::handler::result::HandlerResult;
+use action::model::{Action, SessionAction};
+use action::scope::SessionScope;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Query, Res};
+use bevy::ecs::system::{Commands, Query, Res};
 use config::settings;
 use inc::helpers;
-use ipc::tcp_command::AsyncCommand;
+use ipc::asyncronous::db_command::DatabaseCommand;
 
-pub async fn handle_select_char_with_pic_request(
+pub fn handle_select_char_with_pic_request(
+    command_tx: CustomSender,
     client_map: Res<ClientMap>,
-    mut messages: MessageReader<SelectCharWithPicRequestMessage>,
-    mut results: MessageWriter<HandlerResult>,
-    sessions: Query<&mut MapleSession>,
     worlds: Query<(Entity, &MapleWorld)>,
     channels: Query<(&MapleChannel, &ChildOf)>,
+    accounts: Query<&MapleAccount>,
+    in_accounts: Query<(Entity, &InAccount)>,
+    mut results: MessageWriter<HandlerResult>,
+    mut messages: MessageReader<SelectCharWithPicRequestMessage>,
 ) -> () {
     for msg in messages.read() {
-        let Some(client_entity): Option<Entity> = client_map.0.get(&msg.client_id) else {
+        let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Some(session): Option<MapleSession> = sessions.get_mut(client_entity) else {
+        let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
             continue;
         };
-        let Some(acc_id): Option<i32> = session.acc_id else {
+        let Ok(acc) = accounts.get(in_acc_entity) else {
             continue;
         };
 
         command_tx
             .0
-            .send(AsyncCommand::SelectCharWithPicCommand((msg, acc_id).into()))
+            .lock()
+            .unwrap()
+            .send(DatabaseCommand::SelectCharWithPicRequest(
+                (msg, acc.id).into(),
+            ))
             .unwrap()
     }
 }
 
-pub async fn handle_select_char_with_pic_response(
+pub fn handle_select_char_with_pic_response(
+    commands: Commands,
     client_map: Res<ClientMap>,
-    mut messages: MessageReader<SelectCharWithPicResponseMessage>,
-    mut results: MessageWriter<HandlerResult>,
-    sessions: Query<&mut MapleSession>,
     worlds: Query<(Entity, &MapleWorld)>,
-    channels: Query<(&MapleChannel, &ChildOf)>,
+    channels: Query<(Entity, &MapleChannel, &ChildOf)>,
+    maps: Query<(Entity, &MapleMap, &ChildOf)>,
+    accounts: Query<(Entity, &MapleAccount)>,
+    in_accounts: Query<(Entity, &InAccount)>,
+    chars: Query<(Entity, &MapleCharacter, &ChildOf)>,
+    mut results: MessageWriter<HandlerResult>,
+    mut messages: MessageReader<SelectCharWithPicResponseMessage>,
 ) -> () {
     for msg in messages.read() {
         if msg.status {
-            let Some(client_entity): Option<&Entity> = client_map.0.get(&msg.client_id) else {
+            let Ok(addr) = settings::get_routing_address() else {
                 continue;
             };
-            let Some((char_entity, character, _)) = chars
-                .iter()
-                .find(|(_, c, parent)| c.id == msg.char.id && parent.0 == client_entity)
-            else {
+            let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
+
+            let Some(&client_entity): Option<&Entity> = client_map.0.get(&msg.client_id) else {
                 continue;
             };
-            commands.insert(client_entity).insert(InChar(char_entity));
             let Some((world_entity, world)) =
-                worlds.iter().find(|(_, w)| w.id == msg.char.world_id)
+                worlds.iter().find(|(_, w)| w.id == msg.char_model.world_id)
             else {
                 continue;
             };
-            commands.insert(client_entity).insert(InWorld(world_entity));
             let Some((channel_entity, channel, _)) = channels
                 .iter()
                 .find(|(_, c, parent)| c.id == msg.channel_id && parent.0 == world_entity.0)
             else {
                 continue;
             };
-            commands
-                .insert(client_entity)
-                .insert(InChannel(channel_entity));
-            let Some((map_entity, map, _)) = maps
+            let Some((map_entity, map, _)) = maps.iter().find(|(_, m, parent)| {
+                m.wz == msg.char_model.map_wz && parent.0 == channel_entity.0
+            }) else {
+                continue;
+            };
+            let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
+                continue;
+            };
+            let Ok((acc_entity, _)) = accounts.get(in_acc_entity) else {
+                continue;
+            };
+            let Some((char_entity, character, _)) = chars
                 .iter()
-                .find(|(_, m, parent)| m.id == msg.char.map_wz && parent.0 == channel_entity.0)
+                .find(|(_, c, parent)| c.id == msg.char_model.id && parent.0 == acc_entity)
             else {
                 continue;
             };
 
-            let Ok(acc) = accounts.get(client_entity) else {
-                continue;
-            };
+            commands.entity(client_entity).insert(InChar(char_entity));
+            commands.entity(client_entity).insert(InWorld(world_entity));
+            commands
+                .entity(client_entity)
+                .insert(InChannel(channel_entity));
+            commands.entity(client_entity).insert(InMap(map_entity));
 
             let Some(port): Option<i16> =
                 domain::channel::find_channel_port(&worlds, &channels, world.id, channel.id);
 
-            let Ok(addr) = settings::get_routing_address() else {
-                continue;
-            };
-            let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
-
-            let Ok(select_char_packet) =
-                codec::login::builder.build_select_char_packet(msg.char.id, octets, port)
+            let Ok(mut select_char_packet) =
+                codec::login::builder::build_select_char_packet(msg.char_model.id, octets, port)
             else {
                 continue;
             };
@@ -127,7 +146,7 @@ pub async fn handle_select_char_with_pic_response(
             });
         } else {
             let success_status: bool = false;
-            let Ok(select_char_failed_packet) = spw::build_spw_packet(success_status) else {
+            let Ok(mut select_char_failed_packet) = spw::build_spw_packet(success_status) else {
                 continue;
             };
             results.write(HandlerResult {

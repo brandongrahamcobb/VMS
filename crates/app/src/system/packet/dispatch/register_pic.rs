@@ -21,7 +21,7 @@ use crate::message::packet::register_pic::RegisterPicMessage;
 use crate::system::packet::dispatch::error::DispatchError;
 use net::packet::io::error::IOError::ReadError;
 use net::packet::model::Packet;
-use net::packet::prelude::*;
+use net::packet::io::prelude::*;
 use std::io::Cursor;
 
 pub fn read_register_pic_packet(

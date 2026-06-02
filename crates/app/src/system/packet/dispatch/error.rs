@@ -17,5 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use net::packet::io::error::IOError;
+use thiserror::Error;
+
 #[derive(Debug, Error)]
-pub enum DispatchError {}
+pub enum DispatchError {
+    #[error("Packet io error in packet dispatch layer")]
+    IOError(#[from] IOError),
+}

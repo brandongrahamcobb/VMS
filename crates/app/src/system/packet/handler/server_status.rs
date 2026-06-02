@@ -18,14 +18,14 @@
  */
 
 use crate::component::channel::MapleChannel;
-use crate::result::HandlerResult;
+use crate::message::packet::server_status::ServerStatusMessage;
+use crate::message::result::HandlerResult;
 use crate::system::packet::build::server_status;
 use crate::system::packet::handler::result::HandlerResult;
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Query;
-use net::packet::model::Packet;
 
 fn handle_server_status(
     mut messages: MessageReader<ServerStatusMessage>,
@@ -38,12 +38,12 @@ fn handle_server_status(
         } else {
             2
         };
-        let Ok(status_packet) = server_status::build_server_status_packet(status) else {
+        let Ok(mut status_packet) = server_status::build_server_status_packet(status) else {
             continue;
         };
         results.write(HandlerResult {
             client_id: msg.client_id,
-            actions: vec![Action::Session(SesionAction::Send {
+            actions: vec![Action::Session(SessionAction::Send {
                 packet: status_packet.finish(),
                 scope: SessionScope::Local,
             })],

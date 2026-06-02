@@ -19,6 +19,6 @@
 use bevy::ecs::component::Component;
 
 #[derive(Component)]
-pub struct Mana {
+pub struct MapleMana {
     pub amount: i16,
 }
