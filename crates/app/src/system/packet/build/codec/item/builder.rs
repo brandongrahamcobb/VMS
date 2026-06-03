@@ -18,9 +18,7 @@
  */
 
 use crate::system::packet::build::error::PacketBuildError;
-use entity::item::model::InventoryTab;
-use entity::item::model::{InventoryMod, InventoryModMode, ItemModel, ItemWzInfo};
-use entity::map::model::Point;
+use base::map::Point;
 use net::packet::io::error::IOError::WriteError;
 use net::packet::io::prelude::*;
 use net::packet::model::Packet;
@@ -64,133 +62,133 @@ pub fn build_drop_loot_packet(
     Ok(packet)
 }
 
-pub fn build_add_to_inventory_packet(
-    packet: &mut Packet,
-    mods: Vec<InventoryMod>,
-) -> Result<(), PacketBuildError> {
-    packet
-        .write_short(SendOpcode::ModifyInventory as i16)
-        .map_err(WriteError)?;
-    packet.write_byte(true as i16).map_err(WriteError)?; // updatetick
-    packet.write_byte(mods.len() as i16).map_err(WriteError)?;
-    for m in mods {
-        packet
-            .write_byte(m.mode.clone() as i16)
-            .map_err(WriteError)?;
-        packet.write_byte(m.inv_type as i16).map_err(WriteError)?;
-        packet.write_short(m.pos).map_err(WriteError)?;
-        match m.mode {
-            InventoryModMode::Add => {
-                // write full item data
-                build_item_data(
-                    packet,
-                    m.char_name.clone(),
-                    m.count,
-                    &m.get_item_model()?,
-                    &m.get_item_info()?,
-                )?;
-            }
-            InventoryModMode::ChangeCount => {
-                packet.write_short(m.count).map_err(WriteError)?;
-            }
-            _ => {}
-        }
-    }
-    Ok(())
-}
+// pub fn build_add_to_inventory_packet(
+//     packet: &mut Packet,
+//     mods: Vec<InventoryMod>,
+// ) -> Result<(), PacketBuildError> {
+//     packet
+//         .write_short(SendOpcode::ModifyInventory as i16)
+//         .map_err(WriteError)?;
+//     packet.write_byte(true as i16).map_err(WriteError)?; // updatetick
+//     packet.write_byte(mods.len() as i16).map_err(WriteError)?;
+//     for m in mods {
+//         packet
+//             .write_byte(m.mode.clone() as i16)
+//             .map_err(WriteError)?;
+//         packet.write_byte(m.inv_type as i16).map_err(WriteError)?;
+//         packet.write_short(m.pos).map_err(WriteError)?;
+//         match m.mode {
+//             InventoryModMode::Add => {
+//                 // write full item data
+//                 build_item_data(
+//                     packet,
+//                     m.char_name.clone(),
+//                     m.count,
+//                     &m.get_item_model()?,
+//                     &m.get_item_info()?,
+//                 )?;
+//             }
+//             InventoryModMode::ChangeCount => {
+//                 packet.write_short(m.count).map_err(WriteError)?;
+//             }
+//             _ => {}
+//         }
+//     }
+//     Ok(())
+// }
 
-pub fn build_item_data(
-    packet: &mut Packet,
-    char_name: String,
-    count: i16,
-    item_model: &ItemModel,
-    item_info: &ItemWzInfo,
-) -> Result<(), PacketBuildError> {
-    let equip: i8 = InventoryTab::Equip as i8;
-    match item_info.itab {
-        x if x == equip => {
-            let item_type: u8 = 1;
-            packet.write_byte(item_type as i16).map_err(WriteError)?; // type byte
-            packet.write_int(item_model.wz).map_err(WriteError)?;
-            packet
-                .write_byte(item_info.cash as i16)
-                .map_err(WriteError)?;
-            if item_info.cash {
-                packet.write_bytes(vec![0u8; 8]).map_err(WriteError)?; // unique id
-            }
-            packet.write_long(item_model.expire).map_err(WriteError)?;
-            packet
-                .write_byte(item_model.slots as i16)
-                .map_err(WriteError)?;
-            packet.write_byte(item_model.level).map_err(WriteError)?;
-            // stats - order matters, must match EquipStat enum order
-            packet
-                .write_short(item_model.strength)
-                .map_err(WriteError)?;
-            packet
-                .write_short(item_model.dexterity)
-                .map_err(WriteError)?;
-            packet
-                .write_short(item_model.intelligence)
-                .map_err(WriteError)?;
-            packet.write_short(item_model.luck).map_err(WriteError)?;
-            packet.write_short(item_model.hp).map_err(WriteError)?;
-            packet.write_short(item_model.mp).map_err(WriteError)?;
-            packet.write_short(item_model.attack).map_err(WriteError)?;
-            packet.write_short(item_model.magic).map_err(WriteError)?;
-            packet
-                .write_short(item_model.weapon_defense)
-                .map_err(WriteError)?;
-            packet
-                .write_short(item_model.magic_defense)
-                .map_err(WriteError)?;
-            packet
-                .write_short(item_model.accuracy)
-                .map_err(WriteError)?;
-            packet.write_short(item_model.avoid).map_err(WriteError)?;
-            packet.write_short(item_model.hands).map_err(WriteError)?;
-            packet.write_short(item_model.speed).map_err(WriteError)?;
-            packet.write_short(item_model.jump).map_err(WriteError)?;
-            packet
-                .write_str_with_length(char_name)
-                .map_err(WriteError)?;
-            packet.write_short(item_model.flag).map_err(WriteError)?;
-            if item_info.cash {
-                packet.write_bytes(vec![0u8; 10]).map_err(WriteError)?;
-            } else {
-                packet.write_byte(0).map_err(WriteError)?;
-                packet
-                    .write_byte(item_model.item_level)
-                    .map_err(WriteError)?;
-                packet.write_short(0).map_err(WriteError)?;
-                packet
-                    .write_short(item_model.item_exp)
-                    .map_err(WriteError)?;
-                packet.write_int(item_model.vicious).map_err(WriteError)?;
-                packet.write_long(0).map_err(WriteError)?;
-            }
-            packet.write_bytes(vec![0u8; 12]).map_err(WriteError)?;
-        }
-        _ => {
-            let item_type: u8 = 2;
-            packet.write_byte(item_type as i16).map_err(WriteError)?; // type byte
-            packet.write_int(item_model.wz).map_err(WriteError)?;
-            packet
-                .write_byte(item_info.cash as i16)
-                .map_err(WriteError)?;
-            if item_info.cash {
-                packet.write_bytes(vec![0u8; 8]).map_err(WriteError)?;
-            }
-            packet.write_long(item_model.expire).map_err(WriteError)?;
-            packet.write_short(count).map_err(WriteError)?;
-            packet
-                .write_str_with_length(char_name)
-                .map_err(WriteError)?;
-            packet.write_short(item_model.flag).map_err(WriteError)?;
-            if (item_model.wz / 10000 == 233) || (item_model.wz / 10000 == 207) {
-                packet.write_bytes(vec![0u8; 8]).map_err(WriteError)?;
-            }
-        }
-    }
-    Ok(())
-}
+// pub fn build_item_data(
+//     packet: &mut Packet,
+//     char_name: String,
+//     count: i16,
+//     item_model: &ItemModel,
+//     item_info: &ItemWzInfo,
+// ) -> Result<(), PacketBuildError> {
+//     let equip: i8 = InventoryTab::Equip as i8;
+//     match item_info.itab {
+//         x if x == equip => {
+//             let item_type: u8 = 1;
+//             packet.write_byte(item_type as i16).map_err(WriteError)?; // type byte
+//             packet.write_int(item_model.wz).map_err(WriteError)?;
+//             packet
+//                 .write_byte(item_info.cash as i16)
+//                 .map_err(WriteError)?;
+//             if item_info.cash {
+//                 packet.write_bytes(vec![0u8; 8]).map_err(WriteError)?; // unique id
+//             }
+//             packet.write_long(item_model.expire).map_err(WriteError)?;
+//             packet
+//                 .write_byte(item_model.slots as i16)
+//                 .map_err(WriteError)?;
+//             packet.write_byte(item_model.level).map_err(WriteError)?;
+//             // stats - order matters, must match EquipStat enum order
+//             packet
+//                 .write_short(item_model.strength)
+//                 .map_err(WriteError)?;
+//             packet
+//                 .write_short(item_model.dexterity)
+//                 .map_err(WriteError)?;
+//             packet
+//                 .write_short(item_model.intelligence)
+//                 .map_err(WriteError)?;
+//             packet.write_short(item_model.luck).map_err(WriteError)?;
+//             packet.write_short(item_model.hp).map_err(WriteError)?;
+//             packet.write_short(item_model.mp).map_err(WriteError)?;
+//             packet.write_short(item_model.attack).map_err(WriteError)?;
+//             packet.write_short(item_model.magic).map_err(WriteError)?;
+//             packet
+//                 .write_short(item_model.weapon_defense)
+//                 .map_err(WriteError)?;
+//             packet
+//                 .write_short(item_model.magic_defense)
+//                 .map_err(WriteError)?;
+//             packet
+//                 .write_short(item_model.accuracy)
+//                 .map_err(WriteError)?;
+//             packet.write_short(item_model.avoid).map_err(WriteError)?;
+//             packet.write_short(item_model.hands).map_err(WriteError)?;
+//             packet.write_short(item_model.speed).map_err(WriteError)?;
+//             packet.write_short(item_model.jump).map_err(WriteError)?;
+//             packet
+//                 .write_str_with_length(char_name)
+//                 .map_err(WriteError)?;
+//             packet.write_short(item_model.flag).map_err(WriteError)?;
+//             if item_info.cash {
+//                 packet.write_bytes(vec![0u8; 10]).map_err(WriteError)?;
+//             } else {
+//                 packet.write_byte(0).map_err(WriteError)?;
+//                 packet
+//                     .write_byte(item_model.item_level)
+//                     .map_err(WriteError)?;
+//                 packet.write_short(0).map_err(WriteError)?;
+//                 packet
+//                     .write_short(item_model.item_exp)
+//                     .map_err(WriteError)?;
+//                 packet.write_int(item_model.vicious).map_err(WriteError)?;
+//                 packet.write_long(0).map_err(WriteError)?;
+//             }
+//             packet.write_bytes(vec![0u8; 12]).map_err(WriteError)?;
+//         }
+//         _ => {
+//             let item_type: u8 = 2;
+//             packet.write_byte(item_type as i16).map_err(WriteError)?; // type byte
+//             packet.write_int(item_model.wz).map_err(WriteError)?;
+//             packet
+//                 .write_byte(item_info.cash as i16)
+//                 .map_err(WriteError)?;
+//             if item_info.cash {
+//                 packet.write_bytes(vec![0u8; 8]).map_err(WriteError)?;
+//             }
+//             packet.write_long(item_model.expire).map_err(WriteError)?;
+//             packet.write_short(count).map_err(WriteError)?;
+//             packet
+//                 .write_str_with_length(char_name)
+//                 .map_err(WriteError)?;
+//             packet.write_short(item_model.flag).map_err(WriteError)?;
+//             if (item_model.wz / 10000 == 233) || (item_model.wz / 10000 == 207) {
+//                 packet.write_bytes(vec![0u8; 8]).map_err(WriteError)?;
+//             }
+//         }
+//     }
+//     Ok(())
+// }

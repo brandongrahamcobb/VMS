@@ -23,13 +23,13 @@ use net::packet::model::Packet;
 use std::collections::HashMap;
 use std::io::Cursor;
 
-use crate::message::packet::attack_close::ReadCloseAttackMessage;
+use crate::message::packet::attack_close::ReadCloseAttackRequestMessage;
 use crate::system::packet::dispatch::error::DispatchError;
 
 pub fn read_close_attack_packet(
     packet: &Packet,
     client_id: i32,
-) -> Result<ReadCloseAttackMessage, DispatchError> {
+) -> Result<ReadCloseAttackRequestMessage, DispatchError> {
     let mut pkt_reader = Cursor::new(&packet.bytes);
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let skip = 1;
@@ -64,7 +64,7 @@ pub fn read_close_attack_packet(
         }
         mob_damages.insert(mob_id, damages);
     }
-    Ok(ReadCloseAttackMessage {
+    Ok(ReadCloseAttackRequestMessage {
         client_id,
         count,
         skill_id,

@@ -90,10 +90,7 @@ pub fn build_list_worlds_packets(
         let channels_length = channels
             .iter()
             .filter(|(_, parent)| parent.0 == world_entity)
-            .count() as i16
-        else {
-            continue;
-        };
+            .count() as i16;
         packet.write_byte(channels_length).map_err(WriteError)?;
         for (channel, _) in channels
             .iter()

@@ -72,7 +72,6 @@ pub fn handle_player_logged_in_request(
 
 pub fn handle_player_logged_in_response(
     commands: &mut Commands,
-    command_tx: CustomSender,
     client_map: Res<ClientMap>,
     parents: Query<&ChildOf>,
     channels: Query<&MapleChannel>,
@@ -112,6 +111,7 @@ pub fn handle_player_logged_in_response(
         let Ok((inv_entity, _)) = inventories.get(char_entity) else {
             continue;
         };
+        commands.entity(client_entity).insert(InChar(char_entity));
         let items: Vec<_> = items
             .iter()
             .filter(|(_, parent)| {
@@ -126,7 +126,7 @@ pub fn handle_player_logged_in_response(
             .filter(|(_, parent)| parent.0 == char_entity)
             .collect();
 
-        let Ok(keymap_packet) = player_logged_in::build_player_logged_in_keymap_packet(&binds)
+        let Ok(mut keymap_packet) = player_logged_in::build_player_logged_in_keymap_packet(&binds)
         else {
             continue;
         };

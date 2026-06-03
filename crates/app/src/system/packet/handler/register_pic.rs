@@ -18,10 +18,10 @@
  */
 
 use crate::component::account::{InAccount, MapleAccount};
-use crate::message::packet::register_pic::RegisterPicMessage;
+use crate::message::packet::register_pic::ReadRegisterPicRequestMessage;
+use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::spw;
-use crate::system::packet::handler::result::HandlerResult;
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
 use bevy::ecs::entity::Entity;
@@ -35,7 +35,7 @@ pub fn store_register_pic(
     client_map: Res<ClientMap>,
     accounts: Query<&MapleAccount>,
     in_accounts: Query<(Entity, &InAccount)>,
-    mut messages: MessageReader<RegisterPicMessage>,
+    mut messages: MessageReader<ReadRegisterPicRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
@@ -57,7 +57,7 @@ pub fn store_register_pic(
                 DatabaseCommand::ChangePicRequest {
                     client_id: msg.client_id,
                     acc_id: acc.id,
-                    pic: msg.pic,
+                    pic: msg.pic.clone(),
                 },
             ))
             .unwrap();

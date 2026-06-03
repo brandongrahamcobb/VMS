@@ -28,26 +28,26 @@ use crate::component::character::{InChar, MapleCharacter};
 use crate::component::inventory::MapleInventory;
 use crate::component::item::MapleItem;
 use crate::component::session::MapleSession;
-use crate::message::packet::player_map_transferred::PlayerMapTransferMessage;
+use crate::message::packet::player_map_transferred::ReadPlayerMapTransferRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::codec;
 
 pub fn handle_player_map_transfer(
     client_map: Res<ClientMap>,
-    sessions: Query<&MapleSession>,
+    mut sessions: Query<&mut MapleSession>,
     chars: Query<(Entity, &MapleCharacter)>,
     in_chars: Query<(Entity, &InChar)>,
     inventories: Query<(Entity, &MapleInventory)>,
     items: Query<(&MapleItem, &ChildOf)>,
-    mut messages: MessageReader<PlayerMapTransferMessage>,
+    mut messages: MessageReader<ReadPlayerMapTransferRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(session) = sessions.get_mut(client_entity) else {
+        let Ok(mut session) = sessions.get_mut(client_entity) else {
             continue;
         };
         let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
@@ -56,7 +56,7 @@ pub fn handle_player_map_transfer(
         let Ok((char_entity, char)) = chars.get(in_char_entity) else {
             continue;
         };
-        let Ok((inv_entity, inv)) = inventories.get(char_entity) else {
+        let Ok((inv_entity, _)) = inventories.get(char_entity) else {
             continue;
         };
         let items: Vec<_> = items

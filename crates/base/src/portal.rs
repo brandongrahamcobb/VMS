@@ -19,8 +19,8 @@
 
 #[derive(Clone)]
 pub struct BasePortal {
-    pub portal_wz: u8,
-    pub portal_name: String,
+    pub wz: u8,
+    pub name: String,
     pub target_map_wz: i32,
     pub target_portal_name: String,
 }

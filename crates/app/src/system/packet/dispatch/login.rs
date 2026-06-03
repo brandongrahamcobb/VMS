@@ -23,13 +23,13 @@ use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use std::io::Cursor;
 
-use crate::message::packet::credentials::ReadCredentialsMessage;
+use crate::message::packet::login::ReadLoginRequestMessage;
 use crate::system::packet::dispatch::error::DispatchError;
 
 pub fn read_credentials_packet(
     packet: &Packet,
     client_id: i32,
-) -> Result<ReadCredentialsMessage, DispatchError> {
+) -> Result<ReadLoginRequestMessage, DispatchError> {
     let mut pkt_reader = Cursor::new(&packet.bytes);
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let username = pkt_reader.read_str_with_length().map_err(ReadError)?;
@@ -39,7 +39,7 @@ pub fn read_credentials_packet(
     let hwid_bytes = 4;
     let hwid = pkt_reader.read_bytes(hwid_bytes).map_err(ReadError)?;
     let hwid = helpers::to_hex_string(&hwid);
-    Ok(ReadCredentialsMessage {
+    Ok(ReadLoginRequestMessage {
         client_id,
         username,
         pw,

@@ -49,7 +49,7 @@ use crate::message::packet::take_damage::ReadTakeDamageRequestMessage;
 use crate::resource::custom_resource::CustomReceiver;
 use crate::system::packet::dispatch::{
     accept_tos, attack_close, cc, change_keymap, change_map, chat_text, check_char_name,
-    create_char, credentials, delete_char, list_chars, mob_moved, pickup_item, player_logged_in,
+    create_char, login, delete_char, list_chars, mob_moved, pickup_item, player_logged_in,
     player_moved, register_pic, select_char, select_char_with_pic, take_damage,
 };
 
@@ -74,7 +74,7 @@ pub fn packet_dispatch_system(
 
 pub fn login_packet_router_system(
     mut raw: MessageReader<RawPacketMessage>,
-    mut credentials_writer: MessageWriter<ReadLoginRequestMessage>,
+    mut login_writer: MessageWriter<ReadLoginRequestMessage>,
     mut tos_writer: MessageWriter<ReadTosRequestMessage>,
 ) {
     for msg in raw.read() {
@@ -82,10 +82,10 @@ pub fn login_packet_router_system(
         let packet: Packet = msg.packet.clone();
         match packet.opcode() {
             x if x == RecvOpcode::RequestLogin as i16 => {
-                let Ok(msg) = credentials::read_credentials_packet(&packet, client_id) else {
+                let Ok(msg) = login::read_credentials_packet(&packet, client_id) else {
                     continue;
                 };
-                credentials_writer.write(msg);
+                login_writer.write(msg);
             }
             x if x == RecvOpcode::AcceptTOS as i16 => {
                 let Ok(msg) = accept_tos::read_tos_packet(&packet, client_id) else {

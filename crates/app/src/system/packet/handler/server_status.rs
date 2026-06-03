@@ -18,17 +18,16 @@
  */
 
 use crate::component::channel::MapleChannel;
-use crate::message::packet::server_status::ServerStatusMessage;
+use crate::message::packet::server_status::ReadServerStatusRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::system::packet::build::server_status;
-use crate::system::packet::handler::result::HandlerResult;
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Query;
 
 fn handle_server_status(
-    mut messages: MessageReader<ServerStatusMessage>,
+    mut messages: MessageReader<ReadServerStatusRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
     channels: Query<&MapleChannel>,
 ) {

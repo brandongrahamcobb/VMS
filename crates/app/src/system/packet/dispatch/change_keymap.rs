@@ -22,13 +22,13 @@ use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use std::io::Cursor;
 
-use crate::message::packet::change_keymap::ReadChangeKeymapMessage;
+use crate::message::packet::change_keymap::ReadChangeKeymapRequestMessage;
 use crate::system::packet::dispatch::error::DispatchError;
 
 pub fn read_change_keymap_packet(
     packet: &Packet,
     client_id: i32,
-) -> Result<ReadChangeKeymapMessage, DispatchError> {
+) -> Result<ReadChangeKeymapRequestMessage, DispatchError> {
     let mut pkt_reader = Cursor::new(&packet.bytes);
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let _mode = pkt_reader.read_int().map_err(ReadError)?;
@@ -41,7 +41,7 @@ pub fn read_change_keymap_packet(
         types.push(pkt_reader.read_byte().map_err(ReadError)? as i16);
         actions.push(pkt_reader.read_int().map_err(ReadError)?);
     }
-    Ok(ReadChangeKeymapMessage {
+    Ok(ReadChangeKeymapRequestMessage {
         client_id,
         keys,
         types,

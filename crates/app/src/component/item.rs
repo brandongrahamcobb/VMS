@@ -23,7 +23,7 @@ use base::item::BaseItem;
 use bevy::ecs::component::Component;
 use db::item::model::ItemModel;
 
-#[derive(Component)]
+#[derive(Clone, Component)]
 pub struct MapleItem {
     pub id: i32,
     pub char_id: Option<i32>,

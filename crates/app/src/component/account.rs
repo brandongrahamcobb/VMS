@@ -23,7 +23,7 @@ use bevy::ecs::component::Component;
 use bevy::ecs::entity::Entity;
 use db::account::model::AccountModel;
 
-#[derive(Component)]
+#[derive(Clone, Component)]
 pub struct MapleAccount {
     pub id: i32,
     pub username: String,

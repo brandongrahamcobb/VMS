@@ -20,6 +20,7 @@
 use crate::component::channel::{InChannel, MapleChannel};
 use crate::component::character::{InChar, MapleCharacter};
 use crate::component::map::{InMap, MapleMap};
+use crate::component::portal::MaplePortal;
 use crate::component::session::{InSession, MapleSession};
 use crate::message::packet::change_map::ReadChangeMapRequestMessage;
 use crate::message::result::HandlerResult;
@@ -65,7 +66,7 @@ pub fn handle_map_change(
         };
         let Some((portal, _)) = portals
             .iter()
-            .find(|(p, parent)| p.target_name == msg.target_name && parent.0 == in_map_entity)
+            .find(|(p, parent)| p.base.target_portal_name == msg.target_name && parent.0 == in_map_entity)
         else {
             continue;
         };
@@ -85,10 +86,9 @@ pub fn handle_map_change(
         session.transitioning = true;
         commands.entity(client_entity).remove::<InMap>();
 
-        let Some((map_entity, map, _)) = maps
-            .iter()
-            .find(|(_, m, parent)| m.base.wz == portal.target_map_wz && parent.0 == channel_entity)
-        else {
+        let Some((map_entity, map, _)) = maps.iter().find(|(_, m, parent)| {
+            m.base.wz == portal.base.target_map_wz && parent.0 == channel_entity
+        }) else {
             continue;
         };
 

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::message::packet::register_pic::ReadRegisterPicMessage;
+use crate::message::packet::register_pic::ReadRegisterPicRequestMessage;
 use crate::system::packet::dispatch::error::DispatchError;
 use net::packet::io::error::IOError::ReadError;
 use net::packet::io::prelude::*;
@@ -27,7 +27,7 @@ use std::io::Cursor;
 pub fn read_register_pic_packet(
     packet: &Packet,
     client_id: i32,
-) -> Result<ReadRegisterPicMessage, DispatchError> {
+) -> Result<ReadRegisterPicRequestMessage, DispatchError> {
     let mut pkt_reader = Cursor::new(&packet.bytes);
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let skip = 1;
@@ -36,7 +36,7 @@ pub fn read_register_pic_packet(
     let mac = pkt_reader.read_str_with_length().map_err(ReadError)?;
     let hwid = pkt_reader.read_str_with_length().map_err(ReadError)?;
     let pic = pkt_reader.read_str_with_length().map_err(ReadError)?;
-    Ok(ReadRegisterPicMessage {
+    Ok(ReadRegisterPicRequestMessage {
         client_id,
         char_id,
         mac,

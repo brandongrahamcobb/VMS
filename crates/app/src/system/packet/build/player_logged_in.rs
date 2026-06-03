@@ -19,20 +19,20 @@
 
 use crate::component::keybinding::MapleKeybinding;
 use crate::system::packet::build::error::PacketBuildError;
+use bevy::ecs::hierarchy::ChildOf;
 use net::packet::io::error::IOError::WriteError;
 use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use op::send::SendOpcode;
 
 pub fn build_player_logged_in_keymap_packet(
-    binds: Vec<&MapleKeybinding>,
+    binds: &Vec<(&MapleKeybinding, &ChildOf)>,
 ) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::KeyMap as i16;
     packet.write_short(op).map_err(WriteError)?;
     packet.write_byte(0).map_err(WriteError)?;
-    let keybindings: Vec<&MapleKeybinding> = (0..90).filter_map(|key| binds.get(&key)).collect();
-    for bind in keybindings {
+    for (bind, _) in binds.iter() {
         packet.write_byte(bind.bind_type).map_err(WriteError)?;
         packet.write_int(bind.action).map_err(WriteError)?;
     }

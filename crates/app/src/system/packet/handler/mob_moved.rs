@@ -27,6 +27,7 @@ use crate::system::packet::build::codec;
 use action::model::{Action, BroadcastAction};
 use action::scope::BroadcastScope;
 use base::map::Point;
+use base::mob::MobMovement;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};

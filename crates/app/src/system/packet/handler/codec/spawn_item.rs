@@ -14,22 +14,19 @@ pub fn spawn_item(
     tab_entity: Entity,
 ) -> HashMap<MapleFilledItemSlot, MapleItem> {
     let mut filled_slots: HashMap<MapleFilledItemSlot, MapleItem> = HashMap::new();
-    for (cid, item_models) in item_map {
-        for item_model in item_models {
-            let Some(char_id) = item_model.char_id else {
-                continue;
-            };
-            if *cid == char_id {
+    for (char_id, item_models) in item_map {
+        if *char_id == cid {
+            for item_model in item_models.clone() {
                 let Ok(info) = metadata::item::equip::build_equip_item_wz_info_by_wz(item_model.wz)
                 else {
                     continue;
                 };
-                let item: MapleItem = MapleItem::from((info, *item_model));
+                let item: MapleItem = MapleItem::from((info, item_model));
                 if let Some(ipos) = item.ipos {
                     let filled_slot = MapleFilledItemSlot { ipos };
                     let filled_slot_entity =
                         commands.spawn((filled_slot, ChildOf(tab_entity))).id();
-                    commands.spawn((item, ChildOf(filled_slot_entity)));
+                    commands.spawn((item.clone(), ChildOf(filled_slot_entity)));
                     filled_slots.insert(filled_slot, item);
                 }
             }

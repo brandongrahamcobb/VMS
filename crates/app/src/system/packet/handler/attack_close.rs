@@ -150,18 +150,18 @@ pub fn handle_dead_mob(
     client_map: Res<ClientMap>,
     maps: Query<(Entity, &MapleMap)>,
     in_maps: Query<(Entity, &InMap)>,
-    chars: Query<&MapleCharacter>,
+    mut chars: Query<&mut MapleCharacter>,
     in_chars: Query<(Entity, &InChar)>,
     mobs: Query<(Entity, &MapleMob, &ChildOf)>,
     items: Query<&MapleItem>,
     curr_positions: Query<&MapleCurrentPosition>,
-    exps: Query<(Entity, &MapleExp)>,
+    mut exps: Query<(Entity, &mut MapleExp)>,
     mut messages: MessageReader<DeadMobResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
         let mut actions: Vec<Action> = Vec::new();
-        let stats_updates: Vec<StatsUpdate> = Vec::new();
+        let mut stats_updates: Vec<StatsUpdate> = Vec::new();
         let mode: u8 = 1; // animation 0 fade, 1 drop mob, 2 spawn in
         let owner: i32 = 0; // char id or 0
         let can_pickup: u8 = 0; // 0 everyone 1 owner, 2 party
@@ -176,7 +176,7 @@ pub fn handle_dead_mob(
         let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
             continue;
         };
-        let Ok(char) = chars.get_mut(client_entity) else {
+        let Ok(mut char) = chars.get_mut(in_char_entity) else {
             continue;
         };
         let Ok((in_map_entity, _)) = in_maps.get(client_entity) else {
@@ -187,8 +187,11 @@ pub fn handle_dead_mob(
         };
         let Some((mob_entity, mob, _)) = mobs
             .iter()
-            .find(|(_, m, parent)| parent.0 == map_entity && m.id == msg.mob_id);
-        let Ok((_, exp)) = exps.get_mut(mob_entity) else {
+            .find(|(_, m, parent)| parent.0 == map_entity && m.id == msg.mob_id)
+        else {
+            continue;
+        };
+        let Ok((_, mut exp)) = exps.get_mut(mob_entity) else {
             continue;
         };
 
@@ -204,10 +207,11 @@ pub fn handle_dead_mob(
 
         char.exp += exp.amount;
         if char.exp >= EXP_TABLE[char.level as usize] as i32 {
-            char.exp = 0;
+            exp.amount = 0;
             char.level += 1;
             stats_updates.push(StatsUpdate::Level { level: char.level });
-            let Ok(set_level_packet) = codec::player::builder::build_set_level_packet(char.level)
+            let Ok(mut set_level_packet) =
+                codec::player::builder::build_set_level_packet(char.level)
             else {
                 continue;
             };
@@ -215,14 +219,15 @@ pub fn handle_dead_mob(
                 packet: set_level_packet.finish(),
                 scope: SessionScope::Local,
             }));
-            let Ok(set_exp_packet) = codec::player::builder::build_set_exp_packet(0) else {
+            let Ok(mut set_exp_packet) = codec::player::builder::build_set_exp_packet(0) else {
                 continue;
             };
             actions.push(Action::Session(SessionAction::Send {
                 packet: set_exp_packet.finish(),
                 scope: SessionScope::Local,
             }));
-            let Ok(level_up_packet) = codec::player::builder::build_level_up_effect_packet(char.id)
+            let Ok(mut level_up_packet) =
+                codec::player::builder::build_level_up_effect_packet(char.id)
             else {
                 continue;
             };
@@ -231,7 +236,8 @@ pub fn handle_dead_mob(
                 scope: SessionScope::Map(MapScope::SameChannelSameWorld),
             }));
         } else {
-            let Ok(set_exp_packet) = codec::player::builder::build_set_exp_packet(char.exp) else {
+            let Ok(mut set_exp_packet) = codec::player::builder::build_set_exp_packet(char.exp)
+            else {
                 continue;
             };
             actions.push(Action::Session(SessionAction::Send {
@@ -263,10 +269,10 @@ pub fn handle_dead_mob(
             x: drop_from_pos.x + offset_x,
             y: drop_from_pos.y,
         };
-        for (base_item, item_model) in msg.items.iter() {
+        for (base_item, item_model) in msg.items.clone() {
             let item_enitity = commands
                 .spawn((
-                    MapleItem::from((*base_item, *item_model)),
+                    MapleItem::from((base_item.clone(), item_model)),
                     ChildOf(map_entity),
                 ))
                 .id();

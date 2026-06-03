@@ -20,10 +20,10 @@
 use crate::component::channel::{InChannel, MapleChannel};
 use crate::component::character::MapleCharacter;
 use crate::component::map::{InMap, MapleMap};
-use crate::message::packet::take_damage::TakeDamageMessage;
+use crate::message::packet::take_damage::ReadTakeDamageRequestMessage;
+use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{change_map, codec, take_damage};
-use crate::system::packet::handler::result::HandlerResult;
 use action::model::{Action, SessionAction};
 use action::scope::{MapScope, SessionScope};
 use base::character::StatsUpdate;
@@ -39,19 +39,19 @@ pub fn handle_take_damage(
     commands: &mut Commands,
     command_tx: CustomSender,
     client_map: Res<ClientMap>,
-    chars: Query<&mut MapleCharacter>,
+    mut chars: Query<&mut MapleCharacter>,
     channels: Query<(Entity, &MapleChannel)>,
     maps: Query<(Entity, &MapleMap, &ChildOf)>,
     in_channels: Query<(Entity, &InChannel)>,
     in_maps: Query<(Entity, &InMap)>,
     mut results: MessageWriter<HandlerResult>,
-    mut messages: MessageReader<TakeDamageMessage>,
+    mut messages: MessageReader<ReadTakeDamageRequestMessage>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(char) = chars.get_mut(client_entity) else {
+        let Ok(mut char) = chars.get_mut(client_entity) else {
             continue;
         };
         let Ok((in_channel_entity, _)) = in_channels.get(client_entity) else {
@@ -63,7 +63,7 @@ pub fn handle_take_damage(
         let Ok((in_map_entity, _)) = in_maps.get(client_entity) else {
             continue;
         };
-        let Ok((map_entity, map, _)) = maps.get(in_map_entity) else {
+        let Ok((_, map, _)) = maps.get(in_map_entity) else {
             continue;
         };
 
@@ -79,7 +79,7 @@ pub fn handle_take_damage(
         };
         if hp != 0 {
             char.hp = hp;
-            let Ok(take_damage_packet) = take_damage::build_take_damage_packet(hp) else {
+            let Ok(mut take_damage_packet) = take_damage::build_take_damage_packet(hp) else {
                 continue;
             };
             results.write(HandlerResult {
@@ -130,7 +130,7 @@ pub fn handle_take_damage(
                         scope: SessionScope::Map(MapScope::SameChannelSameWorld),
                     }),
                     Action::Session(SessionAction::Send {
-                        packet: set_field_packet.clone(),
+                        packet: set_field_packet.finish(),
                         scope: SessionScope::Local,
                     }),
                 ],

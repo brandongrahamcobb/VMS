@@ -24,7 +24,10 @@ use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use std::io::Cursor;
 
-pub fn read_tos_packet(packet: &Packet, client_id: i32) -> Result<ReadTosMessage, DispatchError> {
+pub fn read_tos_packet(
+    packet: &Packet,
+    client_id: i32,
+) -> Result<ReadTosRequestMessage, DispatchError> {
     let mut pkt_reader = Cursor::new(&packet.bytes);
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let confirmed = pkt_reader.read_byte().map_err(ReadError)? as i16;

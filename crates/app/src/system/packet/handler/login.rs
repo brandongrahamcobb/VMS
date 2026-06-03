@@ -83,8 +83,8 @@ fn handle_login_success_response(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let acc: MapleAccount = MapleAccount::from((msg.acc_model, msg.acc_id));
-        let acc_entity = commands.spawn(acc).id();
+        let acc: MapleAccount = MapleAccount::from((msg.acc_model.clone(), msg.acc_id));
+        let acc_entity = commands.spawn(acc.clone()).id();
         commands.entity(client_entity).insert(InAccount(acc_entity));
 
         let Ok(mut credentials_packet) = codec::login::builder::build_successful_login_packet(&acc)

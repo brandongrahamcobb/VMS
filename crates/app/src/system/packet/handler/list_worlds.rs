@@ -19,7 +19,7 @@
 
 use crate::component::channel::MapleChannel;
 use crate::component::world::MapleWorld;
-use crate::message::packet::list_worlds::ListWorldsMessage;
+use crate::message::packet::list_worlds::ReadListWorldsRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::system::packet::build::list_worlds;
 use action::model::{Action, SessionAction};
@@ -32,14 +32,14 @@ use bevy::ecs::system::Query;
 pub fn handle_list_worlds(
     worlds: Query<(Entity, &MapleWorld)>,
     channels: Query<(&MapleChannel, &ChildOf)>,
-    mut messages: MessageReader<ListWorldsMessage>,
+    mut messages: MessageReader<ReadListWorldsRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
-        let Ok(mut packets) = list_worlds::build_list_worlds_packets(&worlds, &channels) else {
+        let Ok(packets) = list_worlds::build_list_worlds_packets(&worlds, &channels) else {
             continue;
         };
-        for packet in packets {
+        for mut packet in packets {
             results.write(HandlerResult {
                 client_id: msg.client_id,
                 actions: vec![Action::Session(SessionAction::Send {

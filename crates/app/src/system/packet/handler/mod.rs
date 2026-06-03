@@ -10,7 +10,6 @@ pub mod constants;
 pub mod create_char;
 pub mod delete_char;
 pub mod enter_cash_shop;
-pub mod error;
 pub mod list_chars;
 pub mod list_worlds;
 pub mod login;

@@ -42,3 +42,15 @@ pub struct BaseMob {
     pub fh: u16,
     pub mob_time: u64,
 }
+
+#[derive(Clone)]
+pub struct MobMovement {
+    pub command: u8,
+    pub x: i16,
+    pub y: i16,
+    pub last_x: i16,
+    pub last_y: i16,
+    pub fh: u16,
+    pub new_state: u8,
+    pub duration: i16,
+}

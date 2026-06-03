@@ -19,7 +19,7 @@
 
 use net::packet::model::Packet;
 
-use crate::message::packet::player_moved::ReadPlayerMovedMessage;
+use crate::message::packet::player_moved::ReadPlayerMovedRequestMessage;
 use crate::system::packet::dispatch::error::DispatchError;
 
 const MOVEMENT_HEADER_LEN: usize = 9;
@@ -27,7 +27,7 @@ const MOVEMENT_HEADER_LEN: usize = 9;
 pub fn read_move_player_packet(
     packet: &Packet,
     client_id: i32,
-) -> Result<ReadPlayerMovedMessage, DispatchError> {
+) -> Result<ReadPlayerMovedRequestMessage, DispatchError> {
     let mut too_short: bool = false;
     if packet.bytes.len() <= 2 + MOVEMENT_HEADER_LEN {
         too_short = true;
@@ -37,7 +37,7 @@ pub fn read_move_player_packet(
     if movement_bytes.is_empty() || movement_bytes[0] == 0 {
         empty = true;
     }
-    Ok(ReadPlayerMovedMessage {
+    Ok(ReadPlayerMovedRequestMessage {
         client_id,
         movement_bytes: movement_bytes.to_vec(),
         too_short,

@@ -20,10 +20,13 @@ use std::sync::Mutex;
 use std::sync::mpsc::channel;
 
 use bevy::app::{App, Plugin, Startup, Update};
+use config::settings;
+use diesel::PgConnection;
+use diesel::r2d2::ConnectionManager;
 use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::event::AsyncEvent;
 
-use crate::resource::custom_resource::{CustomReceiver, CustomSender, Pool};
+use crate::resource::custom_resource::{CustomReceiver, CustomSender};
 use crate::system::{event_handler, packet_dispatch, startup};
 
 pub struct CustomPlugin;
@@ -32,19 +35,28 @@ impl Plugin for CustomPlugin {
     fn build(&self, app: &mut App) {
         let (command_tx, command_rx) = channel::<AsyncCommand>();
         let (event_tx, event_rx) = channel::<AsyncEvent>();
-        std::thread::spawn(move || {
-            tokio::runtime::Runtime::new().unwrap().block_on(async {
-                runtime::server::start_server(command_rx, pool, event_tx)
-                    .await
-                    .unwrap();
-            });
-        });
-
-        app.insert_resource(CustomReceiver(Mutex::new(event_rx)))
-            .insert_resource(CustomSender(Mutex::new(command_tx)))
-            .insert_resource(Pool(pool::new()))
-            .add_systems(Startup, startup::spawn_worlds)
-            .add_systems(Update, event_handler::handle_events_system)
-            .add_systems(Update, packet_dispatch::packet_dispatch_system);
+        match settings::get_db_url() {
+            Ok(db_url) => {
+                let manager = ConnectionManager::<PgConnection>::new(db_url);
+                match diesel::r2d2::Pool::builder().build(manager) {
+                    Ok(pool) => {
+                        std::thread::spawn(move || {
+                            tokio::runtime::Runtime::new().unwrap().block_on(async {
+                                runtime::tcp::start_server(command_rx, event_tx, pool)
+                                    .await
+                                    .unwrap();
+                            });
+                        });
+                        app.insert_resource(CustomReceiver(Mutex::new(event_rx)))
+                            .insert_resource(CustomSender(Mutex::new(command_tx)))
+                            .add_systems(Startup, startup::spawn_worlds)
+                            .add_systems(Update, event_handler::handle_events_system)
+                            .add_systems(Update, packet_dispatch::packet_dispatch_system);
+                    }
+                    Err(e) => tracing::error!("App startup error: {e}"),
+                }
+            }
+            _ => {}
+        }
     }
 }

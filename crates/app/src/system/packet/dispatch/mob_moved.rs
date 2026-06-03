@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::message::packet::mob_moved::ReadMobMovedMessage;
+use crate::message::packet::mob_moved::ReadMobMovedRequestMessage;
 use crate::system::packet::dispatch::error::DispatchError;
 use net::packet::io::error::IOError::ReadError;
 use net::packet::io::prelude::*;
@@ -27,7 +27,7 @@ use std::io::Cursor;
 pub fn read_mob_ai_packet(
     packet: &Packet,
     client_id: i32,
-) -> Result<ReadMobMovedMessage, DispatchError> {
+) -> Result<ReadMobMovedRequestMessage, DispatchError> {
     let mut pkt_reader = Cursor::new(&packet.bytes);
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let mob_id = pkt_reader.read_int().map_err(ReadError)?;
@@ -52,7 +52,7 @@ pub fn read_mob_ai_packet(
     let fh = pkt_reader.read_short().map_err(ReadError)? as u16;
     let new_state = pkt_reader.read_byte().map_err(ReadError)?;
     let duration = pkt_reader.read_short().map_err(ReadError)?;
-    Ok(ReadMobMovedMessage {
+    Ok(ReadMobMovedRequestMessage {
         client_id,
         mob_id: mob_id as u32,
         t,

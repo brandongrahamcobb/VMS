@@ -23,7 +23,7 @@ use crate::component::channel::{InChannel, MapleChannel};
 use crate::component::character::MapleCharacter;
 use crate::component::inventory::{MapleEquippedTab, MapleInventory};
 use crate::component::item::MapleItem;
-use crate::component::map::{InMap, MapleMap};
+use crate::component::map::MapleMap;
 use crate::component::slot::MapleFilledItemSlot;
 use crate::component::world::{InWorld, MapleWorld};
 use crate::message::packet::list_chars::ListCharsSuccessMessage;
@@ -103,7 +103,6 @@ pub fn handle_list_chars(
     in_accounts: Query<(Entity, &InAccount)>,
     chars: Query<(Entity, &MapleCharacter, &ChildOf)>,
     maps: Query<&MapleMap>,
-    in_maps: Query<(Entity, &InMap)>,
     items: Query<(&MapleItem, &ChildOf)>,
     inventories: Query<(Entity, &MapleInventory)>,
     equipped_tabs: Query<(Entity, &MapleEquippedTab)>,
@@ -121,10 +120,7 @@ pub fn handle_list_chars(
         let Ok((acc_entity, acc)) = accounts.get(in_acc_entity) else {
             continue;
         };
-        for char_model in msg.char_models {
-            let Some(char_id) = char_model.id else {
-                continue;
-            };
+        for char_model in msg.char_models.clone() {
             let char: MapleCharacter = MapleCharacter::from(char_model);
             commands.spawn((char, ChildOf(acc_entity)));
         }
@@ -134,7 +130,7 @@ pub fn handle_list_chars(
             .collect();
         spawn_char::spawn_char(
             commands,
-            chars,
+            chars.clone(),
             &msg.equipped_item_model_map,
             &msg.equip_item_model_map,
             &msg.use_item_model_map,

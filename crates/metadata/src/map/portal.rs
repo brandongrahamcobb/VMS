@@ -39,8 +39,8 @@ pub fn get_portal_wz_info_by_map_wz_and_pid(
         .ok_or(MapMetadataError::PortalError)?;
     let tn = portal["tn"].as_str().unwrap_or("sp").to_string();
     Ok(BasePortal {
-        portal_wz: pid,
-        portal_name: pn,
+        wz: pid,
+        name: pn,
         target_map_wz: tm,
         target_portal_name: tn,
     })
