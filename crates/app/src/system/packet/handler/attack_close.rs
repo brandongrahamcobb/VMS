@@ -18,27 +18,32 @@
  */
 
 use crate::component::character::{InChar, MapleCharacter};
+use crate::component::exp::MapleExp;
 use crate::component::hp::MapleHealth;
 use crate::component::item::MapleItem;
 use crate::component::map::{InMap, MapleMap};
 use crate::component::mob::MapleMob;
+use crate::component::position::MapleCurrentPosition;
 use crate::message::packet::attack_close::{
-    CloseAttackRequestMessage, CloseAttackResponseMessage, DeadMobMessage,
+    CloseAttackResponseMessage, DeadMobResponseMessage, ReadCloseAttackRequestMessage,
 };
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{attack_close, codec};
 use crate::system::packet::handler::constants::EXP_TABLE;
 use action::model::{Action, BroadcastAction, SessionAction};
-use action::scope::{BroadcastScope, SessionScope};
+use action::scope::{BroadcastScope, MapScope, SessionScope};
 use base::character::StatsUpdate;
+use base::map::Point;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
 use config::settings;
 use inc::helpers;
+use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
+use rand::RngExt;
 use std::collections::HashMap;
 
 pub fn handle_close_attack_request(
@@ -49,13 +54,13 @@ pub fn handle_close_attack_request(
     chars: Query<&MapleCharacter>,
     in_chars: Query<(Entity, &InChar)>,
     mobs: Query<(Entity, &MapleMob, &ChildOf)>,
-    healths: Query<(&MapleHealth, &ChildOf)>,
-    mut messages: MessageReader<CloseAttackRequestMessage>,
+    mut healths: Query<(&mut MapleHealth, &ChildOf)>,
+    mut messages: MessageReader<ReadCloseAttackRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
         let mut actions: Vec<Action> = Vec::new();
-        let mut hp_updates: HashMap<MapleMob, i16> = HashMap::new();
+        let mut hp_updates: HashMap<u32, i16> = HashMap::new();
 
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
@@ -73,18 +78,32 @@ pub fn handle_close_attack_request(
             continue;
         };
 
-        command_tx.0.send(DatabaseCommand::CloseAttackRequest {
-            client_id: msg.client_id,
-            char_id: char.id,
-            skill_id: msg.skill_id,
-            mob_damages: msg.mob_damages.clone(),
-        });
+        command_tx
+            .0
+            .lock()
+            .unwrap()
+            .send(AsyncCommand::DatabaseOperation(
+                DatabaseCommand::CloseAttackRequest {
+                    client_id: msg.client_id,
+                    char_id: char.id,
+                    count: msg.count,
+                    skill_id: msg.skill_id,
+                    display: msg.display,
+                    toleft: msg.toleft,
+                    stance: msg.stance,
+                    speed: msg.speed,
+                    mob_damages: msg.mob_damages.clone(),
+                },
+            ));
 
         for (mob_id, damage) in msg.mob_damages.iter() {
             let Some((mob_entity, mob, _)) = mobs
                 .iter()
-                .find(|(_, m, parent)| parent.0 == map_entity && m.id == *mob_id);
-            let Some((health, _)) = healths
+                .find(|(_, m, parent)| parent.0 == map_entity && m.id == *mob_id)
+            else {
+                continue;
+            };
+            let Some((mut health, _)) = healths
                 .iter_mut()
                 .find(|(_, parent)| parent.0 == mob_entity)
             else {
@@ -93,17 +112,23 @@ pub fn handle_close_attack_request(
             let total_damage: i32 = damage.iter().sum();
             health.amount -= total_damage;
             let hp_percent = (health.amount * 100 / mob.base.max_hp) as i16;
-            hp_updates.insert(mob, hp_percent);
+            hp_updates.insert(mob.id, hp_percent);
             if hp_percent == 0 {
-                command_tx.0.send(DatabaseCommand::RandomizedDrops {
-                    client_id: msg.client_id,
-                    mob_id: mob_id,
-                });
+                command_tx
+                    .0
+                    .lock()
+                    .unwrap()
+                    .send(AsyncCommand::DatabaseOperation(
+                        DatabaseCommand::DeadMobRequest {
+                            client_id: msg.client_id,
+                            mob_id: *mob_id,
+                        },
+                    ));
             }
         }
-        for (mob, hp_percent) in hp_updates {
-            let Ok(mob_damage_hp_packet) =
-                codec::mob::builder::build_mob_damage_show_hp_packet(mob.id, hp_percent)
+        for (mob_id, hp_percent) in hp_updates {
+            let Ok(mut mob_damage_hp_packet) =
+                codec::mob::builder::build_mob_damage_show_hp_packet(mob_id, hp_percent)
             else {
                 continue;
             };
@@ -120,7 +145,7 @@ pub fn handle_close_attack_request(
 }
 
 pub fn handle_dead_mob(
-    commands: Commands,
+    commands: &mut Commands,
     command_tx: CustomSender,
     client_map: Res<ClientMap>,
     maps: Query<(Entity, &MapleMap)>,
@@ -128,7 +153,10 @@ pub fn handle_dead_mob(
     chars: Query<&MapleCharacter>,
     in_chars: Query<(Entity, &InChar)>,
     mobs: Query<(Entity, &MapleMob, &ChildOf)>,
-    mut messages: MessageReader<DeadMobMessage>,
+    items: Query<&MapleItem>,
+    curr_positions: Query<&MapleCurrentPosition>,
+    exps: Query<(Entity, &MapleExp)>,
+    mut messages: MessageReader<DeadMobResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
@@ -157,9 +185,12 @@ pub fn handle_dead_mob(
         let Ok((map_entity, _)) = maps.get(in_map_entity) else {
             continue;
         };
-        let Some((_, mob, _)) = mobs
+        let Some((mob_entity, mob, _)) = mobs
             .iter()
             .find(|(_, m, parent)| parent.0 == map_entity && m.id == msg.mob_id);
+        let Ok((_, exp)) = exps.get_mut(mob_entity) else {
+            continue;
+        };
 
         let mesos: i32 = helpers::calculate_rand_meso_amount(meso_rate, mob.base.level);
 
@@ -171,7 +202,7 @@ pub fn handle_dead_mob(
             scope: BroadcastScope::Map,
         }));
 
-        char.exp += mob.exp;
+        char.exp += exp.amount;
         if char.exp >= EXP_TABLE[char.level as usize] as i32 {
             char.exp = 0;
             char.level += 1;
@@ -200,18 +231,27 @@ pub fn handle_dead_mob(
                 scope: SessionScope::Map(MapScope::SameChannelSameWorld),
             }));
         } else {
-            let Ok(set_exp_packet) = Packet::new_empty().build_set_exp_packet(char.exp)?.finish();
+            let Ok(set_exp_packet) = codec::player::builder::build_set_exp_packet(char.exp) else {
+                continue;
+            };
             actions.push(Action::Session(SessionAction::Send {
-                packet: packet.clone(),
+                packet: set_exp_packet.finish(),
                 scope: SessionScope::Local,
             }));
         }
-        command_tx.0.send(AsyncCommand::UpdateStats {
-            client_id: msg.client_id,
-            updates: vec![StatsUpdate::Exp { exp: char.exp }],
-        });
+        command_tx
+            .0
+            .lock()
+            .unwrap()
+            .send(AsyncCommand::DatabaseOperation(
+                DatabaseCommand::UpdateStats {
+                    client_id: msg.client_id,
+                    char_id: char.id,
+                    updates: vec![StatsUpdate::Exp { exp: char.exp }],
+                },
+            ));
 
-        let drop_from_pos = curr_positions.get(mob.0) else {
+        let Ok(drop_from_pos) = curr_positions.get(mob_entity) else {
             continue;
         };
         let drop_from_point: Point = Point {
@@ -224,12 +264,20 @@ pub fn handle_dead_mob(
             y: drop_from_pos.y,
         };
         for (base_item, item_model) in msg.items.iter() {
-            commands.spawn((MapleItem::from((base_item, item_model)), ChildOf(in_map.0)));
-            let Ok(mut drop_loot_packet) = item::builder::build_drop_loot_packet(
+            let item_enitity = commands
+                .spawn((
+                    MapleItem::from((*base_item, *item_model)),
+                    ChildOf(map_entity),
+                ))
+                .id();
+            let Ok(item) = items.get(item_enitity) else {
+                continue;
+            };
+            let Ok(mut drop_loot_packet) = codec::item::builder::build_drop_loot_packet(
                 mode,
-                msg.item.id as u32,
+                item.id as u32,
                 false,
-                msg.item.wz,
+                base_item.wz,
                 owner,
                 can_pickup,
                 drop_to_point.clone(),
@@ -243,7 +291,7 @@ pub fn handle_dead_mob(
                 scope: BroadcastScope::Map,
             }));
         }
-        let Ok(mut meso_packet) = item::builder::build_drop_loot_packet(
+        let Ok(mut meso_packet) = codec::item::builder::build_drop_loot_packet(
             mode,
             0, // item ID
             true,
@@ -267,26 +315,29 @@ pub fn handle_dead_mob(
     }
 }
 
-pub async fn handle_close_attack_response(
+pub fn handle_close_attack_response(
     client_map: Res<ClientMap>,
-    mut messages: MessageReader<CloseAttackResponseMessage>,
-    command_tx: CustomSender,
-    mut results: MessageWriter<HandlerResult>,
     chars: Query<&MapleCharacter>,
+    in_chars: Query<(Entity, &InChar)>,
+    mut messages: MessageReader<CloseAttackResponseMessage>,
+    mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(char) = chars.get(client_entity) else {
+        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+            continue;
+        };
+        let Ok(char) = chars.get(in_char_entity) else {
             continue;
         };
 
         let Ok(mut close_attack_packet) = attack_close::build_close_attack_packet(
-            msg.char_id,
+            char.id,
             msg.count,
-            msg.skill.level,
-            msg.skill.wz,
+            msg.skill_model.level,
+            msg.base_skill.wz,
             msg.display,
             msg.toleft,
             msg.stance,
@@ -295,7 +346,7 @@ pub async fn handle_close_attack_response(
         ) else {
             continue;
         };
-        results.write(HandleResult {
+        results.write(HandlerResult {
             client_id: msg.client_id,
             actions: vec![Action::Broadcast(BroadcastAction::Send {
                 packet: close_attack_packet.finish(),

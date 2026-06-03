@@ -17,29 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use core::convert::From;
-
 use bevy::prelude::Message;
-use ipc::data::change_map::ChangeMapCommand;
 
 #[derive(Message)]
-pub struct ChangeMapMessage {
+pub struct ReadChangeMapRequestMessage {
     pub client_id: i32,
     pub died: i16,
     pub target_map: i32,
     pub target_name: String,
     pub wheel_of_destiny: i16,
-}
-
-impl From<(ChangeMapMessage, i32)> for ChangeMapCommand {
-    fn from((msg, char_id): (ChangeMapMessage, i32)) -> Self {
-        Self {
-            client_id: msg.client_id,
-            char_id,
-            died: msg.died,
-            target_map: msg.target_map,
-            target_name: msg.target_name,
-            wheel_of_destiny: msg.wheel_of_destiny,
-        }
-    }
 }

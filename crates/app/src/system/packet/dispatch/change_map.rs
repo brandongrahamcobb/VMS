@@ -18,17 +18,17 @@
  */
 
 use net::packet::io::error::IOError::ReadError;
-use net::packet::model::Packet;
 use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use std::io::Cursor;
 
-use crate::message::packet::change_map::ChangeMapMessage;
+use crate::message::packet::change_map::ReadChangeMapMessage;
 use crate::system::packet::dispatch::error::DispatchError;
 
 pub fn read_change_map_packet(
     packet: &Packet,
     client_id: i32,
-) -> Result<ChangeMapMessage, DispatchError> {
+) -> Result<ReadChangeMapMessage, DispatchError> {
     let mut pkt_reader = Cursor::new(&packet.bytes);
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let died: i16 = pkt_reader.read_byte().map_err(ReadError)? as i16;
@@ -37,7 +37,7 @@ pub fn read_change_map_packet(
     let skip: usize = 1;
     pkt_reader.read_bytes(skip).map_err(ReadError)?;
     let wheel_of_destiny_death_buff: i16 = pkt_reader.read_short().map_err(ReadError)?;
-    Ok(ChangeMapMessage {
+    Ok(ReadChangeMapMessage {
         client_id,
         died,
         target_map: tm,

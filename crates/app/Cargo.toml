@@ -18,3 +18,7 @@ action = { path = "../action" }
 thiserror = "2"
 inc = { path = "../inc" }
 itertools = "0.14.0"
+rand = "0.10.1"
+tokio = { version = "1.51.1", features = ["full"] }
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+tracing = "0.1.44"

@@ -17,22 +17,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::component::channel::MapleChannel;
 use crate::component::world::MapleWorld;
 use crate::message::packet::list_worlds::ListWorldsMessage;
 use crate::message::result::HandlerResult;
 use crate::system::packet::build::list_worlds;
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
+use bevy::ecs::entity::Entity;
+use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Query;
 
 pub fn handle_list_worlds(
-    worlds: Query<&MapleWorld>,
+    worlds: Query<(Entity, &MapleWorld)>,
+    channels: Query<(&MapleChannel, &ChildOf)>,
     mut messages: MessageReader<ListWorldsMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
-        let Ok(mut packets) = list_worlds::build_list_worlds_packets(&worlds.iter()) else {
+        let Ok(mut packets) = list_worlds::build_list_worlds_packets(&worlds, &channels) else {
             continue;
         };
         for packet in packets {

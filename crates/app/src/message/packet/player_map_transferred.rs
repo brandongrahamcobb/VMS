@@ -19,6 +19,6 @@
 use bevy::prelude::Message;
 
 #[derive(Message)]
-pub struct PlayerMapTransferMessage {
+pub struct ReadPlayerMapTransferRequestMessage {
     pub client_id: i32,
 }

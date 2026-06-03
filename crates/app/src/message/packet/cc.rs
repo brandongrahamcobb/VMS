@@ -19,7 +19,7 @@
 use bevy::prelude::Message;
 
 #[derive(Message)]
-pub struct ChangeChannelMessage {
+pub struct ReadChangeChannelRequestMessage {
     pub client_id: i32,
     pub channel_id: u8,
     pub tick: i32,

@@ -18,26 +18,55 @@
  */
 
 use crate::component::character::MapleCharacter;
+use crate::component::inventory::{MapleEquippedTab, MapleInventory};
+use crate::component::item::MapleItem;
+use crate::component::map::MapleMap;
+use crate::component::slot::MapleFilledItemSlot;
 use crate::system::packet::build::codec;
 use crate::system::packet::build::error::PacketBuildError;
+use bevy::ecs::entity::Entity;
+use bevy::ecs::hierarchy::ChildOf;
+use bevy::ecs::system::Query;
 use net::packet::io::error::IOError::WriteError;
 use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use op::send::SendOpcode;
 
 pub fn build_list_chars_packet(
-    chars: &[MapleCharacter],
+    chars: Vec<(Entity, &MapleCharacter, &ChildOf)>,
+    items: Query<(&MapleItem, &ChildOf)>,
+    inventories: Query<(Entity, &MapleInventory)>,
+    equipped_tabs: Query<(Entity, &MapleEquippedTab)>,
+    filled_slots: Query<(Entity, &MapleFilledItemSlot)>,
+    maps: Query<&MapleMap>,
     channel_id: u8,
     char_slots: i16,
     pic_status: i16,
+    world_id: i16,
 ) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::CharList as i16;
     packet.write_short(op).map_err(WriteError)?;
     packet.write_byte(channel_id as i16).map_err(WriteError)?;
     packet.write_byte(chars.len() as i16).map_err(WriteError)?;
-    for char in chars.iter() {
-        build_look_part_packet(&mut packet, char)?;
+    for (char_entity, char, _) in chars.iter().filter(|(_, c, _)| c.world_id == world_id) {
+        let Ok((inv_entity, _)) = inventories.get(*char_entity) else {
+            continue;
+        };
+        let Ok((equipped_tab_entity, _)) = equipped_tabs.get(inv_entity) else {
+            continue;
+        };
+        let Ok((filled_slot_entity, _)) = filled_slots.get(equipped_tab_entity) else {
+            continue;
+        };
+        let equips: Vec<_> = items
+            .iter()
+            .filter(|(_, parent)| parent.0 == filled_slot_entity)
+            .collect();
+        let Some(map) = maps.iter().find(|m| m.base.wz == char.map_wz) else {
+            continue;
+        };
+        build_look_part_packet(&mut packet, char, equips, map)?;
     }
     packet.write_byte(pic_status).map_err(WriteError)?;
     packet.write_int(char_slots as i32).map_err(WriteError)?;
@@ -47,9 +76,11 @@ pub fn build_list_chars_packet(
 fn build_look_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
+    equips: Vec<(&MapleItem, &ChildOf)>,
+    map: &MapleMap,
 ) -> Result<(), PacketBuildError> {
-    codec::player::builder::build_list_char_meta_part_packet(packet, char)?;
-    codec::player::builder::build_look_meta_part_packet(packet, char)?;
+    codec::player::builder::build_list_char_meta_part_packet(packet, char, map)?;
+    codec::player::builder::build_look_meta_part_packet(packet, char, equips)?;
     packet.write_byte(0).map_err(WriteError)?;
     // Disable rank.
     packet.write_byte(0).map_err(WriteError)?;

@@ -17,17 +17,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::message::packet::accept_tos::TosMessage;
+use crate::message::packet::accept_tos::ReadTosRequestMessage;
+use crate::system::packet::dispatch::error::DispatchError;
 use net::packet::io::error::IOError::ReadError;
-use net::packet::model::Packet;
 use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use std::io::Cursor;
 
-pub fn read_tos_packet(packet: &Packet, client_id: i32) -> Result<TosMessage, DispatchError> {
+pub fn read_tos_packet(packet: &Packet, client_id: i32) -> Result<ReadTosMessage, DispatchError> {
     let mut pkt_reader = Cursor::new(&packet.bytes);
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let confirmed = pkt_reader.read_byte().map_err(ReadError)? as i16;
-    Ok(TosMessage {
+    Ok(ReadTosRequestMessage {
         client_id,
         confirmed,
     })

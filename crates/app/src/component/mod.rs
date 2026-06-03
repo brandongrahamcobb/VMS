@@ -15,3 +15,4 @@ pub mod session;
 pub mod skill;
 pub mod slot;
 pub mod world;
+pub mod exp;

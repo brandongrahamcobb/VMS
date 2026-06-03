@@ -1,49 +1,60 @@
+use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::MessageWriter;
-use bevy::time::Time;
+use bevy::ecs::system::Query;
 
 use crate::component::channel::MapleChannel;
+use crate::component::hp::MapleHealth;
 use crate::component::map::MapleMap;
 use crate::component::mob::MapleMob;
-use crate::component::position::MaplePosition;
 use crate::component::world::MapleWorld;
-use crate::system::packet::build::codec::mob;
-use crate::system::packet::handler::result::HandlerResult;
+use crate::message::result::TickResult;
+use crate::system::packet::build::codec;
+use action::model::{Action, TickAction};
+use action::scope::TickScope;
 
 // FixedUpdate
 
 pub fn mob_respawn_system(
-    time: Res<Time>,
-    results: MessageWriter<HandlerResult>,
-    mobs: Query<(&MapleMob, &MaplePosition, &ChildOf)>,
-    worlds: Query<&MapleWorld, &ChildOf>,
-    channel: Query<&MapleChannel, &ChildOf>,
-    maps: Query<&MapleMap, &ChildOf>,
+    worlds: Query<&MapleWorld>,
+    channels: Query<(&MapleChannel, &ChildOf)>,
+    maps: Query<(&MapleMap, &ChildOf)>,
+    mut mobs: Query<(Entity, &mut MapleMob, &ChildOf)>,
+    mut healths: Query<&mut MapleHealth>,
+    mut results: MessageWriter<TickResult>,
 ) -> () {
     let mode: i8 = 1;
     let stance: i8 = 0;
     let effect: i8 = 0;
     let team: i8 = -1;
-    for (mob, pos, map) in mobs.iter_mut().find(|m, _, parent| m.dead == true) {
-        if mob.death_time.elapsed().as_secs() >= mob.mob_time {
+    for (mob_entity, mut mob, map_entity) in mobs.iter_mut().find(|(_, m, _)| m.dead == true) {
+        if mob.died_at.elapsed().as_secs() >= mob.base.mob_time {
             mob.dead = false;
-            mob.hp = mob.max_hp;
+            let Ok(mut hp) = healths.get_mut(mob_entity) else {
+                continue;
+            };
+            hp.amount = mob.base.max_hp;
         } else {
             continue;
         }
-        let Ok((map, channel)) = maps.get(map.0) else {
+        let Ok((map, channel_entity)) = maps.get(map_entity.0) else {
             continue;
         };
-        let Ok((channel, world)) = channels.get(channel.0) else {
+        let Ok((channel, world_entity)) = channels.get(channel_entity.0) else {
             continue;
         };
-        let Ok(spawn_mob_packet) =
-            mob::builder::build_spawn_mob_packet(mob, pos, stance, effect, team)
+        let Ok(world) = worlds.get(world_entity.0) else {
+            continue;
+        };
+        let Ok(mut spawn_mob_packet) =
+            codec::mob::builder::build_spawn_mob_packet(&*mob, stance, effect, team)
         else {
             continue;
         };
-        let Ok(spawn_mob_controller_packet) =
-            mob::builder::build_spawn_mob_controller_packet(mob, mode, stance, effect, team)
+        let Ok(mut spawn_mob_controller_packet) =
+            codec::mob::builder::build_spawn_mob_controller_packet(
+                &*mob, mode, stance, effect, team,
+            )
         else {
             continue;
         };
@@ -54,7 +65,7 @@ pub fn mob_respawn_system(
                     scope: TickScope::Map {
                         world_id: world.id,
                         channel_id: channel.id,
-                        map_wz: map.wz,
+                        map_wz: map.base.wz,
                     },
                 }),
                 Action::Tick(TickAction::Send {
@@ -62,7 +73,7 @@ pub fn mob_respawn_system(
                     scope: TickScope::Map {
                         world_id: world.id,
                         channel_id: channel.id,
-                        map_wz: map.wz,
+                        map_wz: map.base.wz,
                     },
                 }),
             ],

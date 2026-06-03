@@ -17,14 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use base::item::BaseItem;
+use base::{item::BaseItem, skill::BaseSkill};
 use bevy::prelude::Message;
-use core::convert::From;
 use db::{item::model::ItemModel, skill::model::SkillModel};
 use std::collections::HashMap;
 
 #[derive(Message)]
-pub struct CloseAttackRequestMessage {
+pub struct ReadCloseAttackRequestMessage {
     pub client_id: i32,
     pub count: i16,
     pub skill_id: i32,
@@ -38,7 +37,8 @@ pub struct CloseAttackRequestMessage {
 #[derive(Message)]
 pub struct CloseAttackResponseMessage {
     pub client_id: i32,
-    pub skill: SkillModel,
+    pub skill_model: SkillModel,
+    pub base_skill: BaseSkill,
     pub count: i16,
     pub display: i16,
     pub toleft: i16,
@@ -47,23 +47,8 @@ pub struct CloseAttackResponseMessage {
     pub mob_damages: HashMap<u32, Vec<i32>>,
 }
 
-impl From<(CloseAttackRequestMessage, SkillModel)> for CloseAttackResponseMessage {
-    fn from((msg, model): (CloseAttackRequestMessage, SkillModel)) -> Self {
-        Self {
-            client_id: msg.client_id,
-            count: msg.count,
-            skill: model,
-            display: msg.display,
-            toleft: msg.toleft,
-            stance: msg.stance,
-            speed: msg.speed,
-            mob_damages: msg.mob_damages,
-        }
-    }
-}
-
 #[derive(Message)]
-pub struct DeadMobMessage {
+pub struct DeadMobResponseMessage {
     pub client_id: i32,
     pub mob_id: u32,
     pub items: HashMap<BaseItem, ItemModel>,

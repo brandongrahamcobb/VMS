@@ -17,57 +17,205 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::message::packet::attack_close::CloseAttackResponseMessage;
 use crate::message::packet::check_char_name::CheckCharNameResponseMessage;
-use crate::message::packet::list_chars::{
-    CharSlotsLoadedMessage, ListCharsFailedMessage, ListCharsSuccessMessage,
-};
-use crate::plugin::event::CustomPluginEvent;
+use crate::message::packet::create_char::CreateCharResponseMessage;
+use crate::message::packet::list_chars::{ListCharsFailedMessage, ListCharsSuccessMessage};
+use crate::message::packet::pickup_item::PickupItemResponseMessage;
+use crate::message::packet::player_logged_in::PlayerLoggedInResponseMessage;
 use crate::resource::custom_resource::CustomReceiver;
 use bevy::ecs::message::MessageWriter;
 use bevy::ecs::system::Res;
-use ipc::tcp_event::AsyncEvent;
+use ipc::asyncronous::event::AsyncEvent;
+use std::sync::MutexGuard;
+use std::sync::mpsc::Receiver;
 
 pub fn handle_events_system(
     receiver: Res<CustomReceiver>,
     mut check_char_name_response_writer: MessageWriter<CheckCharNameResponseMessage>,
+    mut create_char_response_writer: MessageWriter<CreateCharResponseMessage>,
     mut list_chars_success_writer: MessageWriter<ListCharsSuccessMessage>,
     mut list_chars_fail_writer: MessageWriter<ListCharsFailedMessage>,
+    mut player_join_success_writer: MessageWriter<PlayerLoggedInResponseMessage>,
+    mut pickup_success_writer: MessageWriter<PickupItemResponseMessage>,
+    mut close_attack_success_writer: MessageWriter<CloseAttackResponseMessage>,
 ) {
     let rx: MutexGuard<Receiver<AsyncEvent>> = receiver.0.lock().unwrap();
     while let Ok(event) = rx.try_recv() {
         match event {
-            AsyncEvent::ClientConnected { client_id } => {}
-            AsyncEvent::ClientDisconnected { client_id } => {}
-            AsyncEvent::PacketReceived { client_id, packet } => {}
+            AsyncEvent::ClientConnected { client_id } => {
+                std::hint::black_box(client_id);
+            }
+            AsyncEvent::ClientDisconnected { client_id } => {
+                std::hint::black_box(client_id);
+            }
+            AsyncEvent::PacketReceived { client_id, packet } => {
+                std::hint::black_box(client_id);
+                std::hint::black_box(packet);
+            }
             AsyncEvent::ListCharsSuccess {
                 client_id,
                 channel_id,
-                chars,
+                char_models,
+                keybinding_model_map,
+                skill_model_map,
+                equipped_item_model_map,
+                equip_item_model_map,
+                use_item_model_map,
+                etc_item_model_map,
+                setup_item_model_map,
+                cash_item_model_map,
+                equip_tab_inv_capacity_map,
+                use_tab_inv_capacity_map,
+                etc_tab_inv_capacity_map,
+                setup_tab_inv_capacity_map,
+                cash_tab_inv_capacity_map,
                 slots,
                 world_id,
             } => {
                 list_chars_success_writer.write(ListCharsSuccessMessage {
                     client_id,
                     channel_id,
-                    chars,
+                    char_models,
+                    keybinding_model_map,
+                    skill_model_map,
+                    equipped_item_model_map,
+                    equip_item_model_map,
+                    use_item_model_map,
+                    etc_item_model_map,
+                    setup_item_model_map,
+                    cash_item_model_map,
+                    equip_tab_inv_capacity_map,
+                    use_tab_inv_capacity_map,
+                    etc_tab_inv_capacity_map,
+                    setup_tab_inv_capacity_map,
+                    cash_tab_inv_capacity_map,
                     slots,
                     world_id,
                 });
             }
             AsyncEvent::ListCharsFailed { client_id } => {
-                list_chars_fail_wrtier.write(ListCharsFailedMessage { client_id });
+                list_chars_fail_writer.write(ListCharsFailedMessage { client_id });
+            }
+            AsyncEvent::CharCreationSuccess {
+                client_id,
+                char_model,
+                equipped_item_model_map,
+                equip_item_model_map,
+                use_item_model_map,
+                etc_item_model_map,
+                setup_item_model_map,
+                cash_item_model_map,
+                keybinding_model_map,
+                skill_model_map,
+                equip_tab_inv_capacity_map,
+                use_tab_inv_capacity_map,
+                etc_tab_inv_capacity_map,
+                setup_tab_inv_capacity_map,
+                cash_tab_inv_capacity_map,
+            } => {
+                let Some(char_id) = char_model.id else {
+                    continue;
+                };
+                create_char_response_writer.write(CreateCharResponseMessage {
+                    client_id,
+                    char_id,
+                    keybinding_model_map,
+                    skill_model_map,
+                    equipped_item_model_map,
+                    equip_item_model_map,
+                    use_item_model_map,
+                    etc_item_model_map,
+                    setup_item_model_map,
+                    cash_item_model_map,
+                    equip_tab_inv_capacity_map,
+                    use_tab_inv_capacity_map,
+                    etc_tab_inv_capacity_map,
+                    setup_tab_inv_capacity_map,
+                    cash_tab_inv_capacity_map,
+                });
             }
             AsyncEvent::CheckCharName {
                 client_id,
                 exists,
                 ign,
             } => {
-                check_char_name_writer.write(CheckCharNameResponseMessage {
+                check_char_name_response_writer.write(CheckCharNameResponseMessage {
                     client_id,
                     exists,
                     ign,
                 });
             }
+            AsyncEvent::JoinSuccess {
+                client_id,
+                keybinding_models,
+                skill_models,
+                equipped_item_models,
+                equip_tab_item_models,
+                use_tab_item_models,
+                etc_tab_item_models,
+                setup_tab_item_models,
+                cash_tab_item_models,
+                equip_tab_capacity,
+                use_tab_capacity,
+                etc_tab_capacity,
+                setup_tab_capacity,
+                cash_tab_capacity,
+            } => {
+                player_join_success_writer.write(PlayerLoggedInResponseMessage {
+                    client_id,
+                    keybinding_models,
+                    skill_models,
+                    equipped_item_models,
+                    equip_tab_item_models,
+                    use_tab_item_models,
+                    etc_tab_item_models,
+                    setup_tab_item_models,
+                    cash_tab_item_models,
+                    equip_tab_capacity,
+                    use_tab_capacity,
+                    etc_tab_capacity,
+                    setup_tab_capacity,
+                    cash_tab_capacity,
+                });
+            }
+            AsyncEvent::CloseAttackSuccess {
+                client_id,
+                count,
+                skill_model,
+                base_skill,
+                display,
+                toleft,
+                stance,
+                speed,
+                mob_damages,
+            } => {
+                close_attack_success_writer.write(CloseAttackResponseMessage {
+                    client_id,
+                    count,
+                    skill_model,
+                    base_skill,
+                    display,
+                    toleft,
+                    stance,
+                    speed,
+                    mob_damages,
+                });
+            }
+            AsyncEvent::PickupSuccess {
+                client_id,
+                item_id,
+                ipos,
+                pet_pickup,
+            } => {
+                pickup_success_writer.write(PickupItemResponseMessage {
+                    client_id,
+                    item_id,
+                    ipos,
+                    pet_pickup,
+                });
+            }
+            _ => {}
         }
     }
 }

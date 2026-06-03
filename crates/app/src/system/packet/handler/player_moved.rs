@@ -18,10 +18,11 @@
  */
 
 use crate::component::character::{InChar, MapleCharacter};
-use crate::message::packet::player_moved::PlayerMovedMessage;
+use crate::component::position::MapleCurrentPosition;
+use crate::message::packet::player_moved::ReadPlayerMovedRequestMessage;
+use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::player_moved;
-use crate::system::packet::handler::result::HandlerResult;
 use action::model::{Action, BroadcastAction};
 use action::scope::BroadcastScope;
 use base::map::Point;
@@ -34,8 +35,8 @@ pub fn handle_player_moved(
     client_map: Res<ClientMap>,
     chars: Query<(Entity, &MapleCharacter)>,
     in_chars: Query<(Entity, &InChar)>,
-    curr_positions: Query<&mut MapleCurrentPosition>,
-    mut messages: MessageReader<PlayerMovedMessage>,
+    mut curr_positions: Query<&mut MapleCurrentPosition>,
+    mut messages: MessageReader<ReadPlayerMovedRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
@@ -49,15 +50,16 @@ pub fn handle_player_moved(
             let Ok((char_entity, char)) = chars.get(in_char_entity) else {
                 continue;
             };
-            let Ok(curr_pos) = curr_positions.get_mut(client_entity) else {
+            let Ok(mut curr_pos) = curr_positions.get_mut(char_entity) else {
                 continue;
             };
             let new_pos: Point = syncronous::map::parse_position(&msg.movement_bytes)
                 .unwrap_or(Point { x: 0, y: 0 });
-            curr_pos = new_pos;
+            curr_pos.x = new_pos.x;
+            curr_pos.y = new_pos.y;
 
             let Ok(mut player_moved_packet) =
-                player_moved::build_player_move_packet(char.id, msg.movement_bytes)
+                player_moved::build_player_move_packet(char.id, msg.movement_bytes.clone())
             else {
                 continue;
             };

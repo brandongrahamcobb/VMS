@@ -9,3 +9,5 @@ pub mod keybinding;
 pub mod map;
 pub mod mob;
 pub mod portal;
+pub mod skill;
+

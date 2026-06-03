@@ -19,14 +19,13 @@
 
 use crate::system::packet::build::error::PacketBuildError;
 use net::packet::io::error::IOError::WriteError;
-use net::packet::model::Packet;
 use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use op::send::SendOpcode;
 
-impl Packet {
-    pub fn build_ping_packet(&mut self) -> Result<&mut Self, PacketBuildError> {
-        let op = SendOpcode::Ping as i16;
-        self.write_short(op).map_err(WriteError)?;
-        Ok(self)
-    }
+pub fn build_ping_packet() -> Result<Packet, PacketBuildError> {
+    let mut packet: Packet = Packet::new_empty();
+    let op = SendOpcode::Ping as i16;
+    packet.write_short(op).map_err(WriteError)?;
+    Ok(packet)
 }

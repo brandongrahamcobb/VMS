@@ -25,7 +25,7 @@ use db::item::model::ItemModel;
 
 #[derive(Component)]
 pub struct MapleItem {
-    pub map_wz: Option<i32>,
+    pub id: i32,
     pub char_id: Option<i32>,
     pub ipos: Option<i16>,
     pub strength: i16,
@@ -43,7 +43,6 @@ pub struct MapleItem {
     pub hands: i16,
     pub speed: i16,
     pub jump: i16,
-    pub wz: i32,
     pub expire: i64,
     pub level: i16,
     pub item_level: i16,
@@ -53,10 +52,11 @@ pub struct MapleItem {
     pub base: BaseItem,
 }
 
-impl From<BaseItem, ItemModel> for MapleItem {
+impl From<(BaseItem, ItemModel)> for MapleItem {
     fn from((base, model): (BaseItem, ItemModel)) -> Self {
+        let id = if let Some(id) = model.id { id } else { 0 };
         Self {
-            map_wz: None,
+            id: id,
             char_id: model.char_id,
             ipos: model.ipos,
             strength: model.strength,
@@ -74,7 +74,6 @@ impl From<BaseItem, ItemModel> for MapleItem {
             hands: model.hands,
             speed: model.speed,
             jump: model.jump,
-            wz: model.wz,
             expire: model.expire,
             level: model.level,
             item_level: model.item_level,

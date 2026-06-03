@@ -47,7 +47,7 @@ pub enum RecvOpcode {
     //
     ChangeMap = 0x26,
     //
-    PlayerMove = 0x29,
+    PlayerMoved = 0x29,
     MobMoved = 0xBC,
     TakeDamage = 0x30,
     AllChat = 0x31,

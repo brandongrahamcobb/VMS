@@ -23,7 +23,7 @@ pub struct MapleEmptyItemSlot {
     pub ipos: i16,
 }
 
-#[derive(Component)]
+#[derive(Component, Hash, PartialEq, Eq, Clone, Copy)]
 pub struct MapleFilledItemSlot {
     pub ipos: i16,
 }

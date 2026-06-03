@@ -19,6 +19,6 @@
 use bevy::ecs::component::Component;
 
 #[derive(Component)]
-pub struct Health {
-    pub amount: i16,
+pub struct MapleHealth {
+    pub amount: i32,
 }

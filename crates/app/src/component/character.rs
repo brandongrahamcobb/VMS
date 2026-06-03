@@ -19,7 +19,7 @@
 
 use core::convert::From;
 
-use bevy::ecs::component::Component;
+use bevy::ecs::{component::Component, entity::Entity};
 use db::character::model::CharacterModel;
 
 #[derive(Component)]
@@ -47,6 +47,8 @@ pub struct MapleCharacter {
     pub skin_wz: i32,
     pub gender_wz: i16,
     pub last_portal: i16,
+    pub world_id: i16,
+    pub map_wz: i32,
 }
 
 #[derive(Component)]
@@ -54,12 +56,13 @@ pub struct InChar(pub Entity);
 
 impl From<CharacterModel> for MapleCharacter {
     fn from(model: CharacterModel) -> Self {
+        let id = if let Some(id) = model.id { id } else { 0 };
         Self {
-            id: model.id,
+            id,
             ign: model.ign,
             level: model.level,
             exp: model.exp,
-            strength: model.stregth,
+            strength: model.strength,
             dexterity: model.dexterity,
             luck: model.luck,
             intelligence: model.intelligence,
@@ -78,6 +81,8 @@ impl From<CharacterModel> for MapleCharacter {
             skin_wz: model.skin_wz,
             gender_wz: model.gender_wz,
             last_portal: model.last_portal,
+            world_id: model.world_id,
+            map_wz: model.map_wz,
         }
     }
 }

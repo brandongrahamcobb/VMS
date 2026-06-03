@@ -19,7 +19,7 @@
 use bevy::prelude::Message;
 
 #[derive(Message)]
-pub struct MobMovedMessage {
+pub struct ReadMobMovedRequestMessage {
     pub client_id: i32,
     pub mob_id: u32,
     pub t: i16,

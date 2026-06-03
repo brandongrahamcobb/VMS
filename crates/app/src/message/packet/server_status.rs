@@ -19,6 +19,6 @@
 use bevy::prelude::Message;
 
 #[derive(Message)]
-pub struct ServerStatusMessage {
+pub struct ReadServerStatusRequestMessage {
     pub client_id: i32,
 }

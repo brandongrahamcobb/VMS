@@ -19,40 +19,36 @@
 
 use crate::component::account::{InAccount, MapleAccount};
 use crate::component::character::MapleCharacter;
-use crate::component::inventory::{
-    MapleCashTab, MapleEquipTab, MapleEquippedTab, MapleEtcTab, MapleInventory, MapleSetupTab,
-    MapleUseTab,
-};
+use crate::component::inventory::{MapleEquippedTab, MapleInventory};
 use crate::component::item::MapleItem;
-use crate::component::slot::{MapleEmptyItemSlot, MapleFilledItemSlot};
+use crate::component::map::MapleMap;
+use crate::component::slot::MapleFilledItemSlot;
 use crate::component::world::{InWorld, MapleWorld};
+use crate::message::packet::create_char::{
+    CreateCharResponseMessage, ReadCreateCharRequestMessage,
+};
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::create_char;
+use crate::system::packet::handler::codec::spawn_char;
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
-use base::inventory::{
-    ANDROID_EQUIP_SLOTS, CASH_EQUIP_SLOTS, PET_EQUIP_SLOTS, REGULAR_EQUIP_SLOTS,
-};
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
 use db::character::model::CharacterModel;
-use db::keybinding::model::KeybindingModel;
-use db::skill::model::SkillModel;
+use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
-use std::collections::HashMap;
 
 pub fn handle_create_char_request(
-    commands: Commands,
     command_tx: CustomSender,
     client_map: Res<ClientMap>,
     worlds: Query<&MapleWorld>,
     in_worlds: Query<(Entity, &InWorld)>,
     accounts: Query<&MapleAccount>,
     in_accounts: Query<(Entity, &InAccount)>,
-    mut messages: MessageReader<CreateCharRequestMessage>,
+    mut messages: MessageReader<ReadCreateCharRequestMessage>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
@@ -74,7 +70,7 @@ pub fn handle_create_char_request(
         let char_model: CharacterModel = ipc::syncronous::char::create_new_char_model(
             acc.id,
             world.id,
-            msg.ign,
+            msg.ign.clone(),
             msg.job_wz,
             msg.face_wz,
             msg.hair_wz,
@@ -83,142 +79,93 @@ pub fn handle_create_char_request(
             msg.gender_wz,
         );
 
-        commands_tx
+        command_tx
             .0
             .lock()
             .unwrap()
-            .send(DatabaseCommand::CreateChar {
-                client_id: msg.client_id,
-                char_model,
-            });
+            .send(AsyncCommand::DatabaseOperation(
+                DatabaseCommand::CreateCharRequest {
+                    client_id: msg.client_id,
+                    char_model,
+                    top_wz: msg.top_wz,
+                    bottom_wz: msg.bottom_wz,
+                    shoes_wz: msg.shoes_wz,
+                    weapon_wz: msg.weapon_wz,
+                },
+            ))
+            .unwrap();
     }
 }
 
 pub fn handle_create_char_response(
-    commands: Commands,
-    command_tx: CustomSender,
+    commands: &mut Commands,
     client_map: Res<ClientMap>,
     accounts: Query<(Entity, &MapleAccount)>,
     in_accounts: Query<(Entity, &InAccount)>,
-    in_world: Query<&InWorld>,
+    chars: Query<(Entity, &MapleCharacter, &ChildOf)>,
+    maps: Query<&MapleMap>,
+    items: Query<(&MapleItem, &ChildOf)>,
+    inventories: Query<(Entity, &MapleInventory)>,
+    equipped_tabs: Query<(Entity, &MapleEquippedTab)>,
+    filled_slots: Query<(Entity, &MapleFilledItemSlot)>,
     mut messages: MessageReader<CreateCharResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
-        let inv_capacity: i16 = 96;
-
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
         let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok((acc_entity, acc)) = accounts.get(in_acc_entity) else {
+        let Ok((acc_entity, _)) = accounts.get(in_acc_entity) else {
             continue;
         };
-
-        let Ok(equip_models) = ipc::syncronous::char::create_new_char_equip_models(
-            msg.char_model.id,
-            msg.top_wz,
-            msg.bottom_wz,
-            msg.shoes_wz,
-            msg.weapon_wz,
-        ) else {
-            continue;
-        };
-        let keybinding_models: Vec<KeybindingModel> =
-            ipc::syncronous::char::create_new_char_keybinding_models(msg.char_model.id);
-        let skill_models: Vec<SkillModel> = ipc::syncronous::char::create_new_char_skill_models(
-            msg.char_model.id,
-            msg.char_model.job_wz,
-        );
-
-        command_tx
-            .0
-            .lock()
-            .unwrap()
-            .send(DatabaseCommand::FinishChar {
-                client_id: msg.client_id,
-                char_model: msg.char_model,
-            });
-
-        let char: MapleCharacter = MapleCharacter::from(msg.char_model);
-        let char_entity = commands.spawn((char, ChildOf(acc_entity))).id();
-
-        let inventory: MapleInventory = MapleInventory;
-        let inv_entity = commands.spawn((inventory, ChildOf(char_entity))).id();
-
-        let equip_tab: MapleEquipTab = MapleEquipTab {
-            capacity: inv_capacity,
-        };
-        let equip_tab_entity = commands.spawn((equip_tab, ChildOf(inv_entity))).id();
-        let use_tab: MapleUseTab = MapleUseTab {
-            capacity: inv_capacity,
-        };
-        let use_tab_entity = commands.spawn((use_tab, ChildOf(inv_entity))).id();
-        let etc_tab: MapleEtcTab = MapleEtcTab {
-            capacity: inv_capacity,
-        };
-        let etc_tab_entity = commands.spawn((etc_tab, ChildOf(inv_entity))).id();
-        let setup_tab: MapleSetupTab = MapleSetupTab {
-            capacity: inv_capacity,
-        };
-        let setup_tab_entity = commands.spawn((setup_tab, ChildOf(inv_entity))).id();
-        let cash_tab: MapleCashTab = MapleCashTab {
-            capacity: inv_capacity,
-        };
-        let cash_tab_entity = commands.spawn((cash_tab, ChildOf(inv_entity))).id();
-        for ipos in 0..inv_capacity {
-            commands.spawn((MapleEmptyItemSlot { ipos }, ChildOf(equip_tab_entity)));
-            commands.spawn((MapleEmptyItemSlot { ipos }, ChildOf(use_tab_entity)));
-            commands.spawn((MapleEmptyItemSlot { ipos }, ChildOf(etc_tab_entity)));
-            commands.spawn((MapleEmptyItemSlot { ipos }, ChildOf(setup_tab_entity)));
-            commands.spawn((MapleEmptyItemSlot { ipos }, ChildOf(cash_tab_entity)));
-        }
-
-        let equipped_tab: MapleEquippedTab = MapleEquippedTab;
-        let equipped_tab_entity = commands.spawn((equipped_tab, ChildOf(inv_entity))).id();
-        let filled_pos: Vec<i16> = Vec::new();
-        let filled_slots: HashMap<MapleFilledItemSlot, MapleItem> = HashMap::new();
-        for equip_model in equip_models {
-            let Ok(info) = metadata::item::equip::build_equip_item_wz_info_by_wz(equip_model.wz)
-            else {
-                continue;
-            };
-            let equip: MapleItem = MapleItem::from((equip_model, info));
-            if let Some(ipos) = equip.ipos {
-                let filled_slot_entity = commands
-                    .spawn((MapleFilledItemSlot { ipos }, ChildOf(equipped_tab_entity)))
-                    .id();
-                commands.spawn((equip, ChildOf(filled_slot_entity)));
-                filled_pos.push(ipos);
-            }
-        }
-        let islots = CASH_EQUIP_SLOTS
+        let Some((char_entity, char, _)) = chars
             .iter()
-            .chain(ANDROID_EQUIP_SLOTS.iter())
-            .chain(REGULAR_EQUIP_SLOTS.iter())
-            .chain(PET_EQUIP_SLOTS.iter())
-            .filter(|islot| !filled_pos.contains(&islot.key));
+            .find(|(_, c, parent)| c.id == msg.char_id && parent.0 == acc_entity)
+        else {
+            continue;
+        };
+        let chars: Vec<_> = chars
+            .iter()
+            .filter(|(_, c, parent)| c.id == msg.char_id && parent.0 == acc_entity)
+            .collect();
+        spawn_char::spawn_char(
+            commands,
+            chars,
+            &msg.equipped_item_model_map,
+            &msg.equip_item_model_map,
+            &msg.use_item_model_map,
+            &msg.etc_item_model_map,
+            &msg.setup_item_model_map,
+            &msg.cash_item_model_map,
+            &msg.equip_tab_inv_capacity_map,
+            &msg.use_tab_inv_capacity_map,
+            &msg.etc_tab_inv_capacity_map,
+            &msg.setup_tab_inv_capacity_map,
+            &msg.cash_tab_inv_capacity_map,
+        );
+        let Some(map) = maps.iter().find(|m| m.base.wz == char.map_wz) else {
+            continue;
+        };
 
-        for islot in islots {
-            commands.spawn((
-                MapleEmptyItemSlot { ipos: islot.key },
-                ChildOf(equipped_tab_entity),
-            ));
-        }
+        let Ok((inv_entity, _)) = inventories.get(char_entity) else {
+            continue;
+        };
+        let Ok((equipped_tab_entity, _)) = equipped_tabs.get(inv_entity) else {
+            continue;
+        };
+        let Ok((filled_slot_entity, _)) = filled_slots.get(equipped_tab_entity) else {
+            continue;
+        };
+        let equips: Vec<_> = items
+            .iter()
+            .filter(|(_, parent)| parent.0 == filled_slot_entity)
+            .collect();
 
-        for keybinding_model in keybinding_models {
-            let keybinding: MapleKeybinding = MapleKeybinding::from(keybinding_model);
-            commands.spawn((keybinding, ChildOf(char_entity)));
-        }
-
-        for skill_model in skill_models {
-            let skill: MapleSkill = MapleSkill::from(skill_model);
-            commands.spawn((skill, ChildOf(char_entity)));
-        }
-
-        let Ok(mut create_char_packet) = create_char::build_create_char_packet(&char) else {
+        let Ok(mut create_char_packet) = create_char::build_create_char_packet(&char, equips, &map)
+        else {
             continue;
         };
         results.write(HandlerResult {

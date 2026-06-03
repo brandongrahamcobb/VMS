@@ -17,8 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use base::character::StatsUpdate;
-use db::{character::model::CharacterModel, keybinding::model::KeybindingModel};
+use db::{
+    character::model::CharacterModel, item::model::ItemModel, keybinding::model::KeybindingModel,
+    skill::model::SkillModel,
+};
 
 #[derive(Clone)]
 pub enum DatabaseCommand {
@@ -28,26 +33,26 @@ pub enum DatabaseCommand {
         username: String,
         password: String,
     },
-    ListChars {
+    ListCharsRequest {
         client_id: i32,
         acc_id: i32,
         channel_id: u8,
         world_id: i16,
     },
-    SetPic {
+    ChangePicRequest {
         client_id: i32,
         acc_id: i32,
         pic: String,
     },
-    SetTosAccepted {
+    AcceptTosRequest {
         client_id: i32,
         acc_id: i32,
     },
-    CheckCharName {
+    CharNameRequest {
         client_id: i32,
         ign: String,
     },
-    SelectCharWithPic {
+    SelectCharWithPicRequest {
         client_id: i32,
         acc_id: i32,
         char_id: i32,
@@ -55,12 +60,42 @@ pub enum DatabaseCommand {
         hwid: String,
         pic: String,
     },
+    JoinRequest {
+        client_id: i32,
+        char_id: i32,
+    },
     CreateCharRequest {
         client_id: i32,
         char_model: CharacterModel,
+        top_wz: i32,
+        bottom_wz: i32,
+        shoes_wz: i32,
+        weapon_wz: i32,
+    },
+    FinishCharRequest {
+        client_id: i32,
+        equip_models: Vec<ItemModel>,
+        keybinding_models: Vec<KeybindingModel>,
+        skill_models: Vec<SkillModel>,
+    },
+    DeleteCharRequest {
+        client_id: i32,
+        char_id: i32,
+    },
+    UpdateMapRequest {
+        client_id: i32,
+        char_id: i32,
+        map_wz: i32,
     },
 
     // In-Game
+    PickupItem {
+        client_id: i32,
+        char_id: i32,
+        item_id: i32,
+        ipos: i16,
+        pet_pickup: bool,
+    },
     UpdateKeybindings {
         client_id: i32,
         binds: Vec<KeybindingModel>,
@@ -69,5 +104,21 @@ pub enum DatabaseCommand {
         client_id: i32,
         char_id: i32,
         updates: Vec<StatsUpdate>,
+    },
+
+    DeadMobRequest {
+        client_id: i32,
+        mob_id: u32,
+    },
+    CloseAttackRequest {
+        client_id: i32,
+        char_id: i32,
+        count: i16,
+        skill_id: i32,
+        display: i16,
+        toleft: i16,
+        stance: i16,
+        speed: i16,
+        mob_damages: HashMap<u32, Vec<i32>>,
     },
 }

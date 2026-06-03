@@ -17,43 +17,54 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::account::MapleAccount;
+use crate::component::account::{InAccount, MapleAccount};
+use crate::message::packet::accept_tos::ReadTosRequestMessage;
+use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::codec;
-use crate::system::packet::handler::result::HandlerResult;
-use crate::{message::packet::accept_tos::TosMessage, resource::custom_resource::Sessions};
+use action::model::{Action, SessionAction};
+use action::scope::SessionScope;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::Res;
-use ipc::tcp_command::AsyncCommand;
+use bevy::ecs::system::{Query, Res};
+use ipc::asyncronous::command::AsyncCommand;
+use ipc::asyncronous::db_command::DatabaseCommand;
 
-pub async fn handle_tos(
+pub fn handle_tos(
     client_map: Res<ClientMap>,
-    mut messages: MessageReader<TosMessage>,
+    mut messages: MessageReader<ReadTosRequestMessage>,
     command_tx: CustomSender,
     mut results: MessageWriter<HandlerResult>,
     accounts: Query<&MapleAccount>,
+    in_accounts: Query<(Entity, &InAccount)>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(acc) = accounts.get(client_entity) else {
+        let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
+            continue;
+        };
+        let Ok(acc) = accounts.get(in_acc_entity) else {
             continue;
         };
 
-        let accepted: bool = msg.confirmed == 0x01;
+        let accepted: bool = msg.confirmed as i16 == 0x01;
 
         if accepted {
             command_tx
                 .0
-                .send(AsyncCommand::SetTosAccepted {
-                    client_id: msg.client_id,
-                    acc_id: acc.id,
-                })
+                .lock()
+                .unwrap()
+                .send(AsyncCommand::DatabaseOperation(
+                    DatabaseCommand::AcceptTosRequest {
+                        client_id: msg.client_id,
+                        acc_id: acc.id,
+                    },
+                ))
                 .unwrap();
             let Ok(mut credentials_packet) =
-                codec::login::builder::build_credentials_handler_successful_login_packet(acc)
+                codec::login::builder::build_successful_login_packet(acc)
             else {
                 continue;
             };

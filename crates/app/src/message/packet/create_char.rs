@@ -17,13 +17,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use core::convert::From;
-
 use bevy::prelude::Message;
-use ipc::data::create_char::CreateCharCommand;
+use db::item::model::ItemModel;
+use db::keybinding::model::KeybindingModel;
+use db::skill::model::SkillModel;
+use std::collections::HashMap;
 
 #[derive(Message)]
-pub struct CreateCharMessage {
+pub struct ReadCreateCharRequestMessage {
     pub client_id: i32,
     pub ign: String,
     pub job_wz: i16,
@@ -38,23 +39,21 @@ pub struct CreateCharMessage {
     pub gender_wz: i16,
 }
 
-impl From<(CreateCharMessage, i32, i16)> for CreateCharCommand {
-    fn from((msg, acc_id, world_id): (CreateCharMessage, i32, i16)) -> Self {
-        Self {
-            client_id: msg.client_id,
-            acc_id,
-            world_id,
-            ign: msg.ign,
-            job_wz: msg.job_wz,
-            face_wz: msg.face_wz,
-            hair_wz: msg.hair_wz,
-            hair_color_wz: msg.hair_color_wz,
-            skin_wz: msg.skin_wz,
-            top_wz: msg.top_wz,
-            bottom_wz: msg.bottom_wz,
-            shoes_wz: msg.shoes_wz,
-            weapon_wz: msg.weapon_wz,
-            gender_wz: msg.gender_wz,
-        }
-    }
+#[derive(Message)]
+pub struct CreateCharResponseMessage {
+    pub client_id: i32,
+    pub char_id: i32,
+    pub equipped_item_model_map: HashMap<i32, Vec<ItemModel>>,
+    pub equip_item_model_map: HashMap<i32, Vec<ItemModel>>,
+    pub use_item_model_map: HashMap<i32, Vec<ItemModel>>,
+    pub etc_item_model_map: HashMap<i32, Vec<ItemModel>>,
+    pub setup_item_model_map: HashMap<i32, Vec<ItemModel>>,
+    pub cash_item_model_map: HashMap<i32, Vec<ItemModel>>,
+    pub keybinding_model_map: HashMap<i32, Vec<KeybindingModel>>,
+    pub skill_model_map: HashMap<i32, Vec<SkillModel>>,
+    pub equip_tab_inv_capacity_map: HashMap<i32, i16>,
+    pub use_tab_inv_capacity_map: HashMap<i32, i16>,
+    pub etc_tab_inv_capacity_map: HashMap<i32, i16>,
+    pub setup_tab_inv_capacity_map: HashMap<i32, i16>,
+    pub cash_tab_inv_capacity_map: HashMap<i32, i16>,
 }

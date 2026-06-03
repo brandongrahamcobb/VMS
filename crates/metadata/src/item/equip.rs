@@ -39,6 +39,7 @@ pub fn build_equip_item_wz_info_by_wz(wz: i32) -> Result<BaseItem, ItemMetadataE
         .to_string();
     let cash = json["info"]["cash"] == 1;
     let wz_info = BaseItem {
+        wz,
         cash,
         islot: Some(islot),
         itab: itab as i8,

@@ -18,9 +18,12 @@
  */
 
 use config::error::ConfigError;
+use db::character::error::CharacterModelError;
 use db::error::DatabaseError;
 use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
+use ipc::syncronous::error::SyncDomainError;
+use metadata::item::error::ItemMetadataError;
 use net::packet::io::error::IOError;
 use thiserror::Error;
 use tokio::sync::mpsc::error::SendError;
@@ -44,4 +47,13 @@ pub enum RuntimeError {
 
     #[error("Tokio db command send error in runtime layer")]
     TokioSendDbCommandError(#[from] SendError<DatabaseCommand>),
+
+    #[error("Item metadata error in runtime layer")]
+    ItemMetadataError(#[from] ItemMetadataError),
+
+    #[error("Character model error in runtime layer")]
+    CharacterModelError(#[from] CharacterModelError),
+
+    #[error("Syncronous domain error in runtime layer")]
+    SyncDomainError(#[from] SyncDomainError),
 }

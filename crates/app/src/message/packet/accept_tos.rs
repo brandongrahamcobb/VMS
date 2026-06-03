@@ -18,21 +18,9 @@
  */
 
 use bevy::prelude::Message;
-use core::convert::From;
-use ipc::data::accept_tos::TosCommand;
 
 #[derive(Message)]
-pub struct TosMessage {
+pub struct ReadTosRequestMessage {
     pub client_id: i32,
-    pub confirmed: bool,
-}
-
-impl From<(TosMessage, i32)> for TosCommand {
-    fn from((msg, acc_id): (TosMessage, i32)) -> Self {
-        Self {
-            client_id: msg.client_id,
-            acc_id,
-            confirmed: msg.confirmed,
-        }
-    }
+    pub confirmed: i16,
 }

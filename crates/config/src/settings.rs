@@ -187,10 +187,10 @@ pub fn get_gender_required() -> Result<bool, ConfigError> {
     Ok(gender_req)
 }
 
-pub fn get_channel_count() -> Result<i8, ConfigError> {
+pub fn get_channel_count() -> Result<u8, ConfigError> {
     let settings = get_settings()?;
     let key: &str = "channel_count";
-    let count: i8 = settings
+    let count: u8 = settings
         .get_int(key)?
         .try_into()
         .map_err(ConfigError::IntConversion)?;

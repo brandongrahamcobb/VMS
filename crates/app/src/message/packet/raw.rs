@@ -17,10 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use bevy::prelude::Message;
+use net::packet::model::Packet;
 
 #[derive(Message)]
 pub struct RawPacketMessage {
     pub client_id: i32,
-    pub packet: Packet
+    pub packet: Packet,
 }
-

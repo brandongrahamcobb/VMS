@@ -17,10 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use bevy::prelude::Message;
-use ipc::data::select_char_with_pic::SelectCharWithPic;
 
 #[derive(Message)]
-pub struct SelectCharWithPicRequestMessage {
+pub struct ReadSelectCharWithPicRequestMessage {
     pub client_id: i32,
     pub char_id: i32,
     pub mac: String,
@@ -28,22 +27,10 @@ pub struct SelectCharWithPicRequestMessage {
     pub pic: String,
 }
 
-impl From<(SelectCharWithPicMessage, i32)> for SelectCharWithPic {
-    fn from((msg, acc_id): (SelectCharWithPicMessage, i32)) -> Self {
-        Self {
-            client_id: msg.client_id,
-            acc_id,
-            char_id: msg.char_id,
-            mac: msg.mac,
-            hwid: msg.hwid,
-            pic: msg.pic,
-        }
-    }
-}
-
 #[derive(Message)]
 pub struct SelectCharWithPicResponseMessage {
     pub client_id: i32,
     pub char_id: i32,
+    pub map_wz: i32,
     pub status: bool,
 }

@@ -103,7 +103,7 @@ pub fn create_new_char_equip_models(
     Ok(equips)
 }
 
-pub async fn create_new_char_skill_models(
+pub fn create_new_char_skill_models(
     char_id: i32,
     job_wz: i16,
 ) -> Result<Vec<SkillModel>, SyncDomainError> {

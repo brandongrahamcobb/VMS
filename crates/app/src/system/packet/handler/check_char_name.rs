@@ -18,7 +18,7 @@
  */
 
 use crate::message::packet::check_char_name::{
-    CheckCharNameRequestMessage, CheckCharNameResponseMessage,
+    CheckCharNameResponseMessage, ReadCheckCharNameRequestMessage,
 };
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::CustomSender;
@@ -26,10 +26,11 @@ use crate::system::packet::build::check_char_name;
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
 use bevy::ecs::message::{MessageReader, MessageWriter};
+use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub fn handle_check_char_name_request(
-    mut messages: MessageReader<CheckCharNameRequestMessage>,
+    mut messages: MessageReader<ReadCheckCharNameRequestMessage>,
     command_tx: CustomSender,
 ) -> () {
     for msg in messages.read() {
@@ -37,7 +38,12 @@ pub fn handle_check_char_name_request(
             .0
             .lock()
             .unwrap()
-            .send(DatabaseCommand::CheckCharNameRequest { ign: msg.ign })
+            .send(AsyncCommand::DatabaseOperation(
+                DatabaseCommand::CharNameRequest {
+                    client_id: msg.client_id,
+                    ign: msg.ign.clone(),
+                },
+            ))
             .unwrap();
     }
 }

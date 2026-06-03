@@ -18,7 +18,7 @@
  */
 use bevy::ecs::{component::Component, entity::Entity};
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct MapleWorld {
     pub id: i16,
     pub name: &'static str,

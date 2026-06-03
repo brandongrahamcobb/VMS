@@ -18,20 +18,22 @@
  */
 use std::collections::HashMap;
 use std::sync::Mutex;
-use std::sync::mpsc::Receiver;
+use std::sync::mpsc::{Receiver, Sender};
 
 use bevy::ecs::entity::Entity;
 use bevy::ecs::resource::Resource;
 use db::pool::DbPool;
+use ipc::asyncronous::command::AsyncCommand;
+use ipc::asyncronous::event::AsyncEvent;
 
 #[derive(Resource)]
-pub struct CustomReceiver(pub Mutex<Receiver<CustomPluginEvent>>);
+pub struct CustomReceiver(pub Mutex<Receiver<AsyncEvent>>);
 
 #[derive(Resource)]
-pub struct CustomSender(pub Mutex<Sender<CustomPluginCommand>>);
+pub struct CustomSender(pub Mutex<Sender<AsyncCommand>>);
 
 #[derive(Resource)]
-pub struct Pool(DbPool);
+pub struct Pool(pub DbPool);
 
 #[derive(Resource)]
 pub struct ClientMap(pub HashMap<i32, Entity>);

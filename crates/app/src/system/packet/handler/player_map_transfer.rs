@@ -20,21 +20,26 @@
 use action::model::{Action, SessionAction};
 use action::scope::{MapScope, SessionScope};
 use bevy::ecs::entity::Entity;
+use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Query, Res};
 
 use crate::component::character::{InChar, MapleCharacter};
+use crate::component::inventory::MapleInventory;
+use crate::component::item::MapleItem;
 use crate::component::session::MapleSession;
 use crate::message::packet::player_map_transferred::PlayerMapTransferMessage;
+use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::codec;
-use crate::system::packet::handler::result::HandlerResult;
 
 pub fn handle_player_map_transfer(
     client_map: Res<ClientMap>,
     sessions: Query<&MapleSession>,
-    chars: Query<&MapleCharacter>,
+    chars: Query<(Entity, &MapleCharacter)>,
     in_chars: Query<(Entity, &InChar)>,
+    inventories: Query<(Entity, &MapleInventory)>,
+    items: Query<(&MapleItem, &ChildOf)>,
     mut messages: MessageReader<PlayerMapTransferMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -48,13 +53,21 @@ pub fn handle_player_map_transfer(
         let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
             continue;
         };
-        let Ok(char) = chars.get(in_char_entity) else {
+        let Ok((char_entity, char)) = chars.get(in_char_entity) else {
             continue;
         };
+        let Ok((inv_entity, inv)) = inventories.get(char_entity) else {
+            continue;
+        };
+        let items: Vec<_> = items
+            .iter()
+            .filter(|(_, parent)| parent.0 == inv_entity)
+            .collect();
 
         session.transitioning = false;
 
-        let Ok(mut spawn_player_packet) = codec::player::builder::build_spawn_player_packet(char)
+        let Ok(mut spawn_player_packet) =
+            codec::player::builder::build_spawn_player_packet(char, items)
         else {
             continue;
         };

@@ -40,20 +40,12 @@ pub enum ChannelScope {
 }
 
 #[derive(Clone)]
-pub enum BroadcastScope {
+pub enum TickScope {
     Global,
-    GlobalChar,
     World {
         world_id: i16,
     },
-    WorldChar {
-        world_id: i16,
-    },
     Channel {
-        world_id: i16,
-        channel_id: u8,
-    },
-    ChannelChar {
         world_id: i16,
         channel_id: u8,
     },
@@ -62,9 +54,16 @@ pub enum BroadcastScope {
         channel_id: u8,
         map_wz: i32,
     },
-    MapChar {
-        world_id: i16,
-        channel_id: u8,
-        map_wz: i32,
-    },
+}
+
+#[derive(Clone)]
+pub enum BroadcastScope {
+    Global,
+    GlobalChar,
+    World,
+    WorldChar,
+    Channel,
+    ChannelChar,
+    Map,
+    MapChar,
 }

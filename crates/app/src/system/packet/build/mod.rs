@@ -14,7 +14,6 @@ pub mod pickup_item;
 pub mod ping;
 pub mod player_logged_in;
 pub mod player_moved;
-pub mod register_pic;
 pub mod select_char_with_pic;
 pub mod server_status;
 pub mod spw;

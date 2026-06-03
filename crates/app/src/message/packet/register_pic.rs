@@ -17,31 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use core::convert::From;
-
 use bevy::prelude::Message;
-use ipc::data::register_pic::RegisterPicCommand;
 
 #[derive(Message)]
-pub struct RegisterPicMessage {
+pub struct ReadRegisterPicRequestMessage {
     pub client_id: i32,
     pub char_id: i32,
     pub mac: String,
     pub hwid: String,
     pub pic: String,
-}
-
-impl From<(RegisterPicMessage, i32, i16, u8)> for RegisterPicCommand {
-    fn from((msg, acc_id, world_id, channel_id): (RegisterPicMessage, i32, i16, u8)) -> Self {
-        Self {
-            client_id: msg.client_id,
-            acc_id,
-            world_id,
-            channel_id,
-            char_id: msg.char_id,
-            mac: msg.mac,
-            hwid: msg.hwid,
-            pic: msg.pic,
-        }
-    }
 }

@@ -24,7 +24,7 @@ use net::packet::io::error::IOError::WriteError;
 use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use op::send::SendOpcode;
-use std::time::UNIX_EPOCH;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub fn build_failed_login_packet(status: i16) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
@@ -40,15 +40,13 @@ pub fn build_successful_login_packet(acc: &MapleAccount) -> Result<Packet, Packe
     let mut packet: Packet = Packet::new_empty();
     let opcode = SendOpcode::AccountStatus as i16;
     let pin_required = settings::get_pin_required()? as i16;
-    let acc_id: i32 = acc.model.get_id()?;
-    let gender_wz: i16 = acc.model.gender_wz;
-    let account_name: String = acc.model.username.clone();
-    let created_at: i64 = acc
-        .model
-        .get_created_at()?
+    let acc_id: i32 = acc.id;
+    let gender_wz: i16 = acc.gender_wz;
+    let account_name: String = acc.username.clone();
+    let created_at: i64 = SystemTime::now()
         .duration_since(UNIX_EPOCH)?
         .as_secs()
-        .try_into()?;
+        .try_into()?; // not true
     packet.write_short(opcode).map_err(WriteError)?;
     packet.write_int(0).map_err(WriteError)?;
     packet.write_short(0).map_err(WriteError)?;

@@ -17,27 +17,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use bevy::ecs::entity::Entity;
+use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::system::Commands;
 use config::settings;
 
 use crate::component;
+use crate::component::channel::MapleChannel;
 
 pub fn spawn_worlds(mut commands: Commands) {
     for world_component in component::world::WORLDS {
-        let world_entity = commands.spawn(world_component).id();
-        let channels = spawn_channels(commands, world_component.base_port, world_entity);
+        let world_entity = commands.spawn(world_component.clone()).id();
+        spawn_channels(&mut commands, world_component.base_port, world_entity);
     }
 }
 
-fn spawn_channels(mut commands: Commands, base_port: i16, world_entity: Entity) {
-    let capacity = settings::get_channel_capacity()?;
-    let count: i32 = settings::get_channel_count()?;
-    let flag: i16 = settings::get_channel_flag()?;
+fn spawn_channels(commands: &mut Commands, base_port: i16, world_entity: Entity) {
     let first_port: i16 = base_port + 1;
+    let count: u8 = settings::get_channel_count().unwrap_or(3);
     for offset in 0..count {
-        let port: i16 = (first_port + offset) as i16;
+        let Ok(capacity) = settings::get_channel_capacity() else {
+            continue;
+        };
+        let Ok(flag) = settings::get_channel_flag() else {
+            continue;
+        };
+        let port: i16 = (first_port + offset as i16) as i16;
         commands.spawn((
             MapleChannel {
+                id: offset,
                 capacity,
                 flag,
                 port,

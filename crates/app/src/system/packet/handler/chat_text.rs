@@ -19,7 +19,7 @@
 
 use crate::component::account::{InAccount, MapleAccount};
 use crate::component::character::{InChar, MapleCharacter};
-use crate::message::packet::chat_text::ChatTextMessage;
+use crate::message::packet::chat_text::ReadChatTextRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::chat_text;
@@ -35,7 +35,7 @@ pub fn handle_chat_text(
     in_accounts: Query<(Entity, &InAccount)>,
     chars: Query<&MapleCharacter>,
     in_chars: Query<(Entity, &InChar)>,
-    mut messages: MessageReader<ChatTextMessage>,
+    mut messages: MessageReader<ReadChatTextRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
@@ -56,7 +56,7 @@ pub fn handle_chat_text(
         };
 
         let Ok(mut chat_packet) =
-            chat_text::build_chat_text_packet(acc.admin, char.id, msg.msg, msg.show)
+            chat_text::build_chat_text_packet(acc.admin, char.id, msg.msg.clone(), msg.show)
         else {
             continue;
         };

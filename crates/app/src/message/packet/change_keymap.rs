@@ -18,25 +18,11 @@
  */
 
 use bevy::prelude::Message;
-use core::convert::From;
-use ipc::data::change_keymap::ChangeKeymapCommand;
 
 #[derive(Message)]
-pub struct ChangeKeymapMessage {
+pub struct ReadChangeKeymapRequestMessage {
     pub client_id: i32,
     pub keys: Vec<i32>,
     pub types: Vec<i16>,
     pub actions: Vec<i32>,
-}
-
-impl From<(ChangeKeymapMessage, i32)> for ChangeKeymapCommand {
-    fn from((msg, char_id): (ChangeKeymapMessage, i32)) -> Self {
-        Self {
-            client_id: msg.client_id,
-            char_id,
-            keys: msg.keys,
-            types: msg.types,
-            actions: msg.actions,
-        }
-    }
 }

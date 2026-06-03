@@ -18,6 +18,7 @@
  */
 #[derive(Clone)]
 pub struct BaseItem {
+    pub wz: i32,
     pub strength: i16,
     pub dexterity: i16,
     pub intelligence: i16,

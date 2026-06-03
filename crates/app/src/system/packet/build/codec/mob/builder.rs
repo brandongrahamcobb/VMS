@@ -25,7 +25,7 @@ use net::packet::model::Packet;
 use op::send::SendOpcode;
 
 pub fn build_spawn_mob_packet(
-    mob: MapleMob,
+    mob: &MapleMob,
     stance: i8,
     effect: i8,
     team: i8,
@@ -64,7 +64,7 @@ pub fn build_mob_damage_show_hp_packet(
     Ok(packet)
 }
 
-pub fn build_kill_mob_packet(mob_id: u32) -> Result<&mut packet, PacketBuildError> {
+pub fn build_kill_mob_packet(mob_id: u32) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::KillMob as i16;
     packet.write_short(op).map_err(WriteError)?;
@@ -127,7 +127,7 @@ pub fn build_mob_move_packet(
 }
 
 pub fn build_spawn_mob_controller_packet(
-    mob: MapleMob,
+    mob: &MapleMob,
     mode: i8,
     stance: i8,
     effect: i8,
@@ -147,7 +147,7 @@ pub fn build_spawn_mob_controller_packet(
         packet.write_short(mob.base.y).map_err(WriteError)?;
         packet.write_byte(stance as i16).map_err(WriteError)?;
         packet.write_bytes(vec![0u8; 2]).map_err(WriteError)?; // skip 2
-        packet.write_short(mob.base.fh).map_err(WriteError)?;
+        packet.write_short(mob.base.fh as i16).map_err(WriteError)?;
         packet.write_byte(effect as i16).map_err(WriteError)?;
         if effect > 0 {
             packet.write_byte(0).map_err(WriteError)?;

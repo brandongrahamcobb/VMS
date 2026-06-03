@@ -17,37 +17,37 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use bevy::ecs::entity::Entity;
-use bevy::ecs::hierarchy::ChildOf;
-use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Commands, Query, Res};
-use ipc::asyncronous::db_command::DatabaseCommand;
-
 use crate::component::channel::{InChannel, MapleChannel};
 use crate::component::character::{InChar, MapleCharacter};
 use crate::component::map::{InMap, MapleMap};
 use crate::component::session::{InSession, MapleSession};
-use crate::message::packet::change_map::ChangeMapMessage;
+use crate::message::packet::change_map::ReadChangeMapRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{change_map, codec};
 use action::model::{Action, SessionAction};
 use action::scope::{MapScope, SessionScope};
+use bevy::ecs::entity::Entity;
+use bevy::ecs::hierarchy::ChildOf;
+use bevy::ecs::message::{MessageReader, MessageWriter};
+use bevy::ecs::system::{Commands, Query, Res};
+use ipc::asyncronous::command::AsyncCommand;
+use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub fn handle_map_change(
-    mut commands: Commands,
+    commands: &mut Commands,
     command_tx: CustomSender,
     client_map: Res<ClientMap>,
     mut sessions: Query<&mut MapleSession>,
     in_sessions: Query<(Entity, &InSession)>,
-    channels: Query<&MapleChannel>,
-    in_channels: Query<&InChannel>,
-    maps: Query<&MapleMap>,
+    channels: Query<(Entity, &MapleChannel)>,
+    in_channels: Query<(Entity, &InChannel)>,
+    maps: Query<(Entity, &MapleMap, &ChildOf)>,
     in_maps: Query<(Entity, &InMap)>,
     portals: Query<(&MaplePortal, &ChildOf)>,
     chars: Query<&MapleCharacter>,
     in_chars: Query<(Entity, &InChar)>,
-    mut messages: MessageReader<ChangeMapMessage>,
+    mut messages: MessageReader<ReadChangeMapRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
@@ -72,7 +72,7 @@ pub fn handle_map_change(
         let Ok((in_channel_entity, _)) = in_channels.get(client_entity) else {
             continue;
         };
-        let Ok(channel) = channels.get(in_channel_entity) else {
+        let Ok((channel_entity, channel)) = channels.get(in_channel_entity) else {
             continue;
         };
         let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
@@ -87,7 +87,7 @@ pub fn handle_map_change(
 
         let Some((map_entity, map, _)) = maps
             .iter()
-            .find(|(_, m, parent)| m.wz = portal.target_map_wz && parent.0 == in_channel.0)
+            .find(|(_, m, parent)| m.base.wz == portal.target_map_wz && parent.0 == channel_entity)
         else {
             continue;
         };
@@ -98,11 +98,13 @@ pub fn handle_map_change(
             .0
             .lock()
             .unwrap()
-            .send(DatabaseCommand::SetMap {
-                client_id: msg.client_id,
-                char_id: char.id,
-                map_wz: map.wz,
-            })
+            .send(AsyncCommand::DatabaseOperation(
+                DatabaseCommand::UpdateMapRequest {
+                    client_id: msg.client_id,
+                    char_id: char.id,
+                    map_wz: map.base.wz,
+                },
+            ))
             .unwrap();
 
         let Ok(mut despawn_packet) = codec::player::builder::build_despawn_player_packet(char.id)
@@ -110,7 +112,7 @@ pub fn handle_map_change(
             continue;
         };
         let Ok(mut set_field_packet) =
-            change_map::build_set_field_change_map_packet(channel.id, map.wz, portal.portal_wz)
+            change_map::build_set_field_change_map_packet(channel.id, map.base.wz, portal.base.wz)
         else {
             continue;
         };

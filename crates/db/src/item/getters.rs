@@ -18,11 +18,11 @@
  */
 
 use crate::error::DatabaseError;
+use crate::item::model::{DropData, ItemModel};
 use crate::pool::{self, DbPool};
+use crate::schema::{drops, items};
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, RunQueryDsl};
-use crate::item::model::{DropData, ItemModel};
-use crate::schema::{drops, items};
 
 pub async fn get_item_models_by_char_id(
     pool: &DbPool,
@@ -31,6 +31,32 @@ pub async fn get_item_models_by_char_id(
     pool::spawn_db(pool, move |conn| {
         items::table
             .filter(items::char_id.eq(char_id))
+            .get_results::<ItemModel>(conn)
+    })
+    .await
+}
+
+pub async fn get_equipped_item_models_by_char_id(
+    pool: &DbPool,
+    char_id: i32,
+) -> Result<Vec<ItemModel>, DatabaseError> {
+    pool::spawn_db(pool, move |conn| {
+        items::table
+            .filter(items::char_id.eq(char_id))
+            .filter(items::equipped)
+            .get_results::<ItemModel>(conn)
+    })
+    .await
+}
+
+pub async fn get_unequipped_item_models_by_char_id(
+    pool: &DbPool,
+    char_id: i32,
+) -> Result<Vec<ItemModel>, DatabaseError> {
+    pool::spawn_db(pool, move |conn| {
+        items::table
+            .filter(items::char_id.eq(char_id))
+            .filter(items::equipped.eq(false))
             .get_results::<ItemModel>(conn)
     })
     .await

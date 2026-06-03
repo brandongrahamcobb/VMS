@@ -19,7 +19,7 @@
 use bevy::prelude::Message;
 
 #[derive(Message)]
-pub struct ChatTextMessage {
+pub struct ReadChatTextRequestMessage {
     pub client_id: i32,
     pub msg: String,
     pub show: i16,

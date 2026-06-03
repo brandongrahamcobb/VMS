@@ -6,3 +6,8 @@ pub struct HandlerResult {
     pub client_id: i32,
     pub actions: Vec<Action>,
 }
+
+#[derive(Message)]
+pub struct TickResult {
+    pub actions: Vec<Action>,
+}

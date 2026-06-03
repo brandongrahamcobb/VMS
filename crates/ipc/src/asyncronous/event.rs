@@ -17,8 +17,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use base::account::{FailedCode, StatusCode};
-use db::{account::model::AccountModel, character::model::CharacterModel};
+use std::collections::HashMap;
+
+use base::{
+    account::{FailedCode, StatusCode},
+    skill::BaseSkill,
+};
+use db::{
+    account::model::AccountModel, character::model::CharacterModel, item::model::ItemModel,
+    keybinding::model::KeybindingModel, skill::model::SkillModel,
+};
 use net::packet::model::Packet;
 
 pub enum AsyncEvent {
@@ -49,14 +57,40 @@ pub enum AsyncEvent {
         client_id: i32,
         code: FailedCode,
     },
-    CharCreated {
+    CharCreationSuccess {
         client_id: i32,
         char_model: CharacterModel,
+        equipped_item_model_map: HashMap<i32, Vec<ItemModel>>,
+        equip_item_model_map: HashMap<i32, Vec<ItemModel>>,
+        use_item_model_map: HashMap<i32, Vec<ItemModel>>,
+        etc_item_model_map: HashMap<i32, Vec<ItemModel>>,
+        setup_item_model_map: HashMap<i32, Vec<ItemModel>>,
+        cash_item_model_map: HashMap<i32, Vec<ItemModel>>,
+        keybinding_model_map: HashMap<i32, Vec<KeybindingModel>>,
+        skill_model_map: HashMap<i32, Vec<SkillModel>>,
+        equip_tab_inv_capacity_map: HashMap<i32, i16>,
+        use_tab_inv_capacity_map: HashMap<i32, i16>,
+        etc_tab_inv_capacity_map: HashMap<i32, i16>,
+        setup_tab_inv_capacity_map: HashMap<i32, i16>,
+        cash_tab_inv_capacity_map: HashMap<i32, i16>,
     },
     ListCharsSuccess {
         client_id: i32,
         channel_id: u8,
         char_models: Vec<CharacterModel>,
+        equipped_item_model_map: HashMap<i32, Vec<ItemModel>>,
+        equip_item_model_map: HashMap<i32, Vec<ItemModel>>,
+        use_item_model_map: HashMap<i32, Vec<ItemModel>>,
+        etc_item_model_map: HashMap<i32, Vec<ItemModel>>,
+        setup_item_model_map: HashMap<i32, Vec<ItemModel>>,
+        cash_item_model_map: HashMap<i32, Vec<ItemModel>>,
+        keybinding_model_map: HashMap<i32, Vec<KeybindingModel>>,
+        skill_model_map: HashMap<i32, Vec<SkillModel>>,
+        equip_tab_inv_capacity_map: HashMap<i32, i16>,
+        use_tab_inv_capacity_map: HashMap<i32, i16>,
+        etc_tab_inv_capacity_map: HashMap<i32, i16>,
+        setup_tab_inv_capacity_map: HashMap<i32, i16>,
+        cash_tab_inv_capacity_map: HashMap<i32, i16>,
         slots: i16,
         world_id: i16,
     },
@@ -72,5 +106,38 @@ pub enum AsyncEvent {
         client_id: i32,
         char_id: i32,
         status: bool,
+    },
+    JoinSuccess {
+        client_id: i32,
+        keybinding_models: Vec<KeybindingModel>,
+        skill_models: Vec<SkillModel>,
+        equipped_item_models: Vec<ItemModel>,
+        equip_tab_item_models: Vec<ItemModel>,
+        use_tab_item_models: Vec<ItemModel>,
+        etc_tab_item_models: Vec<ItemModel>,
+        setup_tab_item_models: Vec<ItemModel>,
+        cash_tab_item_models: Vec<ItemModel>,
+        equip_tab_capacity: i16,
+        use_tab_capacity: i16,
+        etc_tab_capacity: i16,
+        setup_tab_capacity: i16,
+        cash_tab_capacity: i16,
+    },
+    PickupSuccess {
+        client_id: i32,
+        item_id: i32,
+        ipos: i16,
+        pet_pickup: bool,
+    },
+    CloseAttackSuccess {
+        client_id: i32,
+        count: i16,
+        skill_model: SkillModel,
+        base_skill: BaseSkill,
+        display: i16,
+        toleft: i16,
+        stance: i16,
+        speed: i16,
+        mob_damages: HashMap<u32, Vec<i32>>,
     },
 }

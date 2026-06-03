@@ -19,16 +19,23 @@
 
 use crate::component::channel::{InChannel, MapleChannel};
 use crate::component::character::{InChar, MapleCharacter};
+use crate::component::inventory::MapleInventory;
+use crate::component::item::MapleItem;
+use crate::component::keybinding::MapleKeybinding;
 use crate::component::map::{InMap, MapleMap};
+use crate::message::packet::player_logged_in::{
+    PlayerLoggedInResponseMessage, ReadPlayerLoggedInRequestMessage,
+};
+use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{codec, player_logged_in};
-use crate::system::packet::handler::result::HandlerResult;
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
+use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub fn handle_player_logged_in_request(
@@ -36,7 +43,7 @@ pub fn handle_player_logged_in_request(
     client_map: Res<ClientMap>,
     chars: Query<&MapleCharacter>,
     in_chars: Query<(Entity, &InChar)>,
-    mut messages: MessageReader<PlayerLoggedInRequestMessage>,
+    mut messages: MessageReader<ReadPlayerLoggedInRequestMessage>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
@@ -53,24 +60,30 @@ pub fn handle_player_logged_in_request(
             .0
             .lock()
             .unwrap()
-            .send(DatabaseCommand::JoinPlayer {
-                client_id: msg.client_id,
-                char_id: char.id,
-            })
+            .send(AsyncCommand::DatabaseOperation(
+                DatabaseCommand::JoinRequest {
+                    client_id: msg.client_id,
+                    char_id: char.id,
+                },
+            ))
             .unwrap();
     }
 }
 
 pub fn handle_player_logged_in_response(
-    commands: Commands,
+    commands: &mut Commands,
     command_tx: CustomSender,
     client_map: Res<ClientMap>,
+    parents: Query<&ChildOf>,
     channels: Query<&MapleChannel>,
     in_channels: Query<(Entity, &InChannel)>,
     maps: Query<&MapleMap>,
     in_maps: Query<(Entity, &InMap)>,
     chars: Query<(Entity, &MapleCharacter)>,
     in_chars: Query<(Entity, &InChar)>,
+    inventories: Query<(Entity, &MapleInventory)>,
+    items: Query<(&MapleItem, &ChildOf)>,
+    binds: Query<(&MapleKeybinding, &ChildOf)>,
     mut messages: MessageReader<PlayerLoggedInResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -96,16 +109,29 @@ pub fn handle_player_logged_in_response(
         let Ok((char_entity, char)) = chars.get(in_char_entity) else {
             continue;
         };
+        let Ok((inv_entity, _)) = inventories.get(char_entity) else {
+            continue;
+        };
+        let items: Vec<_> = items
+            .iter()
+            .filter(|(_, parent)| {
+                parents
+                    .get(parent.parent())
+                    .map(|tab_parent| tab_parent.parent() == inv_entity)
+                    .unwrap_or(false)
+            })
+            .collect();
+        let binds: Vec<_> = binds
+            .iter()
+            .filter(|(_, parent)| parent.0 == char_entity)
+            .collect();
 
-        commands.spawn((MapleKeybindings::from(msg.binds), ChildOf(char_entity)));
-        commands.spawn((MapleKeybindings::from(msg.binds), ChildOf(char_entity)));
-
-        let Ok(keymap_packet) = player_logged_in::build_player_logged_in_keymap_packet(&msg.binds)
+        let Ok(keymap_packet) = player_logged_in::build_player_logged_in_keymap_packet(&binds)
         else {
             continue;
         };
         let Ok(mut set_field_packet) =
-            codec::player::builder::build_set_field_packet(&char, channel.id, map.wz)
+            codec::player::builder::build_set_field_packet(&char, items, channel.id, map.base.wz)
         else {
             continue;
         };

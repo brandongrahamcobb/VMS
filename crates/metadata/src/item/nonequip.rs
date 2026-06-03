@@ -40,6 +40,7 @@ pub fn build_nonequip_item_wz_info_by_wz(wz: i32) -> Result<BaseItem, ItemMetada
         .map(|c| c == 1)
         .unwrap_or(false);
     let wz_info = BaseItem {
+        wz,
         cash,
         islot: None,
         itab: itab as i8,

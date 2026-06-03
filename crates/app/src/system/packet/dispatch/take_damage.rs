@@ -18,17 +18,17 @@
  */
 
 use net::packet::io::error::IOError::ReadError;
-use net::packet::model::Packet;
 use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use std::io::Cursor;
 
-use crate::message::packet::take_damage::TakeDamageMessage;
+use crate::message::packet::take_damage::ReadTakeDamageMessage;
 use crate::system::packet::dispatch::error::DispatchError;
 
 pub fn read_take_damage_packet(
     packet: &Packet,
     client_id: i32,
-) -> Result<TakeDamageMessage, DispatchError> {
+) -> Result<ReadTakeDamageMessage, DispatchError> {
     let mut pkt_reader = Cursor::new(&packet.bytes);
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let _tick_time = pkt_reader.read_int().map_err(ReadError)?;
@@ -38,7 +38,7 @@ pub fn read_take_damage_packet(
     let mob_wz = pkt_reader.read_int().map_err(ReadError)?;
     let mob_id = pkt_reader.read_int().map_err(ReadError)?;
     let direction = pkt_reader.read_byte().map_err(ReadError)? as i16;
-    Ok(TakeDamageMessage {
+    Ok(ReadTakeDamageMessage {
         client_id,
         from,
         element,

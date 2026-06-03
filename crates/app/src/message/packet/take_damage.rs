@@ -17,13 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use core::convert::From;
-
 use bevy::prelude::Message;
-use ipc::data::take_damage::TakeDamageCommand;
 
 #[derive(Message)]
-pub struct TakeDamageMessage {
+pub struct ReadTakeDamageRequestMessage {
     pub client_id: i32,
     pub from: i16,
     pub element: i16,
@@ -31,19 +28,4 @@ pub struct TakeDamageMessage {
     pub mob_wz: i32,
     pub mob_id: i32,
     pub direction: i16,
-}
-
-impl From<(TakeDamageMessage, i32)> for TakeDamageCommand {
-    fn from((msg, char_id): (TakeDamageMessage, i32)) -> Self {
-        Self {
-            client_id: msg.client_id,
-            char_id,
-            from: msg.from,
-            element: msg.element,
-            damage: msg.damage,
-            mob_wz: msg.mob_wz,
-            mob_id: msg.mob_id,
-            direction: msg.direction,
-        }
-    }
 }

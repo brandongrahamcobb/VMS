@@ -18,12 +18,11 @@
  */
 
 use bevy::prelude::Message;
-use entity::character::wrapper::Character;
 
 #[derive(Message)]
-pub struct SelectCharMessage {
+pub struct ReadSelectCharRequestMessage {
     pub client_id: i32,
-    pub char: Character,
+    pub char_id: i32,
     pub mac: String,
     pub hwid: String,
 }

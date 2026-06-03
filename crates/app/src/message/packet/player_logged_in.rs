@@ -17,10 +17,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use bevy::prelude::Message;
+use db::{item::model::ItemModel, keybinding::model::KeybindingModel, skill::model::SkillModel};
 
 #[derive(Message)]
-pub struct PlayerLoggedInMessage {
+pub struct ReadPlayerLoggedInRequestMessage {
     pub client_id: i32,
     pub char_id: i32,
     pub channel_id: i16,
+}
+
+#[derive(Message)]
+pub struct PlayerLoggedInResponseMessage {
+    pub client_id: i32,
+    pub keybinding_models: Vec<KeybindingModel>,
+    pub skill_models: Vec<SkillModel>,
+    pub equip_tab_capacity: i16,
+    pub use_tab_capacity: i16,
+    pub etc_tab_capacity: i16,
+    pub setup_tab_capacity: i16,
+    pub cash_tab_capacity: i16,
+    pub equipped_item_models: Vec<ItemModel>,
+    pub equip_tab_item_models: Vec<ItemModel>,
+    pub use_tab_item_models: Vec<ItemModel>,
+    pub etc_tab_item_models: Vec<ItemModel>,
+    pub setup_tab_item_models: Vec<ItemModel>,
+    pub cash_tab_item_models: Vec<ItemModel>,
 }

@@ -19,7 +19,7 @@
 use bevy::prelude::Message;
 
 #[derive(Message)]
-pub struct CheckCharNameRequestMessage {
+pub struct ReadCheckCharNameRequestMessage {
     pub client_id: i32,
     pub ign: String,
 }

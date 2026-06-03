@@ -24,6 +24,7 @@ pub struct BaseMap {
     pub mob_rate: f32,
 }
 
+#[derive(Clone)]
 pub struct Point {
     pub x: i16,
     pub y: i16,

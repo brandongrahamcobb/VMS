@@ -18,11 +18,11 @@
  */
 
 use crate::error::DatabaseError;
+use crate::item::model::ItemModel;
 use crate::pool::{self, DbPool};
+use crate::schema::items;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, RunQueryDsl};
-use crate::item::model::ItemModel;
-use crate::schema::items;
 
 pub async fn delete_item_by_id(pool: &DbPool, item_id: i32) -> Result<usize, DatabaseError> {
     pool::spawn_db(pool, move |conn| {
@@ -31,18 +31,23 @@ pub async fn delete_item_by_id(pool: &DbPool, item_id: i32) -> Result<usize, Dat
     .await
 }
 
-pub async fn update_item(
+pub async fn update_items(
     pool: &DbPool,
-    item_model: &ItemModel,
-) -> Result<ItemModel, DatabaseError> {
-    let item_model: ItemModel = item_model.clone();
+    item_models: Vec<ItemModel>,
+) -> Result<Vec<ItemModel>, DatabaseError> {
     pool::spawn_db(pool, move |conn| {
-        diesel::insert_into(items::table)
-            .values(item_model.clone())
-            .on_conflict(items::id)
-            .do_update()
-            .set(item_model.clone())
-            .get_result::<ItemModel>(conn)
+        let mut results: Vec<ItemModel> = Vec::new();
+        for item_model in &item_models {
+            results.push(
+                diesel::insert_into(items::table)
+                    .values(item_model)
+                    .on_conflict(items::id)
+                    .do_update()
+                    .set(item_model)
+                    .get_result::<ItemModel>(conn)?,
+            )
+        }
+        Ok(results)
     })
     .await
 }

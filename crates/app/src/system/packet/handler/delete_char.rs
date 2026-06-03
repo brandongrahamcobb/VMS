@@ -19,6 +19,7 @@
 
 use crate::component::account::{InAccount, MapleAccount};
 use crate::component::character::MapleCharacter;
+use crate::message::packet::delete_char::ReadDeleteCharRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::spw;
@@ -29,17 +30,18 @@ use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
 use config::settings;
+use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 use ipc::syncronous;
 
 pub fn handle_delete_char_request(
-    commands: Commands,
+    commands: &mut Commands,
     command_tx: CustomSender,
     client_map: Res<ClientMap>,
     accounts: Query<(Entity, &MapleAccount)>,
     in_accounts: Query<(Entity, &InAccount)>,
     chars: Query<(Entity, &MapleCharacter, &ChildOf)>,
-    mut messages: MessageReader<DeleteCharRequestMessage>,
+    mut messages: MessageReader<ReadDeleteCharRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
@@ -57,7 +59,7 @@ pub fn handle_delete_char_request(
         let Ok((acc_entity, acc)) = accounts.get(in_acc_entity) else {
             continue;
         };
-        let Some((char_entity, char, _)) = chars
+        let Some((char_entity, _, _)) = chars
             .iter()
             .find(|(_, c, parent)| c.id == msg.char_id && parent.0 == acc_entity)
         else {
@@ -65,7 +67,7 @@ pub fn handle_delete_char_request(
         };
 
         if use_pic {
-            pic_status = syncronous::account::check_pic(acc.pic, msg.pic.clone());
+            pic_status = syncronous::account::check_pic(acc.pic.clone(), msg.pic.clone());
         }
         if !pic_status {
             commands.entity(char_entity).despawn();
@@ -73,10 +75,13 @@ pub fn handle_delete_char_request(
                 .0
                 .lock()
                 .unwrap()
-                .send(DatabaseCommand::DeleteChar {
-                    client_id: msg.clinet_id,
-                    char_id: msg.char_id,
-                });
+                .send(AsyncCommand::DatabaseOperation(
+                    DatabaseCommand::DeleteCharRequest {
+                        client_id: msg.client_id,
+                        char_id: msg.char_id,
+                    },
+                ))
+                .unwrap();
             let Ok(mut spw_packet) = spw::build_spw_packet(!pic_status) else {
                 continue;
             };

@@ -5,6 +5,7 @@ pub mod change_keymap;
 pub mod change_map;
 pub mod chat_text;
 pub mod check_char_name;
+pub mod codec;
 pub mod constants;
 pub mod create_char;
 pub mod delete_char;

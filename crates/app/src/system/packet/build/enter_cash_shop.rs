@@ -18,8 +18,11 @@
  */
 
 use crate::component::character::MapleCharacter;
+use crate::component::item::MapleItem;
+use crate::component::map::MapleMap;
 use crate::system::packet::build::codec;
 use crate::system::packet::build::error::PacketBuildError;
+use bevy::ecs::hierarchy::ChildOf;
 use net::packet::io::error::IOError::WriteError;
 use net::packet::io::prelude::*;
 use net::packet::model::Packet;
@@ -28,6 +31,8 @@ use op::send::SendOpcode;
 pub fn build_enter_cash_shop_packet(
     username: String,
     char: &MapleCharacter,
+    equips: Vec<(&MapleItem, &ChildOf)>,
+    map: &MapleMap,
 ) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SetCashShop as i16;
@@ -39,7 +44,8 @@ pub fn build_enter_cash_shop_packet(
     codec::player::builder::build_player_logged_in_meta_part_packet(
         &mut packet,
         char,
-        char.map_wz,
+        equips,
+        map.base.wz,
     )?;
     build_cash_shop_meta(&mut packet, username.clone())?;
     Ok(packet)

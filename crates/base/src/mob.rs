@@ -31,7 +31,7 @@ pub struct BaseMob {
     pub fs: f32,
     pub level: i16,
     pub max_hp: i32,
-    pub max_mp: i32,
+    pub max_mp: i16,
     pub mob_type: i16,
     pub pushed: i8,
     pub speed: i16,

@@ -18,22 +18,22 @@
  */
 
 use net::packet::io::error::IOError::ReadError;
-use net::packet::model::Packet;
 use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use std::io::Cursor;
 
-use crate::message::packet::player_logged_in::PlayerLoggedInMessage;
+use crate::message::packet::player_logged_in::ReadPlayerLoggedInMessage;
 use crate::system::packet::dispatch::error::DispatchError;
 
 pub fn read_player_logged_in_packet(
     packet: &Packet,
     client_id: i32,
-) -> Result<PlayerLoggedInMessage, DispatchError> {
+) -> Result<ReadPlayerLoggedInMessage, DispatchError> {
     let mut pkt_reader = Cursor::new(&packet.bytes);
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let char_id = pkt_reader.read_int().map_err(ReadError)?;
     let channel_id = pkt_reader.read_byte().map_err(ReadError)? as i16;
-    Ok(PlayerLoggedInMessage {
+    Ok(ReadPlayerLoggedInMessage {
         client_id,
         char_id,
         channel_id,

@@ -1,0 +1,39 @@
+use std::collections::HashMap;
+
+use crate::component::item::MapleItem;
+use crate::component::slot::MapleFilledItemSlot;
+use bevy::ecs::entity::Entity;
+use bevy::ecs::hierarchy::ChildOf;
+use bevy::ecs::system::Commands;
+use db::item::model::ItemModel;
+
+pub fn spawn_item(
+    commands: &mut Commands,
+    cid: i32,
+    item_map: &HashMap<i32, Vec<ItemModel>>,
+    tab_entity: Entity,
+) -> HashMap<MapleFilledItemSlot, MapleItem> {
+    let mut filled_slots: HashMap<MapleFilledItemSlot, MapleItem> = HashMap::new();
+    for (cid, item_models) in item_map {
+        for item_model in item_models {
+            let Some(char_id) = item_model.char_id else {
+                continue;
+            };
+            if *cid == char_id {
+                let Ok(info) = metadata::item::equip::build_equip_item_wz_info_by_wz(item_model.wz)
+                else {
+                    continue;
+                };
+                let item: MapleItem = MapleItem::from((info, *item_model));
+                if let Some(ipos) = item.ipos {
+                    let filled_slot = MapleFilledItemSlot { ipos };
+                    let filled_slot_entity =
+                        commands.spawn((filled_slot, ChildOf(tab_entity))).id();
+                    commands.spawn((item, ChildOf(filled_slot_entity)));
+                    filled_slots.insert(filled_slot, item);
+                }
+            }
+        }
+    }
+    filled_slots
+}

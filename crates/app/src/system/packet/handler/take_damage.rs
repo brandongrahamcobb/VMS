@@ -36,7 +36,7 @@ use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub fn handle_take_damage(
-    commands: Commands,
+    commands: &mut Commands,
     command_tx: CustomSender,
     client_map: Res<ClientMap>,
     chars: Query<&mut MapleCharacter>,
@@ -67,7 +67,7 @@ pub fn handle_take_damage(
             continue;
         };
 
-        let Ok(return_map_wz) = metadata::map::death::get_death_map_by_wz(map.wz) else {
+        let Ok(return_map_wz) = metadata::map::death::get_death_map_by_wz(map.base.wz) else {
             continue;
         };
 
@@ -107,7 +107,7 @@ pub fn handle_take_damage(
             commands.entity(client_entity).remove::<InMap>();
             let Some((map_entity, _, _)) = maps
                 .iter()
-                .find(|(_, m, parent)| m.wz == return_map_wz && parent.0 == channel_entity)
+                .find(|(_, m, parent)| m.base.wz == return_map_wz && parent.0 == channel_entity)
             else {
                 continue;
             };

@@ -20,7 +20,7 @@
 use crate::component::channel::{InChannel, MapleChannel};
 use crate::component::character::{InChar, MapleCharacter};
 use crate::component::world::{InWorld, MapleWorld};
-use crate::message::packet::cc::ChangeChannelMessage;
+use crate::message::packet::cc::ReadChangeChannelRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::{cc, codec};
@@ -35,15 +35,15 @@ use config::settings;
 use inc::helpers;
 
 pub fn handle_change_channel(
-    mut commands: Commands,
+    commands: &mut Commands,
     client_map: Res<ClientMap>,
-    mut messages: MessageReader<ChangeChannelMessage>,
-    mut results: MessageWriter<HandlerResult>,
     worlds: Query<(Entity, &MapleWorld)>,
     in_world: Query<(Entity, &InWorld)>,
     channels: Query<(Entity, &MapleChannel, &ChildOf)>,
     chars: Query<&MapleCharacter>,
     in_chars: Query<(Entity, &InChar)>,
+    mut messages: MessageReader<ReadChangeChannelRequestMessage>,
+    mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
         let Ok(addr) = settings::get_routing_address() else {

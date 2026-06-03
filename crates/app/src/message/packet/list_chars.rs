@@ -17,35 +17,39 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use core::convert::From;
+use std::collections::HashMap;
 
 use bevy::prelude::Message;
-use entity::character::wrapper::Character;
-use ipc::data::list_chars::ListCharsCommand;
+use db::character::model::CharacterModel;
+use db::item::model::ItemModel;
+use db::keybinding::model::KeybindingModel;
+use db::skill::model::SkillModel;
 
 #[derive(Message)]
-pub struct ListCharsRequestMessage {
+pub struct ReadListCharsRequestMessage {
     pub client_id: i32,
     pub channel_id: u8,
     pub world_id: i16,
-}
-
-impl From<(ListCharsRequestMessage, i32)> for ListCharsCommand {
-    fn from((msg, acc_id): (ListCharsRequestMessage, i32)) -> Self {
-        Self {
-            client_id: msg.client_id,
-            acc_id,
-            channel_id: msg.channel_id,
-            world_id: msg.world_id,
-        }
-    }
 }
 
 #[derive(Message)]
 pub struct ListCharsSuccessMessage {
     pub client_id: i32,
     pub channel_id: u8,
-    pub chars: Vec<Character>,
+    pub char_models: Vec<CharacterModel>,
+    pub keybinding_model_map: HashMap<i32, Vec<KeybindingModel>>,
+    pub skill_model_map: HashMap<i32, Vec<SkillModel>>,
+    pub equipped_item_model_map: HashMap<i32, Vec<ItemModel>>,
+    pub equip_item_model_map: HashMap<i32, Vec<ItemModel>>,
+    pub use_item_model_map: HashMap<i32, Vec<ItemModel>>,
+    pub etc_item_model_map: HashMap<i32, Vec<ItemModel>>,
+    pub setup_item_model_map: HashMap<i32, Vec<ItemModel>>,
+    pub cash_item_model_map: HashMap<i32, Vec<ItemModel>>,
+    pub equip_tab_inv_capacity_map: HashMap<i32, i16>,
+    pub use_tab_inv_capacity_map: HashMap<i32, i16>,
+    pub etc_tab_inv_capacity_map: HashMap<i32, i16>,
+    pub setup_tab_inv_capacity_map: HashMap<i32, i16>,
+    pub cash_tab_inv_capacity_map: HashMap<i32, i16>,
     pub slots: i16,
     pub world_id: i16,
 }

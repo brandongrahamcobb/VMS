@@ -17,22 +17,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use net::packet::io::error::IOError::ReadError;
-use net::packet::model::Packet;
 use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use std::io::Cursor;
 
-use crate::message::packet::cc::ChangeChannelMessage;
+use crate::message::packet::cc::ReadChangeChannelMessage;
 use crate::system::packet::dispatch::error::DispatchError;
 
 pub fn read_change_channel_packet(
     packet: &Packet,
     client_id: i32,
-) -> Result<ChangeChannelMessage, DispatchError> {
+) -> Result<ReadChangeChannelMessage, DispatchError> {
     let mut pkt_reader = Cursor::new(&packet.bytes);
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let channel_id = pkt_reader.read_byte().map_err(ReadError)?;
     let tick = pkt_reader.read_int().map_err(ReadError)?;
-    Ok(ChangeChannelMessage {
+    Ok(ReadChangeChannelMessage {
         client_id,
         channel_id,
         tick,

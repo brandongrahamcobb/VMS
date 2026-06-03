@@ -36,7 +36,7 @@ use config::settings;
 use inc::helpers;
 
 pub fn handle_select_char(
-    commands: Commands,
+    commands: &mut Commands,
     client_map: Res<ClientMap>,
     worlds: Query<(Entity, &MapleWorld)>,
     channels: Query<(Entity, &MapleChannel, &ChildOf)>,
@@ -63,14 +63,13 @@ pub fn handle_select_char(
         };
         let Some((channel_entity, channel, _)) = channels
             .iter()
-            .find(|(_, c, parent)| c.id == msg.channel_id && parent.0 == world_entity.0)
+            .find(|(_, c, parent)| c.id == msg.channel_id && parent.0 == world_entity)
         else {
             continue;
         };
-        let Some((map_entity, map, _)) = maps
-            .iter()
-            .find(|(_, m, parent)| m.wz == msg.char_model.map_wz && parent.0 == channel_entity.0)
-        else {
+        let Some((map_entity, map, _)) = maps.iter().find(|(_, m, parent)| {
+            m.base.wz == msg.char_model.map_wz && parent.0 == channel_entity
+        }) else {
             continue;
         };
         let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
@@ -93,11 +92,8 @@ pub fn handle_select_char(
             .insert(InChannel(channel_entity));
         commands.entity(client_entity).insert(InMap(map_entity));
 
-        let Some(port): Option<i16> =
-            domain::channel::find_channel_port(&worlds, &channels, world.id, channel.id);
-
         let Ok(mut select_char_packet) =
-            codec::login::builder::build_select_char_packet(msg.char.id, octets, port)
+            codec::login::builder::build_select_char_packet(msg.char.id, octets, channel.port)
         else {
             continue;
         };

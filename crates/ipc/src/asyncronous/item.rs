@@ -174,16 +174,16 @@ pub async fn get_random_drops(
                 for _ in 0..multiplier {
                     let drop_model: ItemModel =
                         crate::syncronous::item::create_item_model_by_wz(drop_entry.item_wz)?;
-                    let drop_model: ItemModel =
-                        db::item::setters::update_item(pool, &drop_model).await?;
-                    items.push(drop_model);
+                    let drop_models: Vec<ItemModel> =
+                        db::item::setters::update_items(pool, vec![drop_model]).await?;
+                    items.push(drop_models[0].clone());
                 }
             } else {
                 let drop_model: ItemModel =
                     crate::syncronous::item::create_item_model_by_wz(drop_entry.item_wz)?;
-                let drop_model: ItemModel =
-                    db::item::setters::update_item(pool, &drop_model).await?;
-                items.push(drop_model);
+                let drop_models: Vec<ItemModel> =
+                    db::item::setters::update_items(pool, vec![drop_model]).await?;
+                items.push(drop_models[0].clone());
             }
         }
     }

@@ -19,7 +19,7 @@
 use bevy::prelude::Message;
 
 #[derive(Message)]
-pub struct PlayerMovedMessage {
+pub struct ReadPlayerMovedRequestMessage {
     pub client_id: i32,
     pub movement_bytes: Vec<u8>,
     pub too_short: bool,

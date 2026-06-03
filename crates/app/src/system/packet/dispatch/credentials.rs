@@ -19,17 +19,17 @@
 
 use inc::helpers;
 use net::packet::io::error::IOError::ReadError;
-use net::packet::model::Packet;
 use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use std::io::Cursor;
 
-use crate::message::packet::credentials::CredentialsMessage;
+use crate::message::packet::credentials::ReadCredentialsMessage;
 use crate::system::packet::dispatch::error::DispatchError;
 
 pub fn read_credentials_packet(
     packet: &Packet,
     client_id: i32,
-) -> Result<CredentialsMessage, DispatchError> {
+) -> Result<ReadCredentialsMessage, DispatchError> {
     let mut pkt_reader = Cursor::new(&packet.bytes);
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let username = pkt_reader.read_str_with_length().map_err(ReadError)?;
@@ -39,7 +39,7 @@ pub fn read_credentials_packet(
     let hwid_bytes = 4;
     let hwid = pkt_reader.read_bytes(hwid_bytes).map_err(ReadError)?;
     let hwid = helpers::to_hex_string(&hwid);
-    Ok(CredentialsMessage {
+    Ok(ReadCredentialsMessage {
         client_id,
         username,
         pw,

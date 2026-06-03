@@ -27,6 +27,7 @@ use action::scope::SessionScope;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Query, Res};
+use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub fn store_register_pic(
@@ -52,11 +53,13 @@ pub fn store_register_pic(
             .0
             .lock()
             .unwrap()
-            .send(DatabaseCommand::SetPic {
-                client_id: msg.client_id,
-                acc_id: acc.id,
-                pic: msg.pic,
-            })
+            .send(AsyncCommand::DatabaseOperation(
+                DatabaseCommand::ChangePicRequest {
+                    client_id: msg.client_id,
+                    acc_id: acc.id,
+                    pic: msg.pic,
+                },
+            ))
             .unwrap();
 
         let success_status: bool = true;

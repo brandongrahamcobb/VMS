@@ -1,5 +1,5 @@
-/* app/src/system/lazy.rs
- * The purpose of this module is to provide a system for lazy startup.
+/* base/src/skill.rs
+ * The purpose of this module is to provide constants for a base skill.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,15 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// use bevy::ecs::entity::Entity;
-// use bevy::ecs::system::Commands;
-
-// fn lazy_spawn_mobs(commands: &mut Commands, map_entity: Entity) {}
-//
-// fn lazy_spawn_maps(commands: &mut Commands, channel_entity: Entity) {}
-//
-// fn lazy_spawn_jobs(commands: &mut Commands) {}
-//
-// fn lazy_spawn_portals(mut commands: Command, map_entity: Entity) {}
-//
-// fn lazy_spawn_skills(commands: &mut Commands) {}
+pub struct BaseSkill {
+    pub wz: i32,
+}

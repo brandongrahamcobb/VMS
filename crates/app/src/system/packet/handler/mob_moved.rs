@@ -19,7 +19,8 @@
 
 use crate::component::map::{InMap, MapleMap};
 use crate::component::mob::MapleMob;
-use crate::message::packet::mob_moved::MobMovedMessage;
+use crate::component::position::{MapleCurrentPosition, MapleLastPosition};
+use crate::message::packet::mob_moved::ReadMobMovedRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::codec;
@@ -38,7 +39,7 @@ pub fn handle_mob_moved(
     mobs: Query<(Entity, &mut MapleMob, &ChildOf)>,
     curr_positions: Query<&mut MapleCurrentPosition>,
     last_positions: Query<&mut MapleLastPosition>,
-    mut messages: MessageReader<MobMovedMessage>,
+    mut messages: MessageReader<ReadMobMovedRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
@@ -62,10 +63,9 @@ pub fn handle_mob_moved(
             x: msg.origin_x,
             y: msg.origin_y,
         };
-        curr_pos = MapleCurrentPosition {
-            pos: pos,
-            fh: msg.fh,
-        };
+        curr_pos.x = pos.x;
+        curr_pos.y = pos.y;
+        curr_pos.fh = Some(msg.fh);
         let Ok(last_pos) = last_positions.get_mut(mob_entity) else {
             continue;
         };
@@ -73,7 +73,8 @@ pub fn handle_mob_moved(
             x: msg.last_x,
             y: msg.last_y,
         };
-        last_pos = pos;
+        last_pos.x = pos.x;
+        last_pos.y = pos.y;
 
         let Ok(mut mob_moved_packet) = codec::mob::builder::build_mob_move_packet(
             msg.mob_id,
@@ -83,12 +84,12 @@ pub fn handle_mob_moved(
             msg.skill3,
             msg.skill4,
             msg.skillb,
-            msg.origin.x,
-            msg.origin.y,
+            msg.origin_x,
+            msg.origin_y,
             vec![MobMovement {
                 command: msg.command,
-                x: mob_pos.x,
-                y: mob_pos.y,
+                x: curr_pos.x,
+                y: curr_pos.y,
                 last_x: last_pos.x,
                 last_y: last_pos.y,
                 fh: msg.fh,

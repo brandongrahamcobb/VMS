@@ -26,5 +26,6 @@ pub struct MapleMob {
     pub id: u32,
     pub new_state: u8,
     pub died_at: Instant,
+    pub dead: bool,
     pub base: BaseMob,
 }

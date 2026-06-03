@@ -18,23 +18,23 @@
  */
 
 use crate::component::character::{InChar, MapleCharacter};
-use crate::message::packet::change_keymap::ChangeKeymapMessage;
+use crate::message::packet::change_keymap::ReadChangeKeymapRequestMessage;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use bevy::ecs::entity::Entity;
 use bevy::ecs::message::MessageReader;
-use bevy::ecs::system::{Commands, Query, Res};
+use bevy::ecs::system::{Query, Res};
 use db::keybinding::model::KeybindingModel;
+use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 use itertools::izip;
 use std::time::SystemTime;
 
 pub fn handle_change_keymap(
-    mut commands: Commands,
     command_tx: CustomSender,
     client_map: Res<ClientMap>,
     chars: Query<&MapleCharacter>,
     in_chars: Query<(Entity, &InChar)>,
-    mut messages: MessageReader<ChangeKeymapMessage>,
+    mut messages: MessageReader<ReadChangeKeymapRequestMessage>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
@@ -65,10 +65,12 @@ pub fn handle_change_keymap(
             .0
             .lock()
             .unwrap()
-            .send(DatabaseCommand::UpdateKeybindings {
-                client_id: msg.client_id,
-                binds,
-            })
+            .send(AsyncCommand::DatabaseOperation(
+                DatabaseCommand::UpdateKeybindings {
+                    client_id: msg.client_id,
+                    binds,
+                },
+            ))
             .unwrap();
     }
 }

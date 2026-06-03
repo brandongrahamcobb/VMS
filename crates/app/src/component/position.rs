@@ -19,7 +19,14 @@
 use bevy::ecs::component::Component;
 
 #[derive(Component)]
-pub struct MaplePosition {
+pub struct MapleCurrentPosition {
+    pub x: i16,
+    pub y: i16,
+    pub fh: Option<u16>,
+}
+
+#[derive(Component)]
+pub struct MapleLastPosition {
     pub x: i16,
     pub y: i16,
 }

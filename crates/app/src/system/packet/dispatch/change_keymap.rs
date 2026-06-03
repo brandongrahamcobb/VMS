@@ -18,33 +18,33 @@
  */
 
 use net::packet::io::error::IOError::ReadError;
-use net::packet::model::Packet;
 use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use std::io::Cursor;
 
-use crate::message::packet::change_keymap::ChangeKeymapMessage;
+use crate::message::packet::change_keymap::ReadChangeKeymapMessage;
 use crate::system::packet::dispatch::error::DispatchError;
 
 pub fn read_change_keymap_packet(
     packet: &Packet,
     client_id: i32,
-) -> Result<ChangeKeymapMessage, DispatchError> {
+) -> Result<ReadChangeKeymapMessage, DispatchError> {
     let mut pkt_reader = Cursor::new(&packet.bytes);
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let _mode = pkt_reader.read_int().map_err(ReadError)?;
     let num_binds = pkt_reader.read_int().map_err(ReadError)?;
     let mut keys: Vec<i32> = Vec::new();
     let mut types: Vec<i16> = Vec::new();
-    let mut model: Vec<i32> = Vec::new();
+    let mut actions: Vec<i32> = Vec::new();
     for _ in 0..num_binds {
         keys.push(pkt_reader.read_int().map_err(ReadError)?);
         types.push(pkt_reader.read_byte().map_err(ReadError)? as i16);
-        model.push(pkt_reader.read_int().map_err(ReadError)?);
+        actions.push(pkt_reader.read_int().map_err(ReadError)?);
     }
-    Ok(ChangeKeymapMessage {
+    Ok(ReadChangeKeymapMessage {
         client_id,
         keys,
         types,
-        model,
+        actions,
     })
 }

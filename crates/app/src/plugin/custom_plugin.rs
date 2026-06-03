@@ -16,28 +16,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use std::sync::mpsc::{Receiver, Sender, channel};
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::sync::Mutex;
+use std::sync::mpsc::channel;
 
 use bevy::app::{App, Plugin, Startup, Update};
-use bevy::ecs::system::Res;
-use bevy::prelude::Resource;
-use db::pool::{self, DbPool};
-use net::packet::model::Packet;
-use runtime::tcp::{AsyncCommand, AsyncEvent};
-use session::session_store::SessionStore;
-use state::model::{SharedState, State};
-use tokio::sync::broadcast;
-use tracing_subscriber::EnvFilter;
+use ipc::asyncronous::command::AsyncCommand;
+use ipc::asyncronous::event::AsyncEvent;
 
-use crate::error::PluginError;
-use crate::resource::custom_resource::{CustomReceiver, CustomSender, Pool, Sessions};
-use crate::system::{event_handler, packet_dispatch, startup, tcp_transition};
+use crate::resource::custom_resource::{CustomReceiver, CustomSender, Pool};
+use crate::system::{event_handler, packet_dispatch, startup};
 
 pub struct CustomPlugin;
 
 impl Plugin for CustomPlugin {
-    fn build(&self, app: &mut App, pool: Res<DbPool>) {
+    fn build(&self, app: &mut App) {
         let (command_tx, command_rx) = channel::<AsyncCommand>();
         let (event_tx, event_rx) = channel::<AsyncEvent>();
         std::thread::spawn(move || {
@@ -51,10 +43,8 @@ impl Plugin for CustomPlugin {
         app.insert_resource(CustomReceiver(Mutex::new(event_rx)))
             .insert_resource(CustomSender(Mutex::new(command_tx)))
             .insert_resource(Pool(pool::new()))
-            .insert_resource(Sessions(SessionStore::new()))
             .add_systems(Startup, startup::spawn_worlds)
             .add_systems(Update, event_handler::handle_events_system)
-            .add_systems(Update, packet_dispatch::packet_dispatch_system)
-            .add_systems(Update, transition::tcp_transition_system);
+            .add_systems(Update, packet_dispatch::packet_dispatch_system);
     }
 }

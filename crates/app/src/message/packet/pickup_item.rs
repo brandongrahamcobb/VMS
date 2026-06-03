@@ -17,30 +17,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use core::convert::From;
-
+use base::map::Point;
 use bevy::prelude::Message;
-use ipc::data::pickup_item::PickupItemCommand;
 
 #[derive(Message)]
-pub struct PickupItemMessage {
+pub struct ReadPickupItemRequestMessage {
     pub client_id: i32,
     pub item_id: i32,
-    pub pos: Point, // placeholder resolve
+    pub pet_pickup: bool,
+    pub pos: Point,
 }
 
-impl From<(PickupItemMessage, i16, u8, i32, i32)> for PickupItemCommand {
-    fn from(
-        (msg, world_id, channel_id, map_wz, char_id): (PickupItemMessage, i16, u8, i32, i32),
-    ) -> Self {
-        Self {
-            client_id: msg.client_id,
-            world_id,
-            channel_id,
-            map_wz,
-            char_id,
-            item_id: msg.item_id,
-            pos: msg.pos,
-        }
-    }
+#[derive(Message)]
+pub struct PickupItemResponseMessage {
+    pub client_id: i32,
+    pub item_id: i32,
+    pub pet_pickup: bool,
+    pub ipos: i16,
 }

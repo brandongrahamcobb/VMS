@@ -18,17 +18,17 @@
  */
 
 use net::packet::io::error::IOError::ReadError;
-use net::packet::model::Packet;
 use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use std::io::Cursor;
 
-use crate::message::packet::create_char::CreateCharMessage;
+use crate::message::packet::create_char::ReadCreateCharMessage;
 use crate::system::packet::dispatch::error::DispatchError;
 
 pub fn read_create_character_packet(
     packet: &Packet,
     client_id: i32,
-) -> Result<CreateCharMessage, DispatchError> {
+) -> Result<ReadCreateCharMessage, DispatchError> {
     let mut pkt_reader = Cursor::new(&packet.bytes);
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let ign = pkt_reader.read_str_with_length().map_err(ReadError)?;
@@ -50,7 +50,7 @@ pub fn read_create_character_packet(
         .read_int() // Special
         .map_err(ReadError)?;
     let gender_wz = pkt_reader.read_byte().map_err(ReadError)? as i16;
-    Ok(CreateCharMessage {
+    Ok(ReadCreateCharMessage {
         client_id,
         ign,
         job_wz,

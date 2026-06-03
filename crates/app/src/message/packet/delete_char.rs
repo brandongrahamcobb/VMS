@@ -17,25 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use core::convert::From;
-
 use bevy::prelude::Message;
-use ipc::data::delete_char::DeleteCharCommand;
 
 #[derive(Message)]
-pub struct DeleteCharMessage {
+pub struct ReadDeleteCharRequestMessage {
     pub client_id: i32,
     pub char_id: i32,
     pub pic: String,
-}
-
-impl From<(DeleteCharMessage, i32)> for DeleteCharCommand {
-    fn from((msg, acc_id): (DeleteCharMessage, i32)) -> Self {
-        Self {
-            client_id: msg.client_id,
-            acc_id,
-            char_id: msg.char_id,
-            pic: msg.pic,
-        }
-    }
 }

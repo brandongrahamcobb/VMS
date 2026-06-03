@@ -18,17 +18,17 @@
  */
 
 use net::packet::io::error::IOError::ReadError;
-use net::packet::model::Packet;
 use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use std::io::Cursor;
 
-use crate::message::packet::chat_text::ChatTextMessage;
+use crate::message::packet::chat_text::ReadChatTextMessage;
 use crate::system::packet::dispatch::error::DispatchError;
 
 pub fn read_chat_text_packet(
     packet: &Packet,
     client_id: i32,
-) -> Result<ChatTextMessage, DispatchError> {
+) -> Result<ReadChatTextMessage, DispatchError> {
     let mut pkt_reader = Cursor::new(&packet.bytes);
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let msg = pkt_reader.read_str_with_length().map_err(ReadError)?;
@@ -37,7 +37,7 @@ pub fn read_chat_text_packet(
     if msg.is_empty() {
         is_empty = true;
     }
-    Ok(ChatTextMessage {
+    Ok(ReadChatTextMessage {
         client_id,
         msg,
         show,

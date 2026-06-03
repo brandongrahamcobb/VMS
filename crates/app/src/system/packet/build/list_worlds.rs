@@ -17,12 +17,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use bevy::ecs::entity::Entity;
+use bevy::ecs::hierarchy::ChildOf;
+use bevy::ecs::system::Query;
 use config::settings;
 use net::packet::io::error::IOError::WriteError;
 use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use op::send::SendOpcode;
 
+use crate::component::channel::MapleChannel;
 use crate::component::world::MapleWorld;
 use crate::system::packet::build::error::PacketBuildError;
 
@@ -35,7 +39,7 @@ pub fn build_last_connected_world_packet() -> Result<Packet, PacketBuildError> {
 }
 
 pub fn build_recommended_worlds_packet(
-    worlds: Vec<MapleWorld>,
+    worlds: &Query<(Entity, &MapleWorld)>,
 ) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let recommended_world_names = settings::get_recommended_worlds()?;
@@ -45,7 +49,7 @@ pub fn build_recommended_worlds_packet(
     if count != 0 {
         packet.write_byte(0).map_err(WriteError)?;
         packet.write_byte(count).map_err(WriteError)?;
-        for world in worlds {
+        for (_, world) in worlds.iter() {
             for world_name in recommended_world_names.clone() {
                 if world.name == world_name.clone() {
                     packet.write_int(world.id as i32).map_err(WriteError)?;
@@ -62,10 +66,11 @@ pub fn build_recommended_worlds_packet(
     Ok(packet)
 }
 pub fn build_list_worlds_packets(
-    worlds: &Vec<MapleWorld>,
+    worlds: &Query<(Entity, &MapleWorld)>,
+    channels: &Query<(&MapleChannel, &ChildOf)>,
 ) -> Result<Vec<Packet>, PacketBuildError> {
     let mut packets: Vec<Packet> = Vec::new();
-    for world in worlds {
+    for (world_entity, world) in worlds.iter() {
         let mut packet: Packet = Packet::new_empty();
         let op = SendOpcode::ServerList as i16;
         packet.write_short(op).map_err(WriteError)?;
@@ -82,9 +87,18 @@ pub fn build_list_worlds_packets(
         packet.write_byte(100).map_err(WriteError)?;
         packet.write_byte(0).map_err(WriteError)?;
         packet.write_byte(0).map_err(WriteError)?;
-        let channels_length = world.channels.len() as i16;
+        let channels_length = channels
+            .iter()
+            .filter(|(_, parent)| parent.0 == world_entity)
+            .count() as i16
+        else {
+            continue;
+        };
         packet.write_byte(channels_length).map_err(WriteError)?;
-        for channel in world.channels {
+        for (channel, _) in channels
+            .iter()
+            .filter(|(_, parent)| parent.0 == world_entity)
+        {
             let channel_name = String::from("Placeholder");
             packet
                 .write_str_with_length(channel_name)

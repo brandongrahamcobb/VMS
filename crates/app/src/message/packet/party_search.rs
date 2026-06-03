@@ -19,6 +19,6 @@
 use bevy::prelude::Message;
 
 #[derive(Message)]
-pub struct PartySearchMessage {
+pub struct ReadPartySearchRequestMessage {
     pub client_id: i32,
 }

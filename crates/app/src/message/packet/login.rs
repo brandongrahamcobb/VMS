@@ -1,3 +1,4 @@
+use base::account::StatusCode;
 /* credentials/message.rs
  * The purpose of this module is to handle credentials validation.
  *
@@ -20,7 +21,7 @@ use bevy::prelude::Message;
 use db::account::model::AccountModel;
 
 #[derive(Message)]
-pub struct LoginRequestMessage {
+pub struct ReadLoginRequestMessage {
     pub client_id: i32,
     pub username: String,
     pub pw: String,
@@ -28,14 +29,14 @@ pub struct LoginRequestMessage {
 }
 
 #[derive(Message)]
-pub struct LoginSuccessMessage {
+pub struct LoginSuccessResponseMessage {
     pub client_id: i32,
     pub acc_id: i32,
     pub acc_model: AccountModel,
 }
 
 #[derive(Message)]
-pub struct LoginFailedMessage {
+pub struct LoginFailedResponseMessage {
     pub client_id: i32,
     pub status: StatusCode,
 }

@@ -40,6 +40,7 @@ pub fn create_item_model_by_wz(wz: i32) -> Result<ItemModel, SyncDomainError> {
                     item_level: 0, //placeholder
                     item_exp: 0,   //placeholder
                     vicious: 0,    //placeholder
+                    equipped: false,
                     created_at: Some(SystemTime::now()),
                     updated_at: SystemTime::now(),
                 }
@@ -71,6 +72,7 @@ pub fn create_item_model_by_wz(wz: i32) -> Result<ItemModel, SyncDomainError> {
                 flag: 0,
                 item_exp: 0,
                 vicious: 0,
+                equipped: false,
                 created_at: Some(SystemTime::now()),
                 updated_at: SystemTime::now(),
             },

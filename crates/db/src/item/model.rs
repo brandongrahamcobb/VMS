@@ -64,6 +64,7 @@ pub struct ItemModel {
     pub flag: i16,
     pub item_exp: i16,
     pub vicious: i32,
+    pub equipped: bool,
     pub created_at: Option<SystemTime>,
     pub updated_at: SystemTime,
 }
@@ -102,6 +103,7 @@ impl ItemModel {
                         flag: base.flag,
                         item_exp: 0,
                         vicious: 0,
+                        equipped: false,
                         created_at: Some(SystemTime::now()),
                         updated_at: SystemTime::now(),
                     }
@@ -133,6 +135,7 @@ impl ItemModel {
                     flag: 0,
                     item_exp: 0,
                     vicious: 0,
+                    equipped: false,
                     created_at: Some(SystemTime::now()),
                     updated_at: SystemTime::now(),
                 },

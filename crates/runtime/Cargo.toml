@@ -14,3 +14,4 @@ ipc = { path = "../ipc" }
 base = { path = "../base" }
 net = { path = "../net" }
 rand = "0.10.1"
+metadata = { path = "../metadata" }

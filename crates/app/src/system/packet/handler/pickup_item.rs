@@ -18,24 +18,28 @@
  */
 
 use crate::component::character::{InChar, MapleCharacter};
-use crate::component::slot::MapleEmptyItemSlot;
+use crate::component::slot::{MapleEmptyItemSlot, MapleFilledItemSlot};
+use crate::message::packet::pickup_item::{
+    PickupItemResponseMessage, ReadPickupItemRequestMessage,
+};
+use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::pickup_item;
-use crate::system::packet::handler::result::HandlerResult;
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::query::With;
-use bevy::ecs::system::{Query, Res};
+use bevy::ecs::system::{Commands, Query, Res};
+use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub fn handle_pickup_item_request(
-    client_map: Res<ClientMap>,
-    mut messages: MessageReader<PickupItemRequestMessage>,
+    commands: &mut Commands,
     command_tx: CustomSender,
-    mut results: MessageWriter<HandlerResult>,
+    client_map: Res<ClientMap>,
     chars: Query<&MapleCharacter>,
+    empty_slots: Query<(Entity, &MapleEmptyItemSlot)>,
+    mut messages: MessageReader<ReadPickupItemRequestMessage>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
@@ -44,21 +48,37 @@ pub fn handle_pickup_item_request(
         let Ok(char) = chars.get(client_entity) else {
             continue;
         };
+        let Some((empty_slot_entity, empty_slot)) = empty_slots.iter().next() else {
+            continue;
+        };
+        commands
+            .entity(empty_slot_entity)
+            .remove::<MapleEmptyItemSlot>()
+            .insert(MapleFilledItemSlot {
+                ipos: empty_slot.ipos,
+            });
 
-        command_tx.0.send(DatabaseCommand::PickupItem {
-            client_id: msg.client_id,
-            char_id: char.id,
-            item_id: msg.item_id,
-        });
+        command_tx
+            .0
+            .lock()
+            .unwrap()
+            .send(AsyncCommand::DatabaseOperation(
+                DatabaseCommand::PickupItem {
+                    client_id: msg.client_id,
+                    char_id: char.id,
+                    item_id: msg.item_id,
+                    ipos: empty_slot.ipos,
+                    pet_pickup: msg.pet_pickup,
+                },
+            ))
+            .unwrap();
     }
 }
 
 pub fn handle_pickup_response(
-    command_tx: CustomSender,
     client_map: Res<ClientMap>,
     chars: Query<&MapleCharacter>,
     in_chars: Query<(Entity, &InChar)>,
-    empty_slots: Query<Entity, With<MapleEmptyItemSlot>>,
     mut messages: MessageReader<PickupItemResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -73,10 +93,8 @@ pub fn handle_pickup_response(
             continue;
         };
 
-        let ipos: MapleEmptyItemSlot = empty_slots.iter().next();
-
         let Ok(mut pickup_item_packet) =
-            pickup_item::build_pickup_item_packet(char.id, msg.item_id, msg.pet_pickup, ipos)
+            pickup_item::build_pickup_item_packet(char.id, msg.item_id, msg.pet_pickup)
         else {
             continue;
         };

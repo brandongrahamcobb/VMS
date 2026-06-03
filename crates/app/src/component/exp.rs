@@ -1,5 +1,5 @@
-/* app/src/system/lazy.rs
- * The purpose of this module is to provide a system for lazy startup.
+/* app/src/component/mp.rs
+ * The purpose of this module is to provide a mana point component.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -16,16 +16,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+use bevy::ecs::component::Component;
 
-// use bevy::ecs::entity::Entity;
-// use bevy::ecs::system::Commands;
-
-// fn lazy_spawn_mobs(commands: &mut Commands, map_entity: Entity) {}
-//
-// fn lazy_spawn_maps(commands: &mut Commands, channel_entity: Entity) {}
-//
-// fn lazy_spawn_jobs(commands: &mut Commands) {}
-//
-// fn lazy_spawn_portals(mut commands: Command, map_entity: Entity) {}
-//
-// fn lazy_spawn_skills(commands: &mut Commands) {}
+#[derive(Component)]
+pub struct MapleExp {
+    pub amount: i32,
+}

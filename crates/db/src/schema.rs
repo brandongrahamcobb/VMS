@@ -143,6 +143,7 @@ diesel::table! {
         flag -> Int2,
         item_exp -> Int2,
         vicious -> Int4,
+        equipped -> Bool,
         created_at -> Nullable<Timestamp>,
         updated_at -> Timestamp,
     }

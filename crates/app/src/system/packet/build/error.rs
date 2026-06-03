@@ -17,6 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use core::num::TryFromIntError;
+use std::time::SystemTimeError;
+
 use config::error::ConfigError;
 use net::packet::io::error::IOError;
 use thiserror::Error;
@@ -28,4 +31,10 @@ pub enum PacketBuildError {
 
     #[error("Configuration error in packet build layer")]
     ConfigError(#[from] ConfigError),
+
+    #[error("System time error in packet build layer")]
+    SystemTimeError(#[from] SystemTimeError),
+
+    #[error("Try from integer error in packet build layer")]
+    TryFromIntError(#[from] TryFromIntError),
 }

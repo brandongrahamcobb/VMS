@@ -19,6 +19,6 @@
 use bevy::prelude::Message;
 
 #[derive(Message)]
-pub struct LoginStartMessage {
+pub struct ReadLoginStartRequestMessage {
     pub client_id: i32,
 }
