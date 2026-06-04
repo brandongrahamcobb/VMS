@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::message::packet::raw::RawPacketMessage;
 use crate::system::packet_dispatch;
 use bevy::app::{App, Plugin, Update};
 use bevy::ecs::schedule::IntoScheduleConfigs;
@@ -25,7 +26,7 @@ pub struct PacketDispatchPlugin;
 
 impl Plugin for PacketDispatchPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
+        app.add_message::<RawPacketMessage>().add_systems(
             Update,
             (
                 packet_dispatch::login_packet_dispatch_system,

@@ -18,7 +18,6 @@
  */
 use core::net::SocketAddr;
 
-use app::message::packet::raw::RawPacketMessage;
 use app::plugin::dispatch_plugin::PacketDispatchPlugin;
 use app::plugin::handler_plugin::{GamePacketHandlerPlugin, LoginPacketHandlerPlugin};
 use app::plugin::request_plugin::RequestPlugin;
@@ -36,16 +35,16 @@ use std::{net::UdpSocket, time::SystemTime};
 use tracing_subscriber::EnvFilter;
 
 fn main() -> () {
+    dotenvy::dotenv().ok();
     tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::from_default_env().add_directive(tracing::Level::DEBUG.into()))
         .init();
     let mut app = App::new();
     app.add_plugins(MinimalPlugins)
         .add_plugins(RenetServerPlugin)
-        .add_plugins(NetcodeClientPlugin)
+        // .add_plugins(NetcodeClientPlugin)
         .add_plugins(RequestPlugin)
         .add_plugins(ResponsePlugin)
-        .add_message::<RawPacketMessage>()
         .add_plugins(PacketDispatchPlugin)
         .add_plugins(LoginPacketHandlerPlugin)
         .add_plugins(GamePacketHandlerPlugin)
