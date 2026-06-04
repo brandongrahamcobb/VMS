@@ -23,8 +23,8 @@ use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::{cc, codec};
 use crate::system::system_params::{InParams, LocationParams, SessionParams};
-use action::model::{Action, SessionAction};
-use action::scope::{MapScope, SessionScope};
+use action::model::Action;
+use action::scope::{ActionScope, MapScope};
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Commands;
 use bevy::ecs::system::Res;
@@ -34,7 +34,7 @@ use inc::helpers;
 pub fn handle_change_channel(
     mut commands: Commands,
     client_map: Res<ClientMap>,
-    location_params: LocationParams,
+    loc_params: LocationParams,
     in_params: InParams,
     session_params: SessionParams,
     mut messages: MessageReader<ReadChangeChannelRequestMessage>,
@@ -52,10 +52,10 @@ pub fn handle_change_channel(
         let Ok((in_world_entity, _)) = in_params.in_worlds.get(client_entity) else {
             continue;
         };
-        let Ok((world_entity, _)) = location_params.worlds.get(in_world_entity) else {
+        let Ok((world_entity, _)) = loc_params.worlds.get(in_world_entity) else {
             continue;
         };
-        let Some((channel_entity, channel, _)) = location_params
+        let Some((channel_entity, channel, _)) = loc_params
             .channels
             .iter()
             .find(|(_, c, parent)| c.id == msg.channel_id && parent.0 == world_entity)
@@ -85,14 +85,14 @@ pub fn handle_change_channel(
         results.write(HandlerResult {
             client_id: msg.client_id,
             actions: vec![
-                Action::Session(SessionAction::Send {
+                Action::HandlerAction {
                     packet: despawn_packet.finish(),
-                    scope: SessionScope::Map(MapScope::SameChannelSameWorld),
-                }),
-                Action::Session(SessionAction::Break {
+                    scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+                },
+                Action::HandlerAction {
                     packet: cc_packet.finish(),
-                    scope: SessionScope::Local,
-                }),
+                    scope: ActionScope::Local,
+                }, // break transition TODO
             ],
         });
     }

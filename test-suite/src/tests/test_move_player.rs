@@ -1,10 +1,10 @@
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
+use net::packet::io::error::IOError::{ReadError, WriteError};
+use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use op::recv::RecvOpcode;
 use op::send::SendOpcode;
-use net::packet::io::error::IOError::{ReadError, WriteError};
-use net::packet::model::Packet;
-use net::packet::io::prelude::*;
 use std::io::Cursor;
 
 pub const SEND_PHASE: &str = "send move player";
@@ -71,7 +71,7 @@ pub async fn send_move_player(mut conn: TestConnection) -> Result<TestConnection
 fn build_move_player() -> Result<Packet, HarnessError> {
     let mut packet = Packet::new_empty();
     packet
-        .write_short(RecvOpcode::PlayerMove as i16)
+        .write_short(RecvOpcode::PlayerMoved as i16)
         .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
     packet
         .write_bytes(vec![5u8; 9])

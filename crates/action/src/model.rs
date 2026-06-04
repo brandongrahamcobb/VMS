@@ -16,32 +16,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::scope::{BroadcastScope, SessionScope, TickScope};
+use crate::scope::{ActionScope, TickScope};
 use net::packet::model::Packet;
 
 #[derive(Clone)]
 pub enum Action {
-    Broadcast(BroadcastAction),
-    Session(SessionAction),
-    Tick(TickAction),
-}
-
-#[derive(Clone)]
-pub enum SessionAction {
-    Break { packet: Packet, scope: SessionScope },
-    Retrieve,
-    Send { packet: Packet, scope: SessionScope },
-}
-
-#[derive(Clone)]
-pub enum BroadcastAction {
-    Send {
-        packet: Packet,
-        scope: BroadcastScope,
-    },
-}
-
-#[derive(Clone)]
-pub enum TickAction {
-    Send { packet: Packet, scope: TickScope },
+    HandlerAction { packet: Packet, scope: ActionScope },
+    TickAction { packet: Packet, scope: TickScope },
 }

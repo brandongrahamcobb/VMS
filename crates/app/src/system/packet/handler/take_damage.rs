@@ -23,8 +23,8 @@ use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{change_map, codec, take_damage};
 use crate::system::system_params::{InParams, LocationParams, SessionParams};
-use action::model::{Action, SessionAction};
-use action::scope::{MapScope, SessionScope};
+use action::model::Action;
+use action::scope::{ActionScope, MapScope};
 use base::character::StatsUpdate;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Res};
@@ -36,7 +36,7 @@ pub fn handle_take_damage(
     mut commands: Commands,
     command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
-    location_params: LocationParams,
+    loc_params: LocationParams,
     in_params: InParams,
     mut session_params: SessionParams,
     mut results: MessageWriter<HandlerResult>,
@@ -52,14 +52,13 @@ pub fn handle_take_damage(
         let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let Ok((channel_entity, channel, _)) = location_params.channels.get(in_channel_entity)
-        else {
+        let Ok((channel_entity, channel, _)) = loc_params.channels.get(in_channel_entity) else {
             continue;
         };
         let Ok((in_map_entity, _)) = in_params.in_maps.get(client_entity) else {
             continue;
         };
-        let Ok((_, map, _)) = location_params.maps.get(in_map_entity) else {
+        let Ok((_, map, _)) = loc_params.maps.get(in_map_entity) else {
             continue;
         };
 
@@ -80,10 +79,10 @@ pub fn handle_take_damage(
             };
             results.write(HandlerResult {
                 client_id: msg.client_id,
-                actions: vec![Action::Session(SessionAction::Send {
+                actions: vec![Action::HandlerAction {
                     packet: take_damage_packet.finish(),
-                    scope: SessionScope::Local,
-                })],
+                    scope: ActionScope::Local,
+                }],
             });
         } else {
             char.hp = max_hp;
@@ -101,7 +100,7 @@ pub fn handle_take_damage(
                 ))
                 .unwrap();
             commands.entity(client_entity).remove::<InMap>();
-            let Some((map_entity, _, _)) = location_params
+            let Some((map_entity, _, _)) = loc_params
                 .maps
                 .iter()
                 .find(|(_, m, parent)| m.base.wz == return_map_wz && parent.0 == channel_entity)
@@ -122,14 +121,14 @@ pub fn handle_take_damage(
             results.write(HandlerResult {
                 client_id: msg.client_id,
                 actions: vec![
-                    Action::Session(SessionAction::Send {
+                    Action::HandlerAction {
                         packet: despawn_packet.finish(),
-                        scope: SessionScope::Map(MapScope::SameChannelSameWorld),
-                    }),
-                    Action::Session(SessionAction::Send {
+                        scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+                    },
+                    Action::HandlerAction {
                         packet: set_field_packet.finish(),
-                        scope: SessionScope::Local,
-                    }),
+                        scope: ActionScope::Local,
+                    },
                 ],
             });
         };

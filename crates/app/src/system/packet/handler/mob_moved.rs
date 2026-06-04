@@ -23,8 +23,8 @@ use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::codec;
 use crate::system::system_params::{InParams, LocationParams, PositionParams};
-use action::model::{Action, BroadcastAction};
-use action::scope::BroadcastScope;
+use action::model::Action;
+use action::scope::{ActionScope, MapScope};
 use base::map::Point;
 use base::mob::MobMovement;
 use bevy::ecs::entity::Entity;
@@ -34,9 +34,9 @@ use bevy::ecs::system::{Query, Res};
 
 pub fn handle_mob_moved(
     client_map: Res<ClientMap>,
-    location_params: LocationParams,
+    loc_params: LocationParams,
     in_params: InParams,
-    mut position_params: PositionParams,
+    mut pos_params: PositionParams,
     mut mobs: Query<(Entity, &mut MapleMob, &ChildOf)>,
     mut messages: MessageReader<ReadMobMovedRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
@@ -48,7 +48,7 @@ pub fn handle_mob_moved(
         let Ok((in_map_entity, _)) = in_params.in_maps.get(client_entity) else {
             continue;
         };
-        let Ok((map_entity, _, _)) = location_params.maps.get(in_map_entity) else {
+        let Ok((map_entity, _, _)) = loc_params.maps.get(in_map_entity) else {
             continue;
         };
         let Some((mob_entity, _, _)) = mobs
@@ -57,7 +57,7 @@ pub fn handle_mob_moved(
         else {
             continue;
         };
-        let Ok((_, mut curr_pos, _)) = position_params.curr_positions.get_mut(mob_entity) else {
+        let Ok((_, mut curr_pos, _)) = pos_params.curr_positions.get_mut(mob_entity) else {
             continue;
         };
 
@@ -68,7 +68,7 @@ pub fn handle_mob_moved(
         curr_pos.x = pos.x;
         curr_pos.y = pos.y;
         curr_pos.fh = Some(msg.fh);
-        let Ok((_, mut last_pos, _)) = position_params.last_positions.get_mut(mob_entity) else {
+        let Ok((_, mut last_pos, _)) = pos_params.last_positions.get_mut(mob_entity) else {
             continue;
         };
         let pos = Point {
@@ -104,10 +104,10 @@ pub fn handle_mob_moved(
 
         results.write(HandlerResult {
             client_id: msg.client_id,
-            actions: vec![Action::Broadcast(BroadcastAction::Send {
+            actions: vec![Action::HandlerAction {
                 packet: mob_moved_packet.finish(),
-                scope: BroadcastScope::Map,
-            })],
+                scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+            }],
         });
     }
 }

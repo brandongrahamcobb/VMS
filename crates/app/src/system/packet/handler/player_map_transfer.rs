@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::model::{Action, SessionAction};
-use action::scope::{MapScope, SessionScope};
+use action::model::Action;
+use action::scope::{ActionScope, MapScope};
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Query, Res};
@@ -70,10 +70,10 @@ pub fn handle_player_map_transfer(
 
         results.write(HandlerResult {
             client_id: msg.client_id,
-            actions: vec![Action::Session(SessionAction::Send {
+            actions: vec![Action::HandlerAction {
                 packet: spawn_player_packet.finish(),
-                scope: SessionScope::Map(MapScope::SameChannelSameWorld),
-            })],
+                scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+            }],
         });
     }
 }

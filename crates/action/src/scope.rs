@@ -18,7 +18,7 @@
  */
 
 #[derive(Clone)]
-pub enum SessionScope {
+pub enum ActionScope {
     Map(MapScope),
     Channel(ChannelScope),
     World,
@@ -54,16 +54,4 @@ pub enum TickScope {
         channel_id: u8,
         map_wz: i32,
     },
-}
-
-#[derive(Clone)]
-pub enum BroadcastScope {
-    Global,
-    GlobalChar,
-    World,
-    WorldChar,
-    Channel,
-    ChannelChar,
-    Map,
-    MapChar,
 }

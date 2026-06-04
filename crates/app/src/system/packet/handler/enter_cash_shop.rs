@@ -25,8 +25,8 @@ use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::{codec, enter_cash_shop};
 use crate::system::packet::handler::constants::CASH_SHOP_MAP_WZ;
 use crate::system::system_params::{InParams, InventoryParams, LocationParams, SessionParams};
-use action::model::{Action, SessionAction};
-use action::scope::SessionScope;
+use action::model::Action;
+use action::scope::ActionScope;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
@@ -34,7 +34,7 @@ use bevy::ecs::system::{Commands, Query, Res};
 pub fn handle_enter_cash_shop(
     mut commands: Commands,
     client_map: Res<ClientMap>,
-    location_params: LocationParams,
+    loc_params: LocationParams,
     in_params: InParams,
     mut session_params: SessionParams,
     inv_params: InventoryParams,
@@ -55,7 +55,7 @@ pub fn handle_enter_cash_shop(
         let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let Ok((channel_entity, _, _)) = location_params.channels.get(in_channel_entity) else {
+        let Ok((channel_entity, _, _)) = loc_params.channels.get(in_channel_entity) else {
             continue;
         };
         let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
@@ -87,7 +87,7 @@ pub fn handle_enter_cash_shop(
         session.transitioning = true;
 
         commands.entity(client_entity).remove::<InMap>();
-        let Some((map_entity, map, _)) = location_params
+        let Some((map_entity, map, _)) = loc_params
             .maps
             .iter()
             .find(|(_, m, parent)| m.base.wz == CASH_SHOP_MAP_WZ && parent.0 == channel_entity)
@@ -109,14 +109,14 @@ pub fn handle_enter_cash_shop(
         results.write(HandlerResult {
             client_id: msg.client_id,
             actions: vec![
-                Action::Session(SessionAction::Send {
+                Action::HandlerAction {
                     packet: despawn_packet.finish(),
-                    scope: SessionScope::Local,
-                }),
-                Action::Session(SessionAction::Send {
+                    scope: ActionScope::Local,
+                },
+                Action::HandlerAction {
                     packet: enter_cash_shop_packet.finish(),
-                    scope: SessionScope::Local,
-                }),
+                    scope: ActionScope::Local,
+                },
             ],
         });
     }

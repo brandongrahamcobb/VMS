@@ -22,8 +22,8 @@ use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::player_moved;
 use crate::system::system_params::{InParams, PositionParams, SessionParams};
-use action::model::{Action, BroadcastAction};
-use action::scope::BroadcastScope;
+use action::model::Action;
+use action::scope::{ActionScope, MapScope};
 use base::map::Point;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Res;
@@ -33,7 +33,7 @@ pub fn handle_player_moved(
     client_map: Res<ClientMap>,
     in_params: InParams,
     session_params: SessionParams,
-    mut position_params: PositionParams,
+    mut pos_params: PositionParams,
     mut messages: MessageReader<ReadPlayerMovedRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -48,8 +48,7 @@ pub fn handle_player_moved(
             let Ok((char_entity, char, _)) = session_params.chars.get(in_char_entity) else {
                 continue;
             };
-            let Ok((_, mut curr_pos, _)) = position_params.curr_positions.get_mut(char_entity)
-            else {
+            let Ok((_, mut curr_pos, _)) = pos_params.curr_positions.get_mut(char_entity) else {
                 continue;
             };
             let new_pos: Point = syncronous::map::parse_position(&msg.movement_bytes)
@@ -64,10 +63,10 @@ pub fn handle_player_moved(
             };
             results.write(HandlerResult {
                 client_id: msg.client_id,
-                actions: vec![Action::Broadcast(BroadcastAction::Send {
+                actions: vec![Action::HandlerAction {
                     packet: player_moved_packet.finish(),
-                    scope: BroadcastScope::Map,
-                })],
+                    scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+                }],
             });
         }
     }

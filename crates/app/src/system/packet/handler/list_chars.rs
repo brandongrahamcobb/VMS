@@ -31,8 +31,8 @@ use crate::system::system_params::InParams;
 use crate::system::system_params::InventoryParams;
 use crate::system::system_params::LocationParams;
 use crate::system::system_params::SessionParams;
-use action::model::{Action, SessionAction};
-use action::scope::SessionScope;
+use action::model::Action;
+use action::scope::ActionScope;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
@@ -50,7 +50,7 @@ pub fn handle_load_char_slots(
     mut commands: Commands,
     command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
-    location_params: LocationParams,
+    loc_params: LocationParams,
     in_params: InParams,
     session_params: SessionParams,
     mut messages: MessageReader<ReadListCharsRequestMessage>,
@@ -65,15 +65,12 @@ pub fn handle_load_char_slots(
         let Ok((_, acc, _)) = session_params.accounts.get(in_acc_entity) else {
             continue;
         };
-        let Some((world_entity, _)) = location_params
-            .worlds
-            .iter()
-            .find(|(_, w)| w.id == msg.world_id)
+        let Some((world_entity, _)) = loc_params.worlds.iter().find(|(_, w)| w.id == msg.world_id)
         else {
             continue;
         };
         commands.spawn(InWorld(world_entity));
-        let Some((channel_entity, _, _)) = location_params
+        let Some((channel_entity, _, _)) = loc_params
             .channels
             .iter()
             .find(|(_, c, parent)| c.id == msg.channel_id && parent.0 == world_entity)
@@ -101,7 +98,7 @@ pub fn handle_load_char_slots(
 pub fn handle_list_chars(
     mut commands: Commands,
     client_map: Res<ClientMap>,
-    location_params: LocationParams,
+    loc_params: LocationParams,
     in_params: InParams,
     session_params: SessionParams,
     inv_params: InventoryParams,
@@ -162,7 +159,7 @@ pub fn handle_list_chars(
             inv_params.inventories,
             inv_params.equipped_tabs,
             inv_params.filled_slots,
-            location_params.maps,
+            loc_params.maps,
             msg.channel_id,
             msg.slots,
             pic_status,
@@ -172,10 +169,10 @@ pub fn handle_list_chars(
         };
         results.write(HandlerResult {
             client_id: msg.client_id,
-            actions: vec![Action::Session(SessionAction::Send {
+            actions: vec![Action::HandlerAction {
                 packet: list_chars_packet.finish(),
-                scope: SessionScope::Local,
-            })],
+                scope: ActionScope::Local,
+            }],
         });
     }
 }

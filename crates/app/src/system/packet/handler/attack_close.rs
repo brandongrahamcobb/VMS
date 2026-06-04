@@ -30,8 +30,8 @@ use crate::system::packet::handler::constants::EXP_TABLE;
 use crate::system::system_params::{
     InParams, LocationParams, PositionParams, SessionParams, StatParams,
 };
-use action::model::{Action, BroadcastAction, SessionAction};
-use action::scope::{BroadcastScope, MapScope, SessionScope};
+use action::model::Action;
+use action::scope::{ActionScope, MapScope};
 use base::character::StatsUpdate;
 use base::map::Point;
 use bevy::ecs::entity::Entity;
@@ -48,7 +48,7 @@ use std::collections::HashMap;
 pub fn handle_close_attack_request(
     command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
-    location_params: LocationParams,
+    loc_params: LocationParams,
     in_params: InParams,
     session_params: SessionParams,
     mut stat_params: StatParams,
@@ -66,7 +66,7 @@ pub fn handle_close_attack_request(
         let Ok((in_map_entity, _)) = in_params.in_maps.get(client_entity) else {
             continue;
         };
-        let Ok((map_entity, _, _)) = location_params.maps.get(in_map_entity) else {
+        let Ok((map_entity, _, _)) = loc_params.maps.get(in_map_entity) else {
             continue;
         };
         let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
@@ -92,7 +92,8 @@ pub fn handle_close_attack_request(
                     speed: msg.speed,
                     mob_damages: msg.mob_damages.clone(),
                 },
-            ));
+            ))
+            .unwrap();
 
         for (mob_id, damage) in msg.mob_damages.iter() {
             let Some((mob_entity, mob, _)) = mobs
@@ -131,10 +132,10 @@ pub fn handle_close_attack_request(
             else {
                 continue;
             };
-            actions.push(Action::Session(SessionAction::Send {
+            actions.push(Action::HandlerAction {
                 packet: mob_damage_hp_packet.finish(),
-                scope: SessionScope::Local,
-            }));
+                scope: ActionScope::Local,
+            });
         }
         results.write(HandlerResult {
             client_id: msg.client_id,
@@ -147,11 +148,11 @@ pub fn handle_dead_mob(
     mut commands: Commands,
     command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
-    location_params: LocationParams,
+    loc_params: LocationParams,
     in_params: InParams,
     mut session_params: SessionParams,
     mut stat_params: StatParams,
-    position_params: PositionParams,
+    pos_params: PositionParams,
     mobs: Query<(Entity, &MapleMob, &ChildOf)>,
     items: Query<&MapleItem>,
     mut messages: MessageReader<DeadMobResponseMessage>,
@@ -180,7 +181,7 @@ pub fn handle_dead_mob(
         let Ok((in_map_entity, _)) = in_params.in_maps.get(client_entity) else {
             continue;
         };
-        let Ok((map_entity, _, _)) = location_params.maps.get(in_map_entity) else {
+        let Ok((map_entity, _, _)) = loc_params.maps.get(in_map_entity) else {
             continue;
         };
         let Some((mob_entity, mob, _)) = mobs
@@ -198,10 +199,10 @@ pub fn handle_dead_mob(
         let Ok(kill_mob_packet) = codec::mob::builder::build_kill_mob_packet(msg.mob_id) else {
             continue;
         };
-        actions.push(Action::Broadcast(BroadcastAction::Send {
+        actions.push(Action::HandlerAction {
             packet: kill_mob_packet,
-            scope: BroadcastScope::Map,
-        }));
+            scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+        });
 
         char.exp += exp.amount;
         if char.exp >= EXP_TABLE[char.level as usize] as i32 {
@@ -213,35 +214,35 @@ pub fn handle_dead_mob(
             else {
                 continue;
             };
-            actions.push(Action::Session(SessionAction::Send {
+            actions.push(Action::HandlerAction {
                 packet: set_level_packet.finish(),
-                scope: SessionScope::Local,
-            }));
+                scope: ActionScope::Local,
+            });
             let Ok(mut set_exp_packet) = codec::player::builder::build_set_exp_packet(0) else {
                 continue;
             };
-            actions.push(Action::Session(SessionAction::Send {
+            actions.push(Action::HandlerAction {
                 packet: set_exp_packet.finish(),
-                scope: SessionScope::Local,
-            }));
+                scope: ActionScope::Local,
+            });
             let Ok(mut level_up_packet) =
                 codec::player::builder::build_level_up_effect_packet(char.id)
             else {
                 continue;
             };
-            actions.push(Action::Session(SessionAction::Send {
+            actions.push(Action::HandlerAction {
                 packet: level_up_packet.finish(),
-                scope: SessionScope::Map(MapScope::SameChannelSameWorld),
-            }));
+                scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+            });
         } else {
             let Ok(mut set_exp_packet) = codec::player::builder::build_set_exp_packet(char.exp)
             else {
                 continue;
             };
-            actions.push(Action::Session(SessionAction::Send {
+            actions.push(Action::HandlerAction {
                 packet: set_exp_packet.finish(),
-                scope: SessionScope::Local,
-            }));
+                scope: ActionScope::Local,
+            });
         }
         command_tx
             .0
@@ -255,7 +256,7 @@ pub fn handle_dead_mob(
                 },
             ));
 
-        let Ok((_, drop_from_pos, _)) = position_params.curr_positions.get(mob_entity) else {
+        let Ok((_, drop_from_pos, _)) = pos_params.curr_positions.get(mob_entity) else {
             continue;
         };
         let drop_from_point: Point = Point {
@@ -290,10 +291,10 @@ pub fn handle_dead_mob(
             ) else {
                 continue;
             };
-            actions.push(Action::Broadcast(BroadcastAction::Send {
+            actions.push(Action::HandlerAction {
                 packet: drop_loot_packet.finish(),
-                scope: BroadcastScope::Map,
-            }));
+                scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+            });
         }
         let Ok(mut meso_packet) = codec::item::builder::build_drop_loot_packet(
             mode,
@@ -308,10 +309,10 @@ pub fn handle_dead_mob(
         ) else {
             continue;
         };
-        actions.push(Action::Broadcast(BroadcastAction::Send {
+        actions.push(Action::HandlerAction {
             packet: meso_packet.finish(),
-            scope: BroadcastScope::Map,
-        }));
+            scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+        });
         results.write(HandlerResult {
             client_id: msg.client_id,
             actions,
@@ -352,10 +353,10 @@ pub fn handle_close_attack_response(
         };
         results.write(HandlerResult {
             client_id: msg.client_id,
-            actions: vec![Action::Broadcast(BroadcastAction::Send {
+            actions: vec![Action::HandlerAction {
                 packet: close_attack_packet.finish(),
-                scope: BroadcastScope::Map,
-            })],
+                scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+            }],
         });
     }
 }

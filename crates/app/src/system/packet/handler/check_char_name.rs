@@ -23,8 +23,8 @@ use crate::message::packet::check_char_name::{
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::CustomSender;
 use crate::system::packet::build::check_char_name;
-use action::model::{Action, SessionAction};
-use action::scope::SessionScope;
+use action::model::Action;
+use action::scope::ActionScope;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Res;
 use ipc::asyncronous::command::AsyncCommand;
@@ -61,10 +61,10 @@ pub fn handle_check_char_name_response(
         };
         results.write(HandlerResult {
             client_id: msg.client_id,
-            actions: vec![Action::Session(SessionAction::Send {
+            actions: vec![Action::HandlerAction {
                 packet: check_char_name_packet.finish(),
-                scope: SessionScope::Local,
-            })],
+                scope: ActionScope::Local,
+            }],
         });
     }
 }

@@ -23,8 +23,8 @@ use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::codec;
 use crate::system::system_params::{InParams, LocationParams, SessionParams};
-use action::model::{Action, SessionAction};
-use action::scope::SessionScope;
+use action::model::Action;
+use action::scope::ActionScope;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Res};
@@ -34,7 +34,7 @@ use inc::helpers;
 pub fn handle_select_char(
     mut commands: Commands,
     client_map: Res<ClientMap>,
-    location_params: LocationParams,
+    loc_params: LocationParams,
     in_params: InParams,
     session_params: SessionParams,
     mut results: MessageWriter<HandlerResult>,
@@ -58,7 +58,7 @@ pub fn handle_select_char(
         let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let Ok((_, channel, _)) = location_params.channels.get(in_channel_entity) else {
+        let Ok((_, channel, _)) = loc_params.channels.get(in_channel_entity) else {
             continue;
         };
         let Some((char_entity, _, _)) = session_params
@@ -78,10 +78,10 @@ pub fn handle_select_char(
         };
         results.write(HandlerResult {
             client_id: msg.client_id,
-            actions: vec![Action::Session(SessionAction::Break {
+            actions: vec![Action::HandlerAction {
                 packet: select_char_packet.finish(),
-                scope: SessionScope::Local,
-            })],
+                scope: ActionScope::Local,
+            }], // TODO break
         });
     }
 }

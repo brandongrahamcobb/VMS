@@ -26,8 +26,8 @@ use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{codec, player_logged_in};
 use crate::system::system_params::{InParams, InventoryParams, LocationParams, SessionParams};
-use action::model::{Action, SessionAction};
-use action::scope::SessionScope;
+use action::model::Action;
+use action::scope::ActionScope;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
@@ -70,7 +70,7 @@ pub fn handle_player_logged_in_response(
     mut commands: Commands,
     client_map: Res<ClientMap>,
     parents: Query<&ChildOf>,
-    location_params: LocationParams,
+    loc_params: LocationParams,
     in_params: InParams,
     session_params: SessionParams,
     inv_params: InventoryParams,
@@ -85,13 +85,13 @@ pub fn handle_player_logged_in_response(
         let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let Ok((_, channel, _)) = location_params.channels.get(in_channel_entity) else {
+        let Ok((_, channel, _)) = loc_params.channels.get(in_channel_entity) else {
             continue;
         };
         let Ok((in_map_entity, _)) = in_params.in_maps.get(client_entity) else {
             continue;
         };
-        let Ok((_, map, _)) = location_params.maps.get(in_map_entity) else {
+        let Ok((_, map, _)) = loc_params.maps.get(in_map_entity) else {
             continue;
         };
         let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
@@ -132,15 +132,15 @@ pub fn handle_player_logged_in_response(
         results.write(HandlerResult {
             client_id: msg.client_id,
             actions: vec![
-                Action::Session(SessionAction::Send {
+                Action::HandlerAction {
                     packet: keymap_packet.finish(),
-                    scope: SessionScope::Local,
-                }),
-                Action::Session(SessionAction::Send {
+                    scope: ActionScope::Local,
+                },
+                Action::HandlerAction {
                     packet: set_field_packet.finish(),
-                    scope: SessionScope::Local,
-                }),
-                Action::Session(SessionAction::Retrieve),
+                    scope: ActionScope::Local,
+                },
+                // Action::HandlerAction(SessionAction::Retrieve), TODO
             ],
         });
     }

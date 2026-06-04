@@ -17,7 +17,7 @@ WORKDIR /app
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
-RUN cargo build --release
+RUN cargo build --release --bin app
 
 FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y \
@@ -26,5 +26,5 @@ RUN apt-get update && apt-get install -y \
     libpq5 \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-COPY --from=builder /app/target/release/vms /app/vms
+COPY --from=builder /app/target/release/app /app/vms
 CMD ["./vms"]

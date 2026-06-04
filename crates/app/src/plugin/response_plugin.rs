@@ -27,6 +27,7 @@ use crate::message::packet::login::{LoginFailedResponseMessage, LoginSuccessResp
 use crate::message::packet::pickup_item::PickupItemResponseMessage;
 use crate::message::packet::player_logged_in::PlayerLoggedInResponseMessage;
 use crate::message::packet::select_char_with_pic::SelectCharWithPicResponseMessage;
+use crate::message::result::HandlerResult;
 
 use bevy::app::{App, Plugin};
 
@@ -34,7 +35,8 @@ pub struct ResponsePlugin;
 
 impl Plugin for ResponsePlugin {
     fn build(&self, app: &mut App) {
-        app.add_message::<CloseAttackResponseMessage>()
+        app.add_message::<HandlerResult>()
+            .add_message::<CloseAttackResponseMessage>()
             .add_message::<DeadMobResponseMessage>()
             .add_message::<CheckCharNameResponseMessage>()
             .add_message::<CreateCharResponseMessage>()

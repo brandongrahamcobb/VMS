@@ -21,29 +21,28 @@ use crate::message::packet::list_worlds::ReadListWorldsRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::system::packet::build::list_worlds;
 use crate::system::system_params::LocationParams;
-use action::model::{Action, SessionAction};
-use action::scope::SessionScope;
+use action::model::Action;
+use action::scope::ActionScope;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 
 pub fn handle_list_worlds(
-    location_params: LocationParams,
+    loc_params: LocationParams,
     mut messages: MessageReader<ReadListWorldsRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
-        let Ok(packets) = list_worlds::build_list_worlds_packets(
-            &location_params.worlds,
-            &location_params.channels,
-        ) else {
+        let Ok(packets) =
+            list_worlds::build_list_worlds_packets(&loc_params.worlds, &loc_params.channels)
+        else {
             continue;
         };
         for mut packet in packets {
             results.write(HandlerResult {
                 client_id: msg.client_id,
-                actions: vec![Action::Session(SessionAction::Send {
+                actions: vec![Action::HandlerAction {
                     packet: packet.finish(),
-                    scope: SessionScope::Local,
-                })],
+                    scope: ActionScope::Local,
+                }],
             });
         }
     }

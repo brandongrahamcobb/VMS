@@ -22,8 +22,8 @@ use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::chat_text;
 use crate::system::system_params::{InParams, SessionParams};
-use action::model::{Action, BroadcastAction};
-use action::scope::BroadcastScope;
+use action::model::Action;
+use action::scope::{ActionScope, MapScope};
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Res;
 
@@ -59,10 +59,10 @@ pub fn handle_chat_text(
 
         results.write(HandlerResult {
             client_id: msg.client_id,
-            actions: vec![Action::Broadcast(BroadcastAction::Send {
+            actions: vec![Action::HandlerAction {
                 packet: chat_packet.finish(),
-                scope: BroadcastScope::Map,
-            })],
+                scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+            }],
         });
     }
 }

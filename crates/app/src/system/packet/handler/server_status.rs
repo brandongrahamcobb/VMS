@@ -21,17 +21,17 @@ use crate::message::packet::server_status::ReadServerStatusRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::system::packet::build::server_status;
 use crate::system::system_params::LocationParams;
-use action::model::{Action, SessionAction};
-use action::scope::SessionScope;
+use action::model::Action;
+use action::scope::ActionScope;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 
 pub fn handle_server_status(
-    location_params: LocationParams,
+    loc_params: LocationParams,
     mut messages: MessageReader<ReadServerStatusRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) {
     for msg in messages.read() {
-        let status: i16 = if location_params.channels.iter().next().is_some() {
+        let status: i16 = if loc_params.channels.iter().next().is_some() {
             0
         } else {
             2
@@ -41,10 +41,10 @@ pub fn handle_server_status(
         };
         results.write(HandlerResult {
             client_id: msg.client_id,
-            actions: vec![Action::Session(SessionAction::Send {
+            actions: vec![Action::HandlerAction {
                 packet: status_packet.finish(),
-                scope: SessionScope::Local,
-            })],
+                scope: ActionScope::Local,
+            }],
         });
     }
 }

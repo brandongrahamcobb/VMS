@@ -10,7 +10,7 @@ use crate::component::mob::MapleMob;
 use crate::component::world::MapleWorld;
 use crate::message::result::TickResult;
 use crate::system::packet::build::codec;
-use action::model::{Action, TickAction};
+use action::model::Action;
 use action::scope::TickScope;
 
 // FixedUpdate
@@ -60,22 +60,22 @@ pub fn mob_respawn_system(
         };
         results.write(TickResult {
             actions: vec![
-                Action::Tick(TickAction::Send {
+                Action::TickAction {
                     packet: spawn_mob_packet.finish(),
                     scope: TickScope::Map {
                         world_id: world.id,
                         channel_id: channel.id,
                         map_wz: map.base.wz,
                     },
-                }),
-                Action::Tick(TickAction::Send {
+                },
+                Action::TickAction {
                     packet: spawn_mob_controller_packet.finish(),
                     scope: TickScope::Map {
                         world_id: world.id,
                         channel_id: channel.id,
                         map_wz: map.base.wz,
                     },
-                }),
+                },
             ],
         });
     }

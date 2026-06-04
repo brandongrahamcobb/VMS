@@ -27,8 +27,8 @@ use crate::resource::custom_resource::CustomSender;
 use crate::system::packet::build::codec;
 use crate::system::system_params::InParams;
 use crate::system::system_params::SessionParams;
-use action::model::{Action, SessionAction};
-use action::scope::SessionScope;
+use action::model::Action;
+use action::scope::ActionScope;
 use base::account::FailedCode;
 use base::account::StatusCode;
 use bevy::ecs::hierarchy::ChildOf;
@@ -58,10 +58,10 @@ pub fn handle_login_request(
             };
             results.write(HandlerResult {
                 client_id: msg.client_id,
-                actions: vec![Action::Session(SessionAction::Send {
+                actions: vec![Action::HandlerAction {
                     packet: login_failed_packet.finish(),
-                    scope: SessionScope::Local,
-                })],
+                    scope: ActionScope::Local,
+                }],
             });
         }
         command_tx
@@ -107,10 +107,10 @@ pub fn handle_login_success_response(
         };
         results.write(HandlerResult {
             client_id: msg.client_id,
-            actions: vec![Action::Session(SessionAction::Send {
+            actions: vec![Action::HandlerAction {
                 packet: credentials_packet.finish(),
-                scope: SessionScope::Local,
-            })],
+                scope: ActionScope::Local,
+            }],
         });
     }
 }
@@ -129,10 +129,10 @@ pub fn handle_login_failed_response(
                 };
                 results.write(HandlerResult {
                     client_id: msg.client_id,
-                    actions: vec![Action::Session(SessionAction::Send {
+                    actions: vec![Action::HandlerAction {
                         packet: login_failed_packet.finish(),
-                        scope: SessionScope::Local,
-                    })],
+                        scope: ActionScope::Local,
+                    }],
                 });
             }
             _ => {}

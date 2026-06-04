@@ -24,8 +24,8 @@ use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{change_map, codec};
 use crate::system::system_params::{InParams, LocationParams, SessionParams};
-use action::model::{Action, SessionAction};
-use action::scope::{MapScope, SessionScope};
+use action::model::Action;
+use action::scope::{ActionScope, MapScope};
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
@@ -36,7 +36,7 @@ pub fn handle_map_change(
     mut commands: Commands,
     command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
-    location_params: LocationParams,
+    loc_params: LocationParams,
     in_params: InParams,
     mut session_params: SessionParams,
     portals: Query<(&MaplePortal, &ChildOf)>,
@@ -64,8 +64,7 @@ pub fn handle_map_change(
         let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let Ok((channel_entity, channel, _)) = location_params.channels.get(in_channel_entity)
-        else {
+        let Ok((channel_entity, channel, _)) = loc_params.channels.get(in_channel_entity) else {
             continue;
         };
         let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
@@ -78,7 +77,7 @@ pub fn handle_map_change(
         session.transitioning = true;
         commands.entity(client_entity).remove::<InMap>();
 
-        let Some((map_entity, map, _)) = location_params.maps.iter().find(|(_, m, parent)| {
+        let Some((map_entity, map, _)) = loc_params.maps.iter().find(|(_, m, parent)| {
             m.base.wz == portal.base.target_map_wz && parent.0 == channel_entity
         }) else {
             continue;
@@ -112,14 +111,14 @@ pub fn handle_map_change(
         results.write(HandlerResult {
             client_id: msg.client_id,
             actions: vec![
-                Action::Session(SessionAction::Send {
+                Action::HandlerAction {
                     packet: despawn_packet.finish(),
-                    scope: SessionScope::Map(MapScope::SameChannelSameWorld),
-                }),
-                Action::Session(SessionAction::Send {
+                    scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+                },
+                Action::HandlerAction {
                     packet: set_field_packet.finish(),
-                    scope: SessionScope::Local,
-                }),
+                    scope: ActionScope::Local,
+                },
             ],
         });
     }

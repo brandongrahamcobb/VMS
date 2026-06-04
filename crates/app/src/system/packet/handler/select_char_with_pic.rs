@@ -28,8 +28,8 @@ use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{codec, spw};
 use crate::system::system_params::{InParams, SessionParams};
-use action::model::{Action, SessionAction};
-use action::scope::SessionScope;
+use action::model::Action;
+use action::scope::ActionScope;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
@@ -134,10 +134,10 @@ pub fn handle_select_char_with_pic_response(
 
             results.write(HandlerResult {
                 client_id: msg.client_id,
-                actions: vec![Action::Session(SessionAction::Break {
+                actions: vec![Action::HandlerAction {
                     packet: select_char_packet.finish(),
-                    scope: SessionScope::Local,
-                })],
+                    scope: ActionScope::Local,
+                }], // TODO break
             });
         } else {
             let success_status: bool = false;
@@ -146,10 +146,10 @@ pub fn handle_select_char_with_pic_response(
             };
             results.write(HandlerResult {
                 client_id: msg.client_id,
-                actions: vec![Action::Session(SessionAction::Send {
+                actions: vec![Action::HandlerAction {
                     packet: select_char_failed_packet.finish(),
-                    scope: SessionScope::Local,
-                })],
+                    scope: ActionScope::Local,
+                }],
             });
         }
     }

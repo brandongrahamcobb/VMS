@@ -28,8 +28,8 @@ use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::create_char;
 use crate::system::packet::handler::codec::spawn_char;
 use crate::system::system_params::{InParams, InventoryParams, LocationParams, SessionParams};
-use action::model::{Action, SessionAction};
-use action::scope::SessionScope;
+use action::model::Action;
+use action::scope::ActionScope;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
@@ -97,7 +97,7 @@ pub fn handle_create_char_request(
 pub fn handle_create_char_response(
     mut commands: Commands,
     client_map: Res<ClientMap>,
-    location_params: LocationParams,
+    loc_params: LocationParams,
     session_params: SessionParams,
     in_params: InParams,
     inv_params: InventoryParams,
@@ -112,7 +112,7 @@ pub fn handle_create_char_response(
         let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let Ok((channel_entity, _, _)) = location_params.channels.get(in_channel_entity) else {
+        let Ok((channel_entity, _, _)) = loc_params.channels.get(in_channel_entity) else {
             continue;
         };
         let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
@@ -148,7 +148,7 @@ pub fn handle_create_char_response(
             &msg.setup_tab_inv_capacity_map,
             &msg.cash_tab_inv_capacity_map,
         );
-        let Some((_, map, _)) = location_params
+        let Some((_, map, _)) = loc_params
             .maps
             .iter()
             .find(|(_, m, parent)| m.base.wz == char.map_wz && parent.0 == channel_entity)
@@ -176,10 +176,10 @@ pub fn handle_create_char_response(
         };
         results.write(HandlerResult {
             client_id: msg.client_id,
-            actions: vec![Action::Session(SessionAction::Send {
+            actions: vec![Action::HandlerAction {
                 packet: create_char_packet.finish(),
-                scope: SessionScope::Local,
-            })],
+                scope: ActionScope::Local,
+            }],
         });
     }
 }
