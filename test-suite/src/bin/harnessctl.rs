@@ -7,15 +7,10 @@ use std::thread;
 use test_suite::error::HarnessError;
 use tokio::time::Instant;
 use tracing::error;
-use tracing_subscriber::EnvFilter;
 
 pub const PROJECT_NAME: &str = "vms";
 
 fn main() -> ExitCode {
-    dotenvy::dotenv().ok();
-    tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::from_default_env().add_directive("vms=debug".parse().unwrap()))
-        .init();
     match run() {
         Ok(()) => ExitCode::SUCCESS,
         Err(e) => {

@@ -1,5 +1,3 @@
-pub mod test_bevy_client;
-pub mod test_bevy_server;
 pub mod test_change_channel;
 pub mod test_char_list;
 pub mod test_close_attack;

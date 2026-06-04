@@ -106,21 +106,26 @@ mod tests {
     use crate::tests::test_game;
     use crate::{error::HarnessError, tests::test_change_channel};
     use config::settings;
-    use db::error::DatabaseError;
     use db::pool::DbPool;
     use diesel::PgConnection;
     use diesel::r2d2::{ConnectionManager, Pool};
     use std::sync::Arc;
     use tokio::sync::Semaphore;
 
+    use tracing_subscriber::EnvFilter;
+
     #[tokio::test]
     async fn main_test() -> Result<(), HarnessError> {
-        dotenvy::dotenv().ok();
+        tracing_subscriber::fmt()
+            .with_env_filter(
+                EnvFilter::from_default_env().add_directive("vms=debug".parse().unwrap()),
+            )
+            .init();
         let db_url = settings::get_db_url()?;
         let manager = ConnectionManager::<PgConnection>::new(db_url);
         let pool = Pool::builder()
             .build(manager)
-            .map_err(|_| HarnessError::from(DatabaseError::DatabaseConnectionError))?;
+            .map_err(|e| HarnessError::from(e))?;
         let a_turn = Arc::new(Semaphore::new(1));
         let b_turn = Arc::new(Semaphore::new(0));
         let a_turn_clone = a_turn.clone();
@@ -141,10 +146,11 @@ mod tests {
             test_game::send_player_test(conn, a_turn, b_turn).await?;
             Ok::<_, HarnessError>(())
         });
+        let cloned_pool = pool.clone();
         let second_char = tokio::spawn(async move {
             let conn: TestConnection = test_game::play(&second_char_details).await?;
             test_game::receive_player_test(
-                &pool,
+                &cloned_pool,
                 conn,
                 first_char_details,
                 a_turn_clone,

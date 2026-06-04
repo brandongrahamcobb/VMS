@@ -23,4 +23,4 @@ runtime = { path = "../crates/runtime" }
 diesel = { version = "2.3.7", features = ["postgres", "network-address", "r2d2"] }
 r2d2 = "0.8.10"
 bevy = { version = "0.18.1", default-features = false }
-bevy_renet = {version = "4.0.1", default-features = false }
+bevy_renet = {version = "4.0.1", default-features = false, features = ["netcode"] }
