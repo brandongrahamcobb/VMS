@@ -1,4 +1,3 @@
-use base::account::StatusCode;
 /* credentials/message.rs
  * The purpose of this module is to handle credentials validation.
  *
@@ -17,6 +16,8 @@ use base::account::StatusCode;
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+use base::account::FailedCode;
 use bevy::prelude::Message;
 use db::account::model::AccountModel;
 
@@ -38,5 +39,5 @@ pub struct LoginSuccessResponseMessage {
 #[derive(Message)]
 pub struct LoginFailedResponseMessage {
     pub client_id: i32,
-    pub status: StatusCode,
+    pub code: FailedCode,
 }

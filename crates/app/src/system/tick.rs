@@ -27,7 +27,9 @@ pub fn mob_respawn_system(
     let stance: i8 = 0;
     let effect: i8 = 0;
     let team: i8 = -1;
-    for (mob_entity, mut mob, map_entity) in mobs.iter_mut().find(|(_, m, _)| m.dead == true) {
+    while let Some((mob_entity, mut mob, map_entity)) =
+        mobs.iter_mut().find(|(_, m, _)| m.dead == true)
+    {
         if mob.died_at.elapsed().as_secs() >= mob.base.mob_time {
             mob.dead = false;
             let Ok(mut hp) = healths.get_mut(mob_entity) else {

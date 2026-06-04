@@ -30,7 +30,6 @@ use crate::system::system_params::SessionParams;
 use action::model::Action;
 use action::scope::ActionScope;
 use base::account::FailedCode;
-use base::account::StatusCode;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::MessageReader;
 use bevy::ecs::message::MessageWriter;
@@ -100,7 +99,6 @@ pub fn handle_login_success_response(
         let acc: MapleAccount = MapleAccount::from((msg.acc_model.clone(), msg.acc_id));
         let acc_entity = commands.spawn((acc.clone(), ChildOf(session_entity))).id();
         commands.entity(client_entity).insert(InAccount(acc_entity));
-
         let Ok(mut credentials_packet) = codec::login::builder::build_successful_login_packet(&acc)
         else {
             continue;
@@ -120,22 +118,17 @@ pub fn handle_login_failed_response(
     mut results: MessageWriter<HandlerResult>,
 ) {
     for msg in messages.read() {
-        match msg.status.clone() {
-            StatusCode::Failed(code) => {
-                let Ok(mut login_failed_packet) =
-                    codec::login::builder::build_failed_login_packet(code as i16)
-                else {
-                    continue;
-                };
-                results.write(HandlerResult {
-                    client_id: msg.client_id,
-                    actions: vec![Action::HandlerAction {
-                        packet: login_failed_packet.finish(),
-                        scope: ActionScope::Local,
-                    }],
-                });
-            }
-            _ => {}
-        }
+        let Ok(mut login_failed_packet) =
+            codec::login::builder::build_failed_login_packet(msg.code.clone() as i16)
+        else {
+            continue;
+        };
+        results.write(HandlerResult {
+            client_id: msg.client_id,
+            actions: vec![Action::HandlerAction {
+                packet: login_failed_packet.finish(),
+                scope: ActionScope::Local,
+            }],
+        });
     }
 }

@@ -19,7 +19,7 @@
 use crate::scope::{ActionScope, TickScope};
 use net::packet::model::Packet;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Action {
     HandlerAction { packet: Packet, scope: ActionScope },
     TickAction { packet: Packet, scope: TickScope },

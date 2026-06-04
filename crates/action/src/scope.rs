@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum ActionScope {
     Map(MapScope),
     Channel(ChannelScope),
@@ -26,20 +26,20 @@ pub enum ActionScope {
     Global,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum MapScope {
     SameChannelSameWorld,
     AllChannelsSameWorld,
     AllChannelsAllWorlds,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum ChannelScope {
     SameWorld,
     AllWorlds,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum TickScope {
     Global,
     World {

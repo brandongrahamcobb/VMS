@@ -123,7 +123,8 @@ pub fn handle_close_attack_request(
                             client_id: msg.client_id,
                             mob_id: *mob_id,
                         },
-                    ));
+                    ))
+                    .unwrap();
             }
         }
         for (mob_id, hp_percent) in hp_updates {
@@ -254,7 +255,8 @@ pub fn handle_dead_mob(
                     char_id: char.id,
                     updates: vec![StatsUpdate::Exp { exp: char.exp }],
                 },
-            ));
+            ))
+            .unwrap();
 
         let Ok((_, drop_from_pos, _)) = pos_params.curr_positions.get(mob_entity) else {
             continue;

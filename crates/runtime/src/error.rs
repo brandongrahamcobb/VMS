@@ -18,6 +18,7 @@
  */
 
 use config::error::ConfigError;
+use db::account::error::AccountModelError;
 use db::character::error::CharacterModelError;
 use db::error::DatabaseError;
 use ipc::asyncronous::command::AsyncCommand;
@@ -56,8 +57,11 @@ pub enum RuntimeError {
     #[error("Item metadata error in runtime layer")]
     ItemMetadataError(#[from] ItemMetadataError),
 
-    #[error("Character model error in runtime layer")]
+    #[error("Character db model error in runtime layer")]
     CharacterModelError(#[from] CharacterModelError),
+
+    #[error("Account db model error in runtime layer")]
+    AccountModelError(#[from] AccountModelError),
 
     #[error("Syncronous domain error in runtime layer")]
     SyncDomainError(#[from] SyncDomainError),

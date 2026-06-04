@@ -35,7 +35,6 @@ pub fn result_handler_system(
     mut messages: MessageReader<HandlerResult>,
 ) {
     for msg in messages.read() {
-        dbg!("result");
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };

@@ -61,11 +61,11 @@ pub async fn start_server(
         while let Ok(client) = register_rx.try_recv() {
             relays.insert(client.id, client.tx);
         }
-        while let Ok(cmd) = command_rx.recv() {
+        while let Ok(cmd) = command_rx.try_recv() {
             match cmd {
                 AsyncCommand::SendPacket { client_id, packet } => {
                     if let Some(tx) = relays.get(&client_id) {
-                        let _ = tx.send(packet);
+                        let _ = tx.send(packet).await.unwrap();
                     }
                 }
                 AsyncCommand::AcceptTransition { .. } => {

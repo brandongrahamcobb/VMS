@@ -64,23 +64,35 @@ impl Runtime {
         event_tx: Sender<AsyncEvent>,
         mut rx: Receiver<Packet>,
     ) -> Result<(), RuntimeError> {
-        loop {
-            tokio::select! {
-                packet = self.pkt_reader.read_packet() => {
-                    match packet {
-                        Ok(raw) => {
-                            event_tx.send(AsyncEvent::PacketReceived { client_id: cid, packet: raw }).unwrap();
-                        }
-                        Err(_) => {
-                            event_tx.send(AsyncEvent::ClientDisconnected { client_id: cid }).unwrap();
-                            break Ok(());
-                        }
+        let read_task = tokio::spawn(async move {
+            loop {
+                match self.pkt_reader.read_packet().await {
+                    Ok(raw) => {
+                        event_tx
+                            .send(AsyncEvent::PacketReceived {
+                                client_id: cid,
+                                packet: raw,
+                            })
+                            .unwrap();
+                    }
+                    Err(_) => {
+                        event_tx
+                            .send(AsyncEvent::ClientDisconnected { client_id: cid })
+                            .unwrap();
+                        break;
                     }
                 }
-                Some(mut packet) = rx.recv() => {
-                    self.pkt_writer.send_encrypted_packet(&mut packet).await?;
-                }
             }
-        }
+        });
+        let write_task = tokio::spawn(async move {
+            while let Some(mut packet) = rx.recv().await {
+                self.pkt_writer
+                    .send_encrypted_packet(&mut packet)
+                    .await
+                    .unwrap();
+            }
+        });
+        let _ = tokio::try_join!(read_task, write_task);
+        Ok(())
     }
 }

@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use base::account::StatusCode;
 use base::inventory::InventoryTab;
 use base::skill::BaseSkill;
 use base::{account::FailedCode, character::StatsUpdate};
@@ -56,14 +57,20 @@ pub async fn db_worker(
                                 acc_model.password.clone(),
                                 password.clone(),
                             );
+                            let acc_id: i32 = acc_model.get_id()?;
                             match authenticated {
                                 Ok(true) => {
                                     let status =
                                         syncronous::account::get_status_code_by_account(&acc_model);
-                                    AsyncEvent::LoginSuccess {
-                                        client_id,
-                                        acc_model,
-                                        status,
+                                    match status {
+                                        StatusCode::Failed(code) => {
+                                            AsyncEvent::LoginFailed { client_id, code }
+                                        }
+                                        _ => AsyncEvent::LoginSuccess {
+                                            client_id,
+                                            acc_id,
+                                            acc_model,
+                                        },
                                     }
                                 }
                                 Ok(false) => AsyncEvent::LoginFailed {

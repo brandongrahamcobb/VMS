@@ -19,14 +19,13 @@
 
 use std::collections::HashMap;
 
-use base::{
-    account::{FailedCode, StatusCode},
-    skill::BaseSkill,
-};
-use db::{
-    account::model::AccountModel, character::model::CharacterModel, item::model::ItemModel,
-    keybinding::model::KeybindingModel, skill::model::SkillModel,
-};
+use base::account::FailedCode;
+use base::skill::BaseSkill;
+use db::account::model::AccountModel;
+use db::character::model::CharacterModel;
+use db::item::model::ItemModel;
+use db::keybinding::model::KeybindingModel;
+use db::skill::model::SkillModel;
 use net::packet::model::Packet;
 
 pub enum AsyncEvent {
@@ -50,8 +49,8 @@ pub enum AsyncEvent {
     // Login
     LoginSuccess {
         client_id: i32,
+        acc_id: i32,
         acc_model: AccountModel,
-        status: StatusCode,
     },
     LoginFailed {
         client_id: i32,

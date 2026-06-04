@@ -17,24 +17,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::component::session::MapleSession;
 use crate::message::packet::attack_close::CloseAttackResponseMessage;
 use crate::message::packet::check_char_name::CheckCharNameResponseMessage;
 use crate::message::packet::create_char::CreateCharResponseMessage;
 use crate::message::packet::list_chars::{
     ListCharsFailedResponseMessage, ListCharsSuccessResponseMessage,
 };
+use crate::message::packet::login::{LoginFailedResponseMessage, LoginSuccessResponseMessage};
 use crate::message::packet::pickup_item::PickupItemResponseMessage;
 use crate::message::packet::player_logged_in::PlayerLoggedInResponseMessage;
 use crate::message::packet::raw::RawPacketMessage;
-use crate::resource::custom_resource::CustomReceiver;
+use crate::resource::custom_resource::{ClientMap, CustomReceiver};
+use bevy::ecs::hierarchy::Children;
 use bevy::ecs::message::MessageWriter;
-use bevy::ecs::system::Res;
+use bevy::ecs::system::{Commands, Res, ResMut};
 use ipc::asyncronous::event::AsyncEvent;
 use std::sync::MutexGuard;
 use std::sync::mpsc::Receiver;
 
 pub fn handle_events_system(
+    mut commands: Commands,
     receiver: Res<CustomReceiver>,
+    mut client_map: ResMut<ClientMap>,
     mut check_char_name_response_writer: MessageWriter<CheckCharNameResponseMessage>,
     mut create_char_response_writer: MessageWriter<CreateCharResponseMessage>,
     mut list_chars_success_writer: MessageWriter<ListCharsSuccessResponseMessage>,
@@ -43,19 +48,43 @@ pub fn handle_events_system(
     mut pickup_success_writer: MessageWriter<PickupItemResponseMessage>,
     mut close_attack_success_writer: MessageWriter<CloseAttackResponseMessage>,
     mut raw_packet_writer: MessageWriter<RawPacketMessage>,
+    mut login_success_writer: MessageWriter<LoginSuccessResponseMessage>,
+    mut login_fail_writer: MessageWriter<LoginFailedResponseMessage>,
 ) {
     let rx: MutexGuard<Receiver<AsyncEvent>> = receiver.0.lock().unwrap();
     while let Ok(event) = rx.try_recv() {
         match event {
             AsyncEvent::ClientConnected { client_id } => {
-                std::hint::black_box(client_id);
+                let session_entity = commands
+                    .spawn(MapleSession {
+                        transitioning: false,
+                    })
+                    .id();
+                client_map.0.insert(client_id, session_entity);
             }
             AsyncEvent::ClientDisconnected { client_id } => {
-                std::hint::black_box(client_id);
+                if let Some(client_entity) = client_map.0.remove(&client_id) {
+                    commands.entity(client_entity).despawn_related::<Children>();
+                }
             }
             AsyncEvent::PacketReceived { client_id, packet } => {
                 raw_packet_writer.write(RawPacketMessage { client_id, packet });
             }
+            AsyncEvent::LoginSuccess {
+                client_id,
+                acc_id,
+                acc_model,
+            } => {
+                login_success_writer.write(LoginSuccessResponseMessage {
+                    client_id,
+                    acc_id,
+                    acc_model,
+                });
+            }
+            AsyncEvent::LoginFailed { client_id, code } => {
+                login_fail_writer.write(LoginFailedResponseMessage { client_id, code });
+            }
+
             AsyncEvent::ListCharsSuccess {
                 client_id,
                 channel_id,
