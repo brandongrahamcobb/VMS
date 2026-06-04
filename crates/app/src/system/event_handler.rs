@@ -25,6 +25,7 @@ use crate::message::packet::list_chars::{
 };
 use crate::message::packet::pickup_item::PickupItemResponseMessage;
 use crate::message::packet::player_logged_in::PlayerLoggedInResponseMessage;
+use crate::message::packet::raw::RawPacketMessage;
 use crate::resource::custom_resource::CustomReceiver;
 use bevy::ecs::message::MessageWriter;
 use bevy::ecs::system::Res;
@@ -41,6 +42,7 @@ pub fn handle_events_system(
     mut player_join_success_writer: MessageWriter<PlayerLoggedInResponseMessage>,
     mut pickup_success_writer: MessageWriter<PickupItemResponseMessage>,
     mut close_attack_success_writer: MessageWriter<CloseAttackResponseMessage>,
+    mut raw_packet_writer: MessageWriter<RawPacketMessage>,
 ) {
     let rx: MutexGuard<Receiver<AsyncEvent>> = receiver.0.lock().unwrap();
     while let Ok(event) = rx.try_recv() {
@@ -52,8 +54,7 @@ pub fn handle_events_system(
                 std::hint::black_box(client_id);
             }
             AsyncEvent::PacketReceived { client_id, packet } => {
-                std::hint::black_box(client_id);
-                std::hint::black_box(packet);
+                raw_packet_writer.write(RawPacketMessage { client_id, packet });
             }
             AsyncEvent::ListCharsSuccess {
                 client_id,

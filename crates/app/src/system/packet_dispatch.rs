@@ -17,9 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::sync::MutexGuard;
-use std::sync::mpsc::Receiver;
-
 use crate::message::packet::accept_tos::ReadTosRequestMessage;
 use crate::message::packet::attack_close::ReadCloseAttackRequestMessage;
 use crate::message::packet::cc::ReadChangeChannelRequestMessage;
@@ -46,7 +43,6 @@ use crate::message::packet::select_char::ReadSelectCharRequestMessage;
 use crate::message::packet::select_char_with_pic::ReadSelectCharWithPicRequestMessage;
 use crate::message::packet::server_status::ReadServerStatusRequestMessage;
 use crate::message::packet::take_damage::ReadTakeDamageRequestMessage;
-use crate::resource::custom_resource::CustomReceiver;
 use crate::system::packet::dispatch::{
     accept_tos, attack_close, cc, change_keymap, change_map, chat_text, check_char_name,
     create_char, delete_char, list_chars, login, mob_moved, pickup_item, player_logged_in,
@@ -54,25 +50,11 @@ use crate::system::packet::dispatch::{
 };
 
 use bevy::ecs::message::MessageReader;
-use bevy::ecs::system::Res;
 use bevy::prelude::MessageWriter;
-use ipc::asyncronous::event::AsyncEvent;
 use net::packet::model::Packet;
 use op::recv::RecvOpcode;
 
-pub fn packet_dispatch_system(
-    receiver: Res<CustomReceiver>,
-    mut writer: MessageWriter<RawPacketMessage>,
-) {
-    let rx: MutexGuard<Receiver<AsyncEvent>> = receiver.0.lock().unwrap();
-    while let Ok(message) = rx.try_recv() {
-        if let AsyncEvent::PacketReceived { client_id, packet } = message {
-            writer.write(RawPacketMessage { client_id, packet });
-        }
-    }
-}
-
-pub fn login_packet_router_system(
+pub fn login_packet_dispatch_system(
     mut raw: MessageReader<RawPacketMessage>,
     mut login_writer: MessageWriter<ReadLoginRequestMessage>,
     mut tos_writer: MessageWriter<ReadTosRequestMessage>,
@@ -98,7 +80,7 @@ pub fn login_packet_router_system(
     }
 }
 
-pub fn prepare_chars_router_system(
+pub fn prepare_chars_dispatch_system(
     mut raw: MessageReader<RawPacketMessage>,
     mut list_chars_writer: MessageWriter<ReadListCharsRequestMessage>,
     mut list_worlds_writer: MessageWriter<ReadListWorldsRequestMessage>,
@@ -128,7 +110,7 @@ pub fn prepare_chars_router_system(
     }
 }
 
-pub fn char_management_router_system(
+pub fn char_management_dispatch_system(
     mut raw: MessageReader<RawPacketMessage>,
     mut create_char_writer: MessageWriter<ReadCreateCharRequestMessage>,
     mut check_char_name_writer: MessageWriter<ReadCheckCharNameRequestMessage>,
@@ -185,7 +167,7 @@ pub fn char_management_router_system(
     }
 }
 
-pub fn start_playing_router_system(
+pub fn start_playing_dispatch_system(
     mut raw: MessageReader<RawPacketMessage>,
     mut login_started_writer: MessageWriter<ReadLoginStartRequestMessage>,
     mut player_logged_in_writer: MessageWriter<ReadPlayerLoggedInRequestMessage>,
@@ -210,7 +192,7 @@ pub fn start_playing_router_system(
     }
 }
 
-pub fn ui_router_system(
+pub fn ui_dispatch_system(
     mut raw: MessageReader<RawPacketMessage>,
     mut change_keymap_writer: MessageWriter<ReadChangeKeymapRequestMessage>,
     mut party_search_writer: MessageWriter<ReadPartySearchRequestMessage>,
@@ -235,7 +217,7 @@ pub fn ui_router_system(
     }
 }
 
-pub fn map_router_system(
+pub fn map_dispatch_system(
     mut raw: MessageReader<RawPacketMessage>,
     mut change_map_writer: MessageWriter<ReadChangeMapRequestMessage>,
     mut enter_cash_shop_writer: MessageWriter<ReadEnterCashShopRequestMessage>,
@@ -266,7 +248,7 @@ pub fn map_router_system(
     }
 }
 
-pub fn channel_router_system(
+pub fn channel_dispatch_system(
     mut raw: MessageReader<RawPacketMessage>,
     mut change_channel_writer: MessageWriter<ReadChangeChannelRequestMessage>,
 ) {
@@ -285,7 +267,7 @@ pub fn channel_router_system(
     }
 }
 
-pub fn char_router_system(
+pub fn char_dispatch_system(
     mut raw: MessageReader<RawPacketMessage>,
     mut all_chat_writer: MessageWriter<ReadChatTextRequestMessage>,
 ) {
@@ -304,7 +286,7 @@ pub fn char_router_system(
     }
 }
 
-pub fn item_router_system(
+pub fn item_dispatch_system(
     mut raw: MessageReader<RawPacketMessage>,
     mut pickup_item_writer: MessageWriter<ReadPickupItemRequestMessage>,
 ) {
@@ -323,7 +305,7 @@ pub fn item_router_system(
     }
 }
 
-pub fn move_router_system(
+pub fn move_dispatch_system(
     mut raw: MessageReader<RawPacketMessage>,
     mut player_attacked_writer: MessageWriter<ReadCloseAttackRequestMessage>,
     mut player_moved_writer: MessageWriter<ReadPlayerMovedRequestMessage>,

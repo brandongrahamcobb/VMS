@@ -28,19 +28,18 @@ impl Plugin for PacketDispatchPlugin {
         app.add_systems(
             Update,
             (
-                packet_dispatch::login_packet_router_system,
-                packet_dispatch::channel_router_system,
-                packet_dispatch::char_management_router_system,
-                packet_dispatch::char_router_system,
-                packet_dispatch::item_router_system,
-                packet_dispatch::map_router_system,
-                packet_dispatch::move_router_system,
-                packet_dispatch::prepare_chars_router_system,
-                packet_dispatch::start_playing_router_system,
-                packet_dispatch::ui_router_system,
+                packet_dispatch::login_packet_dispatch_system,
+                packet_dispatch::channel_dispatch_system,
+                packet_dispatch::char_management_dispatch_system,
+                packet_dispatch::char_dispatch_system,
+                packet_dispatch::item_dispatch_system,
+                packet_dispatch::map_dispatch_system,
+                packet_dispatch::move_dispatch_system,
+                packet_dispatch::prepare_chars_dispatch_system,
+                packet_dispatch::start_playing_dispatch_system,
+                packet_dispatch::ui_dispatch_system,
             )
                 .chain(),
         );
-        app.add_systems(Update, packet_dispatch::packet_dispatch_system);
     }
 }
