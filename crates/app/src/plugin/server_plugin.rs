@@ -28,9 +28,8 @@ use diesel::r2d2::ConnectionManager;
 use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::event::AsyncEvent;
 
-use crate::message::packet::raw::RawPacketMessage;
 use crate::resource::custom_resource::{ClientMap, CustomReceiver, CustomSender};
-use crate::system::{event_handler, packet_dispatch, startup};
+use crate::system::{event_handler, result_handler, startup};
 
 pub struct CustomServerPlugin;
 
@@ -53,10 +52,9 @@ impl Plugin for CustomServerPlugin {
                         app.insert_resource(CustomReceiver(Mutex::new(event_rx)))
                             .insert_resource(CustomSender(Mutex::new(command_tx)))
                             .insert_resource(ClientMap(HashMap::new()))
-                            .add_message::<RawPacketMessage>()
                             .add_systems(Startup, startup::spawn_worlds)
                             .add_systems(Update, event_handler::handle_events_system)
-                            .add_systems(Update, packet_dispatch::packet_dispatch_system);
+                            .add_systems(Update, result_handler::result_handler_system);
                     }
                     Err(e) => tracing::error!("App startup error: {e}"),
                 }

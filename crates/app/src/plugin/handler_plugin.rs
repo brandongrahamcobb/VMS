@@ -18,64 +18,64 @@
  */
 
 use crate::system::packet::handler;
+use crate::system::result_handler;
 use bevy::app::{App, Plugin, Update};
+use bevy::ecs::schedule::IntoScheduleConfigs;
 
-pub struct PacketDispatchPlugin;
+pub struct LoginPacketHandlerPlugin;
 
-impl Plugin for PacketDispatchPlugin {
+impl Plugin for LoginPacketHandlerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, handler::accept_tos::handle_tos)
-            .add_systems(Update, handler::attack_close::handle_close_attack_request)
-            .add_systems(Update, handler::attack_close::handle_close_attack_response)
-            .add_systems(Update, handler::attack_close::handle_dead_mob)
-            .add_systems(Update, handler::cc::handle_change_channel)
-            .add_systems(Update, handler::change_keymap::handle_change_keymap)
-            .add_systems(Update, handler::chat_text::handle_chat_text)
-            .add_systems(
-                Update,
+        app.add_systems(
+            Update,
+            (
+                handler::accept_tos::handle_tos,
                 handler::check_char_name::handle_check_char_name_request,
-            )
-            .add_systems(
-                Update,
                 handler::check_char_name::handle_check_char_name_response,
-            )
-            .add_systems(Update, handler::create_char::handle_create_char_request)
-            .add_systems(Update, handler::create_char::handle_create_char_response)
-            .add_systems(Update, handler::delete_char::handle_delete_char_request)
-            .add_systems(Update, handler::enter_cash_shop::handle_enter_cash_shop)
-            .add_systems(Update, handler::list_chars::handle_load_char_slots)
-            .add_systems(Update, handler::list_chars::handle_list_chars)
-            .add_systems(Update, handler::list_worlds::handle_list_worlds)
-            .add_systems(Update, handler::login::handle_login_failed_response)
-            .add_systems(Update, handler::login::handle_login_request)
-            .add_systems(Update, handler::login::handle_login_success_response)
-            .add_systems(Update, handler::mob_moved::handle_mob_moved)
-            .add_systems(Update, handler::pickup_item::handle_pickup_item_request)
-            .add_systems(Update, handler::pickup_item::handle_pickup_response)
-            .add_systems(
-                Update,
+                handler::create_char::handle_create_char_request,
+                handler::create_char::handle_create_char_response,
+                handler::delete_char::handle_delete_char_request,
+                handler::list_chars::handle_load_char_slots,
+                handler::list_chars::handle_list_chars,
+                handler::list_worlds::handle_list_worlds,
+                handler::login::handle_login_failed_response,
+                handler::login::handle_login_request,
+                handler::login::handle_login_success_response,
                 handler::player_logged_in::handle_player_logged_in_request,
-            )
-            .add_systems(
-                Update,
                 handler::player_logged_in::handle_player_logged_in_response,
-            )
-            .add_systems(
-                Update,
-                handler::player_map_transfer::handle_player_map_transfer,
-            )
-            .add_systems(Update, handler::player_moved::handle_player_moved)
-            .add_systems(Update, handler::register_pic::handle_register_pic)
-            .add_systems(Update, handler::select_char::handle_select_char)
-            .add_systems(
-                Update,
+                handler::register_pic::handle_register_pic,
+                handler::select_char::handle_select_char,
                 handler::select_char_with_pic::handle_select_char_with_pic_request,
-            )
-            .add_systems(
-                Update,
                 handler::select_char_with_pic::handle_select_char_with_pic_response,
+                handler::server_status::handle_server_status,
             )
-            .add_systems(Update, handler::server_status::handle_server_status)
-            .add_systems(Update, handler::take_damage::handle_take_damage);
+                .chain(),
+        );
+    }
+}
+
+pub struct GamePacketHandlerPlugin;
+
+impl Plugin for GamePacketHandlerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(
+            Update,
+            (
+                handler::attack_close::handle_close_attack_request,
+                handler::attack_close::handle_close_attack_response,
+                handler::attack_close::handle_dead_mob,
+                handler::cc::handle_change_channel,
+                handler::change_keymap::handle_change_keymap,
+                handler::chat_text::handle_chat_text,
+                handler::enter_cash_shop::handle_enter_cash_shop,
+                handler::mob_moved::handle_mob_moved,
+                handler::pickup_item::handle_pickup_item_request,
+                handler::pickup_item::handle_pickup_response,
+                handler::player_map_transfer::handle_player_map_transfer,
+                handler::player_moved::handle_player_moved,
+                handler::take_damage::handle_take_damage,
+            )
+                .chain(),
+        );
     }
 }

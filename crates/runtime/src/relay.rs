@@ -67,7 +67,6 @@ impl Runtime {
         loop {
             tokio::select! {
                 packet = self.pkt_reader.read_packet() => {
-                    dbg!("test");
                     match packet {
                         Ok(raw) => {
                             event_tx.send(AsyncEvent::PacketReceived { client_id: cid, packet: raw }).unwrap();

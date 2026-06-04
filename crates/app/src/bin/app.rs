@@ -18,6 +18,8 @@
  */
 use core::net::SocketAddr;
 
+use app::message::packet::raw::RawPacketMessage;
+use app::plugin::handler_plugin::{GamePacketHandlerPlugin, LoginPacketHandlerPlugin};
 use app::plugin::packet_plugin::PacketDispatchPlugin;
 use app::plugin::request_plugin::RequestPlugin;
 use app::plugin::response_plugin::ResponsePlugin;
@@ -43,7 +45,10 @@ fn main() -> () {
         .add_plugins(NetcodeClientPlugin)
         .add_plugins(RequestPlugin)
         .add_plugins(ResponsePlugin)
+        .add_message::<RawPacketMessage>()
         .add_plugins(PacketDispatchPlugin)
+        .add_plugins(LoginPacketHandlerPlugin)
+        .add_plugins(GamePacketHandlerPlugin)
         .add_plugins(CustomServerPlugin);
     let server = RenetServer::new(ConnectionConfig::default());
     app.insert_resource(server);

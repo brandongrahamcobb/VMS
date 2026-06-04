@@ -61,7 +61,8 @@ pub async fn start_server(
         while let Ok(client) = register_rx.try_recv() {
             relays.insert(client.id, client.tx);
         }
-        while let Ok(cmd) = command_rx.recv() {
+        while let Ok(cmd) = command_rx.try_recv() {
+            dbg!("command received");
             match cmd {
                 AsyncCommand::SendPacket { client_id, packet } => {
                     if let Some(tx) = relays.get(&client_id) {
@@ -98,7 +99,7 @@ impl LoginServer {
                 Ok((stream, _)) => {
                     let client_id = crate::client::next_client_id();
                     let (tx, rx) = mpsc::channel::<Packet>(32);
-                    register_tx.send(Register { id: client_id, tx });
+                    register_tx.send(Register { id: client_id, tx }).await?;
                     event_tx
                         .send(AsyncEvent::ClientConnected { client_id })
                         .unwrap();
@@ -145,34 +146,32 @@ impl PlayerServer {
                 let listener = TcpListener::bind(bind).await?;
                 let event_tx = event_tx.clone();
                 let register_tx = register_tx.clone();
-                tokio::spawn(async move {
-                    match listener.accept().await {
-                        Ok((stream, _)) => {
-                            let (tx, rx) = mpsc::channel::<Packet>(32);
-                            register_tx.send(Register { id: client_id, tx });
-                            event_tx
-                                .send(AsyncEvent::ClientConnected { client_id })
-                                .unwrap();
-                            match Runtime::new(stream, Some(packet)).await {
-                                Ok(runtime) => {
-                                    match runtime.run(client_id, event_tx.clone(), rx).await {
-                                        Ok(_) => {}
-                                        Err(e) => info!("Player runtime error: {}", e),
-                                    }
-                                }
-                                Err(e) => {
-                                    event_tx
-                                        .send(AsyncEvent::ClientDisconnected { client_id })
-                                        .unwrap();
-                                    info!("Player runtime init error: {}", e);
+                match listener.accept().await {
+                    Ok((stream, _)) => {
+                        let (tx, rx) = mpsc::channel::<Packet>(32);
+                        register_tx.send(Register { id: client_id, tx }).await?;
+                        event_tx
+                            .send(AsyncEvent::ClientConnected { client_id })
+                            .unwrap();
+                        match Runtime::new(stream, Some(packet)).await {
+                            Ok(runtime) => {
+                                match runtime.run(client_id, event_tx.clone(), rx).await {
+                                    Ok(_) => {}
+                                    Err(e) => info!("Player runtime error: {}", e),
                                 }
                             }
+                            Err(e) => {
+                                event_tx
+                                    .send(AsyncEvent::ClientDisconnected { client_id })
+                                    .unwrap();
+                                info!("Player runtime init error: {}", e);
+                            }
                         }
-                        Err(e) => {
-                            info!("Player listener error: {}", e)
-                        }
-                    };
-                });
+                    }
+                    Err(e) => {
+                        info!("Player listener error: {}", e)
+                    }
+                };
             }
             tokio::task::yield_now().await;
         }

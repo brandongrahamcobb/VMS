@@ -17,25 +17,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::system::{packet_dispatch, result_handler};
+use crate::system::packet_dispatch;
 use bevy::app::{App, Plugin, Update};
+use bevy::ecs::schedule::IntoScheduleConfigs;
 
 pub struct PacketDispatchPlugin;
 
 impl Plugin for PacketDispatchPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, result_handler::result_handler_system)
-            .add_systems(Update, packet_dispatch::packet_dispatch_system)
-            .add_systems(Update, packet_dispatch::login_packet_router_system)
-            .add_systems(Update, packet_dispatch::channel_router_system)
-            .add_systems(Update, packet_dispatch::char_management_router_system)
-            .add_systems(Update, packet_dispatch::char_router_system)
-            .add_systems(Update, packet_dispatch::item_router_system)
-            .add_systems(Update, packet_dispatch::map_router_system)
-            .add_systems(Update, packet_dispatch::move_router_system)
-            .add_systems(Update, packet_dispatch::prepare_chars_router_system)
-            .add_systems(Update, packet_dispatch::start_playing_router_system)
-            .add_systems(Update, packet_dispatch::ui_router_system)
-            .add_systems(Update, packet_dispatch::channel_router_system);
+        app.add_systems(
+            Update,
+            (
+                packet_dispatch::login_packet_router_system,
+                packet_dispatch::channel_router_system,
+                packet_dispatch::char_management_router_system,
+                packet_dispatch::char_router_system,
+                packet_dispatch::item_router_system,
+                packet_dispatch::map_router_system,
+                packet_dispatch::move_router_system,
+                packet_dispatch::prepare_chars_router_system,
+                packet_dispatch::start_playing_router_system,
+                packet_dispatch::ui_router_system,
+            )
+                .chain(),
+        );
+        app.add_systems(Update, packet_dispatch::packet_dispatch_system);
     }
 }

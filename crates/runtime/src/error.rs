@@ -28,6 +28,8 @@ use net::packet::io::error::IOError;
 use thiserror::Error;
 use tokio::sync::mpsc::error::SendError;
 
+use crate::tcp::Register;
+
 #[derive(Debug, Error)]
 pub enum RuntimeError {
     #[error("Configuration error in runtime layer")]
@@ -47,6 +49,9 @@ pub enum RuntimeError {
 
     #[error("Tokio db command send error in runtime layer")]
     TokioSendDbCommandError(#[from] SendError<DatabaseCommand>),
+
+    #[error("Tokio register send error in runtime layer")]
+    TokioSendRegisterError(#[from] SendError<Register>),
 
     #[error("Item metadata error in runtime layer")]
     ItemMetadataError(#[from] ItemMetadataError),
