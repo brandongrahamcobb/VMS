@@ -188,6 +188,8 @@ services:
       dockerfile: Dockerfile.test
     command: cargo test -p test-suite -- --no-capture
     env_file: .env
+    environment:
+      POSTGRES_HOST: db
     profiles:
       - test
     depends_on:
