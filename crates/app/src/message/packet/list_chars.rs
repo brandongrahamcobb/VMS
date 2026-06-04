@@ -33,7 +33,7 @@ pub struct ReadListCharsRequestMessage {
 }
 
 #[derive(Message)]
-pub struct ListCharsSuccessMessage {
+pub struct ListCharsSuccessResponseMessage {
     pub client_id: i32,
     pub channel_id: u8,
     pub char_models: Vec<CharacterModel>,
@@ -55,6 +55,6 @@ pub struct ListCharsSuccessMessage {
 }
 
 #[derive(Message)]
-pub struct ListCharsFailedMessage {
+pub struct ListCharsFailedResponseMessage {
     pub client_id: i32,
 }

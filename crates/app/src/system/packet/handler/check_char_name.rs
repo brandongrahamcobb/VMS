@@ -26,12 +26,13 @@ use crate::system::packet::build::check_char_name;
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
 use bevy::ecs::message::{MessageReader, MessageWriter};
+use bevy::ecs::system::Res;
 use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub fn handle_check_char_name_request(
     mut messages: MessageReader<ReadCheckCharNameRequestMessage>,
-    command_tx: CustomSender,
+    command_tx: Res<CustomSender>,
 ) -> () {
     for msg in messages.read() {
         command_tx

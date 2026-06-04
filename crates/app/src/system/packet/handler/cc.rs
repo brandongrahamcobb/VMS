@@ -17,31 +17,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::channel::{InChannel, MapleChannel};
-use crate::component::character::{InChar, MapleCharacter};
-use crate::component::world::{InWorld, MapleWorld};
+use crate::component::channel::InChannel;
 use crate::message::packet::cc::ReadChangeChannelRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::{cc, codec};
+use crate::system::system_params::{InParams, LocationParams, SessionParams};
 use action::model::{Action, SessionAction};
 use action::scope::{MapScope, SessionScope};
-use bevy::ecs::entity::Entity;
-use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
+use bevy::ecs::system::Commands;
 use bevy::ecs::system::Res;
-use bevy::ecs::system::{Commands, Query};
 use config::settings;
 use inc::helpers;
 
 pub fn handle_change_channel(
-    commands: &mut Commands,
+    mut commands: Commands,
     client_map: Res<ClientMap>,
-    worlds: Query<(Entity, &MapleWorld)>,
-    in_world: Query<(Entity, &InWorld)>,
-    channels: Query<(Entity, &MapleChannel, &ChildOf)>,
-    chars: Query<&MapleCharacter>,
-    in_chars: Query<(Entity, &InChar)>,
+    location_params: LocationParams,
+    in_params: InParams,
+    session_params: SessionParams,
     mut messages: MessageReader<ReadChangeChannelRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -54,22 +49,23 @@ pub fn handle_change_channel(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_world_entity, _)) = in_world.get(client_entity) else {
+        let Ok((in_world_entity, _)) = in_params.in_worlds.get(client_entity) else {
             continue;
         };
-        let Ok((world_entity, _)) = worlds.get(in_world_entity) else {
+        let Ok((world_entity, _)) = location_params.worlds.get(in_world_entity) else {
             continue;
         };
-        let Some((channel_entity, channel, _)) = channels
+        let Some((channel_entity, channel, _)) = location_params
+            .channels
             .iter()
             .find(|(_, c, parent)| c.id == msg.channel_id && parent.0 == world_entity)
         else {
             continue;
         };
-        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok(char) = chars.get(in_char_entity) else {
+        let Ok((_, char, _)) = session_params.chars.get(in_char_entity) else {
             continue;
         };
 

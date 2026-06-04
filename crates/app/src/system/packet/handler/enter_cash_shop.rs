@@ -17,43 +17,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::account::{InAccount, MapleAccount};
-use crate::component::channel::{InChannel, MapleChannel};
-use crate::component::character::{InChar, MapleCharacter};
-use crate::component::inventory::{MapleEquippedTab, MapleInventory};
 use crate::component::item::MapleItem;
-use crate::component::map::{InMap, MapleMap};
-use crate::component::session::{InSession, MapleSession};
-use crate::component::slot::MapleFilledItemSlot;
+use crate::component::map::InMap;
 use crate::message::packet::enter_cash_shop::ReadEnterCashShopRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::{codec, enter_cash_shop};
 use crate::system::packet::handler::constants::CASH_SHOP_MAP_WZ;
+use crate::system::system_params::{InParams, InventoryParams, LocationParams, SessionParams};
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
-use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
 
 pub fn handle_enter_cash_shop(
-    commands: &mut Commands,
+    mut commands: Commands,
     client_map: Res<ClientMap>,
-    mut sessions: Query<&mut MapleSession>,
-    in_sessions: Query<(Entity, &InSession)>,
-    channels: Query<(Entity, &MapleChannel)>,
-    in_channels: Query<(Entity, &InChannel)>,
-    maps: Query<(Entity, &MapleMap, &ChildOf)>,
-    in_maps: Query<(Entity, &InMap)>,
-    accounts: Query<&MapleAccount>,
-    in_accounts: Query<(Entity, &InAccount)>,
-    chars: Query<(Entity, &MapleCharacter)>,
-    in_chars: Query<(Entity, &InChar)>,
+    location_params: LocationParams,
+    in_params: InParams,
+    mut session_params: SessionParams,
+    inv_params: InventoryParams,
     items: Query<(&MapleItem, &ChildOf)>,
-    inventories: Query<(Entity, &MapleInventory)>,
-    equipped_tabs: Query<(Entity, &MapleEquippedTab)>,
-    filled_slots: Query<(Entity, &MapleFilledItemSlot)>,
     mut messages: MessageReader<ReadEnterCashShopRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -61,43 +46,37 @@ pub fn handle_enter_cash_shop(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_session_entity, _)) = in_sessions.get(client_entity) else {
+        let Ok((in_session_entity, _)) = in_params.in_sessions.get(client_entity) else {
             continue;
         };
-        let Ok(mut session) = sessions.get_mut(in_session_entity) else {
+        let Ok((_, mut session)) = session_params.sessions.get_mut(in_session_entity) else {
             continue;
         };
-        let Ok((in_channel_entity, _)) = in_channels.get(client_entity) else {
+        let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let Ok((channel_entity, _)) = channels.get(in_channel_entity) else {
+        let Ok((channel_entity, _, _)) = location_params.channels.get(in_channel_entity) else {
             continue;
         };
-        let Ok((in_map_entity, _)) = in_maps.get(client_entity) else {
+        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok((_, map, _)) = maps.get(in_map_entity) else {
+        let Ok((_, acc, _)) = session_params.accounts.get(in_acc_entity) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
+        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok(acc) = accounts.get(in_acc_entity) else {
+        let Ok((char_entity, char, _)) = session_params.chars.get(in_char_entity) else {
             continue;
         };
-        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+        let Ok((inv_entity, _)) = inv_params.inventories.get(char_entity) else {
             continue;
         };
-        let Ok((char_entity, char)) = chars.get(in_char_entity) else {
+        let Ok((equipped_tab_entity, _)) = inv_params.equipped_tabs.get(inv_entity) else {
             continue;
         };
-        let Ok((inv_entity, _)) = inventories.get(char_entity) else {
-            continue;
-        };
-        let Ok((equipped_tab_entity, _)) = equipped_tabs.get(inv_entity) else {
-            continue;
-        };
-        let Ok((filled_slot_entity, _)) = filled_slots.get(equipped_tab_entity) else {
+        let Ok((filled_slot_entity, _)) = inv_params.filled_slots.get(equipped_tab_entity) else {
             continue;
         };
         let equips: Vec<_> = items
@@ -108,7 +87,8 @@ pub fn handle_enter_cash_shop(
         session.transitioning = true;
 
         commands.entity(client_entity).remove::<InMap>();
-        let Some((map_entity, _, _)) = maps
+        let Some((map_entity, map, _)) = location_params
+            .maps
             .iter()
             .find(|(_, m, parent)| m.base.wz == CASH_SHOP_MAP_WZ && parent.0 == channel_entity)
         else {

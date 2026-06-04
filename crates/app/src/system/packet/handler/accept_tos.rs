@@ -17,35 +17,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::account::{InAccount, MapleAccount};
 use crate::message::packet::accept_tos::ReadTosRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::codec;
+use crate::system::system_params::{InParams, SessionParams};
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
-use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Query, Res};
+use bevy::ecs::system::Res;
 use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub fn handle_tos(
     client_map: Res<ClientMap>,
+    in_params: InParams,
+    session_params: SessionParams,
     mut messages: MessageReader<ReadTosRequestMessage>,
-    command_tx: CustomSender,
+    command_tx: Res<CustomSender>,
     mut results: MessageWriter<HandlerResult>,
-    accounts: Query<&MapleAccount>,
-    in_accounts: Query<(Entity, &InAccount)>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
+        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok(acc) = accounts.get(in_acc_entity) else {
+        let Ok((_, acc, _)) = session_params.accounts.get(in_acc_entity) else {
             continue;
         };
 

@@ -25,25 +25,31 @@ use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::resource::custom_resource::CustomSender;
 use crate::system::packet::build::codec;
+use crate::system::system_params::InParams;
+use crate::system::system_params::SessionParams;
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
 use base::account::FailedCode;
 use base::account::StatusCode;
+use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::MessageReader;
 use bevy::ecs::message::MessageWriter;
 use bevy::ecs::system::Commands;
-use bevy::ecs::system::{Query, Res};
+use bevy::ecs::system::Res;
 use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 
-fn handle_login_request(
-    command_tx: CustomSender,
-    accounts: Query<&MapleAccount>,
+pub fn handle_login_request(
+    command_tx: Res<CustomSender>,
+    session_params: SessionParams,
     mut messages: MessageReader<ReadLoginRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) {
     for msg in messages.read() {
-        let already_logged_in = accounts.iter().find(|a| a.username == msg.username);
+        let already_logged_in = session_params
+            .accounts
+            .iter()
+            .find(|(_, a, _)| a.username == msg.username);
         if already_logged_in.is_some() {
             let Ok(mut login_failed_packet) =
                 codec::login::builder::build_failed_login_packet(FailedCode::Playing as i16)
@@ -73,9 +79,11 @@ fn handle_login_request(
     }
 }
 
-fn handle_login_success_response(
-    commands: &mut Commands,
+pub fn handle_login_success_response(
+    mut commands: Commands,
     client_map: Res<ClientMap>,
+    in_params: InParams,
+    session_params: SessionParams,
     mut messages: MessageReader<LoginSuccessResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) {
@@ -83,8 +91,14 @@ fn handle_login_success_response(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
+        let Ok((in_session_entity, _)) = in_params.in_sessions.get(client_entity) else {
+            continue;
+        };
+        let Ok((session_entity, _)) = session_params.sessions.get(in_session_entity) else {
+            continue;
+        };
         let acc: MapleAccount = MapleAccount::from((msg.acc_model.clone(), msg.acc_id));
-        let acc_entity = commands.spawn(acc.clone()).id();
+        let acc_entity = commands.spawn((acc.clone(), ChildOf(session_entity))).id();
         commands.entity(client_entity).insert(InAccount(acc_entity));
 
         let Ok(mut credentials_packet) = codec::login::builder::build_successful_login_packet(&acc)
@@ -101,7 +115,7 @@ fn handle_login_success_response(
     }
 }
 
-fn handle_login_failed_response(
+pub fn handle_login_failed_response(
     mut messages: MessageReader<LoginFailedResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) {

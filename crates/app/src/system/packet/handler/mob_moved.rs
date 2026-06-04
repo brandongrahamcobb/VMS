@@ -17,13 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::map::{InMap, MapleMap};
 use crate::component::mob::MapleMob;
-use crate::component::position::{MapleCurrentPosition, MapleLastPosition};
 use crate::message::packet::mob_moved::ReadMobMovedRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::codec;
+use crate::system::system_params::{InParams, LocationParams, PositionParams};
 use action::model::{Action, BroadcastAction};
 use action::scope::BroadcastScope;
 use base::map::Point;
@@ -35,11 +34,10 @@ use bevy::ecs::system::{Query, Res};
 
 pub fn handle_mob_moved(
     client_map: Res<ClientMap>,
-    maps: Query<(Entity, &MapleMap)>,
-    in_map: Query<(Entity, &InMap)>,
-    mobs: Query<(Entity, &mut MapleMob, &ChildOf)>,
-    curr_positions: Query<&mut MapleCurrentPosition>,
-    last_positions: Query<&mut MapleLastPosition>,
+    location_params: LocationParams,
+    in_params: InParams,
+    mut position_params: PositionParams,
+    mut mobs: Query<(Entity, &mut MapleMob, &ChildOf)>,
     mut messages: MessageReader<ReadMobMovedRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -47,16 +45,19 @@ pub fn handle_mob_moved(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_map_entity, _)) = in_map.get(client_entity) else {
+        let Ok((in_map_entity, _)) = in_params.in_maps.get(client_entity) else {
             continue;
         };
-        let Ok((map_entity, _)) = maps.get(in_map_entity) else {
+        let Ok((map_entity, _, _)) = location_params.maps.get(in_map_entity) else {
             continue;
         };
-        let Some((mob_entity, mob, _)) = mobs
+        let Some((mob_entity, _, _)) = mobs
             .iter_mut()
-            .find(|(_, m, parent)| m.id == msg.mob_id && parent.0 == map_entity);
-        let Ok(curr_pos) = curr_positions.get_mut(mob_entity) else {
+            .find(|(_, m, parent)| m.id == msg.mob_id && parent.0 == map_entity)
+        else {
+            continue;
+        };
+        let Ok((_, mut curr_pos, _)) = position_params.curr_positions.get_mut(mob_entity) else {
             continue;
         };
 
@@ -67,7 +68,7 @@ pub fn handle_mob_moved(
         curr_pos.x = pos.x;
         curr_pos.y = pos.y;
         curr_pos.fh = Some(msg.fh);
-        let Ok(last_pos) = last_positions.get_mut(mob_entity) else {
+        let Ok((_, mut last_pos, _)) = position_params.last_positions.get_mut(mob_entity) else {
             continue;
         };
         let pos = Point {

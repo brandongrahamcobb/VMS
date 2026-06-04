@@ -17,24 +17,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::account::InAccount;
-use crate::component::account::MapleAccount;
-use crate::component::channel::{InChannel, MapleChannel};
+use crate::component::channel::InChannel;
 use crate::component::character::MapleCharacter;
-use crate::component::inventory::{MapleEquippedTab, MapleInventory};
 use crate::component::item::MapleItem;
-use crate::component::map::MapleMap;
-use crate::component::slot::MapleFilledItemSlot;
-use crate::component::world::{InWorld, MapleWorld};
-use crate::message::packet::list_chars::ListCharsSuccessMessage;
+use crate::component::world::InWorld;
+use crate::message::packet::list_chars::ListCharsSuccessResponseMessage;
 use crate::message::packet::list_chars::ReadListCharsRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::list_chars;
 use crate::system::packet::handler::codec::spawn_char;
+use crate::system::system_params::InParams;
+use crate::system::system_params::InventoryParams;
+use crate::system::system_params::LocationParams;
+use crate::system::system_params::SessionParams;
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
-use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
@@ -49,30 +47,34 @@ pub enum PicStatus {
 }
 
 pub fn handle_load_char_slots(
-    commands: &mut Commands,
-    command_tx: CustomSender,
+    mut commands: Commands,
+    command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
-    worlds: Query<(Entity, &MapleWorld)>,
-    channels: Query<(Entity, &MapleChannel, &ChildOf)>,
-    accounts: Query<&MapleAccount>,
-    in_accounts: Query<(Entity, &InAccount)>,
+    location_params: LocationParams,
+    in_params: InParams,
+    session_params: SessionParams,
     mut messages: MessageReader<ReadListCharsRequestMessage>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
+        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok(acc) = accounts.get(in_acc_entity) else {
+        let Ok((_, acc, _)) = session_params.accounts.get(in_acc_entity) else {
             continue;
         };
-        let Some((world_entity, _)) = worlds.iter().find(|(_, w)| w.id == msg.world_id) else {
+        let Some((world_entity, _)) = location_params
+            .worlds
+            .iter()
+            .find(|(_, w)| w.id == msg.world_id)
+        else {
             continue;
         };
         commands.spawn(InWorld(world_entity));
-        let Some((channel_entity, _, _)) = channels
+        let Some((channel_entity, _, _)) = location_params
+            .channels
             .iter()
             .find(|(_, c, parent)| c.id == msg.channel_id && parent.0 == world_entity)
         else {
@@ -97,39 +99,37 @@ pub fn handle_load_char_slots(
 }
 
 pub fn handle_list_chars(
-    commands: &mut Commands,
+    mut commands: Commands,
     client_map: Res<ClientMap>,
-    accounts: Query<(Entity, &MapleAccount)>,
-    in_accounts: Query<(Entity, &InAccount)>,
-    chars: Query<(Entity, &MapleCharacter, &ChildOf)>,
-    maps: Query<&MapleMap>,
+    location_params: LocationParams,
+    in_params: InParams,
+    session_params: SessionParams,
+    inv_params: InventoryParams,
     items: Query<(&MapleItem, &ChildOf)>,
-    inventories: Query<(Entity, &MapleInventory)>,
-    equipped_tabs: Query<(Entity, &MapleEquippedTab)>,
-    filled_slots: Query<(Entity, &MapleFilledItemSlot)>,
-    mut messages: MessageReader<ListCharsSuccessMessage>,
+    mut messages: MessageReader<ListCharsSuccessResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
+        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok((acc_entity, acc)) = accounts.get(in_acc_entity) else {
+        let Ok((acc_entity, acc, _)) = session_params.accounts.get(in_acc_entity) else {
             continue;
         };
         for char_model in msg.char_models.clone() {
             let char: MapleCharacter = MapleCharacter::from(char_model);
             commands.spawn((char, ChildOf(acc_entity)));
         }
-        let chars: Vec<_> = chars
+        let chars: Vec<_> = session_params
+            .chars
             .iter()
             .filter(|(_, _, parent)| parent.0 == acc_entity)
             .collect();
         spawn_char::spawn_char(
-            commands,
+            &mut commands,
             chars.clone(),
             &msg.equipped_item_model_map,
             &msg.equip_item_model_map,
@@ -159,10 +159,10 @@ pub fn handle_list_chars(
         let Ok(mut list_chars_packet) = list_chars::build_list_chars_packet(
             chars,
             items,
-            inventories,
-            equipped_tabs,
-            filled_slots,
-            maps,
+            inv_params.inventories,
+            inv_params.equipped_tabs,
+            inv_params.filled_slots,
+            location_params.maps,
             msg.channel_id,
             msg.slots,
             pic_status,

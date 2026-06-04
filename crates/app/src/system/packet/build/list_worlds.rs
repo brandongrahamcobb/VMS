@@ -67,7 +67,7 @@ pub fn build_recommended_worlds_packet(
 }
 pub fn build_list_worlds_packets(
     worlds: &Query<(Entity, &MapleWorld)>,
-    channels: &Query<(&MapleChannel, &ChildOf)>,
+    channels: &Query<(Entity, &MapleChannel, &ChildOf)>,
 ) -> Result<Vec<Packet>, PacketBuildError> {
     let mut packets: Vec<Packet> = Vec::new();
     for (world_entity, world) in worlds.iter() {
@@ -89,12 +89,12 @@ pub fn build_list_worlds_packets(
         packet.write_byte(0).map_err(WriteError)?;
         let channels_length = channels
             .iter()
-            .filter(|(_, parent)| parent.0 == world_entity)
+            .filter(|(_, _, parent)| parent.0 == world_entity)
             .count() as i16;
         packet.write_byte(channels_length).map_err(WriteError)?;
-        for (channel, _) in channels
+        for (_, channel, _) in channels
             .iter()
-            .filter(|(_, parent)| parent.0 == world_entity)
+            .filter(|(_, _, parent)| parent.0 == world_entity)
         {
             let channel_name = String::from("Placeholder");
             packet

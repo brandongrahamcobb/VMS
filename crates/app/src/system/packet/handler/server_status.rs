@@ -17,22 +17,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::channel::MapleChannel;
 use crate::message::packet::server_status::ReadServerStatusRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::system::packet::build::server_status;
+use crate::system::system_params::LocationParams;
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::Query;
 
-fn handle_server_status(
+pub fn handle_server_status(
+    location_params: LocationParams,
     mut messages: MessageReader<ReadServerStatusRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
-    channels: Query<&MapleChannel>,
 ) {
     for msg in messages.read() {
-        let status: i16 = if channels.iter().next().is_some() {
+        let status: i16 = if location_params.channels.iter().next().is_some() {
             0
         } else {
             2

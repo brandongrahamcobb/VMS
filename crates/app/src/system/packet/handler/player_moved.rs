@@ -17,25 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::character::{InChar, MapleCharacter};
-use crate::component::position::MapleCurrentPosition;
 use crate::message::packet::player_moved::ReadPlayerMovedRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::player_moved;
+use crate::system::system_params::{InParams, PositionParams, SessionParams};
 use action::model::{Action, BroadcastAction};
 use action::scope::BroadcastScope;
 use base::map::Point;
-use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Query, Res};
+use bevy::ecs::system::Res;
 use ipc::syncronous;
 
 pub fn handle_player_moved(
     client_map: Res<ClientMap>,
-    chars: Query<(Entity, &MapleCharacter)>,
-    in_chars: Query<(Entity, &InChar)>,
-    mut curr_positions: Query<&mut MapleCurrentPosition>,
+    in_params: InParams,
+    session_params: SessionParams,
+    mut position_params: PositionParams,
     mut messages: MessageReader<ReadPlayerMovedRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -44,13 +42,14 @@ pub fn handle_player_moved(
             let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
                 continue;
             };
-            let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+            let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
                 continue;
             };
-            let Ok((char_entity, char)) = chars.get(in_char_entity) else {
+            let Ok((char_entity, char, _)) = session_params.chars.get(in_char_entity) else {
                 continue;
             };
-            let Ok(mut curr_pos) = curr_positions.get_mut(char_entity) else {
+            let Ok((_, mut curr_pos, _)) = position_params.curr_positions.get_mut(char_entity)
+            else {
                 continue;
             };
             let new_pos: Point = syncronous::map::parse_position(&msg.movement_bytes)

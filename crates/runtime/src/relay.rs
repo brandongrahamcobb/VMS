@@ -63,17 +63,23 @@ impl Runtime {
         cid: i32,
         event_tx: Sender<AsyncEvent>,
         mut rx: Receiver<Packet>,
-    ) -> Result<Option<Packet>, RuntimeError> {
+    ) -> Result<(), RuntimeError> {
         loop {
             tokio::select! {
                 packet = self.pkt_reader.read_packet() => {
+                    dbg!("test");
                     match packet {
-                        Ok(raw) => event_tx.send(AsyncEvent::PacketReceived { client_id: cid, packet: raw }).unwrap(),
-                        Err(_) => event_tx.send(AsyncEvent::ClientDisconnected { client_id: cid }).unwrap()
+                        Ok(raw) => {
+                            event_tx.send(AsyncEvent::PacketReceived { client_id: cid, packet: raw }).unwrap();
+                        }
+                        Err(_) => {
+                            event_tx.send(AsyncEvent::ClientDisconnected { client_id: cid }).unwrap();
+                            break Ok(());
+                        }
                     }
                 }
                 Some(mut packet) = rx.recv() => {
-                    self.pkt_writer.send_encrypted_packet(&mut packet).await;
+                    self.pkt_writer.send_encrypted_packet(&mut packet).await?;
                 }
             }
         }

@@ -19,6 +19,6 @@
 use bevy::prelude::Message;
 
 #[derive(Message)]
-pub struct ReadSpwMessage {
+pub struct ReadSpwRequestMessage {
     pub client_id: i32,
 }

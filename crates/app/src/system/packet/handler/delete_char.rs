@@ -17,30 +17,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::account::{InAccount, MapleAccount};
-use crate::component::character::MapleCharacter;
 use crate::message::packet::delete_char::ReadDeleteCharRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::spw;
+use crate::system::system_params::{InParams, SessionParams};
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
-use bevy::ecs::entity::Entity;
-use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Commands, Query, Res};
+use bevy::ecs::system::{Commands, Res};
 use config::settings;
 use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 use ipc::syncronous;
 
 pub fn handle_delete_char_request(
-    commands: &mut Commands,
-    command_tx: CustomSender,
+    mut commands: Commands,
+    command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
-    accounts: Query<(Entity, &MapleAccount)>,
-    in_accounts: Query<(Entity, &InAccount)>,
-    chars: Query<(Entity, &MapleCharacter, &ChildOf)>,
+    in_params: InParams,
+    session_params: SessionParams,
     mut messages: MessageReader<ReadDeleteCharRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -53,13 +49,14 @@ pub fn handle_delete_char_request(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
+        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok((acc_entity, acc)) = accounts.get(in_acc_entity) else {
+        let Ok((acc_entity, acc, _)) = session_params.accounts.get(in_acc_entity) else {
             continue;
         };
-        let Some((char_entity, _, _)) = chars
+        let Some((char_entity, _, _)) = session_params
+            .chars
             .iter()
             .find(|(_, c, parent)| c.id == msg.char_id && parent.0 == acc_entity)
         else {

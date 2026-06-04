@@ -18,11 +18,7 @@
  */
 
 use crate::component::account::{InAccount, MapleAccount};
-use crate::component::character::MapleCharacter;
-use crate::component::inventory::{MapleEquippedTab, MapleInventory};
 use crate::component::item::MapleItem;
-use crate::component::map::MapleMap;
-use crate::component::slot::MapleFilledItemSlot;
 use crate::component::world::{InWorld, MapleWorld};
 use crate::message::packet::create_char::{
     CreateCharResponseMessage, ReadCreateCharRequestMessage,
@@ -31,6 +27,7 @@ use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::create_char;
 use crate::system::packet::handler::codec::spawn_char;
+use crate::system::system_params::{InParams, InventoryParams, LocationParams, SessionParams};
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
 use bevy::ecs::entity::Entity;
@@ -42,7 +39,7 @@ use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub fn handle_create_char_request(
-    command_tx: CustomSender,
+    command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
     worlds: Query<&MapleWorld>,
     in_worlds: Query<(Entity, &InWorld)>,
@@ -98,16 +95,13 @@ pub fn handle_create_char_request(
 }
 
 pub fn handle_create_char_response(
-    commands: &mut Commands,
+    mut commands: Commands,
     client_map: Res<ClientMap>,
-    accounts: Query<(Entity, &MapleAccount)>,
-    in_accounts: Query<(Entity, &InAccount)>,
-    chars: Query<(Entity, &MapleCharacter, &ChildOf)>,
-    maps: Query<&MapleMap>,
+    location_params: LocationParams,
+    session_params: SessionParams,
+    in_params: InParams,
+    inv_params: InventoryParams,
     items: Query<(&MapleItem, &ChildOf)>,
-    inventories: Query<(Entity, &MapleInventory)>,
-    equipped_tabs: Query<(Entity, &MapleEquippedTab)>,
-    filled_slots: Query<(Entity, &MapleFilledItemSlot)>,
     mut messages: MessageReader<CreateCharResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -115,24 +109,32 @@ pub fn handle_create_char_response(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
+        let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let Ok((acc_entity, _)) = accounts.get(in_acc_entity) else {
+        let Ok((channel_entity, _, _)) = location_params.channels.get(in_channel_entity) else {
             continue;
         };
-        let Some((char_entity, char, _)) = chars
+        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
+            continue;
+        };
+        let Ok((acc_entity, _, _)) = session_params.accounts.get(in_acc_entity) else {
+            continue;
+        };
+        let Some((char_entity, char, _)) = session_params
+            .chars
             .iter()
             .find(|(_, c, parent)| c.id == msg.char_id && parent.0 == acc_entity)
         else {
             continue;
         };
-        let chars: Vec<_> = chars
+        let chars: Vec<_> = session_params
+            .chars
             .iter()
             .filter(|(_, c, parent)| c.id == msg.char_id && parent.0 == acc_entity)
             .collect();
         spawn_char::spawn_char(
-            commands,
+            &mut commands,
             chars,
             &msg.equipped_item_model_map,
             &msg.equip_item_model_map,
@@ -146,17 +148,21 @@ pub fn handle_create_char_response(
             &msg.setup_tab_inv_capacity_map,
             &msg.cash_tab_inv_capacity_map,
         );
-        let Some(map) = maps.iter().find(|m| m.base.wz == char.map_wz) else {
+        let Some((_, map, _)) = location_params
+            .maps
+            .iter()
+            .find(|(_, m, parent)| m.base.wz == char.map_wz && parent.0 == channel_entity)
+        else {
             continue;
         };
 
-        let Ok((inv_entity, _)) = inventories.get(char_entity) else {
+        let Ok((inv_entity, _)) = inv_params.inventories.get(char_entity) else {
             continue;
         };
-        let Ok((equipped_tab_entity, _)) = equipped_tabs.get(inv_entity) else {
+        let Ok((equipped_tab_entity, _)) = inv_params.equipped_tabs.get(inv_entity) else {
             continue;
         };
-        let Ok((filled_slot_entity, _)) = filled_slots.get(equipped_tab_entity) else {
+        let Ok((filled_slot_entity, _)) = inv_params.filled_slots.get(equipped_tab_entity) else {
             continue;
         };
         let equips: Vec<_> = items

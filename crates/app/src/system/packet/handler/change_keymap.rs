@@ -17,12 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::character::{InChar, MapleCharacter};
 use crate::message::packet::change_keymap::ReadChangeKeymapRequestMessage;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
-use bevy::ecs::entity::Entity;
+use crate::system::system_params::{InParams, SessionParams};
 use bevy::ecs::message::MessageReader;
-use bevy::ecs::system::{Query, Res};
+use bevy::ecs::system::Res;
 use db::keybinding::model::KeybindingModel;
 use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
@@ -30,20 +29,20 @@ use itertools::izip;
 use std::time::SystemTime;
 
 pub fn handle_change_keymap(
-    command_tx: CustomSender,
+    command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
-    chars: Query<&MapleCharacter>,
-    in_chars: Query<(Entity, &InChar)>,
+    in_params: InParams,
+    session_params: SessionParams,
     mut messages: MessageReader<ReadChangeKeymapRequestMessage>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok(char) = chars.get(in_char_entity) else {
+        let Ok((_, char, _)) = session_params.chars.get(in_char_entity) else {
             continue;
         };
 

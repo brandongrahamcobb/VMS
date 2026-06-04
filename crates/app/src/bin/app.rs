@@ -18,7 +18,11 @@
  */
 use core::net::SocketAddr;
 
-use crate::plugin::custom_plugin::CustomPlugin;
+use app::plugin::packet_plugin::PacketDispatchPlugin;
+use app::plugin::request_plugin::RequestPlugin;
+use app::plugin::response_plugin::ResponsePlugin;
+use app::plugin::server_plugin::CustomServerPlugin;
+use bevy::MinimalPlugins;
 use bevy::app::App;
 use bevy_renet::netcode::{NetcodeClientPlugin, NetcodeServerTransport, ServerConfig};
 use bevy_renet::renet::ConnectionConfig;
@@ -29,16 +33,20 @@ use inc::helpers;
 use std::{net::UdpSocket, time::SystemTime};
 use tracing_subscriber::EnvFilter;
 
-async fn main() -> () {
+fn main() -> () {
     tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::from_default_env().add_directive(tracing::Level::DEBUG.into()))
         .init();
     let mut app = App::new();
-    app.add_plugins(RenetServerPlugin);
-    app.add_plugins(CustomPlugin);
+    app.add_plugins(MinimalPlugins)
+        .add_plugins(RenetServerPlugin)
+        .add_plugins(NetcodeClientPlugin)
+        .add_plugins(RequestPlugin)
+        .add_plugins(ResponsePlugin)
+        .add_plugins(PacketDispatchPlugin)
+        .add_plugins(CustomServerPlugin);
     let server = RenetServer::new(ConnectionConfig::default());
     app.insert_resource(server);
-    app.add_plugins(NetcodeClientPlugin);
     match get_server_addr() {
         Ok(addr) => {
             let socket = UdpSocket::bind(addr).unwrap();
@@ -56,6 +64,7 @@ async fn main() -> () {
         }
         Err(e) => tracing::error!("Failed to get a valid server address in Bevy app layer: {e}"),
     };
+    app.run();
 }
 
 fn get_server_addr() -> Result<SocketAddr, ConfigError> {

@@ -18,12 +18,8 @@
  */
 
 use crate::component::character::{InChar, MapleCharacter};
-use crate::component::exp::MapleExp;
-use crate::component::hp::MapleHealth;
 use crate::component::item::MapleItem;
-use crate::component::map::{InMap, MapleMap};
 use crate::component::mob::MapleMob;
-use crate::component::position::MapleCurrentPosition;
 use crate::message::packet::attack_close::{
     CloseAttackResponseMessage, DeadMobResponseMessage, ReadCloseAttackRequestMessage,
 };
@@ -31,6 +27,9 @@ use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{attack_close, codec};
 use crate::system::packet::handler::constants::EXP_TABLE;
+use crate::system::system_params::{
+    InParams, LocationParams, PositionParams, SessionParams, StatParams,
+};
 use action::model::{Action, BroadcastAction, SessionAction};
 use action::scope::{BroadcastScope, MapScope, SessionScope};
 use base::character::StatsUpdate;
@@ -47,14 +46,13 @@ use rand::RngExt;
 use std::collections::HashMap;
 
 pub fn handle_close_attack_request(
-    command_tx: CustomSender,
+    command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
-    maps: Query<(Entity, &MapleMap)>,
-    in_maps: Query<(Entity, &InMap)>,
-    chars: Query<&MapleCharacter>,
-    in_chars: Query<(Entity, &InChar)>,
+    location_params: LocationParams,
+    in_params: InParams,
+    session_params: SessionParams,
+    mut stat_params: StatParams,
     mobs: Query<(Entity, &MapleMob, &ChildOf)>,
-    mut healths: Query<(&mut MapleHealth, &ChildOf)>,
     mut messages: MessageReader<ReadCloseAttackRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -65,16 +63,16 @@ pub fn handle_close_attack_request(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_map_entity, _)) = in_maps.get(client_entity) else {
+        let Ok((in_map_entity, _)) = in_params.in_maps.get(client_entity) else {
             continue;
         };
-        let Ok((map_entity, _)) = maps.get(in_map_entity) else {
+        let Ok((map_entity, _, _)) = location_params.maps.get(in_map_entity) else {
             continue;
         };
-        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok(char) = chars.get(in_char_entity) else {
+        let Ok((_, char, _)) = session_params.chars.get(in_char_entity) else {
             continue;
         };
 
@@ -103,9 +101,10 @@ pub fn handle_close_attack_request(
             else {
                 continue;
             };
-            let Some((mut health, _)) = healths
+            let Some((_, mut health, _)) = stat_params
+                .healths
                 .iter_mut()
-                .find(|(_, parent)| parent.0 == mob_entity)
+                .find(|(_, _, parent)| parent.0 == mob_entity)
             else {
                 continue;
             };
@@ -145,17 +144,16 @@ pub fn handle_close_attack_request(
 }
 
 pub fn handle_dead_mob(
-    commands: &mut Commands,
-    command_tx: CustomSender,
+    mut commands: Commands,
+    command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
-    maps: Query<(Entity, &MapleMap)>,
-    in_maps: Query<(Entity, &InMap)>,
-    mut chars: Query<&mut MapleCharacter>,
-    in_chars: Query<(Entity, &InChar)>,
+    location_params: LocationParams,
+    in_params: InParams,
+    mut session_params: SessionParams,
+    mut stat_params: StatParams,
+    position_params: PositionParams,
     mobs: Query<(Entity, &MapleMob, &ChildOf)>,
     items: Query<&MapleItem>,
-    curr_positions: Query<&MapleCurrentPosition>,
-    mut exps: Query<(Entity, &mut MapleExp)>,
     mut messages: MessageReader<DeadMobResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -173,16 +171,16 @@ pub fn handle_dead_mob(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok(mut char) = chars.get_mut(in_char_entity) else {
+        let Ok((_, mut char, _)) = session_params.chars.get_mut(in_char_entity) else {
             continue;
         };
-        let Ok((in_map_entity, _)) = in_maps.get(client_entity) else {
+        let Ok((in_map_entity, _)) = in_params.in_maps.get(client_entity) else {
             continue;
         };
-        let Ok((map_entity, _)) = maps.get(in_map_entity) else {
+        let Ok((map_entity, _, _)) = location_params.maps.get(in_map_entity) else {
             continue;
         };
         let Some((mob_entity, mob, _)) = mobs
@@ -191,7 +189,7 @@ pub fn handle_dead_mob(
         else {
             continue;
         };
-        let Ok((_, mut exp)) = exps.get_mut(mob_entity) else {
+        let Ok((_, mut exp, _)) = stat_params.exps.get_mut(mob_entity) else {
             continue;
         };
 
@@ -257,7 +255,7 @@ pub fn handle_dead_mob(
                 },
             ));
 
-        let Ok(drop_from_pos) = curr_positions.get(mob_entity) else {
+        let Ok((_, drop_from_pos, _)) = position_params.curr_positions.get(mob_entity) else {
             continue;
         };
         let drop_from_point: Point = Point {

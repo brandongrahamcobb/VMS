@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-bevy = "0.18.1"
-bevy_renet = "4.0.1"
+bevy = { version = "0.18.1", default-features = false, features = ["debug"] }
+bevy_renet = {version = "4.0.1", default-features = false, features = ["netcode"] }
 db = { path = "../db" }
 runtime = { path = "../runtime" }
 config = { path = "../config" }

@@ -20,7 +20,9 @@
 use crate::message::packet::attack_close::CloseAttackResponseMessage;
 use crate::message::packet::check_char_name::CheckCharNameResponseMessage;
 use crate::message::packet::create_char::CreateCharResponseMessage;
-use crate::message::packet::list_chars::{ListCharsFailedMessage, ListCharsSuccessMessage};
+use crate::message::packet::list_chars::{
+    ListCharsFailedResponseMessage, ListCharsSuccessResponseMessage,
+};
 use crate::message::packet::pickup_item::PickupItemResponseMessage;
 use crate::message::packet::player_logged_in::PlayerLoggedInResponseMessage;
 use crate::resource::custom_resource::CustomReceiver;
@@ -34,8 +36,8 @@ pub fn handle_events_system(
     receiver: Res<CustomReceiver>,
     mut check_char_name_response_writer: MessageWriter<CheckCharNameResponseMessage>,
     mut create_char_response_writer: MessageWriter<CreateCharResponseMessage>,
-    mut list_chars_success_writer: MessageWriter<ListCharsSuccessMessage>,
-    mut list_chars_fail_writer: MessageWriter<ListCharsFailedMessage>,
+    mut list_chars_success_writer: MessageWriter<ListCharsSuccessResponseMessage>,
+    mut list_chars_fail_writer: MessageWriter<ListCharsFailedResponseMessage>,
     mut player_join_success_writer: MessageWriter<PlayerLoggedInResponseMessage>,
     mut pickup_success_writer: MessageWriter<PickupItemResponseMessage>,
     mut close_attack_success_writer: MessageWriter<CloseAttackResponseMessage>,
@@ -73,7 +75,7 @@ pub fn handle_events_system(
                 slots,
                 world_id,
             } => {
-                list_chars_success_writer.write(ListCharsSuccessMessage {
+                list_chars_success_writer.write(ListCharsSuccessResponseMessage {
                     client_id,
                     channel_id,
                     char_models,
@@ -95,7 +97,7 @@ pub fn handle_events_system(
                 });
             }
             AsyncEvent::ListCharsFailed { client_id } => {
-                list_chars_fail_writer.write(ListCharsFailedMessage { client_id });
+                list_chars_fail_writer.write(ListCharsFailedResponseMessage { client_id });
             }
             AsyncEvent::CharCreationSuccess {
                 client_id,

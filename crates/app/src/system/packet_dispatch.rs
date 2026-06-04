@@ -49,7 +49,7 @@ use crate::message::packet::take_damage::ReadTakeDamageRequestMessage;
 use crate::resource::custom_resource::CustomReceiver;
 use crate::system::packet::dispatch::{
     accept_tos, attack_close, cc, change_keymap, change_map, chat_text, check_char_name,
-    create_char, login, delete_char, list_chars, mob_moved, pickup_item, player_logged_in,
+    create_char, delete_char, list_chars, login, mob_moved, pickup_item, player_logged_in,
     player_moved, register_pic, select_char, select_char_with_pic, take_damage,
 };
 
@@ -66,6 +66,7 @@ pub fn packet_dispatch_system(
 ) {
     let rx: MutexGuard<Receiver<AsyncEvent>> = receiver.0.lock().unwrap();
     while let Ok(message) = rx.try_recv() {
+        dbg!("packet_dispatch_system running");
         if let AsyncEvent::PacketReceived { client_id, packet } = message {
             writer.write(RawPacketMessage { client_id, packet });
         }
@@ -327,7 +328,6 @@ pub fn move_router_system(
     mut raw: MessageReader<RawPacketMessage>,
     mut player_attacked_writer: MessageWriter<ReadCloseAttackRequestMessage>,
     mut player_moved_writer: MessageWriter<ReadPlayerMovedRequestMessage>,
-    mut player_took_damage_writer: MessageWriter<ReadTakeDamageRequestMessage>,
     mut mob_moved_writer: MessageWriter<ReadMobMovedRequestMessage>,
     mut take_damage_writer: MessageWriter<ReadTakeDamageRequestMessage>,
 ) {

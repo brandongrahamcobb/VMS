@@ -17,24 +17,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::account::{InAccount, MapleAccount};
-use crate::component::character::{InChar, MapleCharacter};
 use crate::message::packet::chat_text::ReadChatTextRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::chat_text;
+use crate::system::system_params::{InParams, SessionParams};
 use action::model::{Action, BroadcastAction};
 use action::scope::BroadcastScope;
-use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Query, Res};
+use bevy::ecs::system::Res;
 
 pub fn handle_chat_text(
     client_map: Res<ClientMap>,
-    accounts: Query<&MapleAccount>,
-    in_accounts: Query<(Entity, &InAccount)>,
-    chars: Query<&MapleCharacter>,
-    in_chars: Query<(Entity, &InChar)>,
+    in_params: InParams,
+    session_params: SessionParams,
     mut messages: MessageReader<ReadChatTextRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -42,16 +38,16 @@ pub fn handle_chat_text(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
+        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok(acc) = accounts.get(in_acc_entity) else {
+        let Ok((_, acc, _)) = session_params.accounts.get(in_acc_entity) else {
             continue;
         };
-        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok(char) = chars.get(in_char_entity) else {
+        let Ok((_, char, _)) = session_params.chars.get(in_char_entity) else {
             continue;
         };
 

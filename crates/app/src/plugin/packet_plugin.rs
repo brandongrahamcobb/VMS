@@ -1,0 +1,40 @@
+/* app/src/plugin/custom_plugin.rs
+ * The purpose of this module is to cross the thread boundary between Bevy and the TCP server.
+ *
+ * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+use crate::system::packet_dispatch;
+use bevy::app::{App, Plugin, Update};
+
+pub struct PacketDispatchPlugin;
+
+impl Plugin for PacketDispatchPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, packet_dispatch::packet_dispatch_system)
+            .add_systems(Update, packet_dispatch::login_packet_router_system)
+            .add_systems(Update, packet_dispatch::channel_router_system)
+            .add_systems(Update, packet_dispatch::char_management_router_system)
+            .add_systems(Update, packet_dispatch::char_router_system)
+            .add_systems(Update, packet_dispatch::item_router_system)
+            .add_systems(Update, packet_dispatch::map_router_system)
+            .add_systems(Update, packet_dispatch::move_router_system)
+            .add_systems(Update, packet_dispatch::prepare_chars_router_system)
+            .add_systems(Update, packet_dispatch::start_playing_router_system)
+            .add_systems(Update, packet_dispatch::ui_router_system)
+            .add_systems(Update, packet_dispatch::channel_router_system);
+    }
+}

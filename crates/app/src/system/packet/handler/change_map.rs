@@ -17,18 +17,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::channel::{InChannel, MapleChannel};
-use crate::component::character::{InChar, MapleCharacter};
-use crate::component::map::{InMap, MapleMap};
+use crate::component::map::InMap;
 use crate::component::portal::MaplePortal;
-use crate::component::session::{InSession, MapleSession};
 use crate::message::packet::change_map::ReadChangeMapRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{change_map, codec};
+use crate::system::system_params::{InParams, LocationParams, SessionParams};
 use action::model::{Action, SessionAction};
 use action::scope::{MapScope, SessionScope};
-use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
@@ -36,18 +33,13 @@ use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub fn handle_map_change(
-    commands: &mut Commands,
-    command_tx: CustomSender,
+    mut commands: Commands,
+    command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
-    mut sessions: Query<&mut MapleSession>,
-    in_sessions: Query<(Entity, &InSession)>,
-    channels: Query<(Entity, &MapleChannel)>,
-    in_channels: Query<(Entity, &InChannel)>,
-    maps: Query<(Entity, &MapleMap, &ChildOf)>,
-    in_maps: Query<(Entity, &InMap)>,
+    location_params: LocationParams,
+    in_params: InParams,
+    mut session_params: SessionParams,
     portals: Query<(&MaplePortal, &ChildOf)>,
-    chars: Query<&MapleCharacter>,
-    in_chars: Query<(Entity, &InChar)>,
     mut messages: MessageReader<ReadChangeMapRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -55,38 +47,38 @@ pub fn handle_map_change(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_session_entity, _)) = in_sessions.get(client_entity) else {
+        let Ok((in_session_entity, _)) = in_params.in_sessions.get(client_entity) else {
             continue;
         };
-        let Ok(mut session) = sessions.get_mut(in_session_entity) else {
+        let Ok((_, mut session)) = session_params.sessions.get_mut(in_session_entity) else {
             continue;
         };
-        let Ok((in_map_entity, _)) = in_maps.get(client_entity) else {
+        let Ok((in_map_entity, _)) = in_params.in_maps.get(client_entity) else {
             continue;
         };
-        let Some((portal, _)) = portals
-            .iter()
-            .find(|(p, parent)| p.base.target_portal_name == msg.target_name && parent.0 == in_map_entity)
+        let Some((portal, _)) = portals.iter().find(|(p, parent)| {
+            p.base.target_portal_name == msg.target_name && parent.0 == in_map_entity
+        }) else {
+            continue;
+        };
+        let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {
+            continue;
+        };
+        let Ok((channel_entity, channel, _)) = location_params.channels.get(in_channel_entity)
         else {
             continue;
         };
-        let Ok((in_channel_entity, _)) = in_channels.get(client_entity) else {
+        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok((channel_entity, channel)) = channels.get(in_channel_entity) else {
-            continue;
-        };
-        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
-            continue;
-        };
-        let Ok(char) = chars.get(in_char_entity) else {
+        let Ok((_, char, _)) = session_params.chars.get(in_char_entity) else {
             continue;
         };
 
         session.transitioning = true;
         commands.entity(client_entity).remove::<InMap>();
 
-        let Some((map_entity, map, _)) = maps.iter().find(|(_, m, parent)| {
+        let Some((map_entity, map, _)) = location_params.maps.iter().find(|(_, m, parent)| {
             m.base.wz == portal.base.target_map_wz && parent.0 == channel_entity
         }) else {
             continue;

@@ -19,26 +19,22 @@
 
 use action::model::{Action, SessionAction};
 use action::scope::{MapScope, SessionScope};
-use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Query, Res};
 
-use crate::component::character::{InChar, MapleCharacter};
-use crate::component::inventory::MapleInventory;
 use crate::component::item::MapleItem;
-use crate::component::session::MapleSession;
 use crate::message::packet::player_map_transferred::ReadPlayerMapTransferRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::codec;
+use crate::system::system_params::{InParams, InventoryParams, SessionParams};
 
 pub fn handle_player_map_transfer(
     client_map: Res<ClientMap>,
-    mut sessions: Query<&mut MapleSession>,
-    chars: Query<(Entity, &MapleCharacter)>,
-    in_chars: Query<(Entity, &InChar)>,
-    inventories: Query<(Entity, &MapleInventory)>,
+    in_params: InParams,
+    mut session_params: SessionParams,
+    inv_params: InventoryParams,
     items: Query<(&MapleItem, &ChildOf)>,
     mut messages: MessageReader<ReadPlayerMapTransferRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
@@ -47,16 +43,16 @@ pub fn handle_player_map_transfer(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(mut session) = sessions.get_mut(client_entity) else {
+        let Ok((_, mut session)) = session_params.sessions.get_mut(client_entity) else {
             continue;
         };
-        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok((char_entity, char)) = chars.get(in_char_entity) else {
+        let Ok((char_entity, char, _)) = session_params.chars.get(in_char_entity) else {
             continue;
         };
-        let Ok((inv_entity, _)) = inventories.get(char_entity) else {
+        let Ok((inv_entity, _)) = inv_params.inventories.get(char_entity) else {
             continue;
         };
         let items: Vec<_> = items

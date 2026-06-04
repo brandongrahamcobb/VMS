@@ -19,6 +19,7 @@
 
 use crate::component::mob::MapleMob;
 use crate::system::packet::build::error::PacketBuildError;
+use base::mob::MobMovement;
 use net::packet::io::error::IOError::WriteError;
 use net::packet::io::prelude::*;
 use net::packet::model::Packet;

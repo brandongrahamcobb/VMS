@@ -17,7 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::character::{InChar, MapleCharacter};
 use crate::component::slot::{MapleEmptyItemSlot, MapleFilledItemSlot};
 use crate::message::packet::pickup_item::{
     PickupItemResponseMessage, ReadPickupItemRequestMessage,
@@ -25,30 +24,30 @@ use crate::message::packet::pickup_item::{
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::pickup_item;
+use crate::system::system_params::{InParams, InventoryParams, SessionParams};
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
-use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Commands, Query, Res};
+use bevy::ecs::system::{Commands, Res};
 use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub fn handle_pickup_item_request(
-    commands: &mut Commands,
-    command_tx: CustomSender,
+    mut commands: Commands,
+    command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
-    chars: Query<&MapleCharacter>,
-    empty_slots: Query<(Entity, &MapleEmptyItemSlot)>,
+    session_params: SessionParams,
+    inv_params: InventoryParams,
     mut messages: MessageReader<ReadPickupItemRequestMessage>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(char) = chars.get(client_entity) else {
+        let Ok((_, char, _)) = session_params.chars.get(client_entity) else {
             continue;
         };
-        let Some((empty_slot_entity, empty_slot)) = empty_slots.iter().next() else {
+        let Some((empty_slot_entity, empty_slot)) = inv_params.empty_slots.iter().next() else {
             continue;
         };
         commands
@@ -77,8 +76,8 @@ pub fn handle_pickup_item_request(
 
 pub fn handle_pickup_response(
     client_map: Res<ClientMap>,
-    chars: Query<&MapleCharacter>,
-    in_chars: Query<(Entity, &InChar)>,
+    session_params: SessionParams,
+    in_params: InParams,
     mut messages: MessageReader<PickupItemResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -86,10 +85,10 @@ pub fn handle_pickup_response(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_char_entity, _)) = in_chars.get(client_entity) else {
+        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok(char) = chars.get(in_char_entity) else {
+        let Ok((_, char, _)) = session_params.chars.get(in_char_entity) else {
             continue;
         };
 

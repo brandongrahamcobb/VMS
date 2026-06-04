@@ -38,7 +38,7 @@ pub fn build_list_chars_packet(
     inventories: Query<(Entity, &MapleInventory)>,
     equipped_tabs: Query<(Entity, &MapleEquippedTab)>,
     filled_slots: Query<(Entity, &MapleFilledItemSlot)>,
-    maps: Query<&MapleMap>,
+    maps: Query<(Entity, &MapleMap, &ChildOf)>,
     channel_id: u8,
     char_slots: i16,
     pic_status: i16,
@@ -63,7 +63,7 @@ pub fn build_list_chars_packet(
             .iter()
             .filter(|(_, parent)| parent.0 == filled_slot_entity)
             .collect();
-        let Some(map) = maps.iter().find(|m| m.base.wz == char.map_wz) else {
+        let Some((_, map, _)) = maps.iter().find(|(_, m, _)| m.base.wz == char.map_wz) else {
             continue;
         };
         build_look_part_packet(&mut packet, char, equips, map)?;

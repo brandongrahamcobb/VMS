@@ -17,33 +17,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::channel::{InChannel, MapleChannel};
-use crate::component::character::MapleCharacter;
-use crate::component::map::{InMap, MapleMap};
+use crate::component::map::InMap;
 use crate::message::packet::take_damage::ReadTakeDamageRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{change_map, codec, take_damage};
+use crate::system::system_params::{InParams, LocationParams, SessionParams};
 use action::model::{Action, SessionAction};
 use action::scope::{MapScope, SessionScope};
 use base::character::StatsUpdate;
-use bevy::ecs::entity::Entity;
-use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Commands, Query, Res};
+use bevy::ecs::system::{Commands, Res};
 use core::cmp::Ordering;
 use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub fn handle_take_damage(
-    commands: &mut Commands,
-    command_tx: CustomSender,
+    mut commands: Commands,
+    command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
-    mut chars: Query<&mut MapleCharacter>,
-    channels: Query<(Entity, &MapleChannel)>,
-    maps: Query<(Entity, &MapleMap, &ChildOf)>,
-    in_channels: Query<(Entity, &InChannel)>,
-    in_maps: Query<(Entity, &InMap)>,
+    location_params: LocationParams,
+    in_params: InParams,
+    mut session_params: SessionParams,
     mut results: MessageWriter<HandlerResult>,
     mut messages: MessageReader<ReadTakeDamageRequestMessage>,
 ) -> () {
@@ -51,19 +46,20 @@ pub fn handle_take_damage(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(mut char) = chars.get_mut(client_entity) else {
+        let Ok((_, mut char, _)) = session_params.chars.get_mut(client_entity) else {
             continue;
         };
-        let Ok((in_channel_entity, _)) = in_channels.get(client_entity) else {
+        let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let Ok((channel_entity, channel)) = channels.get(in_channel_entity) else {
+        let Ok((channel_entity, channel, _)) = location_params.channels.get(in_channel_entity)
+        else {
             continue;
         };
-        let Ok((in_map_entity, _)) = in_maps.get(client_entity) else {
+        let Ok((in_map_entity, _)) = in_params.in_maps.get(client_entity) else {
             continue;
         };
-        let Ok((_, map, _)) = maps.get(in_map_entity) else {
+        let Ok((_, map, _)) = location_params.maps.get(in_map_entity) else {
             continue;
         };
 
@@ -105,7 +101,8 @@ pub fn handle_take_damage(
                 ))
                 .unwrap();
             commands.entity(client_entity).remove::<InMap>();
-            let Some((map_entity, _, _)) = maps
+            let Some((map_entity, _, _)) = location_params
+                .maps
                 .iter()
                 .find(|(_, m, parent)| m.base.wz == return_map_wz && parent.0 == channel_entity)
             else {

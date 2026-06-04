@@ -27,6 +27,7 @@ use crate::message::packet::select_char_with_pic::{
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{codec, spw};
+use crate::system::system_params::{InParams, SessionParams};
 use action::model::{Action, SessionAction};
 use action::scope::SessionScope;
 use bevy::ecs::entity::Entity;
@@ -39,20 +40,20 @@ use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub fn handle_select_char_with_pic_request(
-    command_tx: CustomSender,
+    command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
-    accounts: Query<&MapleAccount>,
-    in_accounts: Query<(Entity, &InAccount)>,
+    in_params: InParams,
+    session_params: SessionParams,
     mut messages: MessageReader<ReadSelectCharWithPicRequestMessage>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
+        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok(acc) = accounts.get(in_acc_entity) else {
+        let Ok((_, acc, _)) = session_params.accounts.get(in_acc_entity) else {
             continue;
         };
 
@@ -75,7 +76,7 @@ pub fn handle_select_char_with_pic_request(
 }
 
 pub fn handle_select_char_with_pic_response(
-    commands: &mut Commands,
+    mut commands: Commands,
     client_map: Res<ClientMap>,
     channels: Query<(Entity, &MapleChannel)>,
     in_channels: Query<(Entity, &InChannel)>,

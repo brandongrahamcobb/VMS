@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+use std::collections::HashMap;
 use std::sync::Mutex;
 use std::sync::mpsc::channel;
 
@@ -26,12 +28,13 @@ use diesel::r2d2::ConnectionManager;
 use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::event::AsyncEvent;
 
-use crate::resource::custom_resource::{CustomReceiver, CustomSender};
+use crate::message::packet::raw::RawPacketMessage;
+use crate::resource::custom_resource::{ClientMap, CustomReceiver, CustomSender};
 use crate::system::{event_handler, packet_dispatch, startup};
 
-pub struct CustomPlugin;
+pub struct CustomServerPlugin;
 
-impl Plugin for CustomPlugin {
+impl Plugin for CustomServerPlugin {
     fn build(&self, app: &mut App) {
         let (command_tx, command_rx) = channel::<AsyncCommand>();
         let (event_tx, event_rx) = channel::<AsyncEvent>();
@@ -49,6 +52,8 @@ impl Plugin for CustomPlugin {
                         });
                         app.insert_resource(CustomReceiver(Mutex::new(event_rx)))
                             .insert_resource(CustomSender(Mutex::new(command_tx)))
+                            .insert_resource(ClientMap(HashMap::new()))
+                            .add_message::<RawPacketMessage>()
                             .add_systems(Startup, startup::spawn_worlds)
                             .add_systems(Update, event_handler::handle_events_system)
                             .add_systems(Update, packet_dispatch::packet_dispatch_system);
