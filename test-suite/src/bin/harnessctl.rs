@@ -7,10 +7,15 @@ use std::thread;
 use test_suite::error::HarnessError;
 use tokio::time::Instant;
 use tracing::error;
+use tracing_subscriber::EnvFilter;
 
 pub const PROJECT_NAME: &str = "vms";
 
 fn main() -> ExitCode {
+    dotenvy::dotenv().ok();
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::from_default_env().add_directive("vms=debug".parse().unwrap()))
+        .init();
     match run() {
         Ok(()) => ExitCode::SUCCESS,
         Err(e) => {
@@ -104,7 +109,6 @@ fn docker_compose_up() -> Result<(), HarnessError> {
     let bind_addr: String = settings::get_bind_address()?;
     let server_port: i16 = settings::get_login_port()?;
     let server_addr = format!("{bind_addr}:{server_port}");
-    // let server_addr = helpers::build_server_addr(login_addr, server_port);
     wait_for_endpoint(&server_addr, Duration::from_secs(60))?;
     Ok(())
 }
@@ -119,7 +123,9 @@ fn docker_compose_down() -> Result<(), HarnessError> {
         Err(e) => return Err(HarnessError::DockerError(format!("stop error: {e}"))),
     }
     compose_cmd(["down", "--remove-orphans"])?;
-    let docker_rm = Command::new("docker").args(["volume", "rm", "db"]).status();
+    let docker_rm = Command::new("docker")
+        .args(["volume", "rm", "vms-db-1"])
+        .status();
     match docker_rm {
         Ok(status) if status.success() => Ok(()),
         Ok(status) => Err(HarnessError::DockerError(format!("rm db error: {status}"))),

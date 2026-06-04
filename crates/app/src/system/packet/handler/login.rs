@@ -25,7 +25,6 @@ use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::resource::custom_resource::CustomSender;
 use crate::system::packet::build::codec;
-use crate::system::system_params::InParams;
 use crate::system::system_params::SessionParams;
 use action::model::Action;
 use action::scope::ActionScope;
@@ -81,7 +80,6 @@ pub fn handle_login_request(
 pub fn handle_login_success_response(
     mut commands: Commands,
     client_map: Res<ClientMap>,
-    in_params: InParams,
     session_params: SessionParams,
     mut messages: MessageReader<LoginSuccessResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
@@ -90,10 +88,7 @@ pub fn handle_login_success_response(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_session_entity, _)) = in_params.in_sessions.get(client_entity) else {
-            continue;
-        };
-        let Ok((session_entity, _)) = session_params.sessions.get(in_session_entity) else {
+        let Ok((session_entity, _)) = session_params.sessions.get(client_entity) else {
             continue;
         };
         let acc: MapleAccount = MapleAccount::from((msg.acc_model.clone(), msg.acc_id));

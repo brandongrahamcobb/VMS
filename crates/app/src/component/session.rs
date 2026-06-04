@@ -16,12 +16,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use bevy::ecs::{component::Component, entity::Entity};
+use bevy::ecs::component::Component;
 
 #[derive(Component)]
 pub struct MapleSession {
     pub transitioning: bool,
 }
-
-#[derive(Component)]
-pub struct InSession(pub Entity);

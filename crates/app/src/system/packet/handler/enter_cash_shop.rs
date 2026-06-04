@@ -46,10 +46,7 @@ pub fn handle_enter_cash_shop(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_session_entity, _)) = in_params.in_sessions.get(client_entity) else {
-            continue;
-        };
-        let Ok((_, mut session)) = session_params.sessions.get_mut(in_session_entity) else {
+        let Ok((_, mut session)) = session_params.sessions.get_mut(client_entity) else {
             continue;
         };
         let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {

@@ -7,7 +7,7 @@ use crate::component::inventory::{MapleEquippedTab, MapleInventory};
 use crate::component::keybinding::MapleKeybinding;
 use crate::component::map::{InMap, MapleMap};
 use crate::component::position::{MapleCurrentPosition, MapleLastPosition};
-use crate::component::session::{InSession, MapleSession};
+use crate::component::session::MapleSession;
 use crate::component::skill::MapleSkill;
 use crate::component::slot::{MapleEmptyItemSlot, MapleFilledItemSlot};
 use crate::component::world::{InWorld, MapleWorld};
@@ -35,7 +35,6 @@ pub struct InParams<'w, 's> {
     pub in_worlds: Query<'w, 's, (Entity, &'static InWorld)>,
     pub in_channels: Query<'w, 's, (Entity, &'static InChannel)>,
     pub in_maps: Query<'w, 's, (Entity, &'static InMap)>,
-    pub in_sessions: Query<'w, 's, (Entity, &'static InSession)>,
     pub in_accounts: Query<'w, 's, (Entity, &'static InAccount)>,
     pub in_chars: Query<'w, 's, (Entity, &'static InChar)>,
 }
