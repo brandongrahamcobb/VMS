@@ -24,9 +24,9 @@ use config::settings;
 use core::net::SocketAddr;
 use db::pool::DbPool;
 use inc::helpers;
-use ipc::asyncronous::command::AsyncCommand;
-use ipc::asyncronous::db_command::DatabaseCommand;
-use ipc::asyncronous::event::AsyncEvent;
+use ipc::command::AsyncCommand;
+use ipc::db_command::DatabaseCommand;
+use ipc::event::AsyncEvent;
 use net::packet::model::Packet;
 use std::collections::HashMap;
 use std::sync::mpsc::{Receiver, Sender};
@@ -103,7 +103,7 @@ impl LoginServer {
                         .send(AsyncEvent::ClientConnected { client_id })
                         .unwrap();
                     tokio::spawn(async move {
-                        match Runtime::new(stream, None).await {
+                        match Runtime::new(stream).await {
                             Ok(runtime) => match runtime.run(client_id, event_tx.clone(), rx).await
                             {
                                 Ok(_) => {
@@ -139,11 +139,8 @@ impl PlayerServer {
     ) -> Result<(), RuntimeError> {
         let addr = settings::get_bind_address()?;
         loop {
-            if let Some(AsyncCommand::AcceptTransition {
-                client_id,
-                port,
-                packet,
-            }) = transition_rx.recv().await
+            if let Some(AsyncCommand::AcceptTransition { client_id, port }) =
+                transition_rx.recv().await
             {
                 let bind: SocketAddr = helpers::build_server_addr(addr.clone(), port);
                 let listener = TcpListener::bind(bind).await?;
@@ -156,7 +153,7 @@ impl PlayerServer {
                         event_tx
                             .send(AsyncEvent::ClientConnected { client_id })
                             .unwrap();
-                        match Runtime::new(stream, Some(packet)).await {
+                        match Runtime::new(stream).await {
                             Ok(runtime) => {
                                 match runtime.run(client_id, event_tx.clone(), rx).await {
                                     Ok(_) => {

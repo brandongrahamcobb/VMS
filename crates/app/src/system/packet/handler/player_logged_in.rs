@@ -20,7 +20,7 @@
 use std::collections::HashMap;
 
 use crate::component::item::MapleItem;
-use crate::component::map::InMap;
+use crate::component::map::{InMap, MapleMap};
 use crate::message::packet::player_logged_in::{
     PlayerLoggedInResponseMessage, ReadPlayerLoggedInRequestMessage,
 };
@@ -33,8 +33,8 @@ use action::scope::ActionScope;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
-use ipc::asyncronous::command::AsyncCommand;
-use ipc::asyncronous::db_command::DatabaseCommand;
+use ipc::command::AsyncCommand;
+use ipc::db_command::DatabaseCommand;
 
 pub fn handle_player_logged_in_request(
     command_tx: Res<CustomSender>,
@@ -76,24 +76,32 @@ pub fn handle_player_logged_in_response(
         let Ok((_, channel, _)) = loc_params.channels.get(in_channel.0) else {
             continue;
         };
-        let Ok(in_map) = in_params.in_maps.get(client_entity) else {
-            continue;
-        };
-        let Some((map_entity, map, _)) = loc_params
+        let map_entity = if let Some((map_entity, _, _)) = loc_params
             .maps
             .iter()
-            .find(|(_, m, parent)| m.base.wz == msg.map_wz && parent.0 == in_map.0)
-        else {
-            continue;
+            .find(|(_, m, _)| m.base.wz == msg.map_wz)
+        {
+            map_entity
+        } else {
+            let Ok(base) = metadata::map::map::build_base_map_by_wz(msg.map_wz) else {
+                continue;
+            };
+            let map: MapleMap = MapleMap {
+                vacant: false,
+                base,
+            };
+            commands.spawn(map.clone()).id()
         };
         commands.entity(client_entity).insert(InMap(map_entity));
 
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
+        dbg!("test");
         let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
+        dbg!("test");
         let Some((inv_entity, _, _)) = inv_params
             .inventories
             .iter()
@@ -101,6 +109,7 @@ pub fn handle_player_logged_in_response(
         else {
             continue;
         };
+        dbg!("test");
         let Some((equipped_tab_entity, _, _)) = inv_params
             .equipped_tabs
             .iter()
@@ -108,6 +117,7 @@ pub fn handle_player_logged_in_response(
         else {
             continue;
         };
+        dbg!("test");
         let filled_item_slots: Vec<_> = inv_params
             .filled_slots
             .iter()
@@ -128,15 +138,14 @@ pub fn handle_player_logged_in_response(
             .filter(|(_, _, parent)| parent.0 == in_char.0)
             .collect();
 
+        dbg!("test");
+
         let Ok(mut keymap_packet) = player_logged_in::build_player_logged_in_keymap_packet(&binds)
         else {
             continue;
         };
         let Ok(mut set_field_packet) = codec::player::builder::build_set_field_packet(
-            &char,
-            equips_map,
-            channel.id,
-            map.base.wz,
+            &char, equips_map, channel.id, msg.map_wz,
         ) else {
             continue;
         };

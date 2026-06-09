@@ -1,5 +1,5 @@
-/* ipc/src/sync/constants.rs
- * The purpose of this module is to provide constants for syncronous logic.
+/* metadata/src/job/job.rs
+ * The purpose of this module is to provide assisting functions for jobs.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,14 +17,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-pub const DEFAULT_KEY: [i32; 23] = [
-    59, 60, 61, 62, 63, 64, 65, 56, 87, 18, 23, 31, 37, 19, 17, 46, 50, 16, 43, 40, 21, 4, 84,
-];
-
-pub const DEFAULT_TYPE: [i16; 23] = [
-    6, 6, 6, 6, 6, 6, 6, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-];
-
-pub const DEFAULT_ACTION: [i32; 23] = [
-    100, 101, 102, 103, 104, 105, 106, 54, 54, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15,
-];
+pub fn job_index_to_wz(index: i16) -> i32 {
+    let beginner: i32 = 0;
+    let cygnus: i32 = 1000;
+    let aran: i32 = 2000;
+    match index {
+        0 => cygnus,
+        1 => beginner,
+        2 => aran,
+        _ => -1,
+    }
+}

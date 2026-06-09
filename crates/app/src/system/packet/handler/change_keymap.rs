@@ -23,8 +23,8 @@ use crate::system::system_params::{InParams, SessionParams};
 use bevy::ecs::message::MessageReader;
 use bevy::ecs::system::Res;
 use db::keybinding::model::KeybindingModel;
-use ipc::asyncronous::command::AsyncCommand;
-use ipc::asyncronous::db_command::DatabaseCommand;
+use ipc::command::AsyncCommand;
+use ipc::db_command::DatabaseCommand;
 use itertools::izip;
 use std::time::SystemTime;
 

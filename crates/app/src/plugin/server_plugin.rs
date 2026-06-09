@@ -17,20 +17,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use core::time::Duration;
 use std::collections::HashMap;
 use std::sync::Mutex;
 use std::sync::mpsc::channel;
 
+use crate::resource::custom_resource::{ClientMap, CustomReceiver, CustomSender};
+use crate::system::{event_handler, result_handler, startup, transition_cleanup};
 use bevy::app::{App, Plugin, Startup, Update};
+use bevy::prelude::*;
+use bevy::time::common_conditions::on_timer;
 use config::settings;
 use diesel::PgConnection;
 use diesel::r2d2::ConnectionManager;
-use ipc::asyncronous::command::AsyncCommand;
-use ipc::asyncronous::event::AsyncEvent;
-
-use crate::resource::custom_resource::{ClientMap, CustomReceiver, CustomSender};
-use crate::system::{event_handler, result_handler, startup};
-
+use ipc::command::AsyncCommand;
+use ipc::event::AsyncEvent;
 pub struct CustomServerPlugin;
 
 impl Plugin for CustomServerPlugin {
@@ -53,6 +54,11 @@ impl Plugin for CustomServerPlugin {
                             .insert_resource(CustomSender(Mutex::new(command_tx)))
                             .insert_resource(ClientMap(HashMap::new()))
                             .add_systems(Startup, startup::spawn_worlds)
+                            .add_systems(
+                                Update,
+                                transition_cleanup::cleanup_stale_transitions
+                                    .run_if(on_timer(Duration::from_secs(5))),
+                            )
                             .add_systems(Update, event_handler::handle_events_system)
                             .add_systems(Update, result_handler::result_handler_system);
                     }

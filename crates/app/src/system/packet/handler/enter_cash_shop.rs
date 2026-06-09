@@ -18,9 +18,11 @@
  */
 
 use std::collections::HashMap;
+use std::time::Instant;
 
 use crate::component::item::MapleItem;
 use crate::component::map::InMap;
+use crate::component::session::Transitioning;
 use crate::message::packet::enter_cash_shop::ReadEnterCashShopRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
@@ -38,7 +40,7 @@ pub fn handle_enter_cash_shop(
     client_map: Res<ClientMap>,
     loc_params: LocationParams,
     in_params: InParams,
-    mut session_params: SessionParams,
+    session_params: SessionParams,
     inv_params: InventoryParams,
     items: Query<(&MapleItem, &ChildOf)>,
     mut messages: MessageReader<ReadEnterCashShopRequestMessage>,
@@ -51,9 +53,9 @@ pub fn handle_enter_cash_shop(
         let Ok(in_session) = in_params.in_sessions.get(client_entity) else {
             continue;
         };
-        let Ok((_, mut session, _)) = session_params.sessions.get_mut(in_session.0) else {
-            continue;
-        };
+        commands.entity(in_session.0).insert(Transitioning {
+            started_at: Instant::now(),
+        });
         let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
             continue;
         };
@@ -97,8 +99,6 @@ pub fn handle_enter_cash_shop(
                 .collect();
             equips_map.insert(char.id, equips);
         }
-
-        session.transitioning = true;
 
         commands.entity(client_entity).remove::<InMap>();
         let Some((map_entity, map, _)) = loc_params

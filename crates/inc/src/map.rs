@@ -18,15 +18,6 @@
  */
 use base::map::Point;
 
-pub fn get_map_wz_by_job_id(job_id: i16) -> i32 {
-    match job_id {
-        0 => 10000,
-        1000 => 130000000,
-        2000 => 140000000,
-        _ => 0, //placeholder
-    }
-}
-
 pub fn parse_position(movement_bytes: &[u8]) -> Option<Point> {
     let mut cursor = 0;
     let length = *movement_bytes.get(cursor)? as usize;

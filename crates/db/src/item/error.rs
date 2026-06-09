@@ -17,7 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use metadata::item::error::ItemMetadataError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -33,7 +32,4 @@ pub enum ItemModelError {
 
     #[error("No created at time found for item model in database layer: {0}")]
     NoCreatedAt(i32),
-
-    #[error("Item metadata erorr for item model in database layer")]
-    ItemMetadataError(#[from] ItemMetadataError),
 }

@@ -39,8 +39,8 @@ use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
 use config::settings;
 use inc::helpers;
-use ipc::asyncronous::command::AsyncCommand;
-use ipc::asyncronous::db_command::DatabaseCommand;
+use ipc::command::AsyncCommand;
+use ipc::db_command::DatabaseCommand;
 use rand::RngExt;
 use std::collections::HashMap;
 

@@ -10,4 +10,3 @@ tokio = { version = "1.51.1", features = ["full"] }
 config = { path = "../config" }
 r2d2 = "0.8.10"
 base = { path = "../base" }
-metadata = { path = "../metadata" }

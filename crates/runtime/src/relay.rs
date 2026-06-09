@@ -19,7 +19,7 @@
 
 use crate::error::RuntimeError;
 use crate::handshake;
-use ipc::asyncronous::event::AsyncEvent;
+use ipc::event::AsyncEvent;
 use net::packet::io::{read::PacketReader, write::PacketWriter};
 use net::packet::model::Packet;
 use rand::{RngExt, rng};
@@ -33,7 +33,7 @@ pub struct Runtime {
 }
 
 impl Runtime {
-    pub async fn new(stream: TcpStream, packet: Option<Packet>) -> Result<Self, RuntimeError> {
+    pub async fn new(stream: TcpStream) -> Result<Self, RuntimeError> {
         let (recv_iv, send_iv) = {
             let mut recv_iv = [0u8; 4];
             let mut send_iv = [0u8; 4];
@@ -49,9 +49,6 @@ impl Runtime {
         let pkt_reader = PacketReader::new(read_half, &recv_iv)?;
         let mut pkt_writer = PacketWriter::new(write_half, &send_iv).await?;
         pkt_writer.send_unencrypted_packet(&handshake).await?;
-        if let Some(mut packet) = packet {
-            pkt_writer.send_encrypted_packet(&mut packet).await?;
-        }
         Ok(Self {
             pkt_reader,
             pkt_writer,

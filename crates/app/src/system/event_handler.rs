@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::session::{InSession, MapleSession};
+use crate::component::session::{InSession, MapleSession, Transitioning};
 use crate::message::packet::attack_close::CloseAttackResponseMessage;
 use crate::message::packet::check_char_name::CheckCharNameResponseMessage;
 use crate::message::packet::create_char::CreateCharResponseMessage;
@@ -28,11 +28,13 @@ use crate::message::packet::login::{LoginFailedResponseMessage, LoginSuccessResp
 use crate::message::packet::pickup_item::PickupItemResponseMessage;
 use crate::message::packet::player_logged_in::PlayerLoggedInResponseMessage;
 use crate::message::packet::raw::RawPacketMessage;
+use crate::message::packet::select_char_with_pic::SelectCharWithPicResponseMessage;
 use crate::resource::custom_resource::{ClientMap, CustomReceiver};
-use bevy::ecs::hierarchy::Children;
+use bevy::ecs::entity::Entity;
 use bevy::ecs::message::MessageWriter;
-use bevy::ecs::system::{Commands, Res, ResMut};
-use ipc::asyncronous::event::AsyncEvent;
+use bevy::ecs::query::With;
+use bevy::ecs::system::{Commands, Query, Res, ResMut};
+use ipc::event::AsyncEvent;
 use std::sync::MutexGuard;
 use std::sync::mpsc::Receiver;
 
@@ -40,6 +42,7 @@ pub fn handle_events_system(
     mut commands: Commands,
     receiver: Res<CustomReceiver>,
     mut client_map: ResMut<ClientMap>,
+    transitioning: Query<Entity, With<Transitioning>>,
     mut check_char_name_response_writer: MessageWriter<CheckCharNameResponseMessage>,
     mut create_char_response_writer: MessageWriter<CreateCharResponseMessage>,
     mut list_chars_success_writer: MessageWriter<ListCharsSuccessResponseMessage>,
@@ -50,27 +53,32 @@ pub fn handle_events_system(
     mut raw_packet_writer: MessageWriter<RawPacketMessage>,
     mut login_success_writer: MessageWriter<LoginSuccessResponseMessage>,
     mut login_fail_writer: MessageWriter<LoginFailedResponseMessage>,
+    mut select_char_success_writer: MessageWriter<SelectCharWithPicResponseMessage>,
 ) {
     let rx: MutexGuard<Receiver<AsyncEvent>> = receiver.0.lock().unwrap();
     while let Ok(event) = rx.try_recv() {
         match event {
             AsyncEvent::ClientConnected { client_id } => {
-                let session_entity = commands
-                    .spawn(MapleSession {
-                        transitioning: false,
-                    })
-                    .id();
-                client_map.0.insert(client_id, session_entity);
-                let Some(&client_entity) = client_map.0.get(&client_id) else {
-                    continue;
-                };
-                commands
-                    .entity(client_entity)
-                    .insert(InSession(session_entity));
+                if let Some(&session_entity) = client_map.0.get(&client_id) {
+                    commands.entity(session_entity).remove::<Transitioning>();
+                } else {
+                    let session_entity = commands.spawn(MapleSession).id();
+                    client_map.0.insert(client_id, session_entity);
+                    let Some(&client_entity) = client_map.0.get(&client_id) else {
+                        continue;
+                    };
+                    commands
+                        .entity(client_entity)
+                        .insert(InSession(session_entity));
+                }
             }
             AsyncEvent::ClientDisconnected { client_id } => {
-                if let Some(client_entity) = client_map.0.remove(&client_id) {
-                    commands.entity(client_entity).despawn_related::<Children>();
+                if let Some(client_entity) = client_map.0.get(&client_id).copied() {
+                    if transitioning.get(client_entity).is_ok() {
+                        tracing::debug!("cid={} transitioning, keeping in map", client_id);
+                        continue;
+                    }
+                    client_map.0.remove(&client_id);
                     commands.entity(client_entity).despawn();
                 }
             }
@@ -90,6 +98,17 @@ pub fn handle_events_system(
             }
             AsyncEvent::LoginFailed { client_id, code } => {
                 login_fail_writer.write(LoginFailedResponseMessage { client_id, code });
+            }
+            AsyncEvent::SelectCharWithPic {
+                client_id,
+                char_id,
+                status,
+            } => {
+                select_char_success_writer.write(SelectCharWithPicResponseMessage {
+                    client_id,
+                    char_id,
+                    status,
+                });
             }
 
             AsyncEvent::ListCharsSuccess {

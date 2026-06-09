@@ -17,23 +17,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::time::Instant;
+
+use crate::component::character::InChar;
+use crate::component::session::Transitioning;
 use crate::message::packet::select_char::ReadSelectCharRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::codec;
-use crate::system::system_params::{InParams, LocationParams};
+use crate::system::system_params::{InParams, LocationParams, SessionParams};
 use action::model::Action;
 use action::scope::ActionScope;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::Res;
+use bevy::ecs::system::{Commands, Res};
 use config::settings;
 use inc::helpers;
 
 pub fn handle_select_char(
+    mut commands: Commands,
     client_map: Res<ClientMap>,
     loc_params: LocationParams,
     in_params: InParams,
+    session_params: SessionParams,
     mut results: MessageWriter<HandlerResult>,
     mut messages: MessageReader<ReadSelectCharRequestMessage>,
 ) -> () {
@@ -52,6 +58,27 @@ pub fn handle_select_char(
         let Ok((_, channel, _)) = loc_params.channels.get(in_channel.0) else {
             continue;
         };
+        let Ok(in_session) = in_params.in_sessions.get(client_entity) else {
+            continue;
+        };
+        let Some((session_entity, _, _)) = session_params
+            .sessions
+            .iter()
+            .find(|(_, _, parent)| parent.0 == in_session.0)
+        else {
+            continue;
+        };
+        commands.entity(session_entity).insert(Transitioning {
+            started_at: Instant::now(),
+        });
+        let Some((char_entity, _, _)) = session_params
+            .chars
+            .iter()
+            .find(|(_, c, _)| c.id == msg.char_id)
+        else {
+            continue;
+        };
+        commands.entity(client_entity).insert(InChar(char_entity));
 
         let Ok(mut select_char_packet) =
             codec::login::builder::build_select_char_packet(msg.char_id, octets, channel.port)

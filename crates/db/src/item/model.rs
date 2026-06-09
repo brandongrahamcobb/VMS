@@ -18,8 +18,6 @@
  */
 use crate::item::error::ItemModelError;
 use crate::schema::{drops, items};
-use base::inventory::InventoryTab;
-use base::item::BaseItem;
 use diesel::prelude::*;
 use diesel::{Identifiable, Queryable};
 use std::time::SystemTime;
@@ -70,79 +68,80 @@ pub struct ItemModel {
 }
 
 impl ItemModel {
-    pub fn default(char_id: i32, wz: i32) -> Result<ItemModel, ItemModelError> {
-        let itab: InventoryTab = metadata::item::inventory::get_inventory_tab_by_wz(wz)?;
-        let item_model: ItemModel = {
-            match itab {
-                InventoryTab::Equip => {
-                    let base: BaseItem = metadata::item::equip::build_equip_item_wz_info_by_wz(wz)?;
-                    ItemModel {
-                        id: None,
-                        char_id: Some(char_id),
-                        ipos: None,
-                        strength: base.strength,
-                        dexterity: base.dexterity,
-                        intelligence: base.intelligence,
-                        luck: base.luck,
-                        attack: base.attack,
-                        weapon_defense: base.weapon_defense,
-                        magic: base.magic,
-                        magic_defense: base.magic_defense,
-                        hp: base.hp,
-                        mp: base.mp,
-                        accuracy: base.accuracy,
-                        avoid: base.avoid,
-                        hands: base.hands,
-                        speed: base.speed,
-                        jump: base.jump,
-                        wz,
-                        slots: base.slots,
-                        expire: 0,
-                        level: 0,
-                        item_level: 0,
-                        flag: base.flag,
-                        item_exp: 0,
-                        vicious: 0,
-                        equipped: false,
-                        created_at: Some(SystemTime::now()),
-                        updated_at: SystemTime::now(),
-                    }
-                }
-                _ => ItemModel {
-                    id: None,
-                    char_id: Some(char_id),
-                    ipos: None,
-                    strength: 0,
-                    dexterity: 0,
-                    intelligence: 0,
-                    luck: 0,
-                    attack: 0,
-                    weapon_defense: 0,
-                    magic: 0,
-                    magic_defense: 0,
-                    hp: 0,
-                    mp: 0,
-                    accuracy: 0,
-                    avoid: 0,
-                    hands: 0,
-                    speed: 0,
-                    jump: 0,
-                    wz,
-                    slots: 0,
-                    expire: 0,
-                    level: 0,
-                    item_level: 0,
-                    flag: 0,
-                    item_exp: 0,
-                    vicious: 0,
-                    equipped: false,
-                    created_at: Some(SystemTime::now()),
-                    updated_at: SystemTime::now(),
-                },
-            }
-        };
-        Ok(item_model)
-    }
+    //     pub fn default(char_id: i32, wz: i32) -> Result<ItemModel, ItemModelError> {
+    //         let item_model: ItemModel = inc::
+    //         let itab: InventoryTab = metadata::item::inventory::get_inventory_tab_by_wz(wz)?;
+    //         let item_model: ItemModel = {
+    //             match itab {
+    //                 InventoryTab::Equip => {
+    //                     let base: BaseItem = metadata::item::equip::build_equip_item_wz_info_by_wz(wz)?;
+    //                     ItemModel {
+    //                         id: None,
+    //                         char_id: Some(char_id),
+    //                         ipos: None,
+    //                         strength: base.strength,
+    //                         dexterity: base.dexterity,
+    //                         intelligence: base.intelligence,
+    //                         luck: base.luck,
+    //                         attack: base.attack,
+    //                         weapon_defense: base.weapon_defense,
+    //                         magic: base.magic,
+    //                         magic_defense: base.magic_defense,
+    //                         hp: base.hp,
+    //                         mp: base.mp,
+    //                         accuracy: base.accuracy,
+    //                         avoid: base.avoid,
+    //                         hands: base.hands,
+    //                         speed: base.speed,
+    //                         jump: base.jump,
+    //                         wz,
+    //                         slots: base.slots,
+    //                         expire: 0,
+    //                         level: 0,
+    //                         item_level: 0,
+    //                         flag: base.flag,
+    //                         item_exp: 0,
+    //                         vicious: 0,
+    //                         equipped: false,
+    //                         created_at: Some(SystemTime::now()),
+    //                         updated_at: SystemTime::now(),
+    //                     }
+    //                 }
+    //                 _ => ItemModel {
+    //                     id: None,
+    //                     char_id: Some(char_id),
+    //                     ipos: None,
+    //                     strength: 0,
+    //                     dexterity: 0,
+    //                     intelligence: 0,
+    //                     luck: 0,
+    //                     attack: 0,
+    //                     weapon_defense: 0,
+    //                     magic: 0,
+    //                     magic_defense: 0,
+    //                     hp: 0,
+    //                     mp: 0,
+    //                     accuracy: 0,
+    //                     avoid: 0,
+    //                     hands: 0,
+    //                     speed: 0,
+    //                     jump: 0,
+    //                     wz,
+    //                     slots: 0,
+    //                     expire: 0,
+    //                     level: 0,
+    //                     item_level: 0,
+    //                     flag: 0,
+    //                     item_exp: 0,
+    //                     vicious: 0,
+    //                     equipped: false,
+    //                     created_at: Some(SystemTime::now()),
+    //                     updated_at: SystemTime::now(),
+    //                 },
+    //             }
+    //         };
+    //         Ok(item_model)
+    //     }
 
     pub fn get_id(&self) -> Result<i32, ItemModelError> {
         if let Some(id) = self.id {

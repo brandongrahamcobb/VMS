@@ -27,8 +27,8 @@ use action::model::Action;
 use action::scope::ActionScope;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Res;
-use ipc::asyncronous::command::AsyncCommand;
-use ipc::asyncronous::db_command::DatabaseCommand;
+use ipc::command::AsyncCommand;
+use ipc::db_command::DatabaseCommand;
 
 pub fn handle_check_char_name_request(
     mut messages: MessageReader<ReadCheckCharNameRequestMessage>,

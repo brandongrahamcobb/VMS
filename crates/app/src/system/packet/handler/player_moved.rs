@@ -27,7 +27,6 @@ use action::scope::{ActionScope, MapScope};
 use base::map::Point;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Res;
-use ipc::syncronous;
 
 pub fn handle_player_moved(
     client_map: Res<ClientMap>,
@@ -51,8 +50,8 @@ pub fn handle_player_moved(
             let Ok((mut curr_pos, _)) = pos_params.curr_positions.get_mut(in_char.0) else {
                 continue;
             };
-            let new_pos: Point = syncronous::map::parse_position(&msg.movement_bytes)
-                .unwrap_or(Point { x: 0, y: 0 });
+            let new_pos: Point =
+                inc::map::parse_position(&msg.movement_bytes).unwrap_or(Point { x: 0, y: 0 });
             curr_pos.x = new_pos.x;
             curr_pos.y = new_pos.y;
 

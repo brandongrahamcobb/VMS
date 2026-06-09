@@ -31,6 +31,5 @@ pub struct ReadSelectCharWithPicRequestMessage {
 pub struct SelectCharWithPicResponseMessage {
     pub client_id: i32,
     pub char_id: i32,
-    pub map_wz: i32,
     pub status: bool,
 }

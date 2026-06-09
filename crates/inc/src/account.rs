@@ -2,14 +2,14 @@ use base::account::{FailedCode, PendingCode, StatusCode, SuccessCode};
 use bcrypt::verify;
 use db::account::model::AccountModel;
 
-use crate::syncronous::error::SyncDomainError;
+use crate::error::IncError;
 
 pub fn check_pic(acc_pic: Option<String>, pic: String) -> bool {
     acc_pic == Some(pic)
 }
 
-pub fn authenticate(acc_pw: String, pw: String) -> Result<bool, SyncDomainError> {
-    verify(&pw, &acc_pw).map_err(SyncDomainError::BcryptError)
+pub fn authenticate(acc_pw: String, pw: String) -> Result<bool, IncError> {
+    verify(&pw, &acc_pw).map_err(IncError::BcryptError)
 }
 
 pub fn get_status_code_by_account(acc_model: &AccountModel) -> StatusCode {

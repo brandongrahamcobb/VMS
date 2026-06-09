@@ -27,9 +27,8 @@ use action::scope::ActionScope;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Res};
 use config::settings;
-use ipc::asyncronous::command::AsyncCommand;
-use ipc::asyncronous::db_command::DatabaseCommand;
-use ipc::syncronous;
+use ipc::command::AsyncCommand;
+use ipc::db_command::DatabaseCommand;
 
 pub fn handle_delete_char_request(
     mut commands: Commands,
@@ -64,7 +63,7 @@ pub fn handle_delete_char_request(
         };
 
         if use_pic {
-            pic_status = syncronous::account::check_pic(acc.pic.clone(), msg.pic.clone());
+            pic_status = inc::account::check_pic(acc.pic.clone(), msg.pic.clone());
         }
         if !pic_status {
             commands.entity(char_entity).despawn();

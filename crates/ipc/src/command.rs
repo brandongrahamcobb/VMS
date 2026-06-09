@@ -19,22 +19,13 @@
 
 use net::packet::model::Packet;
 
-use crate::asyncronous::db_command::DatabaseCommand;
+use crate::db_command::DatabaseCommand;
 
 #[derive(Clone)]
 pub enum AsyncCommand {
     // General
-    SendPacket {
-        client_id: i32,
-        packet: Packet,
-    },
-    Disconnect {
-        client_id: i32,
-    },
-    AcceptTransition {
-        client_id: i32,
-        port: i16,
-        packet: Packet,
-    },
+    SendPacket { client_id: i32, packet: Packet },
+    Disconnect { client_id: i32 },
+    AcceptTransition { client_id: i32, port: i16 },
     DatabaseOperation(DatabaseCommand),
 }

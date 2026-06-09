@@ -1,5 +1,5 @@
-/* entity/src/job/service.rs
- * The purpose of this module is to provide assisting functions for jobs.
+/* metadata/src/map/map.rs
+ * The purpose of this module is to provide metadata access to a map return map.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,14 +17,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-pub fn job_index_to_id(index: i16) -> i32 {
-    let beginner: i32 = 0;
-    let cygnus: i32 = 1000;
-    let aran: i32 = 2000;
-    match index {
-        0 => cygnus,
-        1 => beginner,
-        2 => aran,
-        _ => -1,
+use crate::map::error::MapMetadataError;
+use base::map::BaseMap;
+
+pub fn get_map_wz_by_job_id(job_id: i16) -> i32 {
+    match job_id {
+        0 => 10000,
+        1000 => 130000000,
+        2000 => 140000000,
+        _ => 0, //placeholder
     }
+}
+
+pub fn build_base_map_by_wz(wz: i32) -> Result<BaseMap, MapMetadataError> {
+    let death_map_wz = crate::map::death::get_death_map_by_wz(wz)?;
+    let mob_rate = crate::map::mob::get_mob_rate_by_map_wz(wz)?;
+    Ok(BaseMap {
+        death_map_wz,
+        mob_rate,
+        wz,
+    })
 }

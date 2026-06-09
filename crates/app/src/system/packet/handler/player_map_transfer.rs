@@ -20,6 +20,7 @@
 use std::collections::HashMap;
 
 use crate::component::item::MapleItem;
+use crate::component::session::Transitioning;
 use crate::message::packet::player_map_transferred::ReadPlayerMapTransferRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
@@ -29,12 +30,13 @@ use action::model::Action;
 use action::scope::{ActionScope, MapScope};
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Query, Res};
+use bevy::ecs::system::{Commands, Query, Res};
 
 pub fn handle_player_map_transfer(
+    mut commands: Commands,
     client_map: Res<ClientMap>,
     in_params: InParams,
-    mut session_params: SessionParams,
+    session_params: SessionParams,
     inv_params: InventoryParams,
     items: Query<(&MapleItem, &ChildOf)>,
     mut messages: MessageReader<ReadPlayerMapTransferRequestMessage>,
@@ -47,13 +49,8 @@ pub fn handle_player_map_transfer(
         let Ok(in_session) = in_params.in_sessions.get(client_entity) else {
             continue;
         };
-        let Some((_, mut session, _)) = session_params
-            .sessions
-            .iter_mut()
-            .find(|(_, _, parent)| parent.0 == in_session.0)
-        else {
-            continue;
-        };
+        commands.entity(in_session.0).remove::<Transitioning>();
+
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
@@ -88,7 +85,6 @@ pub fn handle_player_map_transfer(
                 .collect();
             equips_map.insert(char.id, equips);
         }
-        session.transitioning = false;
 
         let Ok(mut spawn_player_packet) =
             codec::player::builder::build_spawn_player_packet(char, equips_map)

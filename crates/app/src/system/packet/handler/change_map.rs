@@ -17,8 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::time::Instant;
+
 use crate::component::map::InMap;
 use crate::component::portal::MaplePortal;
+use crate::component::session::Transitioning;
 use crate::message::packet::change_map::ReadChangeMapRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
@@ -29,8 +32,8 @@ use action::scope::{ActionScope, MapScope};
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
-use ipc::asyncronous::command::AsyncCommand;
-use ipc::asyncronous::db_command::DatabaseCommand;
+use ipc::command::AsyncCommand;
+use ipc::db_command::DatabaseCommand;
 
 pub fn handle_map_change(
     mut commands: Commands,
@@ -47,16 +50,20 @@ pub fn handle_map_change(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Some((_, mut session, _)) = session_params
+        let Some((session_entity, _, _)) = session_params
             .sessions
             .iter_mut()
             .find(|(_, _, parent)| parent.0 == client_entity)
         else {
             continue;
         };
+        commands.entity(session_entity).insert(Transitioning {
+            started_at: Instant::now(),
+        });
         let Ok(in_map) = in_params.in_maps.get(client_entity) else {
             continue;
         };
+        commands.entity(client_entity).remove::<InMap>();
         let Some((portal, _)) = portals.iter().find(|(p, parent)| {
             p.base.target_portal_name == msg.target_name && parent.0 == in_map.0
         }) else {
@@ -75,15 +82,11 @@ pub fn handle_map_change(
             continue;
         };
 
-        session.transitioning = true;
-        commands.entity(client_entity).remove::<InMap>();
-
         let Some((map_entity, map, _)) = loc_params.maps.iter().find(|(_, m, parent)| {
             m.base.wz == portal.base.target_map_wz && parent.0 == in_channel.0
         }) else {
             continue;
         };
-
         commands.entity(client_entity).insert(InMap(map_entity));
 
         command_tx

@@ -23,13 +23,8 @@ use db::error::DatabaseError;
 use metadata::item::error::ItemMetadataError;
 use thiserror::Error;
 
-use crate::syncronous::error::SyncDomainError;
-
 #[derive(Debug, Error)]
 pub enum AsyncDomainError {
-    #[error("Syncronous domain error in domain layer")]
-    SyncDomainError(#[from] SyncDomainError),
-
     #[error("Configuration error in domain layer")]
     ConfigError(#[from] ConfigError),
 

@@ -35,8 +35,8 @@ use bevy::ecs::message::MessageReader;
 use bevy::ecs::message::MessageWriter;
 use bevy::ecs::system::Commands;
 use bevy::ecs::system::Res;
-use ipc::asyncronous::command::AsyncCommand;
-use ipc::asyncronous::db_command::DatabaseCommand;
+use ipc::command::AsyncCommand;
+use ipc::db_command::DatabaseCommand;
 
 pub fn handle_login_request(
     command_tx: Res<CustomSender>,

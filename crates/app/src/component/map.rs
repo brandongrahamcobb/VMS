@@ -19,7 +19,7 @@ use base::map::BaseMap;
  */
 use bevy::ecs::{component::Component, entity::Entity};
 
-#[derive(Component)]
+#[derive(Clone, Component)]
 pub struct MapleMap {
     pub vacant: bool,
     pub base: BaseMap,

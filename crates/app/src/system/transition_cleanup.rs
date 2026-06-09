@@ -1,5 +1,5 @@
-/* app/src/resource/custom_resource.rs
- * The purpose of this module is to define custom resources.
+/* app/src/system/transition.rs
+ * The purpose of this module is to provide a system for dispatching packets.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -16,20 +16,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use std::collections::HashMap;
-use std::sync::Mutex;
-use std::sync::mpsc::{Receiver, Sender};
 
+use crate::component::session::Transitioning;
+use crate::resource::custom_resource::ClientMap;
 use bevy::ecs::entity::Entity;
-use bevy::ecs::resource::Resource;
-use ipc::command::AsyncCommand;
-use ipc::event::AsyncEvent;
+use bevy::ecs::system::{Commands, Query, ResMut};
 
-#[derive(Resource)]
-pub struct CustomReceiver(pub Mutex<Receiver<AsyncEvent>>);
-
-#[derive(Resource)]
-pub struct CustomSender(pub Mutex<Sender<AsyncCommand>>);
-
-#[derive(Resource)]
-pub struct ClientMap(pub HashMap<i32, Entity>);
+pub fn cleanup_stale_transitions(
+    mut commands: Commands,
+    mut client_map: ResMut<ClientMap>,
+    query: Query<(Entity, &Transitioning)>,
+) {
+    for (entity, transitioning) in query.iter() {
+        if transitioning.started_at.elapsed() > std::time::Duration::from_secs(10) {
+            tracing::debug!("Stale transition, despawning {:?}", entity);
+            client_map.0.retain(|_, v| *v != entity);
+            commands.entity(entity).despawn();
+        }
+    }
+}

@@ -25,7 +25,7 @@ use action::model::Action;
 use action::scope::{ActionScope, ChannelScope, MapScope};
 use bevy::ecs::message::MessageReader;
 use bevy::ecs::system::Res;
-use ipc::asyncronous::command::AsyncCommand;
+use ipc::command::AsyncCommand;
 
 pub fn result_handler_system(
     command_tx: Res<CustomSender>,

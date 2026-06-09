@@ -18,27 +18,34 @@
  */
 
 use bcrypt::BcryptError;
-use db::item::error::ItemModelError;
+use config::error::ConfigError;
+use db::{error::DatabaseError, item::error::ItemModelError};
 use metadata::{item::error::ItemMetadataError, job::error::JobMetadataError};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum SyncDomainError {
-    #[error("Item model error in syncronous domain layer")]
+pub enum IncError {
+    #[error("Item model error in inc layer")]
     ItemModelError(#[from] ItemModelError),
 
-    #[error("Job metadata error in syncronous domain layer")]
+    #[error("Job metadata error in inc layer")]
     JobMetadataError(#[from] JobMetadataError),
 
-    #[error("Bcrypt error in syncronous domain layer")]
+    #[error("Bcrypt error in inc layer")]
     BcryptError(#[from] BcryptError),
 
-    #[error("Inventory full in syncronous domain layer")]
+    #[error("Inventory full in inc layer")]
     InventoryFull,
 
-    #[error("Item error in syncronous domain layer")]
+    #[error("Item error in inc layer")]
     ItemError,
 
-    #[error("Item metadata error in syncronous domain layer")]
+    #[error("Item metadata error in inc layer")]
     ItemMetadataError(#[from] ItemMetadataError),
+
+    #[error("Database error in inc layer")]
+    DatabaseError(#[from] DatabaseError),
+
+    #[error("Configuration error in inc layer")]
+    ConfigError(#[from] ConfigError),
 }

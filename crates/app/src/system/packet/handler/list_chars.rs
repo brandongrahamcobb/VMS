@@ -39,8 +39,8 @@ use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Res};
 use config::settings;
-use ipc::asyncronous::command::AsyncCommand;
-use ipc::asyncronous::db_command::DatabaseCommand;
+use ipc::command::AsyncCommand;
+use ipc::db_command::DatabaseCommand;
 
 pub enum PicStatus {
     Disabled = 2,
@@ -79,6 +79,7 @@ pub fn handle_load_char_slots(
         else {
             continue;
         };
+
         commands
             .entity(client_entity)
             .insert(InChannel(channel_entity));

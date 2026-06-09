@@ -19,9 +19,12 @@
 use bevy::ecs::{component::Component, entity::Entity};
 
 #[derive(Component)]
-pub struct MapleSession {
-    pub transitioning: bool,
-}
+pub struct MapleSession;
 
 #[derive(Component)]
 pub struct InSession(pub Entity);
+
+#[derive(Component)]
+pub struct Transitioning {
+    pub started_at: std::time::Instant,
+}

@@ -20,7 +20,6 @@
 use std::collections::HashSet;
 use std::time::SystemTime;
 
-use crate::syncronous::error::SyncDomainError;
 use base::inventory::REGULAR_EQUIP_SLOTS;
 use base::keybinding::{DEFAULT_ACTION, DEFAULT_KEY, DEFAULT_TYPE, KeybindType};
 use db::character::model::CharacterModel;
@@ -28,6 +27,8 @@ use db::item::model::ItemModel;
 use db::keybinding::model::KeybindingModel;
 use db::skill::model::SkillModel;
 use itertools::izip;
+
+use crate::error::IncError;
 
 pub fn create_new_char_model(
     acc_id: i32,
@@ -40,7 +41,7 @@ pub fn create_new_char_model(
     skin_wz: i32,
     gender_wz: i16,
 ) -> CharacterModel {
-    let map_wz: i32 = crate::syncronous::map::get_map_wz_by_job_id(job_wz);
+    let map_wz: i32 = metadata::map::map::get_map_wz_by_job_id(job_wz);
     let char_model: CharacterModel = CharacterModel::default(
         acc_id,
         world_id,
@@ -91,30 +92,34 @@ pub fn create_new_char_equip_models(
     bottom_wz: i32,
     shoes_wz: i32,
     weapon_wz: i32,
-) -> Result<Vec<ItemModel>, SyncDomainError> {
+) -> Result<Vec<ItemModel>, IncError> {
     let mut equips: Vec<ItemModel> = Vec::new();
-    let mut top_model: ItemModel = ItemModel::default(char_id, top_wz)?;
+    let mut top_model: ItemModel =
+        crate::item::build_base_item_by_char_id_and_item_wz(char_id, top_wz)?;
     top_model.equipped = true;
     top_model.ipos = REGULAR_EQUIP_SLOTS
         .iter()
         .find(|islot| islot.name == "Top")
         .map(|islot| islot.key);
     equips.push(top_model);
-    let mut bottom_model: ItemModel = ItemModel::default(char_id, bottom_wz)?;
+    let mut bottom_model: ItemModel =
+        crate::item::build_base_item_by_char_id_and_item_wz(char_id, bottom_wz)?;
     bottom_model.equipped = true;
     bottom_model.ipos = REGULAR_EQUIP_SLOTS
         .iter()
         .find(|islot| islot.name == "Bottom")
         .map(|islot| islot.key);
     equips.push(bottom_model);
-    let mut shoes_model: ItemModel = ItemModel::default(char_id, shoes_wz)?;
+    let mut shoes_model: ItemModel =
+        crate::item::build_base_item_by_char_id_and_item_wz(char_id, shoes_wz)?;
     shoes_model.equipped = true;
     shoes_model.ipos = REGULAR_EQUIP_SLOTS
         .iter()
         .find(|islot| islot.name == "Shoes")
         .map(|islot| islot.key);
     equips.push(shoes_model);
-    let mut weapon_model: ItemModel = ItemModel::default(char_id, weapon_wz)?;
+    let mut weapon_model: ItemModel =
+        crate::item::build_base_item_by_char_id_and_item_wz(char_id, weapon_wz)?;
     weapon_model.equipped = true;
     weapon_model.ipos = REGULAR_EQUIP_SLOTS
         .iter()
@@ -127,7 +132,7 @@ pub fn create_new_char_equip_models(
 pub fn create_new_char_skill_models(
     char_id: i32,
     job_wz: i16,
-) -> Result<Vec<SkillModel>, SyncDomainError> {
+) -> Result<Vec<SkillModel>, IncError> {
     let mut skill_models: Vec<SkillModel> = Vec::new();
     let close_attack_wz: i32 = 0;
     skill_models.push(SkillModel {

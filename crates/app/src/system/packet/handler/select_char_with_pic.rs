@@ -17,6 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::time::Instant;
+
+use crate::component::character::InChar;
+use crate::component::session::Transitioning;
 use crate::message::packet::select_char_with_pic::{
     ReadSelectCharWithPicRequestMessage, SelectCharWithPicResponseMessage,
 };
@@ -28,11 +32,11 @@ use action::model::Action;
 use action::scope::ActionScope;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::Res;
+use bevy::ecs::system::{Commands, Res};
 use config::settings;
 use inc::helpers;
-use ipc::asyncronous::command::AsyncCommand;
-use ipc::asyncronous::db_command::DatabaseCommand;
+use ipc::command::AsyncCommand;
+use ipc::db_command::DatabaseCommand;
 
 pub fn handle_select_char_with_pic_request(
     command_tx: Res<CustomSender>,
@@ -51,7 +55,6 @@ pub fn handle_select_char_with_pic_request(
         let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
             continue;
         };
-
         command_tx
             .0
             .lock()
@@ -71,9 +74,12 @@ pub fn handle_select_char_with_pic_request(
 }
 
 pub fn handle_select_char_with_pic_response(
+    mut commands: Commands,
+    command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
     loc_params: LocationParams,
     in_params: InParams,
+    session_params: SessionParams,
     mut results: MessageWriter<HandlerResult>,
     mut messages: MessageReader<SelectCharWithPicResponseMessage>,
 ) -> () {
@@ -93,12 +99,36 @@ pub fn handle_select_char_with_pic_response(
             let Ok((_, channel, _)) = loc_params.channels.get(in_channel.0) else {
                 continue;
             };
+            let Ok(in_session) = in_params.in_sessions.get(client_entity) else {
+                continue;
+            };
+            commands.entity(in_session.0).insert(Transitioning {
+                started_at: Instant::now(),
+            });
+            let Some((char_entity, _, _)) = session_params
+                .chars
+                .iter()
+                .find(|(_, c, _)| c.id == msg.char_id)
+            else {
+                continue;
+            };
+            commands.entity(client_entity).insert(InChar(char_entity));
 
             let Ok(mut select_char_packet) =
                 codec::login::builder::build_select_char_packet(msg.char_id, octets, channel.port)
             else {
                 continue;
             };
+
+            command_tx
+                .0
+                .lock()
+                .unwrap()
+                .send(AsyncCommand::AcceptTransition {
+                    client_id: msg.client_id,
+                    port: channel.port,
+                })
+                .unwrap();
 
             results.write(HandlerResult {
                 client_id: msg.client_id,
