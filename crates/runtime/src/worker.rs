@@ -323,6 +323,8 @@ pub async fn db_worker(
                 db::character::setters::delete_char_by_id(&pool, char_id).await?;
             }
             Ok(DatabaseCommand::JoinRequest { client_id, char_id }) => {
+                let char_model: CharacterModel =
+                    db::character::getters::get_char_model_by_id(&pool, char_id).await?;
                 let skill_models: Vec<SkillModel> =
                     db::skill::getters::get_skill_models_by_char_id(&pool, char_id).await?;
                 let keybinding_models: Vec<KeybindingModel> =
@@ -356,6 +358,8 @@ pub async fn db_worker(
                 }
                 let event = AsyncEvent::JoinSuccess {
                     client_id,
+                    char_id,
+                    map_wz: char_model.map_wz,
                     keybinding_models,
                     skill_models,
                     equipped_item_models,

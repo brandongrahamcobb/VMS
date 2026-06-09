@@ -49,16 +49,16 @@ pub fn handle_delete_char_request(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
+        let Ok(in_acc) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok((acc_entity, acc, _)) = session_params.accounts.get(in_acc_entity) else {
+        let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
             continue;
         };
         let Some((char_entity, _, _)) = session_params
             .chars
             .iter()
-            .find(|(_, c, parent)| c.id == msg.char_id && parent.0 == acc_entity)
+            .find(|(_, c, parent)| c.id == msg.char_id && parent.0 == in_acc.0)
         else {
             continue;
         };

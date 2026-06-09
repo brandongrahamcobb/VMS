@@ -42,13 +42,13 @@ pub fn handle_player_moved(
             let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
                 continue;
             };
-            let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
+            let Ok(in_char) = in_params.in_chars.get(client_entity) else {
                 continue;
             };
-            let Ok((char_entity, char, _)) = session_params.chars.get(in_char_entity) else {
+            let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
                 continue;
             };
-            let Ok((_, mut curr_pos, _)) = pos_params.curr_positions.get_mut(char_entity) else {
+            let Ok((mut curr_pos, _)) = pos_params.curr_positions.get_mut(in_char.0) else {
                 continue;
             };
             let new_pos: Point = syncronous::map::parse_position(&msg.movement_bytes)

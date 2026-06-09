@@ -38,16 +38,16 @@ pub fn handle_chat_text(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
+        let Ok(in_acc) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok((_, acc, _)) = session_params.accounts.get(in_acc_entity) else {
+        let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
             continue;
         };
-        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
+        let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok((_, char, _)) = session_params.chars.get(in_char_entity) else {
+        let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
 

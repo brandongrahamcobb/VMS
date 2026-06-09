@@ -46,34 +46,46 @@ pub fn handle_enter_cash_shop(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((_, mut session)) = session_params.sessions.get_mut(client_entity) else {
+        let Ok(in_session) = in_params.in_sessions.get(client_entity) else {
             continue;
         };
-        let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {
+        let Ok((_, mut session, _)) = session_params.sessions.get_mut(in_session.0) else {
             continue;
         };
-        let Ok((channel_entity, _, _)) = loc_params.channels.get(in_channel_entity) else {
+        let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
+        let Ok(in_acc) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok((_, acc, _)) = session_params.accounts.get(in_acc_entity) else {
+        let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
             continue;
         };
-        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
+        let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok((char_entity, char, _)) = session_params.chars.get(in_char_entity) else {
+        let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
-        let Ok((inv_entity, _)) = inv_params.inventories.get(char_entity) else {
+        let Some((inv_entity, _, _)) = inv_params
+            .inventories
+            .iter()
+            .find(|(_, _, parent)| parent.0 == in_char.0)
+        else {
             continue;
         };
-        let Ok((equipped_tab_entity, _)) = inv_params.equipped_tabs.get(inv_entity) else {
+        let Some((equipped_tab_entity, _, _)) = inv_params
+            .equipped_tabs
+            .iter()
+            .find(|(_, _, parent)| parent.0 == inv_entity)
+        else {
             continue;
         };
-        let Ok((filled_slot_entity, _)) = inv_params.filled_slots.get(equipped_tab_entity) else {
+        let Some((filled_slot_entity, _, _)) = inv_params
+            .filled_slots
+            .iter()
+            .find(|(_, _, parent)| parent.0 == equipped_tab_entity)
+        else {
             continue;
         };
         let equips: Vec<_> = items
@@ -87,7 +99,7 @@ pub fn handle_enter_cash_shop(
         let Some((map_entity, map, _)) = loc_params
             .maps
             .iter()
-            .find(|(_, m, parent)| m.base.wz == CASH_SHOP_MAP_WZ && parent.0 == channel_entity)
+            .find(|(_, m, parent)| m.base.wz == CASH_SHOP_MAP_WZ && parent.0 == in_channel.0)
         else {
             continue;
         };

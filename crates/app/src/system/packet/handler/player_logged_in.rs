@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::character::InChar;
 use crate::component::item::MapleItem;
+use crate::component::map::InMap;
 use crate::message::packet::player_logged_in::{
     PlayerLoggedInResponseMessage, ReadPlayerLoggedInRequestMessage,
 };
@@ -36,22 +36,9 @@ use ipc::asyncronous::db_command::DatabaseCommand;
 
 pub fn handle_player_logged_in_request(
     command_tx: Res<CustomSender>,
-    client_map: Res<ClientMap>,
-    in_params: InParams,
-    session_params: SessionParams,
     mut messages: MessageReader<ReadPlayerLoggedInRequestMessage>,
 ) -> () {
     for msg in messages.read() {
-        let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
-            continue;
-        };
-        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
-            continue;
-        };
-        let Ok((_, char, _)) = session_params.chars.get(in_char_entity) else {
-            continue;
-        };
-
         command_tx
             .0
             .lock()
@@ -59,7 +46,7 @@ pub fn handle_player_logged_in_request(
             .send(AsyncCommand::DatabaseOperation(
                 DatabaseCommand::JoinRequest {
                     client_id: msg.client_id,
-                    char_id: char.id,
+                    char_id: msg.char_id,
                 },
             ))
             .unwrap();
@@ -82,28 +69,37 @@ pub fn handle_player_logged_in_response(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {
+        let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let Ok((_, channel, _)) = loc_params.channels.get(in_channel_entity) else {
+        let Ok((_, channel, _)) = loc_params.channels.get(in_channel.0) else {
             continue;
         };
-        let Ok((in_map_entity, _)) = in_params.in_maps.get(client_entity) else {
+        let Ok(in_map) = in_params.in_maps.get(client_entity) else {
             continue;
         };
-        let Ok((_, map, _)) = loc_params.maps.get(in_map_entity) else {
+        let Some((map_entity, map, _)) = loc_params
+            .maps
+            .iter()
+            .find(|(_, m, parent)| m.base.wz == msg.map_wz && parent.0 == in_map.0)
+        else {
             continue;
         };
-        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
+        commands.entity(client_entity).insert(InMap(map_entity));
+
+        let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok((char_entity, char, _)) = session_params.chars.get(in_char_entity) else {
+        let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
-        let Ok((inv_entity, _)) = inv_params.inventories.get(char_entity) else {
+        let Some((inv_entity, _, _)) = inv_params
+            .inventories
+            .iter()
+            .find(|(_, _, parent)| parent.0 == in_char.0)
+        else {
             continue;
         };
-        commands.entity(client_entity).insert(InChar(char_entity));
         let items: Vec<_> = items
             .iter()
             .filter(|(_, parent)| {
@@ -116,7 +112,7 @@ pub fn handle_player_logged_in_response(
         let binds: Vec<_> = session_params
             .keybindings
             .iter()
-            .filter(|(_, _, parent)| parent.0 == char_entity)
+            .filter(|(_, _, parent)| parent.0 == in_char.0)
             .collect();
 
         let Ok(mut keymap_packet) = player_logged_in::build_player_logged_in_keymap_packet(&binds)

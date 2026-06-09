@@ -17,23 +17,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::account::{InAccount, MapleAccount};
-use crate::component::channel::{InChannel, MapleChannel};
-use crate::component::character::{InChar, MapleCharacter};
-use crate::component::map::{InMap, MapleMap};
 use crate::message::packet::select_char_with_pic::{
     ReadSelectCharWithPicRequestMessage, SelectCharWithPicResponseMessage,
 };
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{codec, spw};
-use crate::system::system_params::{InParams, SessionParams};
+use crate::system::system_params::{InParams, LocationParams, SessionParams};
 use action::model::Action;
 use action::scope::ActionScope;
 use bevy::ecs::entity::Entity;
-use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Commands, Query, Res};
+use bevy::ecs::system::Res;
 use config::settings;
 use inc::helpers;
 use ipc::asyncronous::command::AsyncCommand;
@@ -50,10 +45,10 @@ pub fn handle_select_char_with_pic_request(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
+        let Ok(in_acc) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok((_, acc, _)) = session_params.accounts.get(in_acc_entity) else {
+        let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
             continue;
         };
 
@@ -76,14 +71,9 @@ pub fn handle_select_char_with_pic_request(
 }
 
 pub fn handle_select_char_with_pic_response(
-    mut commands: Commands,
     client_map: Res<ClientMap>,
-    channels: Query<(Entity, &MapleChannel)>,
-    in_channels: Query<(Entity, &InChannel)>,
-    mut maps: Query<(Entity, &MapleMap, &ChildOf)>,
-    accounts: Query<(Entity, &MapleAccount)>,
-    in_accounts: Query<(Entity, &InAccount)>,
-    mut chars: Query<(Entity, &MapleCharacter, &ChildOf)>,
+    loc_params: LocationParams,
+    in_params: InParams,
     mut results: MessageWriter<HandlerResult>,
     mut messages: MessageReader<SelectCharWithPicResponseMessage>,
 ) -> () {
@@ -97,34 +87,12 @@ pub fn handle_select_char_with_pic_response(
             let Some(&client_entity): Option<&Entity> = client_map.0.get(&msg.client_id) else {
                 continue;
             };
-            let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
+            let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
                 continue;
             };
-            let Ok((acc_entity, _)) = accounts.get(in_acc_entity) else {
+            let Ok((_, channel, _)) = loc_params.channels.get(in_channel.0) else {
                 continue;
             };
-            let Ok((channel_entity, _)) = in_channels.get(client_entity) else {
-                continue;
-            };
-            let Ok((_, channel)) = channels.get(channel_entity) else {
-                continue;
-            };
-            let Some((map_entity, _, _)) = maps
-                .iter_mut()
-                .find(|(_, m, parent)| m.base.wz == msg.map_wz && parent.0 == channel_entity)
-            else {
-                continue;
-            };
-
-            let Some((char_entity, _, _)) = chars
-                .iter_mut()
-                .find(|(_, c, parent)| c.id == msg.char_id && parent.0 == acc_entity)
-            else {
-                continue;
-            };
-
-            commands.entity(client_entity).insert(InChar(char_entity));
-            commands.entity(client_entity).insert(InMap(map_entity));
 
             let Ok(mut select_char_packet) =
                 codec::login::builder::build_select_char_packet(msg.char_id, octets, channel.port)

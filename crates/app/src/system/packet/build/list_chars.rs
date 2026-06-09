@@ -35,9 +35,9 @@ use op::send::SendOpcode;
 pub fn build_list_chars_packet(
     chars: Vec<(Entity, &MapleCharacter, &ChildOf)>,
     items: Query<(&MapleItem, &ChildOf)>,
-    inventories: Query<(Entity, &MapleInventory)>,
-    equipped_tabs: Query<(Entity, &MapleEquippedTab)>,
-    filled_slots: Query<(Entity, &MapleFilledItemSlot)>,
+    inventories: Query<(Entity, &MapleInventory, &ChildOf)>,
+    equipped_tabs: Query<(Entity, &MapleEquippedTab, &ChildOf)>,
+    filled_slots: Query<(Entity, &MapleFilledItemSlot, &ChildOf)>,
     maps: Query<(Entity, &MapleMap, &ChildOf)>,
     channel_id: u8,
     char_slots: i16,
@@ -50,13 +50,22 @@ pub fn build_list_chars_packet(
     packet.write_byte(channel_id as i16).map_err(WriteError)?;
     packet.write_byte(chars.len() as i16).map_err(WriteError)?;
     for (char_entity, char, _) in chars.iter().filter(|(_, c, _)| c.world_id == world_id) {
-        let Ok((inv_entity, _)) = inventories.get(*char_entity) else {
+        let Some((inv_entity, _, _)) = inventories
+            .iter()
+            .find(|(_, _, parent)| parent.0 == *char_entity)
+        else {
             continue;
         };
-        let Ok((equipped_tab_entity, _)) = equipped_tabs.get(inv_entity) else {
+        let Some((equipped_tab_entity, _, _)) = equipped_tabs
+            .iter()
+            .find(|(_, _, parent)| parent.0 == inv_entity)
+        else {
             continue;
         };
-        let Ok((filled_slot_entity, _)) = filled_slots.get(equipped_tab_entity) else {
+        let Some((filled_slot_entity, _, _)) = filled_slots
+            .iter()
+            .find(|(_, _, parent)| parent.0 == equipped_tab_entity)
+        else {
             continue;
         };
         let equips: Vec<_> = items

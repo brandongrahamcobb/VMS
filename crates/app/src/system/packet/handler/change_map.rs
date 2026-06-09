@@ -38,7 +38,7 @@ pub fn handle_map_change(
     client_map: Res<ClientMap>,
     loc_params: LocationParams,
     in_params: InParams,
-    mut session_params: SessionParams,
+    session_params: &mut SessionParams,
     portals: Query<(&MaplePortal, &ChildOf)>,
     mut messages: MessageReader<ReadChangeMapRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
@@ -47,27 +47,31 @@ pub fn handle_map_change(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((_, mut session)) = session_params.sessions.get_mut(client_entity) else {
+        let Some((_, mut session, _)) = session_params
+            .sessions
+            .iter_mut()
+            .find(|(_, _, parent)| parent.0 == client_entity)
+        else {
             continue;
         };
-        let Ok((in_map_entity, _)) = in_params.in_maps.get(client_entity) else {
+        let Ok(in_map) = in_params.in_maps.get(client_entity) else {
             continue;
         };
         let Some((portal, _)) = portals.iter().find(|(p, parent)| {
-            p.base.target_portal_name == msg.target_name && parent.0 == in_map_entity
+            p.base.target_portal_name == msg.target_name && parent.0 == in_map.0
         }) else {
             continue;
         };
-        let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {
+        let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let Ok((channel_entity, channel, _)) = loc_params.channels.get(in_channel_entity) else {
+        let Ok((_, channel, _)) = loc_params.channels.get(in_channel.0) else {
             continue;
         };
-        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
+        let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok((_, char, _)) = session_params.chars.get(in_char_entity) else {
+        let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
 
@@ -75,7 +79,7 @@ pub fn handle_map_change(
         commands.entity(client_entity).remove::<InMap>();
 
         let Some((map_entity, map, _)) = loc_params.maps.iter().find(|(_, m, parent)| {
-            m.base.wz == portal.base.target_map_wz && parent.0 == channel_entity
+            m.base.wz == portal.base.target_map_wz && parent.0 == in_channel.0
         }) else {
             continue;
         };

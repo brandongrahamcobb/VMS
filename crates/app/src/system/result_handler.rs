@@ -55,104 +55,101 @@ pub fn result_handler_system(
                         }
                     }
                     ActionScope::World => {
-                        let Ok((in_world_entity, _)) = in_params.in_worlds.get(client_entity)
-                        else {
+                        let Ok(in_world) = in_params.in_worlds.get(client_entity) else {
                             continue;
                         };
-                        for (entity, in_world) in in_params.in_worlds.iter() {
-                            if in_world.0 == in_world_entity {
-                                let Some(client_id) = client_map
-                                    .0
-                                    .iter()
-                                    .find(|(_, e)| **e == entity)
-                                    .map(|(id, _)| *id)
-                                else {
-                                    continue;
-                                };
-                                command_tx
-                                    .0
-                                    .lock()
-                                    .unwrap()
-                                    .send(AsyncCommand::SendPacket {
-                                        client_id,
-                                        packet: packet.clone(),
-                                    })
-                                    .unwrap();
-                            }
+                        let client_ids = client_map
+                            .0
+                            .iter()
+                            .filter(|(_, entity)| {
+                                in_params
+                                    .in_worlds
+                                    .get(**entity)
+                                    .map(|iw| iw.0 == in_world.0)
+                                    .unwrap_or(false)
+                            })
+                            .map(|(&client_id, _)| client_id);
+                        for client_id in client_ids {
+                            command_tx
+                                .0
+                                .lock()
+                                .unwrap()
+                                .send(AsyncCommand::SendPacket {
+                                    client_id,
+                                    packet: packet.clone(),
+                                })
+                                .unwrap();
                         }
                     }
                     ActionScope::Channel(channel_scope) => {
-                        let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity)
-                        else {
+                        let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
                             continue;
                         };
-                        let Ok((_, _, channel_child_of)) =
-                            loc_params.channels.get(in_channel_entity)
+                        let Ok((_, _, channel_child_of)) = loc_params.channels.get(in_channel.0)
                         else {
                             continue;
                         };
                         let channel_world_entity = channel_child_of.parent();
                         match channel_scope {
                             ChannelScope::SameWorld => {
-                                for (entity, in_channel) in in_params.in_channels.iter() {
-                                    let Ok((_, _, other_child_of)) =
-                                        loc_params.channels.get(in_channel.0)
-                                    else {
-                                        continue;
-                                    };
-                                    if in_channel.0 == in_channel_entity
-                                        && other_child_of.parent() == channel_world_entity
-                                    {
-                                        let Some(client_id) = client_map
-                                            .0
-                                            .iter()
-                                            .find(|(_, e)| **e == entity)
-                                            .map(|(id, _)| *id)
-                                        else {
-                                            continue;
-                                        };
-                                        command_tx
-                                            .0
-                                            .lock()
-                                            .unwrap()
-                                            .send(AsyncCommand::SendPacket {
-                                                client_id,
-                                                packet: packet.clone(),
+                                let client_ids: Vec<_> = client_map
+                                    .0
+                                    .iter()
+                                    .filter(|(_, entity)| {
+                                        in_params
+                                            .in_channels
+                                            .get(**entity)
+                                            .and_then(|ic| loc_params.channels.get(ic.0))
+                                            .map(|(_, _, child_of)| {
+                                                child_of.parent() == channel_world_entity
                                             })
-                                            .unwrap();
-                                    }
+                                            .unwrap_or(false)
+                                    })
+                                    .map(|(&client_id, _)| client_id)
+                                    .collect();
+                                for client_id in client_ids {
+                                    command_tx
+                                        .0
+                                        .lock()
+                                        .unwrap()
+                                        .send(AsyncCommand::SendPacket {
+                                            client_id,
+                                            packet: packet.clone(),
+                                        })
+                                        .unwrap();
                                 }
                             }
                             ChannelScope::AllWorlds => {
-                                for (entity, in_channel) in in_params.in_channels.iter() {
-                                    if in_channel.0 == in_channel_entity {
-                                        let Some(client_id) = client_map
-                                            .0
-                                            .iter()
-                                            .find(|(_, e)| **e == entity)
-                                            .map(|(id, _)| *id)
-                                        else {
-                                            continue;
-                                        };
-                                        command_tx
-                                            .0
-                                            .lock()
-                                            .unwrap()
-                                            .send(AsyncCommand::SendPacket {
-                                                client_id,
-                                                packet: packet.clone(),
-                                            })
-                                            .unwrap();
-                                    }
+                                let client_ids = client_map
+                                    .0
+                                    .iter()
+                                    .filter(|(_, entity)| {
+                                        in_params
+                                            .in_channels
+                                            .get(**entity)
+                                            .map(|ic| ic.0 == in_channel.0)
+                                            .unwrap_or(false)
+                                    })
+                                    .map(|(&client_id, _)| client_id);
+                                for client_id in client_ids {
+                                    command_tx
+                                        .0
+                                        .lock()
+                                        .unwrap()
+                                        .send(AsyncCommand::SendPacket {
+                                            client_id,
+                                            packet: packet.clone(),
+                                        })
+                                        .unwrap();
                                 }
                             }
                         }
                     }
                     ActionScope::Map(map_scope) => {
-                        let Ok((in_map_entity, _)) = in_params.in_maps.get(client_entity) else {
+                        let Ok(in_map) = in_params.in_maps.get(client_entity) else {
                             continue;
                         };
-                        let Ok((_, _, map_child_of)) = loc_params.maps.get(in_map_entity) else {
+                        let Ok((_, _, map_child_of)) = loc_params.maps.get(in_map.0) else {
                             continue;
                         };
                         let map_channel_entity = map_child_of.parent();
@@ -164,73 +161,78 @@ pub fn result_handler_system(
                         let map_world_entity = channel_child_of.parent();
                         match map_scope {
                             MapScope::SameChannelSameWorld => {
-                                for (entity, in_map) in in_params.in_maps.iter() {
-                                    if in_map.0 == in_map_entity {
-                                        let Some(client_id) = client_map
-                                            .0
-                                            .iter()
-                                            .find(|(_, e)| **e == entity)
-                                            .map(|(id, _)| *id)
-                                        else {
-                                            continue;
-                                        };
-                                        command_tx
-                                            .0
-                                            .lock()
-                                            .unwrap()
-                                            .send(AsyncCommand::SendPacket {
-                                                client_id,
-                                                packet: packet.clone(),
-                                            })
-                                            .unwrap();
-                                    }
+                                let client_ids: Vec<_> = client_map
+                                    .0
+                                    .iter()
+                                    .filter(|(_, entity)| {
+                                        in_params
+                                            .in_maps
+                                            .get(**entity)
+                                            .map(|im| im.0 == in_map.0)
+                                            .unwrap_or(false)
+                                    })
+                                    .map(|(&client_id, _)| client_id)
+                                    .collect();
+                                for client_id in client_ids {
+                                    command_tx
+                                        .0
+                                        .lock()
+                                        .unwrap()
+                                        .send(AsyncCommand::SendPacket {
+                                            client_id,
+                                            packet: packet.clone(),
+                                        })
+                                        .unwrap();
                                 }
                             }
                             MapScope::AllChannelsSameWorld => {
-                                for (entity, in_map) in in_params.in_maps.iter() {
-                                    let Ok((_, _, other_map_child_of)) =
-                                        loc_params.maps.get(in_map.0)
-                                    else {
-                                        continue;
-                                    };
-                                    let other_channel_entity = other_map_child_of.parent();
-                                    let Ok((_, _, other_channel_child_of)) =
-                                        loc_params.channels.get(other_channel_entity)
-                                    else {
-                                        continue;
-                                    };
-                                    if other_channel_child_of.parent() == map_world_entity {
-                                        let Some(client_id) = client_map
-                                            .0
-                                            .iter()
-                                            .find(|(_, e)| **e == entity)
-                                            .map(|(id, _)| *id)
-                                        else {
-                                            continue;
-                                        };
-                                        command_tx
-                                            .0
-                                            .lock()
-                                            .unwrap()
-                                            .send(AsyncCommand::SendPacket {
-                                                client_id,
-                                                packet: packet.clone(),
+                                let client_ids: Vec<_> = client_map
+                                    .0
+                                    .iter()
+                                    .filter(|(_, entity)| {
+                                        in_params
+                                            .in_maps
+                                            .get(**entity)
+                                            .and_then(|im| loc_params.maps.get(im.0))
+                                            .map(|(_, _, child_of)| {
+                                                child_of.parent() == map_channel_entity
                                             })
-                                            .unwrap();
-                                    }
+                                            .unwrap_or(false)
+                                    })
+                                    .map(|(&client_id, _)| client_id)
+                                    .collect();
+                                for client_id in client_ids {
+                                    command_tx
+                                        .0
+                                        .lock()
+                                        .unwrap()
+                                        .send(AsyncCommand::SendPacket {
+                                            client_id,
+                                            packet: packet.clone(),
+                                        })
+                                        .unwrap();
                                 }
                             }
                             MapScope::AllChannelsAllWorlds => {
-                                for (entity, _) in in_params.in_maps.iter() {
-                                    let Some(client_id) = client_map
-                                        .0
-                                        .iter()
-                                        .find(|(_, e)| **e == entity)
-                                        .map(|(id, _)| *id)
-                                    else {
-                                        continue;
-                                    };
-
+                                let client_ids: Vec<_> = client_map
+                                    .0
+                                    .iter()
+                                    .filter(|(_, entity)| {
+                                        in_params
+                                            .in_maps
+                                            .get(**entity)
+                                            .and_then(|im| loc_params.maps.get(im.0))
+                                            .and_then(|(_, _, child_of)| {
+                                                loc_params.channels.get(child_of.parent())
+                                            })
+                                            .map(|(_, _, child_of)| {
+                                                child_of.parent() == map_world_entity
+                                            })
+                                            .unwrap_or(false)
+                                    })
+                                    .map(|(&client_id, _)| client_id)
+                                    .collect();
+                                for client_id in client_ids {
                                     command_tx
                                         .0
                                         .lock()

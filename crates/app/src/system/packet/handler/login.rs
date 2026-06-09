@@ -18,6 +18,8 @@
  */
 use crate::component::account::InAccount;
 use crate::component::account::MapleAccount;
+use crate::component::session::InSession;
+use crate::component::session::MapleSession;
 use crate::message::packet::login::LoginFailedResponseMessage;
 use crate::message::packet::login::LoginSuccessResponseMessage;
 use crate::message::packet::login::ReadLoginRequestMessage;
@@ -80,7 +82,6 @@ pub fn handle_login_request(
 pub fn handle_login_success_response(
     mut commands: Commands,
     client_map: Res<ClientMap>,
-    session_params: SessionParams,
     mut messages: MessageReader<LoginSuccessResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) {
@@ -88,9 +89,13 @@ pub fn handle_login_success_response(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((session_entity, _)) = session_params.sessions.get(client_entity) else {
-            continue;
+        let session = MapleSession {
+            transitioning: false,
         };
+        let session_entity = commands.spawn(session).id();
+        commands
+            .entity(client_entity)
+            .insert(InSession(session_entity));
         let acc: MapleAccount = MapleAccount::from((msg.acc_model.clone(), msg.acc_id));
         let acc_entity = commands.spawn((acc.clone(), ChildOf(session_entity))).id();
         commands.entity(client_entity).insert(InAccount(acc_entity));

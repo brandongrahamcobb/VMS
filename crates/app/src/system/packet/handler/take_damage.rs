@@ -46,19 +46,26 @@ pub fn handle_take_damage(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((_, mut char, _)) = session_params.chars.get_mut(client_entity) else {
+        let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {
+        let Some((_, mut char, _)) = session_params
+            .chars
+            .iter_mut()
+            .find(|(_, _, parent)| parent.0 == in_char.0)
+        else {
             continue;
         };
-        let Ok((channel_entity, channel, _)) = loc_params.channels.get(in_channel_entity) else {
+        let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let Ok((in_map_entity, _)) = in_params.in_maps.get(client_entity) else {
+        let Ok((_, channel, _)) = loc_params.channels.get(in_channel.0) else {
             continue;
         };
-        let Ok((_, map, _)) = loc_params.maps.get(in_map_entity) else {
+        let Ok(in_map) = in_params.in_maps.get(client_entity) else {
+            continue;
+        };
+        let Ok((_, map, _)) = loc_params.maps.get(in_map.0) else {
             continue;
         };
 
@@ -103,7 +110,7 @@ pub fn handle_take_damage(
             let Some((map_entity, _, _)) = loc_params
                 .maps
                 .iter()
-                .find(|(_, m, parent)| m.base.wz == return_map_wz && parent.0 == channel_entity)
+                .find(|(_, m, parent)| parent.0 == in_channel.0 && m.base.wz == return_map_wz)
             else {
                 continue;
             };

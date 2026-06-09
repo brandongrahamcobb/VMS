@@ -41,10 +41,10 @@ pub fn handle_register_pic(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
+        let Ok(in_acc) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok((_, acc, _)) = session_params.accounts.get(in_acc_entity) else {
+        let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
             continue;
         };
 

@@ -59,10 +59,10 @@ pub fn handle_load_char_slots(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
+        let Ok(in_acc) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok((_, acc, _)) = session_params.accounts.get(in_acc_entity) else {
+        let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
             continue;
         };
         let Some((world_entity, _)) = loc_params.worlds.iter().find(|(_, w)| w.id == msg.world_id)
@@ -110,20 +110,20 @@ pub fn handle_list_chars(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
+        let Ok(in_acc) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok((acc_entity, acc, _)) = session_params.accounts.get(in_acc_entity) else {
+        let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
             continue;
         };
         for char_model in msg.char_models.clone() {
             let char: MapleCharacter = MapleCharacter::from(char_model);
-            commands.spawn((char, ChildOf(acc_entity)));
+            commands.spawn((char, ChildOf(in_acc.0)));
         }
         let chars: Vec<_> = session_params
             .chars
             .iter()
-            .filter(|(_, _, parent)| parent.0 == acc_entity)
+            .filter(|(_, _, parent)| parent.0 == in_acc.0)
             .collect();
         spawn_char::spawn_char(
             &mut commands,

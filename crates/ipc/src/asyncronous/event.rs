@@ -108,6 +108,8 @@ pub enum AsyncEvent {
     },
     JoinSuccess {
         client_id: i32,
+        char_id: i32,
+        map_wz: i32,
         keybinding_models: Vec<KeybindingModel>,
         skill_models: Vec<SkillModel>,
         equipped_item_models: Vec<ItemModel>,

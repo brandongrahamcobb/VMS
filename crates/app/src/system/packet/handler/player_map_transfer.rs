@@ -17,18 +17,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use action::model::Action;
-use action::scope::{ActionScope, MapScope};
-use bevy::ecs::hierarchy::ChildOf;
-use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Query, Res};
-
 use crate::component::item::MapleItem;
 use crate::message::packet::player_map_transferred::ReadPlayerMapTransferRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::codec;
 use crate::system::system_params::{InParams, InventoryParams, SessionParams};
+use action::model::Action;
+use action::scope::{ActionScope, MapScope};
+use bevy::ecs::hierarchy::ChildOf;
+use bevy::ecs::message::{MessageReader, MessageWriter};
+use bevy::ecs::system::{Query, Res};
 
 pub fn handle_player_map_transfer(
     client_map: Res<ClientMap>,
@@ -43,16 +42,27 @@ pub fn handle_player_map_transfer(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((_, mut session)) = session_params.sessions.get_mut(client_entity) else {
+        let Ok(in_session) = in_params.in_sessions.get(client_entity) else {
             continue;
         };
-        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
+        let Some((_, mut session, _)) = session_params
+            .sessions
+            .iter_mut()
+            .find(|(_, _, parent)| parent.0 == in_session.0)
+        else {
             continue;
         };
-        let Ok((char_entity, char, _)) = session_params.chars.get(in_char_entity) else {
+        let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok((inv_entity, _)) = inv_params.inventories.get(char_entity) else {
+        let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
+            continue;
+        };
+        let Some((inv_entity, _, _)) = inv_params
+            .inventories
+            .iter()
+            .find(|(_, _, parent)| parent.0 == in_char.0)
+        else {
             continue;
         };
         let items: Vec<_> = items

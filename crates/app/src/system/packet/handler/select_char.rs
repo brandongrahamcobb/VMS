@@ -17,26 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::character::InChar;
 use crate::message::packet::select_char::ReadSelectCharRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::codec;
-use crate::system::system_params::{InParams, LocationParams, SessionParams};
+use crate::system::system_params::{InParams, LocationParams};
 use action::model::Action;
 use action::scope::ActionScope;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Commands, Res};
+use bevy::ecs::system::Res;
 use config::settings;
 use inc::helpers;
 
 pub fn handle_select_char(
-    mut commands: Commands,
     client_map: Res<ClientMap>,
     loc_params: LocationParams,
     in_params: InParams,
-    session_params: SessionParams,
     mut results: MessageWriter<HandlerResult>,
     mut messages: MessageReader<ReadSelectCharRequestMessage>,
 ) -> () {
@@ -49,27 +46,12 @@ pub fn handle_select_char(
         let Some(&client_entity): Option<&Entity> = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
+        let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let Ok((acc_entity, _, _)) = session_params.accounts.get(in_acc_entity) else {
+        let Ok((_, channel, _)) = loc_params.channels.get(in_channel.0) else {
             continue;
         };
-        let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {
-            continue;
-        };
-        let Ok((_, channel, _)) = loc_params.channels.get(in_channel_entity) else {
-            continue;
-        };
-        let Some((char_entity, _, _)) = session_params
-            .chars
-            .iter()
-            .find(|(_, c, parent)| c.id == msg.char_id && parent.0 == acc_entity)
-        else {
-            continue;
-        };
-
-        commands.entity(client_entity).insert(InChar(char_entity));
 
         let Ok(mut select_char_packet) =
             codec::login::builder::build_select_char_packet(msg.char_id, octets, channel.port)

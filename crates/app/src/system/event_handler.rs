@@ -180,6 +180,8 @@ pub fn handle_events_system(
             }
             AsyncEvent::JoinSuccess {
                 client_id,
+                char_id,
+                map_wz,
                 keybinding_models,
                 skill_models,
                 equipped_item_models,
@@ -196,6 +198,8 @@ pub fn handle_events_system(
             } => {
                 player_join_success_writer.write(PlayerLoggedInResponseMessage {
                     client_id,
+                    char_id,
+                    map_wz,
                     keybinding_models,
                     skill_models,
                     equipped_item_models,

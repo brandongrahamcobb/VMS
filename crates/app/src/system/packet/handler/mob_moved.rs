@@ -22,7 +22,7 @@ use crate::message::packet::mob_moved::ReadMobMovedRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::codec;
-use crate::system::system_params::{InParams, LocationParams, PositionParams};
+use crate::system::system_params::{InParams, PositionParams};
 use action::model::Action;
 use action::scope::{ActionScope, MapScope};
 use base::map::Point;
@@ -34,7 +34,6 @@ use bevy::ecs::system::{Query, Res};
 
 pub fn handle_mob_moved(
     client_map: Res<ClientMap>,
-    loc_params: LocationParams,
     in_params: InParams,
     mut pos_params: PositionParams,
     mut mobs: Query<(Entity, &mut MapleMob, &ChildOf)>,
@@ -45,19 +44,16 @@ pub fn handle_mob_moved(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_map_entity, _)) = in_params.in_maps.get(client_entity) else {
-            continue;
-        };
-        let Ok((map_entity, _, _)) = loc_params.maps.get(in_map_entity) else {
+        let Ok(in_map) = in_params.in_maps.get(client_entity) else {
             continue;
         };
         let Some((mob_entity, _, _)) = mobs
             .iter_mut()
-            .find(|(_, m, parent)| m.id == msg.mob_id && parent.0 == map_entity)
+            .find(|(_, m, parent)| m.id == msg.mob_id && parent.0 == in_map.0)
         else {
             continue;
         };
-        let Ok((_, mut curr_pos, _)) = pos_params.curr_positions.get_mut(mob_entity) else {
+        let Ok((mut curr_pos, _)) = pos_params.curr_positions.get_mut(mob_entity) else {
             continue;
         };
 
@@ -68,7 +64,7 @@ pub fn handle_mob_moved(
         curr_pos.x = pos.x;
         curr_pos.y = pos.y;
         curr_pos.fh = Some(msg.fh);
-        let Ok((_, mut last_pos, _)) = pos_params.last_positions.get_mut(mob_entity) else {
+        let Ok((mut last_pos, _)) = pos_params.last_positions.get_mut(mob_entity) else {
             continue;
         };
         let pos = Point {

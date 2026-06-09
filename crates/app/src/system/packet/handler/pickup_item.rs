@@ -24,11 +24,12 @@ use crate::message::packet::pickup_item::{
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::pickup_item;
-use crate::system::system_params::{InParams, InventoryParams, SessionParams};
+use crate::system::system_params::{InParams, SessionParams};
 use action::model::Action;
 use action::scope::ActionScope;
+use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Commands, Res};
+use bevy::ecs::system::{Commands, Query, Res};
 use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
 
@@ -36,18 +37,22 @@ pub fn handle_pickup_item_request(
     mut commands: Commands,
     command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
+    in_params: InParams,
     session_params: SessionParams,
-    inv_params: InventoryParams,
+    empty_slots: Query<(Entity, &MapleEmptyItemSlot)>,
     mut messages: MessageReader<ReadPickupItemRequestMessage>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((_, char, _)) = session_params.chars.get(client_entity) else {
+        let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Some((empty_slot_entity, empty_slot)) = inv_params.empty_slots.iter().next() else {
+        let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
+            continue;
+        };
+        let Some((empty_slot_entity, empty_slot)) = empty_slots.iter().next() else {
             continue;
         };
         commands
@@ -85,10 +90,10 @@ pub fn handle_pickup_response(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
+        let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok((_, char, _)) = session_params.chars.get(in_char_entity) else {
+        let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
 

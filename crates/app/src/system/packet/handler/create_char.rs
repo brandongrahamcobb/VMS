@@ -17,9 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::account::{InAccount, MapleAccount};
 use crate::component::item::MapleItem;
-use crate::component::world::{InWorld, MapleWorld};
 use crate::message::packet::create_char::{
     CreateCharResponseMessage, ReadCreateCharRequestMessage,
 };
@@ -30,7 +28,6 @@ use crate::system::packet::handler::codec::spawn_char;
 use crate::system::system_params::{InParams, InventoryParams, LocationParams, SessionParams};
 use action::model::Action;
 use action::scope::ActionScope;
-use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
@@ -41,26 +38,25 @@ use ipc::asyncronous::db_command::DatabaseCommand;
 pub fn handle_create_char_request(
     command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
-    worlds: Query<&MapleWorld>,
-    in_worlds: Query<(Entity, &InWorld)>,
-    accounts: Query<&MapleAccount>,
-    in_accounts: Query<(Entity, &InAccount)>,
+    loc_params: LocationParams,
+    in_params: InParams,
+    session_params: SessionParams,
     mut messages: MessageReader<ReadCreateCharRequestMessage>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_world_entity, _)) = in_worlds.get(client_entity) else {
+        let Ok(in_world) = in_params.in_worlds.get(client_entity) else {
             continue;
         };
-        let Ok(world) = worlds.get(in_world_entity) else {
+        let Ok((_, world)) = loc_params.worlds.get(in_world.0) else {
             continue;
         };
-        let Ok((in_acc_entity, _)) = in_accounts.get(client_entity) else {
+        let Ok(in_acc) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
-        let Ok(acc) = accounts.get(in_acc_entity) else {
+        let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
             continue;
         };
 
@@ -98,8 +94,8 @@ pub fn handle_create_char_response(
     mut commands: Commands,
     client_map: Res<ClientMap>,
     loc_params: LocationParams,
-    session_params: SessionParams,
     in_params: InParams,
+    session_params: SessionParams,
     inv_params: InventoryParams,
     items: Query<(&MapleItem, &ChildOf)>,
     mut messages: MessageReader<CreateCharResponseMessage>,
@@ -109,29 +105,23 @@ pub fn handle_create_char_response(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_channel_entity, _)) = in_params.in_channels.get(client_entity) else {
+        let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let Ok((channel_entity, _, _)) = loc_params.channels.get(in_channel_entity) else {
-            continue;
-        };
-        let Ok((in_acc_entity, _)) = in_params.in_accounts.get(client_entity) else {
-            continue;
-        };
-        let Ok((acc_entity, _, _)) = session_params.accounts.get(in_acc_entity) else {
+        let Ok(in_acc) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
         let Some((char_entity, char, _)) = session_params
             .chars
             .iter()
-            .find(|(_, c, parent)| c.id == msg.char_id && parent.0 == acc_entity)
+            .find(|(_, c, parent)| c.id == msg.char_id && parent.0 == in_acc.0)
         else {
             continue;
         };
         let chars: Vec<_> = session_params
             .chars
             .iter()
-            .filter(|(_, c, parent)| c.id == msg.char_id && parent.0 == acc_entity)
+            .filter(|(_, c, parent)| c.id == msg.char_id && parent.0 == in_acc.0)
             .collect();
         spawn_char::spawn_char(
             &mut commands,
@@ -151,18 +141,29 @@ pub fn handle_create_char_response(
         let Some((_, map, _)) = loc_params
             .maps
             .iter()
-            .find(|(_, m, parent)| m.base.wz == char.map_wz && parent.0 == channel_entity)
+            .find(|(_, m, parent)| m.base.wz == char.map_wz && parent.0 == in_channel.0)
         else {
             continue;
         };
-
-        let Ok((inv_entity, _)) = inv_params.inventories.get(char_entity) else {
+        let Some((inv_entity, _, _)) = inv_params
+            .inventories
+            .iter()
+            .find(|(_, _, parent)| parent.0 == char_entity)
+        else {
             continue;
         };
-        let Ok((equipped_tab_entity, _)) = inv_params.equipped_tabs.get(inv_entity) else {
+        let Some((equipped_tab_entity, _, _)) = inv_params
+            .equipped_tabs
+            .iter()
+            .find(|(_, _, parent)| parent.0 == inv_entity)
+        else {
             continue;
         };
-        let Ok((filled_slot_entity, _)) = inv_params.filled_slots.get(equipped_tab_entity) else {
+        let Some((filled_slot_entity, _, _)) = inv_params
+            .filled_slots
+            .iter()
+            .find(|(_, _, parent)| parent.0 == equipped_tab_entity)
+        else {
             continue;
         };
         let equips: Vec<_> = items

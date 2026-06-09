@@ -49,23 +49,20 @@ pub fn handle_change_channel(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok((in_world_entity, _)) = in_params.in_worlds.get(client_entity) else {
-            continue;
-        };
-        let Ok((world_entity, _)) = loc_params.worlds.get(in_world_entity) else {
+        let Ok(in_world) = in_params.in_worlds.get(client_entity) else {
             continue;
         };
         let Some((channel_entity, channel, _)) = loc_params
             .channels
             .iter()
-            .find(|(_, c, parent)| c.id == msg.channel_id && parent.0 == world_entity)
+            .find(|(_, c, parent)| c.id == msg.channel_id && parent.0 == in_world.0)
         else {
             continue;
         };
-        let Ok((in_char_entity, _)) = in_params.in_chars.get(client_entity) else {
+        let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok((_, char, _)) = session_params.chars.get(in_char_entity) else {
+        let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
 
