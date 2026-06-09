@@ -106,7 +106,11 @@ impl LoginServer {
                         match Runtime::new(stream, None).await {
                             Ok(runtime) => match runtime.run(client_id, event_tx.clone(), rx).await
                             {
-                                Ok(_) => {}
+                                Ok(_) => {
+                                    event_tx
+                                        .send(AsyncEvent::ClientDisconnected { client_id })
+                                        .unwrap();
+                                }
                                 Err(e) => {
                                     info!("Login server error: {}", e);
                                     event_tx
@@ -155,8 +159,17 @@ impl PlayerServer {
                         match Runtime::new(stream, Some(packet)).await {
                             Ok(runtime) => {
                                 match runtime.run(client_id, event_tx.clone(), rx).await {
-                                    Ok(_) => {}
-                                    Err(e) => info!("Player runtime error: {}", e),
+                                    Ok(_) => {
+                                        event_tx
+                                            .send(AsyncEvent::ClientDisconnected { client_id })
+                                            .unwrap();
+                                    }
+                                    Err(e) => {
+                                        info!("Player runtime error: {}", e);
+                                        event_tx
+                                            .send(AsyncEvent::ClientDisconnected { client_id })
+                                            .unwrap();
+                                    }
                                 }
                             }
                             Err(e) => {

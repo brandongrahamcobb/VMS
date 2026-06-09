@@ -140,40 +140,25 @@ pub async fn db_worker(
                         db::item::getters::get_equipped_item_models_by_char_id(&pool, char_id)
                             .await?;
                     equipped_item_model_map.insert(char_id, equipped_item_models);
-                    dbg!("test2");
                     let unequipped_item_models: Vec<ItemModel> =
                         db::item::getters::get_unequipped_item_models_by_char_id(&pool, char_id)
                             .await?;
-                    dbg!("test2");
-                    // let inv_cap: InventoryCapacityModel =
-                    //     db::inventory::getters::get_inventory_slot_capacities_by_char_id(
-                    //         &pool, char_id,
-                    //     )
-                    //     .await?;
                     let inv_cap: InventoryCapacityModel =
                         db::inventory::getters::get_inventory_slot_capacities_by_char_id(
                             &pool, char_id,
                         )
-                        .await
-                        .map_err(|e| {
-                            tracing::error!("get_equipped_items failed: {:?}", e);
-                            e
-                        })?;
-                    dbg!("test2");
+                        .await?;
                     equip_tab_inv_capacity_map.insert(char_id, inv_cap.equip_slot_capacity);
                     use_tab_inv_capacity_map.insert(char_id, inv_cap.use_slot_capacity);
                     etc_tab_inv_capacity_map.insert(char_id, inv_cap.etc_slot_capacity);
                     setup_tab_inv_capacity_map.insert(char_id, inv_cap.setup_slot_capacity);
                     cash_tab_inv_capacity_map.insert(char_id, inv_cap.cash_slot_capacity);
-                    dbg!("test2");
                     let mut equip_tab_item_models: Vec<ItemModel> = Vec::new();
                     let mut use_tab_item_models: Vec<ItemModel> = Vec::new();
                     let mut etc_tab_item_models: Vec<ItemModel> = Vec::new();
                     let mut setup_tab_item_models: Vec<ItemModel> = Vec::new();
                     let mut cash_tab_item_models: Vec<ItemModel> = Vec::new();
-                    dbg!("test2");
                     for unequipped_item_model in unequipped_item_models {
-                        dbg!("test2");
                         match metadata::item::inventory::get_inventory_tab_by_wz(
                             unequipped_item_model.wz,
                         )? {
@@ -189,13 +174,11 @@ pub async fn db_worker(
                         }
                     }
                     equip_item_model_map.insert(char_id, equip_tab_item_models);
-                    dbg!("test2");
                     use_item_model_map.insert(char_id, use_tab_item_models);
                     etc_item_model_map.insert(char_id, etc_tab_item_models);
                     setup_item_model_map.insert(char_id, setup_tab_item_models);
                     cash_item_model_map.insert(char_id, cash_tab_item_models);
                 }
-                dbg!("test2");
                 let event = AsyncEvent::ListCharsSuccess {
                     client_id,
                     channel_id,

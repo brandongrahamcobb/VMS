@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::session::MapleSession;
+use crate::component::session::{InSession, MapleSession};
 use crate::message::packet::attack_close::CloseAttackResponseMessage;
 use crate::message::packet::check_char_name::CheckCharNameResponseMessage;
 use crate::message::packet::create_char::CreateCharResponseMessage;
@@ -61,10 +61,17 @@ pub fn handle_events_system(
                     })
                     .id();
                 client_map.0.insert(client_id, session_entity);
+                let Some(&client_entity) = client_map.0.get(&client_id) else {
+                    continue;
+                };
+                commands
+                    .entity(client_entity)
+                    .insert(InSession(session_entity));
             }
             AsyncEvent::ClientDisconnected { client_id } => {
                 if let Some(client_entity) = client_map.0.remove(&client_id) {
                     commands.entity(client_entity).despawn_related::<Children>();
+                    commands.entity(client_entity).despawn();
                 }
             }
             AsyncEvent::PacketReceived { client_id, packet } => {
