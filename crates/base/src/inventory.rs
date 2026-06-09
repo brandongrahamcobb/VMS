@@ -55,7 +55,7 @@ pub enum EquipSlot {
 
 pub struct ISlot {
     pub key: i16,
-    name: &'static str,
+    pub name: &'static str,
     pub islot: &'static str,
 }
 
