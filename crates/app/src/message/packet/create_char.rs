@@ -18,6 +18,7 @@
  */
 
 use bevy::prelude::Message;
+use db::character::model::CharacterModel;
 use db::item::model::ItemModel;
 use db::keybinding::model::KeybindingModel;
 use db::skill::model::SkillModel;
@@ -43,6 +44,7 @@ pub struct ReadCreateCharRequestMessage {
 pub struct CreateCharResponseMessage {
     pub client_id: i32,
     pub char_id: i32,
+    pub char_model: CharacterModel,
     pub equipped_item_model_map: HashMap<i32, Vec<ItemModel>>,
     pub equip_item_model_map: HashMap<i32, Vec<ItemModel>>,
     pub use_item_model_map: HashMap<i32, Vec<ItemModel>>,

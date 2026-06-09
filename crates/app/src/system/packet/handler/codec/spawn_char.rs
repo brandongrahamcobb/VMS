@@ -14,12 +14,12 @@ use crate::component::inventory::{
     MapleUseTab,
 };
 use crate::component::item::MapleItem;
-use crate::component::slot::{MapleEmptyItemSlot, MapleFilledItemSlot};
+use crate::component::slot::MapleEmptyItemSlot;
 use crate::system::packet::handler::codec::spawn_item;
 
-pub fn spawn_char(
+pub fn spawn_char_with_equips(
     commands: &mut Commands,
-    chars: Vec<(Entity, &MapleCharacter, &ChildOf)>,
+    chars: HashMap<i32, (Entity, MapleCharacter)>,
     equipped_item_model_map: &HashMap<i32, Vec<ItemModel>>,
     equip_item_model_map: &HashMap<i32, Vec<ItemModel>>,
     use_item_model_map: &HashMap<i32, Vec<ItemModel>>,
@@ -31,11 +31,11 @@ pub fn spawn_char(
     etc_tab_inv_capacity_map: &HashMap<i32, i16>,
     setup_tab_inv_capacity_map: &HashMap<i32, i16>,
     cash_tab_inv_capacity_map: &HashMap<i32, i16>,
-) -> () {
-    for (char_entity, char, _) in chars.iter() {
+) -> HashMap<i32, Vec<MapleItem>> {
+    let mut equipped_filled_slots_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
+    for (_, (char_entity, char)) in chars.iter() {
         let inventory: MapleInventory = MapleInventory;
         let inv_entity = commands.spawn((inventory, ChildOf(*char_entity))).id();
-
         let equipped_tab: MapleEquippedTab = MapleEquippedTab;
         let equipped_tab_entity = commands.spawn((equipped_tab, ChildOf(inv_entity))).id();
         let Some(equip_tab_capacity) = equip_tab_inv_capacity_map.get(&char.id) else {
@@ -74,14 +74,14 @@ pub fn spawn_char(
         };
         let cash_tab_entity = commands.spawn((cash_tab, ChildOf(inv_entity))).id();
 
-        let equipped_filled_slots: HashMap<MapleFilledItemSlot, MapleItem> = spawn_item::spawn_item(
+        let equipped_items: Vec<MapleItem> = spawn_item::spawn_item(
             commands,
             char.id,
             equipped_item_model_map,
             equipped_tab_entity,
         );
         let equipped_filled_pos: HashSet<i16> =
-            equipped_filled_slots.keys().map(|s| s.ipos).collect();
+            equipped_items.iter().filter_map(|s| s.ipos).collect();
         let islots = CASH_EQUIP_SLOTS
             .iter()
             .chain(ANDROID_EQUIP_SLOTS.iter())
@@ -94,9 +94,10 @@ pub fn spawn_char(
                 ChildOf(equipped_tab_entity),
             ));
         }
-        let equip_filled_slots: HashMap<MapleFilledItemSlot, MapleItem> =
+        let equip_filled_slots: Vec<MapleItem> =
             spawn_item::spawn_item(commands, char.id, equip_item_model_map, equip_tab_entity);
-        let equip_filled_pos: HashSet<i16> = equip_filled_slots.keys().map(|s| s.ipos).collect();
+        let equip_filled_pos: HashSet<i16> =
+            equip_filled_slots.iter().filter_map(|s| s.ipos).collect();
         let Some(equip_tab_inv_capacity) = equip_tab_inv_capacity_map.get(&char.id) else {
             continue;
         };
@@ -105,9 +106,9 @@ pub fn spawn_char(
                 commands.spawn((MapleEmptyItemSlot { ipos }, ChildOf(equip_tab_entity)));
             }
         }
-        let use_filled_slots: HashMap<MapleFilledItemSlot, MapleItem> =
+        let use_filled_slots: Vec<MapleItem> =
             spawn_item::spawn_item(commands, char.id, use_item_model_map, use_tab_entity);
-        let use_filled_pos: HashSet<i16> = use_filled_slots.keys().map(|s| s.ipos).collect();
+        let use_filled_pos: HashSet<i16> = use_filled_slots.iter().filter_map(|s| s.ipos).collect();
         let Some(use_tab_inv_capacity) = use_tab_inv_capacity_map.get(&char.id) else {
             continue;
         };
@@ -116,9 +117,9 @@ pub fn spawn_char(
                 commands.spawn((MapleEmptyItemSlot { ipos }, ChildOf(use_tab_entity)));
             }
         }
-        let etc_filled_slots: HashMap<MapleFilledItemSlot, MapleItem> =
+        let etc_filled_slots: Vec<MapleItem> =
             spawn_item::spawn_item(commands, char.id, etc_item_model_map, etc_tab_entity);
-        let etc_filled_pos: HashSet<i16> = etc_filled_slots.keys().map(|s| s.ipos).collect();
+        let etc_filled_pos: HashSet<i16> = etc_filled_slots.iter().filter_map(|s| s.ipos).collect();
         let Some(etc_tab_inv_capacity) = etc_tab_inv_capacity_map.get(&char.id) else {
             continue;
         };
@@ -127,9 +128,10 @@ pub fn spawn_char(
                 commands.spawn((MapleEmptyItemSlot { ipos }, ChildOf(etc_tab_entity)));
             }
         }
-        let setup_filled_slots: HashMap<MapleFilledItemSlot, MapleItem> =
+        let setup_filled_slots: Vec<MapleItem> =
             spawn_item::spawn_item(commands, char.id, setup_item_model_map, setup_tab_entity);
-        let setup_filled_pos: HashSet<i16> = setup_filled_slots.keys().map(|s| s.ipos).collect();
+        let setup_filled_pos: HashSet<i16> =
+            setup_filled_slots.iter().filter_map(|s| s.ipos).collect();
         let Some(setup_tab_inv_capacity) = setup_tab_inv_capacity_map.get(&char.id) else {
             continue;
         };
@@ -138,9 +140,10 @@ pub fn spawn_char(
                 commands.spawn((MapleEmptyItemSlot { ipos }, ChildOf(setup_tab_entity)));
             }
         }
-        let cash_filled_slots: HashMap<MapleFilledItemSlot, MapleItem> =
+        let cash_filled_slots: Vec<MapleItem> =
             spawn_item::spawn_item(commands, char.id, cash_item_model_map, cash_tab_entity);
-        let cash_filled_pos: HashSet<i16> = cash_filled_slots.keys().map(|s| s.ipos).collect();
+        let cash_filled_pos: HashSet<i16> =
+            cash_filled_slots.iter().filter_map(|s| s.ipos).collect();
         let Some(cash_tab_inv_capacity) = cash_tab_inv_capacity_map.get(&char.id) else {
             continue;
         };
@@ -149,5 +152,7 @@ pub fn spawn_char(
                 commands.spawn((MapleEmptyItemSlot { ipos }, ChildOf(cash_tab_entity)));
             }
         }
+        equipped_filled_slots_map.insert(char.id, equipped_items);
     }
+    equipped_filled_slots_map
 }

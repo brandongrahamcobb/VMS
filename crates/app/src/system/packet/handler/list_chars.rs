@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use crate::component::channel::InChannel;
 use crate::component::character::MapleCharacter;
 use crate::component::item::MapleItem;
@@ -28,14 +30,14 @@ use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::list_chars;
 use crate::system::packet::handler::codec::spawn_char;
 use crate::system::system_params::InParams;
-use crate::system::system_params::InventoryParams;
 use crate::system::system_params::LocationParams;
 use crate::system::system_params::SessionParams;
 use action::model::Action;
 use action::scope::ActionScope;
+use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Commands, Query, Res};
+use bevy::ecs::system::{Commands, Res};
 use config::settings;
 use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
@@ -69,7 +71,7 @@ pub fn handle_load_char_slots(
         else {
             continue;
         };
-        commands.spawn(InWorld(world_entity));
+        commands.entity(client_entity).insert(InWorld(world_entity));
         let Some((channel_entity, _, _)) = loc_params
             .channels
             .iter()
@@ -77,8 +79,9 @@ pub fn handle_load_char_slots(
         else {
             continue;
         };
-        commands.spawn(InChannel(channel_entity));
-
+        commands
+            .entity(client_entity)
+            .insert(InChannel(channel_entity));
         command_tx
             .0
             .lock()
@@ -98,11 +101,8 @@ pub fn handle_load_char_slots(
 pub fn handle_list_chars(
     mut commands: Commands,
     client_map: Res<ClientMap>,
-    loc_params: LocationParams,
     in_params: InParams,
     session_params: SessionParams,
-    inv_params: InventoryParams,
-    items: Query<(&MapleItem, &ChildOf)>,
     mut messages: MessageReader<ListCharsSuccessResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -116,18 +116,15 @@ pub fn handle_list_chars(
         let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
             continue;
         };
+        let mut chars_map: HashMap<i32, (Entity, MapleCharacter)> = HashMap::new();
         for char_model in msg.char_models.clone() {
             let char: MapleCharacter = MapleCharacter::from(char_model);
-            commands.spawn((char, ChildOf(in_acc.0)));
+            let char_entity = commands.spawn((char.clone(), ChildOf(in_acc.0))).id();
+            chars_map.insert(char.id, (char_entity, char.clone()));
         }
-        let chars: Vec<_> = session_params
-            .chars
-            .iter()
-            .filter(|(_, _, parent)| parent.0 == in_acc.0)
-            .collect();
-        spawn_char::spawn_char(
+        let equips_map: HashMap<i32, Vec<MapleItem>> = spawn_char::spawn_char_with_equips(
             &mut commands,
-            chars.clone(),
+            chars_map.clone(),
             &msg.equipped_item_model_map,
             &msg.equip_item_model_map,
             &msg.use_item_model_map,
@@ -154,16 +151,11 @@ pub fn handle_list_chars(
         };
 
         let Ok(mut list_chars_packet) = list_chars::build_list_chars_packet(
-            chars,
-            items,
-            inv_params.inventories,
-            inv_params.equipped_tabs,
-            inv_params.filled_slots,
-            loc_params.maps,
+            chars_map,
+            equips_map,
             msg.channel_id,
             msg.slots,
             pic_status,
-            msg.world_id,
         ) else {
             continue;
         };

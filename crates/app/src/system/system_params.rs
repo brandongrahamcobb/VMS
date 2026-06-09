@@ -3,7 +3,7 @@ use crate::component::channel::{InChannel, MapleChannel};
 use crate::component::character::{InChar, MapleCharacter};
 use crate::component::exp::MapleExp;
 use crate::component::hp::MapleHealth;
-use crate::component::inventory::{MapleEquippedTab, MapleInventory};
+use crate::component::inventory::{InInventory, MapleEquippedTab, MapleInventory};
 use crate::component::keybinding::MapleKeybinding;
 use crate::component::map::{InMap, MapleMap};
 use crate::component::position::{MapleCurrentPosition, MapleLastPosition};
@@ -38,6 +38,7 @@ pub struct InParams<'w, 's> {
     pub in_sessions: Query<'w, 's, &'static InSession>,
     pub in_accounts: Query<'w, 's, &'static InAccount>,
     pub in_chars: Query<'w, 's, &'static InChar>,
+    pub in_inventories: Query<'w, 's, &'static InInventory>,
 }
 
 #[derive(SystemParam)]

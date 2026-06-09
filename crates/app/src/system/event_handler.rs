@@ -152,6 +152,7 @@ pub fn handle_events_system(
                 create_char_response_writer.write(CreateCharResponseMessage {
                     client_id,
                     char_id,
+                    char_model,
                     keybinding_model_map,
                     skill_model_map,
                     equipped_item_model_map,

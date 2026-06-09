@@ -17,11 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use crate::component::character::MapleCharacter;
 use crate::component::item::MapleItem;
-use crate::component::map::MapleMap;
 use crate::system::packet::build::error::PacketBuildError;
-use bevy::ecs::hierarchy::ChildOf;
 use net::packet::io::error::IOError::WriteError;
 use net::packet::io::prelude::*;
 use net::packet::model::Packet;
@@ -29,7 +29,7 @@ use op::send::SendOpcode;
 
 pub fn build_spawn_player_packet(
     char: &MapleCharacter,
-    equips: Vec<(&MapleItem, &ChildOf)>,
+    equips_map: HashMap<i32, Vec<MapleItem>>,
 ) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SpawnPlayer as i16;
@@ -68,7 +68,7 @@ pub fn build_spawn_player_packet(
     let skip: Vec<u8> = vec![0u8; 61];
     packet.write_bytes(skip).map_err(WriteError)?;
     packet.write_short(char.job_wz).map_err(WriteError)?;
-    build_look_meta_part_packet(&mut packet, char, equips)?;
+    build_look_meta_part_packet(&mut packet, char, equips_map)?;
     let count: i32 = 5110000;
     packet.write_int(count).map_err(WriteError)?;
     let item_effect: i32 = 0; // 0 not sure
@@ -132,7 +132,7 @@ pub fn build_spawn_player_packet(
 
 pub fn build_set_field_packet(
     char: &MapleCharacter,
-    equips: Vec<(&MapleItem, &ChildOf)>,
+    equips_map: HashMap<i32, Vec<MapleItem>>,
     channel_id: u8,
     map_wz: i32,
 ) -> Result<Packet, PacketBuildError> {
@@ -164,40 +164,44 @@ pub fn build_set_field_packet(
     packet.write_long(0).map_err(WriteError)?;
     packet.write_long(0).map_err(WriteError)?;
     packet.write_long(0).map_err(WriteError)?;
-    build_player_logged_in_meta_part_packet(&mut packet, char, equips, map_wz)?;
+    build_player_logged_in_meta_part_packet(&mut packet, char, equips_map, map_wz)?;
     Ok(packet)
 }
 
 pub fn build_look_cash_equipment_part_packet(
     packet: &mut Packet,
-    equips: Vec<(&MapleItem, &ChildOf)>,
+    equips_map: HashMap<i32, Vec<MapleItem>>,
 ) -> Result<(), PacketBuildError> {
-    for (equip, _) in equips {
-        if let Some(ipos) = equip.ipos {
-            if equip.base.cash {
-                packet.write_byte(ipos).map_err(WriteError)?;
-                packet.write_int(equip.base.wz).map_err(WriteError)?;
-            }
-        } else {
-            continue;
-        };
+    for (_char_id, equips) in equips_map {
+        for equip in equips {
+            if let Some(ipos) = equip.ipos {
+                if equip.base.cash {
+                    packet.write_byte(ipos).map_err(WriteError)?;
+                    packet.write_int(equip.base.wz).map_err(WriteError)?;
+                }
+            } else {
+                continue;
+            };
+        }
     }
     Ok(())
 }
 
 pub fn build_look_regular_equipment_part_packet(
     packet: &mut Packet,
-    equips: Vec<(&MapleItem, &ChildOf)>,
+    equips_map: HashMap<i32, Vec<MapleItem>>,
 ) -> Result<(), PacketBuildError> {
-    for (equip, _) in equips {
-        if let Some(ipos) = equip.ipos {
-            if !equip.base.cash {
-                packet.write_byte(ipos).map_err(WriteError)?;
-                packet.write_int(equip.base.wz).map_err(WriteError)?;
-            }
-        } else {
-            continue;
-        };
+    for (_char_id, equips) in equips_map {
+        for equip in equips {
+            if let Some(ipos) = equip.ipos {
+                if !equip.base.cash {
+                    packet.write_byte(ipos).map_err(WriteError)?;
+                    packet.write_int(equip.base.wz).map_err(WriteError)?;
+                }
+            } else {
+                continue;
+            };
+        }
     }
     Ok(())
 }
@@ -205,7 +209,7 @@ pub fn build_look_regular_equipment_part_packet(
 pub fn build_list_char_meta_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-    map: &MapleMap,
+    map_wz: i32,
 ) -> Result<(), PacketBuildError> {
     packet.write_int(char.id).map_err(WriteError)?;
     packet.write_str(char.ign.clone()).map_err(WriteError)?;
@@ -237,7 +241,7 @@ pub fn build_list_char_meta_part_packet(
     packet.write_short(char.fame).map_err(WriteError)?;
     // Gach xp?
     packet.write_int(0).map_err(WriteError)?;
-    packet.write_int(map.base.wz).map_err(WriteError)?;
+    packet.write_int(map_wz).map_err(WriteError)?;
     packet.write_byte(0).map_err(WriteError)?;
     packet.write_int(0).map_err(WriteError)?;
     Ok(())
@@ -246,7 +250,7 @@ pub fn build_list_char_meta_part_packet(
 pub fn build_look_meta_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-    equips: Vec<(&MapleItem, &ChildOf)>,
+    equips_map: HashMap<i32, Vec<MapleItem>>,
 ) -> Result<(), PacketBuildError> {
     packet.write_byte(char.gender_wz).map_err(WriteError)?;
     packet.write_byte(char.skin_wz as i16).map_err(WriteError)?;
@@ -255,9 +259,9 @@ pub fn build_look_meta_part_packet(
         .write_byte(0) // megaphone
         .map_err(WriteError)?;
     packet.write_int(char.hair_wz).map_err(WriteError)?;
-    build_look_regular_equipment_part_packet(packet, equips.clone())?;
+    build_look_regular_equipment_part_packet(packet, equips_map.clone())?;
     packet.write_byte(0xFF).map_err(WriteError)?;
-    build_look_cash_equipment_part_packet(packet, equips)?;
+    build_look_cash_equipment_part_packet(packet, equips_map)?;
     packet.write_byte(0xFF).map_err(WriteError)?;
     packet
         .write_int(0) //maskedequips -111
@@ -272,7 +276,7 @@ pub fn build_look_meta_part_packet(
 pub fn build_player_logged_in_meta_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-    equips: Vec<(&MapleItem, &ChildOf)>,
+    equips_map: HashMap<i32, Vec<MapleItem>>,
     map_wz: i32,
 ) -> Result<(), PacketBuildError> {
     let level = char.level;
@@ -299,7 +303,7 @@ pub fn build_player_logged_in_meta_part_packet(
     let bl_capacity = 25;
     packet.write_byte(bl_capacity).map_err(WriteError)?;
     packet.write_byte(0).map_err(WriteError)?;
-    build_inventory_part_packet(packet, char, equips)?;
+    build_inventory_part_packet(packet, char, equips_map)?;
     build_skills_part_packet(packet)?;
     build_quests_part_packet(packet)?;
     build_minigames_part_packet(packet)?;
@@ -384,17 +388,19 @@ fn build_area_info_part_packet(packet: &mut Packet) -> Result<(), PacketBuildErr
 
 pub fn build_inventory_regular_equipment_part_packet(
     packet: &mut Packet,
-    equips: Vec<(&MapleItem, &ChildOf)>,
+    equips_map: HashMap<i32, Vec<MapleItem>>,
 ) -> Result<(), PacketBuildError> {
-    for (equip, _) in equips.iter() {
-        if let Some(ipos) = equip.ipos {
-            if !equip.base.cash {
-                packet.write_short(-ipos).map_err(WriteError)?;
-                build_inventory_regular_equip_meta_part_packet(packet, equip)?;
-            }
-        } else {
-            continue;
-        };
+    for (_char_id, equips) in equips_map.iter() {
+        for equip in equips {
+            if let Some(ipos) = equip.ipos {
+                if !equip.base.cash {
+                    packet.write_short(-ipos).map_err(WriteError)?;
+                    build_inventory_regular_equip_meta_part_packet(packet, equip)?;
+                }
+            } else {
+                continue;
+            };
+        }
     }
     Ok(())
 }
@@ -432,7 +438,7 @@ fn build_inventory_regular_equip_meta_part_packet(
 pub fn build_inventory_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-    equips: Vec<(&MapleItem, &ChildOf)>,
+    equips_map: HashMap<i32, Vec<MapleItem>>,
 ) -> Result<(), PacketBuildError> {
     packet.write_int(char.meso).map_err(WriteError)?;
     // Dummy values
@@ -440,8 +446,8 @@ pub fn build_inventory_part_packet(
     packet.write_bytes(vec![8u8; 5]).map_err(WriteError)?;
     // Time?
     packet.write_long(0).map_err(WriteError)?;
-    build_inventory_regular_equipment_part_packet(packet, equips.clone())?;
-    build_look_cash_equipment_part_packet(packet, equips)?;
+    build_inventory_regular_equipment_part_packet(packet, equips_map.clone())?;
+    build_look_cash_equipment_part_packet(packet, equips_map)?;
     // End of equipment equipped (all id's) MUST BE ENDED WITH A SHORT 0
     packet.write_short(0).map_err(WriteError)?;
     // Start of equipment inventory (negative id's) MUST BE ENDED WITH A SHORT 0

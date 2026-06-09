@@ -22,7 +22,7 @@ use core::convert::From;
 use bevy::ecs::{component::Component, entity::Entity};
 use db::character::model::CharacterModel;
 
-#[derive(Component)]
+#[derive(Clone, Component)]
 pub struct MapleCharacter {
     pub id: i32,
     pub ign: String,

@@ -21,6 +21,7 @@ use base::account::StatusCode;
 use base::inventory::InventoryTab;
 use base::skill::BaseSkill;
 use base::{account::FailedCode, character::StatsUpdate};
+use config::settings;
 use db::inventory::model::InventoryCapacityModel;
 use db::item::model::ItemModel;
 use db::keybinding::model::KeybindingModel;
@@ -29,6 +30,7 @@ use db::{character::model::CharacterModel, skill::model::SkillModel};
 use ipc::{asyncronous::db_command::DatabaseCommand, syncronous};
 use std::collections::HashMap;
 use std::sync::mpsc::Sender;
+use std::time::SystemTime;
 use tokio::sync::mpsc::Receiver;
 
 use ipc::asyncronous::event::AsyncEvent;
@@ -138,25 +140,40 @@ pub async fn db_worker(
                         db::item::getters::get_equipped_item_models_by_char_id(&pool, char_id)
                             .await?;
                     equipped_item_model_map.insert(char_id, equipped_item_models);
+                    dbg!("test2");
                     let unequipped_item_models: Vec<ItemModel> =
                         db::item::getters::get_unequipped_item_models_by_char_id(&pool, char_id)
                             .await?;
+                    dbg!("test2");
+                    // let inv_cap: InventoryCapacityModel =
+                    //     db::inventory::getters::get_inventory_slot_capacities_by_char_id(
+                    //         &pool, char_id,
+                    //     )
+                    //     .await?;
                     let inv_cap: InventoryCapacityModel =
                         db::inventory::getters::get_inventory_slot_capacities_by_char_id(
                             &pool, char_id,
                         )
-                        .await?;
+                        .await
+                        .map_err(|e| {
+                            tracing::error!("get_equipped_items failed: {:?}", e);
+                            e
+                        })?;
+                    dbg!("test2");
                     equip_tab_inv_capacity_map.insert(char_id, inv_cap.equip_slot_capacity);
                     use_tab_inv_capacity_map.insert(char_id, inv_cap.use_slot_capacity);
                     etc_tab_inv_capacity_map.insert(char_id, inv_cap.etc_slot_capacity);
                     setup_tab_inv_capacity_map.insert(char_id, inv_cap.setup_slot_capacity);
                     cash_tab_inv_capacity_map.insert(char_id, inv_cap.cash_slot_capacity);
+                    dbg!("test2");
                     let mut equip_tab_item_models: Vec<ItemModel> = Vec::new();
                     let mut use_tab_item_models: Vec<ItemModel> = Vec::new();
                     let mut etc_tab_item_models: Vec<ItemModel> = Vec::new();
                     let mut setup_tab_item_models: Vec<ItemModel> = Vec::new();
                     let mut cash_tab_item_models: Vec<ItemModel> = Vec::new();
+                    dbg!("test2");
                     for unequipped_item_model in unequipped_item_models {
+                        dbg!("test2");
                         match metadata::item::inventory::get_inventory_tab_by_wz(
                             unequipped_item_model.wz,
                         )? {
@@ -172,11 +189,13 @@ pub async fn db_worker(
                         }
                     }
                     equip_item_model_map.insert(char_id, equip_tab_item_models);
+                    dbg!("test2");
                     use_item_model_map.insert(char_id, use_tab_item_models);
                     etc_item_model_map.insert(char_id, etc_tab_item_models);
                     setup_item_model_map.insert(char_id, setup_tab_item_models);
                     cash_item_model_map.insert(char_id, cash_tab_item_models);
                 }
+                dbg!("test2");
                 let event = AsyncEvent::ListCharsSuccess {
                     client_id,
                     channel_id,
@@ -272,11 +291,19 @@ pub async fn db_worker(
                 let etc_item_model_map: HashMap<i32, Vec<ItemModel>> = HashMap::new();
                 let setup_item_model_map: HashMap<i32, Vec<ItemModel>> = HashMap::new();
                 let cash_item_model_map: HashMap<i32, Vec<ItemModel>> = HashMap::new();
-                let inv_cap_model: InventoryCapacityModel =
-                    db::inventory::getters::get_inventory_slot_capacities_by_char_id(
-                        &pool, char_id,
-                    )
-                    .await?;
+                let default_capacity: i16 = settings::get_inv_capacity()?;
+                let inv_cap_model: InventoryCapacityModel = InventoryCapacityModel {
+                    id: None,
+                    char_id,
+                    equip_slot_capacity: default_capacity,
+                    use_slot_capacity: default_capacity,
+                    etc_slot_capacity: default_capacity,
+                    setup_slot_capacity: default_capacity,
+                    cash_slot_capacity: default_capacity,
+                    created_at: Some(SystemTime::now()),
+                    updated_at: SystemTime::now(),
+                };
+                db::inventory::setters::update_inventory_capacity(&pool, &inv_cap_model).await?;
                 let mut equip_tab_inv_capacity_map: HashMap<i32, i16> = HashMap::new();
                 equip_tab_inv_capacity_map.insert(char_id, inv_cap_model.equip_slot_capacity);
                 let mut use_tab_inv_capacity_map: HashMap<i32, i16> = HashMap::new();

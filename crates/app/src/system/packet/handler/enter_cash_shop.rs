@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use crate::component::item::MapleItem;
 use crate::component::map::InMap;
 use crate::message::packet::enter_cash_shop::ReadEnterCashShopRequestMessage;
@@ -81,17 +83,20 @@ pub fn handle_enter_cash_shop(
         else {
             continue;
         };
-        let Some((filled_slot_entity, _, _)) = inv_params
+        let filled_item_slots: Vec<_> = inv_params
             .filled_slots
             .iter()
-            .find(|(_, _, parent)| parent.0 == equipped_tab_entity)
-        else {
-            continue;
-        };
-        let equips: Vec<_> = items
-            .iter()
-            .filter(|(_, parent)| parent.0 == filled_slot_entity)
+            .filter(|(_, _, parent)| parent.0 == equipped_tab_entity)
             .collect();
+        let mut equips_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
+        for (filled_item_slot_entity, _, _) in filled_item_slots {
+            let equips = items
+                .iter()
+                .filter(|(_, parent)| parent.0 == filled_item_slot_entity)
+                .map(|(e, _)| e.clone())
+                .collect();
+            equips_map.insert(char.id, equips);
+        }
 
         session.transitioning = true;
 
@@ -109,9 +114,12 @@ pub fn handle_enter_cash_shop(
         else {
             continue;
         };
-        let Ok(mut enter_cash_shop_packet) =
-            enter_cash_shop::build_enter_cash_shop_packet(acc.username.clone(), char, equips, map)
-        else {
+        let Ok(mut enter_cash_shop_packet) = enter_cash_shop::build_enter_cash_shop_packet(
+            acc.username.clone(),
+            char,
+            equips_map,
+            map,
+        ) else {
             continue;
         };
 

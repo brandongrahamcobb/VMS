@@ -216,6 +216,15 @@ pub fn get_channel_capacity() -> Result<i16, ConfigError> {
     Ok(capacity as i16)
 }
 
+pub fn get_inv_capacity() -> Result<i16, ConfigError> {
+    let settings = get_settings()?;
+    let key: &str = "inventory_capacity";
+    let capacity = settings
+        .get_int(key)
+        .map_err(|_| ConfigError::InvalidInt(key.to_string()))?;
+    Ok(capacity as i16)
+}
+
 pub fn get_channel_flag() -> Result<i16, ConfigError> {
     let settings = get_settings()?;
     let key: &str = "channel_flag";

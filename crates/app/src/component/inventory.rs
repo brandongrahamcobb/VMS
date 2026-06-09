@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use bevy::ecs::component::Component;
+use bevy::ecs::{component::Component, entity::Entity};
 
 #[derive(Component)]
 pub struct MapleInventory;
@@ -48,3 +48,6 @@ pub struct MapleSetupTab {
 pub struct MapleCashTab {
     pub capacity: i16,
 }
+
+#[derive(Component)]
+pub struct InInventory(pub Entity);

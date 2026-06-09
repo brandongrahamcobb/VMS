@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use crate::component::item::MapleItem;
 use crate::component::map::InMap;
 use crate::message::packet::player_logged_in::{
@@ -56,7 +58,6 @@ pub fn handle_player_logged_in_request(
 pub fn handle_player_logged_in_response(
     mut commands: Commands,
     client_map: Res<ClientMap>,
-    parents: Query<&ChildOf>,
     loc_params: LocationParams,
     in_params: InParams,
     session_params: SessionParams,
@@ -100,15 +101,27 @@ pub fn handle_player_logged_in_response(
         else {
             continue;
         };
-        let items: Vec<_> = items
+        let Some((equipped_tab_entity, _, _)) = inv_params
+            .equipped_tabs
             .iter()
-            .filter(|(_, parent)| {
-                parents
-                    .get(parent.parent())
-                    .map(|tab_parent| tab_parent.parent() == inv_entity)
-                    .unwrap_or(false)
-            })
+            .find(|(_, _, parent)| parent.0 == inv_entity)
+        else {
+            continue;
+        };
+        let filled_item_slots: Vec<_> = inv_params
+            .filled_slots
+            .iter()
+            .filter(|(_, _, parent)| parent.0 == equipped_tab_entity)
             .collect();
+        let mut equips_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
+        for (filled_item_slot_entity, _, _) in filled_item_slots {
+            let equips = items
+                .iter()
+                .filter(|(_, parent)| parent.0 == filled_item_slot_entity)
+                .map(|(e, _)| e.clone())
+                .collect();
+            equips_map.insert(char.id, equips);
+        }
         let binds: Vec<_> = session_params
             .keybindings
             .iter()
@@ -119,9 +132,12 @@ pub fn handle_player_logged_in_response(
         else {
             continue;
         };
-        let Ok(mut set_field_packet) =
-            codec::player::builder::build_set_field_packet(&char, items, channel.id, map.base.wz)
-        else {
+        let Ok(mut set_field_packet) = codec::player::builder::build_set_field_packet(
+            &char,
+            equips_map,
+            channel.id,
+            map.base.wz,
+        ) else {
             continue;
         };
 

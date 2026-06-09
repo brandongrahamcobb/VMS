@@ -17,6 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
+use crate::component::character::MapleCharacter;
 use crate::component::item::MapleItem;
 use crate::message::packet::create_char::{
     CreateCharResponseMessage, ReadCreateCharRequestMessage,
@@ -25,12 +28,13 @@ use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::create_char;
 use crate::system::packet::handler::codec::spawn_char;
-use crate::system::system_params::{InParams, InventoryParams, LocationParams, SessionParams};
+use crate::system::system_params::{InParams, LocationParams, SessionParams};
 use action::model::Action;
 use action::scope::ActionScope;
+use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Commands, Query, Res};
+use bevy::ecs::system::{Commands, Res};
 use db::character::model::CharacterModel;
 use ipc::asyncronous::command::AsyncCommand;
 use ipc::asyncronous::db_command::DatabaseCommand;
@@ -93,11 +97,7 @@ pub fn handle_create_char_request(
 pub fn handle_create_char_response(
     mut commands: Commands,
     client_map: Res<ClientMap>,
-    loc_params: LocationParams,
     in_params: InParams,
-    session_params: SessionParams,
-    inv_params: InventoryParams,
-    items: Query<(&MapleItem, &ChildOf)>,
     mut messages: MessageReader<CreateCharResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -105,25 +105,14 @@ pub fn handle_create_char_response(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
-            continue;
-        };
         let Ok(in_acc) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
-        let Some((char_entity, char, _)) = session_params
-            .chars
-            .iter()
-            .find(|(_, c, parent)| c.id == msg.char_id && parent.0 == in_acc.0)
-        else {
-            continue;
-        };
-        let chars: Vec<_> = session_params
-            .chars
-            .iter()
-            .filter(|(_, c, parent)| c.id == msg.char_id && parent.0 == in_acc.0)
-            .collect();
-        spawn_char::spawn_char(
+        let char: MapleCharacter = MapleCharacter::from(msg.char_model.clone());
+        let char_entity = commands.spawn((char.clone(), ChildOf(in_acc.0))).id();
+        let mut chars: HashMap<i32, (Entity, MapleCharacter)> = HashMap::new();
+        chars.insert(msg.char_id, (char_entity, char.clone()));
+        let equips_map: HashMap<i32, Vec<MapleItem>> = spawn_char::spawn_char_with_equips(
             &mut commands,
             chars,
             &msg.equipped_item_model_map,
@@ -138,40 +127,8 @@ pub fn handle_create_char_response(
             &msg.setup_tab_inv_capacity_map,
             &msg.cash_tab_inv_capacity_map,
         );
-        let Some((_, map, _)) = loc_params
-            .maps
-            .iter()
-            .find(|(_, m, parent)| m.base.wz == char.map_wz && parent.0 == in_channel.0)
-        else {
-            continue;
-        };
-        let Some((inv_entity, _, _)) = inv_params
-            .inventories
-            .iter()
-            .find(|(_, _, parent)| parent.0 == char_entity)
-        else {
-            continue;
-        };
-        let Some((equipped_tab_entity, _, _)) = inv_params
-            .equipped_tabs
-            .iter()
-            .find(|(_, _, parent)| parent.0 == inv_entity)
-        else {
-            continue;
-        };
-        let Some((filled_slot_entity, _, _)) = inv_params
-            .filled_slots
-            .iter()
-            .find(|(_, _, parent)| parent.0 == equipped_tab_entity)
-        else {
-            continue;
-        };
-        let equips: Vec<_> = items
-            .iter()
-            .filter(|(_, parent)| parent.0 == filled_slot_entity)
-            .collect();
-
-        let Ok(mut create_char_packet) = create_char::build_create_char_packet(&char, equips, &map)
+        let Ok(mut create_char_packet) =
+            create_char::build_create_char_packet(&char, equips_map, char.map_wz)
         else {
             continue;
         };

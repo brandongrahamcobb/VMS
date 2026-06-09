@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use crate::component::item::MapleItem;
 use crate::message::packet::player_map_transferred::ReadPlayerMapTransferRequestMessage;
 use crate::message::result::HandlerResult;
@@ -65,15 +67,31 @@ pub fn handle_player_map_transfer(
         else {
             continue;
         };
-        let items: Vec<_> = items
+        let Some((equipped_tab_entity, _, _)) = inv_params
+            .equipped_tabs
             .iter()
-            .filter(|(_, parent)| parent.0 == inv_entity)
+            .find(|(_, _, parent)| parent.0 == inv_entity)
+        else {
+            continue;
+        };
+        let filled_item_slots: Vec<_> = inv_params
+            .filled_slots
+            .iter()
+            .filter(|(_, _, parent)| parent.0 == equipped_tab_entity)
             .collect();
-
+        let mut equips_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
+        for (filled_item_slot_entity, _, _) in filled_item_slots {
+            let equips = items
+                .iter()
+                .filter(|(_, parent)| parent.0 == filled_item_slot_entity)
+                .map(|(e, _)| e.clone())
+                .collect();
+            equips_map.insert(char.id, equips);
+        }
         session.transitioning = false;
 
         let Ok(mut spawn_player_packet) =
-            codec::player::builder::build_spawn_player_packet(char, items)
+            codec::player::builder::build_spawn_player_packet(char, equips_map)
         else {
             continue;
         };

@@ -12,8 +12,8 @@ pub fn spawn_item(
     cid: i32,
     item_map: &HashMap<i32, Vec<ItemModel>>,
     tab_entity: Entity,
-) -> HashMap<MapleFilledItemSlot, MapleItem> {
-    let mut filled_slots: HashMap<MapleFilledItemSlot, MapleItem> = HashMap::new();
+) -> Vec<MapleItem> {
+    let mut filled_slots: Vec<MapleItem> = Vec::new();
     for (char_id, item_models) in item_map {
         if *char_id == cid {
             for item_model in item_models.clone() {
@@ -27,7 +27,7 @@ pub fn spawn_item(
                     let filled_slot_entity =
                         commands.spawn((filled_slot, ChildOf(tab_entity))).id();
                     commands.spawn((item.clone(), ChildOf(filled_slot_entity)));
-                    filled_slots.insert(filled_slot, item);
+                    filled_slots.push(item);
                 }
             }
         }

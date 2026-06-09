@@ -24,6 +24,7 @@ services:
       - .env
     environment:
       POSTGRES_HOST: db
+      WZ_DIRECTORY: /app/data
     volumes:
       - vms-backups:/app/backups
       - ./data:/app/data

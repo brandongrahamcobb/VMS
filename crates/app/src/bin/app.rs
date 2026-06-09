@@ -25,7 +25,7 @@ use app::plugin::response_plugin::ResponsePlugin;
 use app::plugin::server_plugin::CustomServerPlugin;
 use bevy::MinimalPlugins;
 use bevy::app::App;
-use bevy_renet::netcode::{NetcodeClientPlugin, NetcodeServerTransport, ServerConfig};
+use bevy_renet::netcode::{NetcodeServerTransport, ServerConfig};
 use bevy_renet::renet::ConnectionConfig;
 use bevy_renet::{RenetServer, RenetServerPlugin};
 use config::error::ConfigError;
@@ -42,7 +42,6 @@ fn main() -> () {
     let mut app = App::new();
     app.add_plugins(MinimalPlugins)
         .add_plugins(RenetServerPlugin)
-        // .add_plugins(NetcodeClientPlugin)
         .add_plugins(RequestPlugin)
         .add_plugins(ResponsePlugin)
         .add_plugins(PacketDispatchPlugin)

@@ -17,65 +17,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use crate::component::character::MapleCharacter;
-use crate::component::inventory::{MapleEquippedTab, MapleInventory};
 use crate::component::item::MapleItem;
-use crate::component::map::MapleMap;
-use crate::component::slot::MapleFilledItemSlot;
 use crate::system::packet::build::codec;
 use crate::system::packet::build::error::PacketBuildError;
 use bevy::ecs::entity::Entity;
-use bevy::ecs::hierarchy::ChildOf;
-use bevy::ecs::system::Query;
 use net::packet::io::error::IOError::WriteError;
 use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use op::send::SendOpcode;
 
 pub fn build_list_chars_packet(
-    chars: Vec<(Entity, &MapleCharacter, &ChildOf)>,
-    items: Query<(&MapleItem, &ChildOf)>,
-    inventories: Query<(Entity, &MapleInventory, &ChildOf)>,
-    equipped_tabs: Query<(Entity, &MapleEquippedTab, &ChildOf)>,
-    filled_slots: Query<(Entity, &MapleFilledItemSlot, &ChildOf)>,
-    maps: Query<(Entity, &MapleMap, &ChildOf)>,
+    chars: HashMap<i32, (Entity, MapleCharacter)>,
+    equips_map: HashMap<i32, Vec<MapleItem>>,
     channel_id: u8,
     char_slots: i16,
     pic_status: i16,
-    world_id: i16,
 ) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::CharList as i16;
     packet.write_short(op).map_err(WriteError)?;
     packet.write_byte(channel_id as i16).map_err(WriteError)?;
     packet.write_byte(chars.len() as i16).map_err(WriteError)?;
-    for (char_entity, char, _) in chars.iter().filter(|(_, c, _)| c.world_id == world_id) {
-        let Some((inv_entity, _, _)) = inventories
-            .iter()
-            .find(|(_, _, parent)| parent.0 == *char_entity)
-        else {
-            continue;
-        };
-        let Some((equipped_tab_entity, _, _)) = equipped_tabs
-            .iter()
-            .find(|(_, _, parent)| parent.0 == inv_entity)
-        else {
-            continue;
-        };
-        let Some((filled_slot_entity, _, _)) = filled_slots
-            .iter()
-            .find(|(_, _, parent)| parent.0 == equipped_tab_entity)
-        else {
-            continue;
-        };
-        let equips: Vec<_> = items
-            .iter()
-            .filter(|(_, parent)| parent.0 == filled_slot_entity)
-            .collect();
-        let Some((_, map, _)) = maps.iter().find(|(_, m, _)| m.base.wz == char.map_wz) else {
-            continue;
-        };
-        build_look_part_packet(&mut packet, char, equips, map)?;
+    for (_char_id, (_, char)) in chars.iter() {
+        build_look_part_packet(&mut packet, char, equips_map.clone(), char.map_wz)?;
     }
     packet.write_byte(pic_status).map_err(WriteError)?;
     packet.write_int(char_slots as i32).map_err(WriteError)?;
@@ -85,11 +52,11 @@ pub fn build_list_chars_packet(
 fn build_look_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-    equips: Vec<(&MapleItem, &ChildOf)>,
-    map: &MapleMap,
+    equips_map: HashMap<i32, Vec<MapleItem>>,
+    map_wz: i32,
 ) -> Result<(), PacketBuildError> {
-    codec::player::builder::build_list_char_meta_part_packet(packet, char, map)?;
-    codec::player::builder::build_look_meta_part_packet(packet, char, equips)?;
+    codec::player::builder::build_list_char_meta_part_packet(packet, char, map_wz)?;
+    codec::player::builder::build_look_meta_part_packet(packet, char, equips_map)?;
     packet.write_byte(0).map_err(WriteError)?;
     // Disable rank.
     packet.write_byte(0).map_err(WriteError)?;
