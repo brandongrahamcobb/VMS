@@ -23,7 +23,7 @@ use crate::component::character::InChar;
 use crate::component::session::Transitioning;
 use crate::message::packet::select_char::ReadSelectCharRequestMessage;
 use crate::message::result::HandlerResult;
-use crate::resource::custom_resource::ClientMap;
+use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::codec;
 use crate::system::system_params::{InParams, LocationParams, SessionParams};
 use action::model::Action;
@@ -33,9 +33,11 @@ use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Res};
 use config::settings;
 use inc::helpers;
+use ipc::command::AsyncCommand;
 
 pub fn handle_select_char(
     mut commands: Commands,
+    command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
     loc_params: LocationParams,
     in_params: InParams,
@@ -61,13 +63,6 @@ pub fn handle_select_char(
         let Ok(in_session) = in_params.in_sessions.get(client_entity) else {
             continue;
         };
-        let Some((session_entity, _, _)) = session_params
-            .sessions
-            .iter()
-            .find(|(_, _, parent)| parent.0 == in_session.0)
-        else {
-            continue;
-        };
         let Some((char_entity, char, _)) = session_params
             .chars
             .iter()
@@ -75,12 +70,20 @@ pub fn handle_select_char(
         else {
             continue;
         };
-        commands.entity(session_entity).insert(Transitioning {
+        commands.entity(in_session.0).insert(Transitioning {
             map_wz: char.map_wz,
             started_at: Instant::now(),
         });
 
         commands.entity(client_entity).insert(InChar(char_entity));
+
+        command_tx
+            .0
+            .send(AsyncCommand::AcceptTransition {
+                client_id: msg.client_id,
+                port: channel.port,
+            })
+            .unwrap();
 
         let Ok(mut select_char_packet) =
             codec::login::builder::build_select_char_packet(msg.char_id, octets, channel.port)

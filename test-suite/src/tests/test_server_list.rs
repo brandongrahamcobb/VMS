@@ -1,10 +1,10 @@
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
 use config::settings;
-use op::recv::RecvOpcode;
 use net::packet::io::error::IOError::{ReadError, WriteError};
-use net::packet::model::Packet;
 use net::packet::io::prelude::*;
+use net::packet::model::Packet;
+use op::recv::RecvOpcode;
 use std::io::Cursor;
 
 pub const PHASE: &str = "server list";
@@ -13,6 +13,8 @@ pub const PHASE: &str = "server list";
 pub enum ServerListResult {
     WorldDetails,
     EndOfList,
+    LastConnectedWorld,
+    RecommendedWorlds,
 }
 
 pub async fn assert_server_list_request(
@@ -36,7 +38,7 @@ fn build_server_list_request() -> Result<Packet, HarnessError> {
 
 fn read_server_list_request_packet(packet: &Packet) -> Result<ServerListResult, HarnessError> {
     let mut cursor = Cursor::new(&packet.bytes[..]);
-    cursor
+    let opcode = cursor
         .read_short()
         .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
     let marker = cursor

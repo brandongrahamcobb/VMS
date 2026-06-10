@@ -10,4 +10,4 @@ pub mod map;
 pub mod mob;
 pub mod portal;
 pub mod skill;
-
+pub mod world;

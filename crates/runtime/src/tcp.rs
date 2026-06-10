@@ -30,6 +30,7 @@ use ipc::event::AsyncEvent;
 use net::packet::model::Packet;
 use std::collections::HashMap;
 use std::sync::mpsc::{Receiver, Sender};
+use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener;
 use tokio::sync::mpsc;
 use tracing::info;
@@ -124,7 +125,6 @@ impl LoginServer {
                 }
                 Err(e) => info!("Login listener error: {}", e),
             }
-            tokio::task::yield_now().await;
         }
     }
 }
@@ -138,51 +138,89 @@ impl PlayerServer {
         mut transition_rx: mpsc::Receiver<AsyncCommand>,
     ) -> Result<(), RuntimeError> {
         let addr = settings::get_bind_address()?;
-        loop {
-            if let Some(AsyncCommand::AcceptTransition { client_id, port }) =
-                transition_rx.recv().await
-            {
-                let bind: SocketAddr = helpers::build_server_addr(addr.clone(), port);
-                let listener = TcpListener::bind(bind).await?;
+        let expected: Arc<Mutex<HashMap<i16, i32>>> = Arc::new(Mutex::new(HashMap::new()));
+        let base_ports = inc::world::get_base_ports();
+        for base_port in base_ports {
+            let ports = inc::channel::get_channel_ports(base_port);
+            for port in ports {
+                let expected = expected.clone();
                 let event_tx = event_tx.clone();
                 let register_tx = register_tx.clone();
-                match listener.accept().await {
-                    Ok((stream, _)) => {
-                        let (tx, rx) = mpsc::channel::<Packet>(32);
-                        register_tx.send(Register { id: client_id, tx }).await?;
-                        event_tx
-                            .send(AsyncEvent::ClientConnected { client_id })
-                            .unwrap();
-                        match Runtime::new(stream).await {
-                            Ok(runtime) => {
-                                match runtime.run(client_id, event_tx.clone(), rx).await {
-                                    Ok(_) => {
-                                        event_tx
-                                            .send(AsyncEvent::ClientDisconnected { client_id })
-                                            .unwrap();
+                let bind: SocketAddr = helpers::build_server_addr(addr.clone(), port);
+                tokio::spawn(async move {
+                    let listener = match TcpListener::bind(bind).await {
+                        Ok(listener) => listener,
+                        Err(e) => {
+                            info!("Failed to bind {}: {}", port, e);
+                            return;
+                        }
+                    };
+                    loop {
+                        match listener.accept().await {
+                            Ok((stream, _)) => {
+                                let client_id = expected.lock().unwrap().remove(&port);
+                                if let Some(client_id) = client_id {
+                                    let (tx, rx) = mpsc::channel::<Packet>(32);
+                                    if register_tx
+                                        .send(Register { id: client_id, tx })
+                                        .await
+                                        .is_err()
+                                    {
+                                        return;
                                     }
-                                    Err(e) => {
-                                        info!("Player runtime error: {}", e);
-                                        event_tx
-                                            .send(AsyncEvent::ClientDisconnected { client_id })
-                                            .unwrap();
-                                    }
+                                    event_tx
+                                        .send(AsyncEvent::ClientConnected { client_id })
+                                        .unwrap();
+                                    let event_tx = event_tx.clone();
+                                    tokio::spawn(async move {
+                                        match Runtime::new(stream).await {
+                                            Ok(runtime) => {
+                                                match runtime
+                                                    .run(client_id, event_tx.clone(), rx)
+                                                    .await
+                                                {
+                                                    Ok(_) => {
+                                                        event_tx
+                                                            .send(AsyncEvent::ClientDisconnected {
+                                                                client_id,
+                                                            })
+                                                            .unwrap();
+                                                    }
+                                                    Err(e) => {
+                                                        info!("Player runtime error: {}", e);
+                                                        event_tx
+                                                            .send(AsyncEvent::ClientDisconnected {
+                                                                client_id,
+                                                            })
+                                                            .unwrap();
+                                                    }
+                                                }
+                                            }
+                                            Err(e) => {
+                                                event_tx
+                                                    .send(AsyncEvent::ClientDisconnected {
+                                                        client_id,
+                                                    })
+                                                    .unwrap();
+                                                info!("Player runtime init error: {}", e);
+                                            }
+                                        }
+                                    });
                                 }
                             }
                             Err(e) => {
-                                event_tx
-                                    .send(AsyncEvent::ClientDisconnected { client_id })
-                                    .unwrap();
-                                info!("Player runtime init error: {}", e);
+                                info!("Player listener error: {}", e)
                             }
                         }
                     }
-                    Err(e) => {
-                        info!("Player listener error: {}", e)
-                    }
-                };
+                });
             }
-            tokio::task::yield_now().await;
         }
+        while let Some(AsyncCommand::AcceptTransition { client_id, port }) =
+            transition_rx.recv().await
+        {
+            expected.lock().unwrap().insert(port, client_id);
+        }
+        Ok(())
     }
 }

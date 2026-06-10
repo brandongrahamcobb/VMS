@@ -1,5 +1,5 @@
-/* app/src/resource/custom_resource.rs
- * The purpose of this module is to define custom resources.
+/* helpers.rs
+ * The purpose of this module is to provide project-wide functions.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -16,20 +16,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use std::collections::HashMap;
-use std::sync::Mutex;
-use std::sync::mpsc::{Receiver, Sender};
 
-use bevy::ecs::entity::Entity;
-use bevy::ecs::resource::Resource;
-use ipc::command::AsyncCommand;
-use ipc::event::AsyncEvent;
+use config::settings;
 
-#[derive(Resource)]
-pub struct CustomReceiver(pub Mutex<Receiver<AsyncEvent>>);
-
-#[derive(Resource)]
-pub struct CustomSender(pub Sender<AsyncCommand>);
-
-#[derive(Resource)]
-pub struct ClientMap(pub HashMap<i32, Entity>);
+pub fn get_channel_ports(base_port: i16) -> Vec<i16> {
+    let mut ports: Vec<i16> = Vec::new();
+    let first_port: i16 = base_port + 1;
+    let count: u8 = settings::get_channel_count().unwrap_or(3);
+    for offset in 0..count {
+        let port: i16 = (first_port + offset as i16) as i16;
+        ports.push(port)
+    }
+    ports
+}

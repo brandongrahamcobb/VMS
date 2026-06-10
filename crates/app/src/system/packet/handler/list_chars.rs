@@ -67,7 +67,10 @@ pub fn handle_load_char_slots(
         let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
             continue;
         };
-        let Some((world_entity, _)) = loc_params.worlds.iter().find(|(_, w)| w.id == msg.world_id)
+        let Some((world_entity, _)) = loc_params
+            .worlds
+            .iter()
+            .find(|(_, w)| w.base.id == msg.world_id)
         else {
             continue;
         };
@@ -85,8 +88,6 @@ pub fn handle_load_char_slots(
             .insert(InChannel(channel_entity));
         command_tx
             .0
-            .lock()
-            .unwrap()
             .send(AsyncCommand::DatabaseOperation(
                 DatabaseCommand::ListCharsRequest {
                     client_id: msg.client_id,

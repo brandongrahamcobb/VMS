@@ -21,33 +21,32 @@ use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::system::Commands;
 use config::settings;
 
-use crate::component;
 use crate::component::channel::MapleChannel;
+use crate::component::world::MapleWorld;
 
 pub fn spawn_worlds(mut commands: Commands) {
-    for world_component in component::world::WORLDS {
-        let world_entity = commands.spawn(world_component.clone()).id();
-        spawn_channels(&mut commands, world_component.base_port, world_entity);
+    for base_world in base::world::WORLDS {
+        let world: MapleWorld = MapleWorld { base: *base_world };
+        let world_entity = commands.spawn(world.clone()).id();
+        spawn_channels(&mut commands, world.base.base_port, world_entity);
     }
 }
 
 fn spawn_channels(commands: &mut Commands, base_port: i16, world_entity: Entity) {
-    let first_port: i16 = base_port + 1;
-    let count: u8 = settings::get_channel_count().unwrap_or(3);
-    for offset in 0..count {
+    let ports = inc::channel::get_channel_ports(base_port);
+    for (id, port) in ports.iter().enumerate() {
         let Ok(capacity) = settings::get_channel_capacity() else {
             continue;
         };
         let Ok(flag) = settings::get_channel_flag() else {
             continue;
         };
-        let port: i16 = (first_port + offset as i16) as i16;
         commands.spawn((
             MapleChannel {
-                id: offset,
+                id: id as u8,
                 capacity,
                 flag,
-                port,
+                port: *port,
             },
             ChildOf(world_entity),
         ));

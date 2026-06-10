@@ -69,8 +69,6 @@ pub fn handle_delete_char_request(
             commands.entity(char_entity).despawn();
             command_tx
                 .0
-                .lock()
-                .unwrap()
                 .send(AsyncCommand::DatabaseOperation(
                     DatabaseCommand::DeleteCharRequest {
                         client_id: msg.client_id,

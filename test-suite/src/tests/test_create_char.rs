@@ -2,10 +2,10 @@ use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
 use crate::tests::test_char_list::{self, CharacterResult};
 use crate::tests::test_credentials::GENDER_WZ;
-use op::recv::RecvOpcode;
 use net::packet::io::error::IOError::{ReadError, WriteError};
-use net::packet::model::Packet;
 use net::packet::io::prelude::*;
+use net::packet::model::Packet;
+use op::recv::RecvOpcode;
 use std::io::Cursor;
 
 pub const PHASE: &str = "character creation";
@@ -17,7 +17,7 @@ const TOP_WZ: i32 = 1040002;
 const BOTTOM_WZ: i32 = 1060002;
 const SHOES_WZ: i32 = 1072001;
 const WEAPON_WZ: i32 = 1302000;
-const JOB_WZ: i16 = 0;
+const JOB_WZ: i16 = 1;
 const SUCCESS_STATUS: i32 = 0;
 
 pub struct NewCharacterResult {

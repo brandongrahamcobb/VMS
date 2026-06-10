@@ -65,7 +65,7 @@ pub fn mob_respawn_system(
                 Action::TickAction {
                     packet: spawn_mob_packet.finish(),
                     scope: TickScope::Map {
-                        world_id: world.id,
+                        world_id: world.base.id,
                         channel_id: channel.id,
                         map_wz: map.base.wz,
                     },
@@ -73,7 +73,7 @@ pub fn mob_respawn_system(
                 Action::TickAction {
                     packet: spawn_mob_controller_packet.finish(),
                     scope: TickScope::Map {
-                        world_id: world.id,
+                        world_id: world.base.id,
                         channel_id: channel.id,
                         map_wz: map.base.wz,
                     },

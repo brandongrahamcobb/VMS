@@ -64,8 +64,6 @@ pub fn handle_pickup_item_request(
 
         command_tx
             .0
-            .lock()
-            .unwrap()
             .send(AsyncCommand::DatabaseOperation(
                 DatabaseCommand::PickupItem {
                     client_id: msg.client_id,

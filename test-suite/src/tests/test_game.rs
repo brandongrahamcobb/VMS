@@ -39,7 +39,7 @@ pub async fn login_until_redirect(
     let conn = test_server_list::assert_server_list_request(conn).await?;
     let conn = test_last_connected_world::assert_last_connected_world(conn).await?;
     let conn = test_recommended_world::assert_recommended_world(conn).await?;
-    let (world_id, conn) = test_char_list::assert_char_list_request(pool, conn, acc_id).await?;
+    let (world_id, conn) = test_char_list::assert_char_list_request(conn).await?;
     let (char_id, conn) = test_create_char::assert_create_char(conn, char_ign).await?;
     let port = test_server_redirect::assert_server_redirect(conn, char_id).await?;
     Ok(LoginDetails {

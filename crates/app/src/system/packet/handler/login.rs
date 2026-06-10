@@ -66,8 +66,6 @@ pub fn handle_login_request(
         }
         command_tx
             .0
-            .lock()
-            .unwrap()
             .send(AsyncCommand::DatabaseOperation(
                 DatabaseCommand::LoginRequest {
                     client_id: msg.client_id,

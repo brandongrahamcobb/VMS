@@ -51,7 +51,7 @@ impl Plugin for CustomServerPlugin {
                             });
                         });
                         app.insert_resource(CustomReceiver(Mutex::new(event_rx)))
-                            .insert_resource(CustomSender(Mutex::new(command_tx)))
+                            .insert_resource(CustomSender(command_tx))
                             .insert_resource(ClientMap(HashMap::new()))
                             .add_systems(Startup, startup::spawn_worlds)
                             .add_systems(

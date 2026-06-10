@@ -53,8 +53,6 @@ pub fn handle_tos(
         if accepted {
             command_tx
                 .0
-                .lock()
-                .unwrap()
                 .send(AsyncCommand::DatabaseOperation(
                     DatabaseCommand::AcceptTosRequest {
                         client_id: msg.client_id,

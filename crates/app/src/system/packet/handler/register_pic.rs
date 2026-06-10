@@ -50,8 +50,6 @@ pub fn handle_register_pic(
 
         command_tx
             .0
-            .lock()
-            .unwrap()
             .send(AsyncCommand::DatabaseOperation(
                 DatabaseCommand::ChangePicRequest {
                     client_id: msg.client_id,

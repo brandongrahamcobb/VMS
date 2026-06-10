@@ -37,8 +37,6 @@ pub fn handle_check_char_name_request(
     for msg in messages.read() {
         command_tx
             .0
-            .lock()
-            .unwrap()
             .send(AsyncCommand::DatabaseOperation(
                 DatabaseCommand::CharNameRequest {
                     client_id: msg.client_id,

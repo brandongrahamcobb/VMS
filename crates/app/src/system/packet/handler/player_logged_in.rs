@@ -44,8 +44,6 @@ pub fn handle_player_logged_in_request(
     for msg in messages.read() {
         command_tx
             .0
-            .lock()
-            .unwrap()
             .send(AsyncCommand::DatabaseOperation(
                 DatabaseCommand::JoinRequest {
                     client_id: msg.client_id,

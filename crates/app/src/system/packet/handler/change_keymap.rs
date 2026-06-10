@@ -62,8 +62,6 @@ pub fn handle_change_keymap(
                 .collect();
         command_tx
             .0
-            .lock()
-            .unwrap()
             .send(AsyncCommand::DatabaseOperation(
                 DatabaseCommand::UpdateKeybindings {
                     client_id: msg.client_id,

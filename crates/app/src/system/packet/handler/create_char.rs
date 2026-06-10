@@ -66,7 +66,7 @@ pub fn handle_create_char_request(
 
         let char_model: CharacterModel = inc::character::create_new_char_model(
             acc.id,
-            world.id,
+            world.base.id,
             msg.ign.clone(),
             msg.job_wz,
             msg.face_wz,
@@ -78,8 +78,6 @@ pub fn handle_create_char_request(
 
         command_tx
             .0
-            .lock()
-            .unwrap()
             .send(AsyncCommand::DatabaseOperation(
                 DatabaseCommand::CreateCharRequest {
                     client_id: msg.client_id,

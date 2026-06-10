@@ -108,6 +108,7 @@ pub async fn db_worker(
                 )
                 .await
                 .unwrap_or(8);
+
                 let char_models: Vec<CharacterModel> =
                     db::character::getters::get_char_models_by_acc_id_and_world_id(
                         &pool, acc_id, world_id,

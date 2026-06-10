@@ -45,8 +45,6 @@ pub fn result_handler_system(
                         for (client_id, _) in client_map.0.iter() {
                             command_tx
                                 .0
-                                .lock()
-                                .unwrap()
                                 .send(AsyncCommand::SendPacket {
                                     client_id: *client_id,
                                     packet: packet.clone(),
@@ -72,8 +70,6 @@ pub fn result_handler_system(
                         for client_id in client_ids {
                             command_tx
                                 .0
-                                .lock()
-                                .unwrap()
                                 .send(AsyncCommand::SendPacket {
                                     client_id,
                                     packet: packet.clone(),
@@ -110,8 +106,6 @@ pub fn result_handler_system(
                                 for client_id in client_ids {
                                     command_tx
                                         .0
-                                        .lock()
-                                        .unwrap()
                                         .send(AsyncCommand::SendPacket {
                                             client_id,
                                             packet: packet.clone(),
@@ -134,8 +128,6 @@ pub fn result_handler_system(
                                 for client_id in client_ids {
                                     command_tx
                                         .0
-                                        .lock()
-                                        .unwrap()
                                         .send(AsyncCommand::SendPacket {
                                             client_id,
                                             packet: packet.clone(),
@@ -176,8 +168,6 @@ pub fn result_handler_system(
                                 for client_id in client_ids {
                                     command_tx
                                         .0
-                                        .lock()
-                                        .unwrap()
                                         .send(AsyncCommand::SendPacket {
                                             client_id,
                                             packet: packet.clone(),
@@ -204,8 +194,6 @@ pub fn result_handler_system(
                                 for client_id in client_ids {
                                     command_tx
                                         .0
-                                        .lock()
-                                        .unwrap()
                                         .send(AsyncCommand::SendPacket {
                                             client_id,
                                             packet: packet.clone(),
@@ -235,8 +223,6 @@ pub fn result_handler_system(
                                 for client_id in client_ids {
                                     command_tx
                                         .0
-                                        .lock()
-                                        .unwrap()
                                         .send(AsyncCommand::SendPacket {
                                             client_id,
                                             packet: packet.clone(),
@@ -249,8 +235,6 @@ pub fn result_handler_system(
                     ActionScope::Local => {
                         command_tx
                             .0
-                            .lock()
-                            .unwrap()
                             .send(AsyncCommand::SendPacket {
                                 client_id: msg.client_id,
                                 packet: packet.clone(),

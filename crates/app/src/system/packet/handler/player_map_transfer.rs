@@ -67,8 +67,6 @@ pub fn handle_player_map_transfer_request(
 
         command_tx
             .0
-            .lock()
-            .unwrap()
             .send(AsyncCommand::DatabaseOperation(
                 DatabaseCommand::UpdateMapRequest {
                     client_id: msg.client_id,

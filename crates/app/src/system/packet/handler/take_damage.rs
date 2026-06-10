@@ -96,8 +96,6 @@ pub fn handle_take_damage(
             let update = StatsUpdate::Health { hp: max_hp };
             command_tx
                 .0
-                .lock()
-                .unwrap()
                 .send(AsyncCommand::DatabaseOperation(
                     DatabaseCommand::UpdateStats {
                         client_id: msg.client_id,

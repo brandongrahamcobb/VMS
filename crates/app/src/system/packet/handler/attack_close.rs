@@ -81,8 +81,6 @@ pub fn handle_close_attack_request(
 
         command_tx
             .0
-            .lock()
-            .unwrap()
             .send(AsyncCommand::DatabaseOperation(
                 DatabaseCommand::CloseAttackRequest {
                     client_id: msg.client_id,
@@ -119,8 +117,6 @@ pub fn handle_close_attack_request(
             if hp_percent == 0 {
                 command_tx
                     .0
-                    .lock()
-                    .unwrap()
                     .send(AsyncCommand::DatabaseOperation(
                         DatabaseCommand::DeadMobRequest {
                             client_id: msg.client_id,
@@ -246,8 +242,6 @@ pub fn handle_dead_mob(
         }
         command_tx
             .0
-            .lock()
-            .unwrap()
             .send(AsyncCommand::DatabaseOperation(
                 DatabaseCommand::UpdateStats {
                     client_id: msg.client_id,

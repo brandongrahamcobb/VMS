@@ -190,6 +190,43 @@ ALTER SEQUENCE public.characters_id_seq OWNED BY public.characters.id;
 
 
 --
+-- Name: drops; Type: TABLE; Schema: public; Owner: vms
+--
+
+CREATE TABLE public.drops (
+    id bigint NOT NULL,
+    mob_wz integer NOT NULL,
+    item_wz integer DEFAULT 0 NOT NULL,
+    minimum_quantity integer DEFAULT 1 NOT NULL,
+    maximum_quantity integer DEFAULT 1 NOT NULL,
+    chance integer DEFAULT 0 NOT NULL
+);
+
+
+ALTER TABLE public.drops OWNER TO vms;
+
+--
+-- Name: drops_id_seq; Type: SEQUENCE; Schema: public; Owner: vms
+--
+
+CREATE SEQUENCE public.drops_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.drops_id_seq OWNER TO vms;
+
+--
+-- Name: drops_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: vms
+--
+
+ALTER SEQUENCE public.drops_id_seq OWNED BY public.drops.id;
+
+
+--
 -- Name: inventory_capacity; Type: TABLE; Schema: public; Owner: vms
 --
 
@@ -262,7 +299,8 @@ CREATE TABLE public.items (
     item_level smallint NOT NULL,
     flag smallint NOT NULL,
     item_exp smallint NOT NULL,
-    vicious integer NOT NULL
+    vicious integer NOT NULL,
+    equipped boolean NOT NULL
 );
 
 
@@ -368,6 +406,13 @@ ALTER TABLE ONLY public.characters ALTER COLUMN id SET DEFAULT nextval('public.c
 
 
 --
+-- Name: drops id; Type: DEFAULT; Schema: public; Owner: vms
+--
+
+ALTER TABLE ONLY public.drops ALTER COLUMN id SET DEFAULT nextval('public.drops_id_seq'::regclass);
+
+
+--
 -- Name: inventory_capacity id; Type: DEFAULT; Schema: public; Owner: vms
 --
 
@@ -379,112 +424,6 @@ ALTER TABLE ONLY public.inventory_capacity ALTER COLUMN id SET DEFAULT nextval('
 --
 
 ALTER TABLE ONLY public.items ALTER COLUMN id SET DEFAULT nextval('public.items_id_seq'::regclass);
-
-
---
--- Data for Name: __diesel_schema_migrations; Type: TABLE DATA; Schema: public; Owner: vms
---
-
-COPY public.__diesel_schema_migrations (version, run_on) FROM stdin;
-\.
-
-
---
--- Data for Name: accounts; Type: TABLE DATA; Schema: public; Owner: vms
---
-
-COPY public.accounts (id, username, password, pin, pic, last_login_at, gender_wz, accepted_tos, banned, admin, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: character_limits; Type: TABLE DATA; Schema: public; Owner: vms
---
-
-COPY public.character_limits (id, acc_id, world_id, char_max, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: characters; Type: TABLE DATA; Schema: public; Owner: vms
---
-
-COPY public.characters (id, acc_id, world_id, map_wz, ign, level, exp, strength, dexterity, luck, intelligence, hp, mp, max_hp, max_mp, ap, sp, fame, meso, job_wz, face_wz, hair_wz, hair_color_wz, skin_wz, gender_wz, created_at, updated_at, last_portal) FROM stdin;
-\.
-
-
---
--- Data for Name: inventory_capacity; Type: TABLE DATA; Schema: public; Owner: vms
---
-
-COPY public.inventory_capacity (id, char_id, equip_slot_capacity, use_slot_capacity, etc_slot_capacity, setup_slot_capacity, cash_slot_capacity, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: items; Type: TABLE DATA; Schema: public; Owner: vms
---
-
-COPY public.items (id, char_id, wz, ipos, strength, dexterity, intelligence, luck, attack, weapon_defense, magic, magic_defense, hp, mp, accuracy, avoid, hands, speed, jump, created_at, updated_at, slots, expire, level, item_level, flag, item_exp, vicious) FROM stdin;
-\.
-
-
---
--- Data for Name: keybindings; Type: TABLE DATA; Schema: public; Owner: vms
---
-
-COPY public.keybindings (id, char_id, key, bind_type, action, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: skills; Type: TABLE DATA; Schema: public; Owner: vms
---
-
-COPY public.skills (id, char_id, wz, level, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Name: accounts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: vms
---
-
-SELECT pg_catalog.setval('public.accounts_id_seq', 1, false);
-
-
---
--- Name: characters_id_seq; Type: SEQUENCE SET; Schema: public; Owner: vms
---
-
-SELECT pg_catalog.setval('public.characters_id_seq', 1, false);
-
-
---
--- Name: inventory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: vms
---
-
-SELECT pg_catalog.setval('public.inventory_id_seq', 1, false);
-
-
---
--- Name: items_id_seq; Type: SEQUENCE SET; Schema: public; Owner: vms
---
-
-SELECT pg_catalog.setval('public.items_id_seq', 1, false);
-
-
---
--- Name: keybindings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: vms
---
-
-SELECT pg_catalog.setval('public.keybindings_id_seq', 1, false);
-
-
---
--- Name: skills_id_seq; Type: SEQUENCE SET; Schema: public; Owner: vms
---
-
-SELECT pg_catalog.setval('public.skills_id_seq', 1, false);
 
 
 --
@@ -544,11 +483,27 @@ ALTER TABLE ONLY public.characters
 
 
 --
+-- Name: drops drops_pkey; Type: CONSTRAINT; Schema: public; Owner: vms
+--
+
+ALTER TABLE ONLY public.drops
+    ADD CONSTRAINT drops_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: items equip_items_pkey; Type: CONSTRAINT; Schema: public; Owner: vms
 --
 
 ALTER TABLE ONLY public.items
     ADD CONSTRAINT equip_items_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: inventory_capacity inventory_capacity_id_char_id_key; Type: CONSTRAINT; Schema: public; Owner: vms
+--
+
+ALTER TABLE ONLY public.inventory_capacity
+    ADD CONSTRAINT inventory_capacity_id_char_id_key UNIQUE (id, char_id);
 
 
 --

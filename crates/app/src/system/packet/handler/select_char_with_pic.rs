@@ -57,8 +57,6 @@ pub fn handle_select_char_with_pic_request(
         };
         command_tx
             .0
-            .lock()
-            .unwrap()
             .send(AsyncCommand::DatabaseOperation(
                 DatabaseCommand::SelectCharWithPicRequest {
                     client_id: msg.client_id,
@@ -123,8 +121,6 @@ pub fn handle_select_char_with_pic_response(
 
             command_tx
                 .0
-                .lock()
-                .unwrap()
                 .send(AsyncCommand::AcceptTransition {
                     client_id: msg.client_id,
                     port: channel.port,

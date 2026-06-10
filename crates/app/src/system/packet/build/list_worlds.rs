@@ -51,8 +51,8 @@ pub fn build_recommended_worlds_packet(
         packet.write_byte(count).map_err(WriteError)?;
         for (_, world) in worlds.iter() {
             for world_name in recommended_world_names.clone() {
-                if world.name == world_name.clone() {
-                    packet.write_int(world.id as i32).map_err(WriteError)?;
+                if world.base.name == world_name.clone() {
+                    packet.write_int(world.base.id as i32).map_err(WriteError)?;
                     packet.write_str(world_name).map_err(WriteError)?;
                     packet.write_int(0).map_err(WriteError)?;
                 }
@@ -74,13 +74,13 @@ pub fn build_list_worlds_packets(
         let mut packet: Packet = Packet::new_empty();
         let op = SendOpcode::ServerList as i16;
         packet.write_short(op).map_err(WriteError)?;
-        packet.write_byte(world.id).map_err(WriteError)?;
+        packet.write_byte(world.base.id).map_err(WriteError)?;
         packet
-            .write_str_with_length(world.name.to_string())
+            .write_str_with_length(world.base.name.to_string())
             .map_err(WriteError)?;
-        packet.write_byte(world.flag).map_err(WriteError)?;
+        packet.write_byte(world.base.flag).map_err(WriteError)?;
         packet
-            .write_str_with_length(world.event_message.to_string())
+            .write_str_with_length(world.base.event_message.to_string())
             .map_err(WriteError)?;
         packet.write_byte(100).map_err(WriteError)?;
         packet.write_byte(0).map_err(WriteError)?;
@@ -104,7 +104,7 @@ pub fn build_list_worlds_packets(
             packet.write_int(channel_capacity).map_err(WriteError)?;
             packet.write_byte(1).map_err(WriteError)?;
             packet.write_byte(channel.id as i16).map_err(WriteError)?;
-            packet.write_byte(world.id).map_err(WriteError)?;
+            packet.write_byte(world.base.id).map_err(WriteError)?;
         }
         packet.write_short(0).map_err(WriteError)?;
         packets.push(packet);
