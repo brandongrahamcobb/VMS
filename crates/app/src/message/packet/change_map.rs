@@ -24,6 +24,6 @@ pub struct ReadChangeMapRequestMessage {
     pub client_id: i32,
     pub died: i16,
     pub target_map: i32,
-    pub target_name: String,
+    pub portal_name: String,
     pub wheel_of_destiny: i16,
 }

@@ -30,7 +30,6 @@ pub struct ReadPlayerLoggedInRequestMessage {
 pub struct PlayerLoggedInResponseMessage {
     pub client_id: i32,
     pub char_id: i32,
-    pub map_wz: i32,
     pub keybinding_models: Vec<KeybindingModel>,
     pub skill_models: Vec<SkillModel>,
     pub equip_tab_capacity: i16,

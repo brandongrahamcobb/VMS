@@ -24,7 +24,7 @@ use crate::component::portal::MaplePortal;
 use crate::component::session::Transitioning;
 use crate::message::packet::change_map::ReadChangeMapRequestMessage;
 use crate::message::result::HandlerResult;
-use crate::resource::custom_resource::{ClientMap, CustomSender};
+use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::{change_map, codec};
 use crate::system::system_params::{InParams, LocationParams, SessionParams};
 use action::model::Action;
@@ -32,83 +32,74 @@ use action::scope::{ActionScope, MapScope};
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
-use ipc::command::AsyncCommand;
-use ipc::db_command::DatabaseCommand;
 
 pub fn handle_map_change(
     mut commands: Commands,
-    command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
     loc_params: LocationParams,
     in_params: InParams,
-    session_params: &mut SessionParams,
+    session_params: SessionParams,
     portals: Query<(&MaplePortal, &ChildOf)>,
     mut messages: MessageReader<ReadChangeMapRequestMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
+        dbg!("test");
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Some((session_entity, _, _)) = session_params
-            .sessions
-            .iter_mut()
-            .find(|(_, _, parent)| parent.0 == client_entity)
-        else {
+        dbg!("test");
+        let Ok(in_session) = in_params.in_sessions.get(client_entity) else {
             continue;
         };
-        commands.entity(session_entity).insert(Transitioning {
-            started_at: Instant::now(),
-        });
+        dbg!("test");
         let Ok(in_map) = in_params.in_maps.get(client_entity) else {
             continue;
         };
-        commands.entity(client_entity).remove::<InMap>();
-        let Some((portal, _)) = portals.iter().find(|(p, parent)| {
-            p.base.target_portal_name == msg.target_name && parent.0 == in_map.0
-        }) else {
+        dbg!("test");
+        let Ok((_, map, _)) = loc_params.maps.get(in_map.0) else {
             continue;
         };
+        dbg!("test");
+        commands.entity(in_session.0).insert(Transitioning {
+            map_wz: map.base.wz,
+            started_at: Instant::now(),
+        });
+        dbg!("test");
+        let Some((portal, _)) = portals
+            .iter()
+            .find(|(p, parent)| p.base.name == msg.portal_name && parent.0 == in_map.0)
+        else {
+            continue;
+        };
+        dbg!("test");
+        commands.entity(client_entity).remove::<InMap>();
         let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
             continue;
         };
+        dbg!("test");
         let Ok((_, channel, _)) = loc_params.channels.get(in_channel.0) else {
             continue;
         };
+        dbg!("test");
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
+        dbg!("test");
         let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
-
-        let Some((map_entity, map, _)) = loc_params.maps.iter().find(|(_, m, parent)| {
-            m.base.wz == portal.base.target_map_wz && parent.0 == in_channel.0
-        }) else {
-            continue;
-        };
-        commands.entity(client_entity).insert(InMap(map_entity));
-
-        command_tx
-            .0
-            .lock()
-            .unwrap()
-            .send(AsyncCommand::DatabaseOperation(
-                DatabaseCommand::UpdateMapRequest {
-                    client_id: msg.client_id,
-                    char_id: char.id,
-                    map_wz: map.base.wz,
-                },
-            ))
-            .unwrap();
+        dbg!("test");
 
         let Ok(mut despawn_packet) = codec::player::builder::build_despawn_player_packet(char.id)
         else {
             continue;
         };
-        let Ok(mut set_field_packet) =
-            change_map::build_set_field_change_map_packet(channel.id, map.base.wz, portal.base.wz)
-        else {
+        let Ok(mut set_field_packet) = change_map::build_set_field_change_map_packet(
+            channel.id,
+            portal.base.target_map_wz,
+            portal.base.wz,
+        ) else {
             continue;
         };
 

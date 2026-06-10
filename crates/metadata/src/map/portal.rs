@@ -22,28 +22,29 @@ use crate::service;
 use base::map::Point;
 use base::portal::BasePortal;
 
-pub fn get_portal_wz_info_by_map_wz_and_pid(
-    map_wz: i32,
-    pid: u8,
-) -> Result<BasePortal, MapMetadataError> {
+pub fn get_base_portals_by_map_wz(map_wz: i32) -> Result<Vec<BasePortal>, MapMetadataError> {
+    let mut base_portals: Vec<BasePortal> = Vec::new();
     let filename: String = String::from("Map.wz");
     let json = service::wz_to_img(map_wz, &filename)?;
     let portal_map = json["portal"]
         .as_object()
         .ok_or(MapMetadataError::PortalError)?;
-    let portal = &portal_map[&pid.to_string()];
-    let pn = portal["pn"].as_str().unwrap_or("").to_string();
-    let tm = portal["tm"]
-        .as_i64()
-        .map(|v| v as i32)
-        .ok_or(MapMetadataError::PortalError)?;
-    let tn = portal["tn"].as_str().unwrap_or("sp").to_string();
-    Ok(BasePortal {
-        wz: pid,
-        name: pn,
-        target_map_wz: tm,
-        target_portal_name: tn,
-    })
+    for (key, portal) in portal_map {
+        let pid: u8 = key.parse().map_err(|_| MapMetadataError::PortalError)?;
+        let pn = portal["pn"].as_str().unwrap_or("").to_string();
+        let tm = portal["tm"]
+            .as_i64()
+            .map(|v| v as i32)
+            .ok_or(MapMetadataError::PortalError)?;
+        let tn = portal["tn"].as_str().unwrap_or("sp").to_string();
+        base_portals.push(BasePortal {
+            wz: pid,
+            name: pn,
+            target_map_wz: tm,
+            target_portal_name: tn,
+        })
+    }
+    Ok(base_portals)
 }
 
 pub fn get_zeroeth_portal_spawnpoint(map_wz: i32) -> Result<Point, MapMetadataError> {

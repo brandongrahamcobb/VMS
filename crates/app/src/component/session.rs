@@ -27,4 +27,5 @@ pub struct InSession(pub Entity);
 #[derive(Component)]
 pub struct Transitioning {
     pub started_at: std::time::Instant,
+    pub map_wz: i32,
 }

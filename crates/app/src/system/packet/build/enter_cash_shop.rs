@@ -21,7 +21,6 @@ use std::collections::HashMap;
 
 use crate::component::character::MapleCharacter;
 use crate::component::item::MapleItem;
-use crate::component::map::MapleMap;
 use crate::system::packet::build::codec;
 use crate::system::packet::build::error::PacketBuildError;
 use net::packet::io::error::IOError::WriteError;
@@ -33,7 +32,6 @@ pub fn build_enter_cash_shop_packet(
     username: String,
     char: &MapleCharacter,
     equips_map: HashMap<i32, Vec<MapleItem>>,
-    map: &MapleMap,
 ) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SetCashShop as i16;
@@ -42,12 +40,7 @@ pub fn build_enter_cash_shop_packet(
     packet.write_long(0).map_err(WriteError)?;
     // Flag
     packet.write_byte(0).map_err(WriteError)?;
-    codec::player::builder::build_player_logged_in_meta_part_packet(
-        &mut packet,
-        char,
-        equips_map,
-        map.base.wz,
-    )?;
+    codec::player::builder::build_player_logged_in_meta_part_packet(&mut packet, char, equips_map)?;
     build_cash_shop_meta(&mut packet, username.clone())?;
     Ok(packet)
 }

@@ -26,6 +26,7 @@ use crate::message::packet::list_chars::{
 use crate::message::packet::login::{LoginFailedResponseMessage, LoginSuccessResponseMessage};
 use crate::message::packet::pickup_item::PickupItemResponseMessage;
 use crate::message::packet::player_logged_in::PlayerLoggedInResponseMessage;
+use crate::message::packet::player_map_transferred::PlayerMapTransferResponseMessage;
 use crate::message::packet::select_char_with_pic::SelectCharWithPicResponseMessage;
 use crate::message::result::HandlerResult;
 
@@ -46,6 +47,7 @@ impl Plugin for ResponsePlugin {
             .add_message::<LoginFailedResponseMessage>()
             .add_message::<PickupItemResponseMessage>()
             .add_message::<PlayerLoggedInResponseMessage>()
+            .add_message::<PlayerMapTransferResponseMessage>()
             .add_message::<SelectCharWithPicResponseMessage>();
     }
 }

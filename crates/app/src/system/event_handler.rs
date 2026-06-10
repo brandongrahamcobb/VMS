@@ -27,6 +27,7 @@ use crate::message::packet::list_chars::{
 use crate::message::packet::login::{LoginFailedResponseMessage, LoginSuccessResponseMessage};
 use crate::message::packet::pickup_item::PickupItemResponseMessage;
 use crate::message::packet::player_logged_in::PlayerLoggedInResponseMessage;
+use crate::message::packet::player_map_transferred::PlayerMapTransferResponseMessage;
 use crate::message::packet::raw::RawPacketMessage;
 use crate::message::packet::select_char_with_pic::SelectCharWithPicResponseMessage;
 use crate::resource::custom_resource::{ClientMap, CustomReceiver};
@@ -54,6 +55,7 @@ pub fn handle_events_system(
     mut login_success_writer: MessageWriter<LoginSuccessResponseMessage>,
     mut login_fail_writer: MessageWriter<LoginFailedResponseMessage>,
     mut select_char_success_writer: MessageWriter<SelectCharWithPicResponseMessage>,
+    mut player_map_transfer_success_writer: MessageWriter<PlayerMapTransferResponseMessage>,
 ) {
     let rx: MutexGuard<Receiver<AsyncEvent>> = receiver.0.lock().unwrap();
     while let Ok(event) = rx.try_recv() {
@@ -207,7 +209,6 @@ pub fn handle_events_system(
             AsyncEvent::JoinSuccess {
                 client_id,
                 char_id,
-                map_wz,
                 keybinding_models,
                 skill_models,
                 equipped_item_models,
@@ -225,7 +226,6 @@ pub fn handle_events_system(
                 player_join_success_writer.write(PlayerLoggedInResponseMessage {
                     client_id,
                     char_id,
-                    map_wz,
                     keybinding_models,
                     skill_models,
                     equipped_item_models,
@@ -275,6 +275,17 @@ pub fn handle_events_system(
                     item_id,
                     ipos,
                     pet_pickup,
+                });
+            }
+            AsyncEvent::ChangeMapSuccess {
+                client_id,
+                base_map,
+                base_portals,
+            } => {
+                player_map_transfer_success_writer.write(PlayerMapTransferResponseMessage {
+                    client_id,
+                    base_map,
+                    base_portals,
                 });
             }
             _ => {}

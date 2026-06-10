@@ -102,16 +102,17 @@ pub fn handle_select_char_with_pic_response(
             let Ok(in_session) = in_params.in_sessions.get(client_entity) else {
                 continue;
             };
-            commands.entity(in_session.0).insert(Transitioning {
-                started_at: Instant::now(),
-            });
-            let Some((char_entity, _, _)) = session_params
+            let Some((char_entity, char, _)) = session_params
                 .chars
                 .iter()
                 .find(|(_, c, _)| c.id == msg.char_id)
             else {
                 continue;
             };
+            commands.entity(in_session.0).insert(Transitioning {
+                map_wz: char.map_wz,
+                started_at: Instant::now(),
+            });
             commands.entity(client_entity).insert(InChar(char_entity));
 
             let Ok(mut select_char_packet) =
@@ -135,7 +136,7 @@ pub fn handle_select_char_with_pic_response(
                 actions: vec![Action::HandlerAction {
                     packet: select_char_packet.finish(),
                     scope: ActionScope::Local,
-                }], // TODO break
+                }],
             });
         } else {
             let success_status: bool = false;

@@ -1,3 +1,4 @@
+use base::{map::BaseMap, portal::BasePortal};
 /* player_map_transfer/message.rs
  * The purpose of this module is to handle player map transfers.
  *
@@ -21,4 +22,11 @@ use bevy::prelude::Message;
 #[derive(Message)]
 pub struct ReadPlayerMapTransferRequestMessage {
     pub client_id: i32,
+}
+
+#[derive(Message)]
+pub struct PlayerMapTransferResponseMessage {
+    pub client_id: i32,
+    pub base_map: BaseMap,
+    pub base_portals: Vec<BasePortal>,
 }

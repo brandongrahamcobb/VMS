@@ -25,6 +25,7 @@ use inc::error::IncError;
 use ipc::command::AsyncCommand;
 use ipc::db_command::DatabaseCommand;
 use metadata::item::error::ItemMetadataError;
+use metadata::map::error::MapMetadataError;
 use net::packet::io::error::IOError;
 use thiserror::Error;
 use tokio::sync::mpsc::error::SendError;
@@ -56,6 +57,9 @@ pub enum RuntimeError {
 
     #[error("Item metadata error in runtime layer")]
     ItemMetadataError(#[from] ItemMetadataError),
+
+    #[error("Map metadata error in runtime layer")]
+    MapMetadataError(#[from] MapMetadataError),
 
     #[error("Character db model error in runtime layer")]
     CharacterModelError(#[from] CharacterModelError),

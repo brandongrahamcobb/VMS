@@ -68,16 +68,18 @@ pub fn handle_select_char(
         else {
             continue;
         };
-        commands.entity(session_entity).insert(Transitioning {
-            started_at: Instant::now(),
-        });
-        let Some((char_entity, _, _)) = session_params
+        let Some((char_entity, char, _)) = session_params
             .chars
             .iter()
             .find(|(_, c, _)| c.id == msg.char_id)
         else {
             continue;
         };
+        commands.entity(session_entity).insert(Transitioning {
+            map_wz: char.map_wz,
+            started_at: Instant::now(),
+        });
+
         commands.entity(client_entity).insert(InChar(char_entity));
 
         let Ok(mut select_char_packet) =

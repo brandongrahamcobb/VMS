@@ -20,6 +20,7 @@
 use crate::error::RuntimeError;
 use base::account::StatusCode;
 use base::inventory::InventoryTab;
+use base::portal::BasePortal;
 use base::skill::BaseSkill;
 use base::{account::FailedCode, character::StatsUpdate};
 use config::settings;
@@ -329,8 +330,6 @@ pub async fn db_worker(
                 db::character::setters::delete_char_by_id(&pool, char_id).await?;
             }
             Ok(DatabaseCommand::JoinRequest { client_id, char_id }) => {
-                let char_model: CharacterModel =
-                    db::character::getters::get_char_model_by_id(&pool, char_id).await?;
                 let skill_models: Vec<SkillModel> =
                     db::skill::getters::get_skill_models_by_char_id(&pool, char_id).await?;
                 let keybinding_models: Vec<KeybindingModel> =
@@ -365,7 +364,6 @@ pub async fn db_worker(
                 let event = AsyncEvent::JoinSuccess {
                     client_id,
                     char_id,
-                    map_wz: char_model.map_wz,
                     keybinding_models,
                     skill_models,
                     equipped_item_models,
@@ -468,11 +466,20 @@ pub async fn db_worker(
                 char_id,
                 map_wz,
             }) => {
-                std::hint::black_box(client_id);
                 let mut char_model: CharacterModel =
                     db::character::getters::get_char_model_by_id(&pool, char_id).await?;
                 char_model.map_wz = map_wz;
                 db::character::setters::update_characters(&pool, vec![char_model]).await?;
+                let base_map = metadata::map::map::build_base_map_by_wz(map_wz)?;
+                let base_portals: Vec<BasePortal> =
+                    metadata::map::portal::get_base_portals_by_map_wz(map_wz)?;
+                event_tx
+                    .send(AsyncEvent::ChangeMapSuccess {
+                        client_id,
+                        base_map,
+                        base_portals,
+                    })
+                    .unwrap();
             }
 
             Ok(_) => {

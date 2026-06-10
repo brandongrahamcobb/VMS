@@ -18,9 +18,10 @@
  */
 
 use std::collections::HashMap;
+use std::time::Instant;
 
 use crate::component::item::MapleItem;
-use crate::component::map::{InMap, MapleMap};
+use crate::component::session::Transitioning;
 use crate::message::packet::player_logged_in::{
     PlayerLoggedInResponseMessage, ReadPlayerLoggedInRequestMessage,
 };
@@ -76,30 +77,19 @@ pub fn handle_player_logged_in_response(
         let Ok((_, channel, _)) = loc_params.channels.get(in_channel.0) else {
             continue;
         };
-        let map_entity = if let Some((map_entity, _, _)) = loc_params
-            .maps
-            .iter()
-            .find(|(_, m, _)| m.base.wz == msg.map_wz)
-        {
-            map_entity
-        } else {
-            let Ok(base) = metadata::map::map::build_base_map_by_wz(msg.map_wz) else {
-                continue;
-            };
-            let map: MapleMap = MapleMap {
-                vacant: false,
-                base,
-            };
-            commands.spawn(map.clone()).id()
+        let Ok(in_session) = in_params.in_sessions.get(client_entity) else {
+            continue;
         };
-        commands.entity(client_entity).insert(InMap(map_entity));
-
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
         let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
+        commands.entity(in_session.0).insert(Transitioning {
+            map_wz: char.map_wz,
+            started_at: Instant::now(),
+        });
         let Some((inv_entity, _, _)) = inv_params
             .inventories
             .iter()
@@ -139,9 +129,9 @@ pub fn handle_player_logged_in_response(
         else {
             continue;
         };
-        let Ok(mut set_field_packet) = codec::player::builder::build_set_field_packet(
-            &char, equips_map, channel.id, msg.map_wz,
-        ) else {
+        let Ok(mut set_field_packet) =
+            codec::player::builder::build_set_field_packet(&char, equips_map, channel.id)
+        else {
             continue;
         };
 

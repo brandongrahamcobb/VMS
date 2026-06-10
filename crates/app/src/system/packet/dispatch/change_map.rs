@@ -33,7 +33,7 @@ pub fn read_change_map_packet(
     let _op = pkt_reader.read_short().map_err(ReadError)?;
     let died: i16 = pkt_reader.read_byte().map_err(ReadError)? as i16;
     let tm: i32 = pkt_reader.read_int().map_err(ReadError)?;
-    let tn: String = pkt_reader.read_str_with_length().map_err(ReadError)?;
+    let pn: String = pkt_reader.read_str_with_length().map_err(ReadError)?;
     let skip: usize = 1;
     pkt_reader.read_bytes(skip).map_err(ReadError)?;
     let wheel_of_destiny_death_buff: i16 = pkt_reader.read_short().map_err(ReadError)?;
@@ -41,7 +41,7 @@ pub fn read_change_map_packet(
         client_id,
         died,
         target_map: tm,
-        target_name: tn,
+        portal_name: pn,
         wheel_of_destiny: wheel_of_destiny_death_buff,
     })
 }

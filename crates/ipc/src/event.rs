@@ -20,6 +20,8 @@
 use std::collections::HashMap;
 
 use base::account::FailedCode;
+use base::map::BaseMap;
+use base::portal::BasePortal;
 use base::skill::BaseSkill;
 use db::account::model::AccountModel;
 use db::character::model::CharacterModel;
@@ -109,7 +111,6 @@ pub enum AsyncEvent {
     JoinSuccess {
         client_id: i32,
         char_id: i32,
-        map_wz: i32,
         keybinding_models: Vec<KeybindingModel>,
         skill_models: Vec<SkillModel>,
         equipped_item_models: Vec<ItemModel>,
@@ -140,5 +141,10 @@ pub enum AsyncEvent {
         stance: i16,
         speed: i16,
         mob_damages: HashMap<u32, Vec<i32>>,
+    },
+    ChangeMapSuccess {
+        client_id: i32,
+        base_map: BaseMap,
+        base_portals: Vec<BasePortal>,
     },
 }
