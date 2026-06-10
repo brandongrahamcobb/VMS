@@ -3,10 +3,13 @@ use std::collections::{HashMap, HashSet};
 use base::inventory::{
     ANDROID_EQUIP_SLOTS, CASH_EQUIP_SLOTS, PET_EQUIP_SLOTS, REGULAR_EQUIP_SLOTS,
 };
+use base::skill::BaseSkill;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::system::Commands;
 use db::item::model::ItemModel;
+use db::keybinding::model::KeybindingModel;
+use db::skill::model::SkillModel;
 
 use crate::component::character::MapleCharacter;
 use crate::component::inventory::{
@@ -14,12 +17,16 @@ use crate::component::inventory::{
     MapleUseTab,
 };
 use crate::component::item::MapleItem;
+use crate::component::keybinding::MapleKeybinding;
+use crate::component::skill::MapleSkill;
 use crate::component::slot::MapleEmptyItemSlot;
 use crate::system::packet::handler::codec::spawn_item;
 
 pub fn spawn_char_with_equips(
     commands: &mut Commands,
     chars: HashMap<i32, (Entity, MapleCharacter)>,
+    keybinding_model_map: &HashMap<i32, Vec<KeybindingModel>>,
+    skill_model_map: &HashMap<i32, Vec<SkillModel>>,
     equipped_item_model_map: &HashMap<i32, Vec<ItemModel>>,
     equip_item_model_map: &HashMap<i32, Vec<ItemModel>>,
     use_item_model_map: &HashMap<i32, Vec<ItemModel>>,
@@ -34,6 +41,21 @@ pub fn spawn_char_with_equips(
 ) -> HashMap<i32, Vec<MapleItem>> {
     let mut equipped_filled_slots_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
     for (_, (char_entity, char)) in chars.iter() {
+        let Some(keybinding_models) = keybinding_model_map.get(&char.id) else {
+            continue;
+        };
+        for keybinding_model in keybinding_models {
+            let keybinding: MapleKeybinding = MapleKeybinding::from(keybinding_model.clone());
+            commands.spawn((keybinding, ChildOf(*char_entity)));
+        }
+        let Some(skill_models) = skill_model_map.get(&char.id) else {
+            continue;
+        };
+        for skill_model in skill_models {
+            let base_skill: BaseSkill = BaseSkill { wz: skill_model.wz };
+            let skill: MapleSkill = MapleSkill::from((base_skill, skill_model.clone()));
+            commands.spawn((skill, ChildOf(*char_entity)));
+        }
         let inventory: MapleInventory = MapleInventory;
         let inv_entity = commands.spawn((inventory, ChildOf(*char_entity))).id();
         let equipped_tab: MapleEquippedTab = MapleEquippedTab;

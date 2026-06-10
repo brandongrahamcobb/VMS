@@ -3,4 +3,3 @@ pub mod item;
 pub mod job;
 pub mod map;
 pub mod service;
-pub mod skill;

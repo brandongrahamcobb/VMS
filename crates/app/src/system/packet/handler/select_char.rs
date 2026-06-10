@@ -90,7 +90,7 @@ pub fn handle_select_char(
             actions: vec![Action::HandlerAction {
                 packet: select_char_packet.finish(),
                 scope: ActionScope::Local,
-            }], // TODO break
+            }],
         });
     }
 }

@@ -115,6 +115,8 @@ pub fn handle_create_char_response(
         let equips_map: HashMap<i32, Vec<MapleItem>> = spawn_char::spawn_char_with_equips(
             &mut commands,
             chars,
+            &msg.keybinding_model_map,
+            &msg.skill_model_map,
             &msg.equipped_item_model_map,
             &msg.equip_item_model_map,
             &msg.use_item_model_map,

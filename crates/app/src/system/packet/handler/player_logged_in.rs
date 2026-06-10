@@ -97,11 +97,9 @@ pub fn handle_player_logged_in_response(
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        dbg!("test");
         let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
-        dbg!("test");
         let Some((inv_entity, _, _)) = inv_params
             .inventories
             .iter()
@@ -109,7 +107,6 @@ pub fn handle_player_logged_in_response(
         else {
             continue;
         };
-        dbg!("test");
         let Some((equipped_tab_entity, _, _)) = inv_params
             .equipped_tabs
             .iter()
@@ -117,7 +114,6 @@ pub fn handle_player_logged_in_response(
         else {
             continue;
         };
-        dbg!("test");
         let filled_item_slots: Vec<_> = inv_params
             .filled_slots
             .iter()
@@ -132,13 +128,12 @@ pub fn handle_player_logged_in_response(
                 .collect();
             equips_map.insert(char.id, equips);
         }
-        let binds: Vec<_> = session_params
+        let mut binds: Vec<_> = session_params
             .keybindings
             .iter()
             .filter(|(_, _, parent)| parent.0 == in_char.0)
             .collect();
-
-        dbg!("test");
+        binds.sort_by_key(|(_, k, _)| k.key);
 
         let Ok(mut keymap_packet) = player_logged_in::build_player_logged_in_keymap_packet(&binds)
         else {

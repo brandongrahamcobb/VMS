@@ -41,7 +41,7 @@ pub fn create_new_char_model(
     skin_wz: i32,
     gender_wz: i16,
 ) -> CharacterModel {
-    let map_wz: i32 = metadata::map::map::get_map_wz_by_job_id(job_wz);
+    let map_wz: i32 = metadata::map::map::get_map_wz_by_job_wz(job_wz);
     let char_model: CharacterModel = CharacterModel::default(
         acc_id,
         world_id,

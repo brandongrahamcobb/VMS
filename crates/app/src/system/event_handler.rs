@@ -75,7 +75,6 @@ pub fn handle_events_system(
             AsyncEvent::ClientDisconnected { client_id } => {
                 if let Some(client_entity) = client_map.0.get(&client_id).copied() {
                     if transitioning.get(client_entity).is_ok() {
-                        tracing::debug!("cid={} transitioning, keeping in map", client_id);
                         continue;
                     }
                     client_map.0.remove(&client_id);

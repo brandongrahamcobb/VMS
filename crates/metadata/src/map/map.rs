@@ -20,9 +20,9 @@
 use crate::map::error::MapMetadataError;
 use base::map::BaseMap;
 
-pub fn get_map_wz_by_job_id(job_id: i16) -> i32 {
-    match job_id {
-        0 => 10000,
+pub fn get_map_wz_by_job_wz(job_wz: i16) -> i32 {
+    match job_wz {
+        1 => 10000,
         1000 => 130000000,
         2000 => 140000000,
         _ => 0, //placeholder
