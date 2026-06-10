@@ -44,52 +44,39 @@ pub fn handle_map_change(
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
-        dbg!("test");
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        dbg!("test");
         let Ok(in_session) = in_params.in_sessions.get(client_entity) else {
             continue;
         };
-        dbg!("test");
         let Ok(in_map) = in_params.in_maps.get(client_entity) else {
             continue;
         };
-        dbg!("test");
-        let Ok((_, map, _)) = loc_params.maps.get(in_map.0) else {
-            continue;
-        };
-        dbg!("test");
-        commands.entity(in_session.0).insert(Transitioning {
-            map_wz: map.base.wz,
-            started_at: Instant::now(),
-        });
-        dbg!("test");
         let Some((portal, _)) = portals
             .iter()
             .find(|(p, parent)| p.base.name == msg.portal_name && parent.0 == in_map.0)
         else {
             continue;
         };
-        dbg!("test");
+        commands.entity(in_session.0).insert(Transitioning {
+            map_wz: portal.base.target_map_wz,
+            started_at: Instant::now(),
+        });
+
         commands.entity(client_entity).remove::<InMap>();
         let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        dbg!("test");
         let Ok((_, channel, _)) = loc_params.channels.get(in_channel.0) else {
             continue;
         };
-        dbg!("test");
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        dbg!("test");
         let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
-        dbg!("test");
 
         let Ok(mut despawn_packet) = codec::player::builder::build_despawn_player_packet(char.id)
         else {

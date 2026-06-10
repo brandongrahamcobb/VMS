@@ -18,9 +18,11 @@
  */
 
 use std::collections::HashMap;
+use std::time::Instant;
 
 use crate::component::item::MapleItem;
 use crate::component::map::{InMap, MapleMap};
+use crate::component::mob::{MapleMob, MobIndex};
 use crate::component::portal::MaplePortal;
 use crate::component::session::Transitioning;
 use crate::message::packet::player_map_transferred::{
@@ -100,6 +102,7 @@ pub fn handle_player_map_transfer_response(
         let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
             continue;
         };
+        let mobs: Vec<MapleMob> = Vec::new();
         let map_entity = if let Some((map_entity, _, _)) = loc_params
             .maps
             .iter()
@@ -111,14 +114,45 @@ pub fn handle_player_map_transfer_response(
                 vacant: false,
                 base: msg.base_map.clone(),
             };
-            let map_entity = commands.spawn((map.clone(), ChildOf(in_channel.0))).id();
+            let mut mob_index = MobIndex::default();
+            let map_entity = commands
+                .spawn((map.clone(), mob_index.clone(), ChildOf(in_channel.0)))
+                .id();
             for base_portal in msg.base_portals.clone() {
                 let portal: MaplePortal = MaplePortal { base: base_portal };
                 commands.spawn((portal, ChildOf(map_entity)));
             }
+            for base_mob in msg.base_mobs.clone() {
+                let mob: MapleMob = MapleMob {
+                    id: mob_index.next_id(),
+                    new_state: 0,
+                    died_at: Instant::now(),
+                    dead: false,
+                    base: base_mob,
+                };
+                commands.spawn((mob, ChildOf(map_entity)));
+            }
             map_entity
         };
         commands.entity(client_entity).insert(InMap(map_entity));
+        let stance = 0; //placeholder
+        let effect = 0; //placeholder
+        let team = 0; //placeholder
+        // TODO: NPC spawning
+        for mob in mobs.iter() {
+            let Ok(mut spawn_mob_packet) =
+                codec::mob::builder::build_spawn_mob_packet(mob, stance, effect, team)
+            else {
+                continue;
+            };
+            results.write(HandlerResult {
+                client_id: msg.client_id,
+                actions: vec![Action::HandlerAction {
+                    packet: spawn_mob_packet.finish(),
+                    scope: ActionScope::Local,
+                }],
+            });
+        }
 
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
@@ -126,47 +160,53 @@ pub fn handle_player_map_transfer_response(
         let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
-        let Some((inv_entity, _, _)) = inv_params
-            .inventories
+        for (char_entity, char, _) in session_params
+            .chars
             .iter()
-            .find(|(_, _, parent)| parent.0 == in_char.0)
-        else {
-            continue;
-        };
-        let Some((equipped_tab_entity, _, _)) = inv_params
-            .equipped_tabs
-            .iter()
-            .find(|(_, _, parent)| parent.0 == inv_entity)
-        else {
-            continue;
-        };
-        let filled_item_slots: Vec<_> = inv_params
-            .filled_slots
-            .iter()
-            .filter(|(_, _, parent)| parent.0 == equipped_tab_entity)
-            .collect();
-        let mut equips_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
-        for (filled_item_slot_entity, _, _) in filled_item_slots {
-            let equips = items
+            .filter(|(_, c, _)| c.map_wz == char.map_wz)
+        {
+            let Some((inv_entity, _, _)) = inv_params
+                .inventories
                 .iter()
-                .filter(|(_, parent)| parent.0 == filled_item_slot_entity)
-                .map(|(e, _)| e.clone())
+                .find(|(_, _, parent)| parent.0 == char_entity)
+            else {
+                continue;
+            };
+            let Some((equipped_tab_entity, _, _)) = inv_params
+                .equipped_tabs
+                .iter()
+                .find(|(_, _, parent)| parent.0 == inv_entity)
+            else {
+                continue;
+            };
+            let filled_item_slots: Vec<_> = inv_params
+                .filled_slots
+                .iter()
+                .filter(|(_, _, parent)| parent.0 == equipped_tab_entity)
                 .collect();
-            equips_map.insert(char.id, equips);
+            let mut equips_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
+            for (filled_item_slot_entity, _, _) in filled_item_slots {
+                let equips = items
+                    .iter()
+                    .filter(|(_, parent)| parent.0 == filled_item_slot_entity)
+                    .map(|(e, _)| e.clone())
+                    .collect();
+                equips_map.insert(char.id, equips);
+            }
+
+            let Ok(mut spawn_player_packet) =
+                codec::player::builder::build_spawn_player_packet(char, equips_map)
+            else {
+                continue;
+            };
+
+            results.write(HandlerResult {
+                client_id: msg.client_id,
+                actions: vec![Action::HandlerAction {
+                    packet: spawn_player_packet.finish(),
+                    scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+                }],
+            });
         }
-
-        let Ok(mut spawn_player_packet) =
-            codec::player::builder::build_spawn_player_packet(char, equips_map)
-        else {
-            continue;
-        };
-
-        results.write(HandlerResult {
-            client_id: msg.client_id,
-            actions: vec![Action::HandlerAction {
-                packet: spawn_player_packet.finish(),
-                scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-            }],
-        });
     }
 }

@@ -20,6 +20,7 @@
 use crate::error::RuntimeError;
 use base::account::StatusCode;
 use base::inventory::InventoryTab;
+use base::mob::BaseMob;
 use base::portal::BasePortal;
 use base::skill::BaseSkill;
 use base::{account::FailedCode, character::StatsUpdate};
@@ -473,11 +474,13 @@ pub async fn db_worker(
                 let base_map = metadata::map::map::build_base_map_by_wz(map_wz)?;
                 let base_portals: Vec<BasePortal> =
                     metadata::map::portal::get_base_portals_by_map_wz(map_wz)?;
+                let base_mobs: Vec<BaseMob> = metadata::map::mob::get_base_mobs_by_map_wz(map_wz)?;
                 event_tx
                     .send(AsyncEvent::ChangeMapSuccess {
                         client_id,
                         base_map,
                         base_portals,
+                        base_mobs,
                     })
                     .unwrap();
             }

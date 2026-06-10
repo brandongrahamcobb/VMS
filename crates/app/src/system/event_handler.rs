@@ -281,11 +281,13 @@ pub fn handle_events_system(
                 client_id,
                 base_map,
                 base_portals,
+                base_mobs,
             } => {
                 player_map_transfer_success_writer.write(PlayerMapTransferResponseMessage {
                     client_id,
                     base_map,
                     base_portals,
+                    base_mobs,
                 });
             }
             _ => {}

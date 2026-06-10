@@ -19,6 +19,8 @@
 
 use base::mob::BaseMob;
 use bevy::ecs::component::Component;
+use bevy::ecs::entity::Entity;
+use std::collections::HashMap;
 use std::time::Instant;
 
 #[derive(Component)]
@@ -28,4 +30,17 @@ pub struct MapleMob {
     pub died_at: Instant,
     pub dead: bool,
     pub base: BaseMob,
+}
+
+#[derive(Clone, Component, Default)]
+pub struct MobIndex {
+    pub counter: u32,
+    pub map: HashMap<u32, Entity>,
+}
+
+impl MobIndex {
+    pub fn next_id(&mut self) -> u32 {
+        self.counter += 1;
+        self.counter
+    }
 }

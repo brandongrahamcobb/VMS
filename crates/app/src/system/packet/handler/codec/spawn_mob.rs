@@ -1,5 +1,5 @@
-/* player_map_transfer/message.rs
- * The purpose of this module is to handle player map transfers.
+/* app/src/component/mob.rs
+ * The purpose of this module is to provide a mob component.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -16,21 +16,3 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-use base::map::BaseMap;
-use base::mob::BaseMob;
-use base::portal::BasePortal;
-use bevy::prelude::Message;
-
-#[derive(Message)]
-pub struct ReadPlayerMapTransferRequestMessage {
-    pub client_id: i32,
-}
-
-#[derive(Message)]
-pub struct PlayerMapTransferResponseMessage {
-    pub client_id: i32,
-    pub base_map: BaseMap,
-    pub base_portals: Vec<BasePortal>,
-    pub base_mobs: Vec<BaseMob>,
-}

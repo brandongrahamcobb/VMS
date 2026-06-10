@@ -21,6 +21,7 @@ use std::collections::HashMap;
 
 use base::account::FailedCode;
 use base::map::BaseMap;
+use base::mob::BaseMob;
 use base::portal::BasePortal;
 use base::skill::BaseSkill;
 use db::account::model::AccountModel;
@@ -146,5 +147,6 @@ pub enum AsyncEvent {
         client_id: i32,
         base_map: BaseMap,
         base_portals: Vec<BasePortal>,
+        base_mobs: Vec<BaseMob>,
     },
 }
