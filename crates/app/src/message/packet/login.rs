@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use base::account::FailedCode;
+use base::account::{FailedCode, SuccessCode};
 use bevy::prelude::Message;
 use db::account::model::AccountModel;
 
@@ -34,6 +34,7 @@ pub struct LoginSuccessResponseMessage {
     pub client_id: i32,
     pub acc_id: i32,
     pub acc_model: AccountModel,
+    pub code: SuccessCode,
 }
 
 #[derive(Message)]

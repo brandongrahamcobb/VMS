@@ -68,10 +68,11 @@ pub async fn db_worker(
                                         StatusCode::Failed(code) => {
                                             AsyncEvent::LoginFailed { client_id, code }
                                         }
-                                        _ => AsyncEvent::LoginSuccess {
+                                        StatusCode::Success(code) => AsyncEvent::LoginSuccess {
                                             client_id,
                                             acc_id,
                                             acc_model,
+                                            code,
                                         },
                                     }
                                 }

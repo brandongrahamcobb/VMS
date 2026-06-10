@@ -20,18 +20,13 @@
 #[derive(Clone)]
 pub enum StatusCode {
     Failed(FailedCode),
-    Pending(PendingCode),
     Success(SuccessCode),
-}
-
-#[derive(Clone)]
-pub enum PendingCode {
-    PendingTOS = 23,
 }
 
 #[derive(Clone)]
 pub enum SuccessCode {
     Success = 0,
+    PendingTOS = 23,
 }
 
 #[derive(Clone)]

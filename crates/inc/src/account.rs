@@ -1,4 +1,4 @@
-use base::account::{FailedCode, PendingCode, StatusCode, SuccessCode};
+use base::account::{FailedCode, StatusCode, SuccessCode};
 use bcrypt::verify;
 use db::account::model::AccountModel;
 
@@ -17,7 +17,7 @@ pub fn get_status_code_by_account(acc_model: &AccountModel) -> StatusCode {
         return StatusCode::Failed(FailedCode::Banned);
     }
     if !acc_model.accepted_tos {
-        return StatusCode::Pending(PendingCode::PendingTOS);
+        return StatusCode::Success(SuccessCode::PendingTOS);
     }
     StatusCode::Success(SuccessCode::Success)
 }

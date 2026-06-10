@@ -90,11 +90,13 @@ pub fn handle_events_system(
                 client_id,
                 acc_id,
                 acc_model,
+                code,
             } => {
                 login_success_writer.write(LoginSuccessResponseMessage {
                     client_id,
                     acc_id,
                     acc_model,
+                    code,
                 });
             }
             AsyncEvent::LoginFailed { client_id, code } => {
