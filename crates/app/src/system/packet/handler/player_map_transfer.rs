@@ -158,7 +158,50 @@ pub fn handle_player_map_transfer_response(
         let Ok((char_entity, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
-        dbg!(char_entity);
+        let Some((inv_entity, _, _)) = inv_params
+            .inventories
+            .iter()
+            .find(|(_, _, parent)| parent.0 == char_entity)
+        else {
+            continue;
+        };
+        let Some((equipped_tab_entity, _, _)) = inv_params
+            .equipped_tabs
+            .iter()
+            .find(|(_, _, parent)| parent.0 == inv_entity)
+        else {
+            continue;
+        };
+        let filled_item_slots: Vec<_> = inv_params
+            .filled_slots
+            .iter()
+            .filter(|(_, _, parent)| parent.0 == equipped_tab_entity)
+            .collect();
+        let mut equips_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
+        let mut equips: Vec<MapleItem> = Vec::new();
+        for (filled_item_slot_entity, _, _) in filled_item_slots {
+            let Some((equip, _)) = items
+                .iter()
+                .find(|(_, parent)| parent.0 == filled_item_slot_entity)
+            else {
+                continue;
+            };
+            equips.push(equip.clone());
+        }
+        equips_map.insert(char.id, equips);
+
+        let Ok(mut spawn_player_packet) =
+            codec::player::spawn::build_spawn_player_packet(&char, &equips_map)
+        else {
+            continue;
+        };
+        results.write(HandlerResult {
+            client_id: msg.client_id,
+            actions: vec![Action::HandlerAction {
+                packet: spawn_player_packet.finish(),
+                scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+            }],
+        });
         for (char_entity, char, _) in session_params
             .chars
             .iter()
@@ -204,7 +247,7 @@ pub fn handle_player_map_transfer_response(
                 client_id: msg.client_id,
                 actions: vec![Action::HandlerAction {
                     packet: spawn_player_packet.finish(),
-                    scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+                    scope: ActionScope::Local,
                 }],
             });
         }

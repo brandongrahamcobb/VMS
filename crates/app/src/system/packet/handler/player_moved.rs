@@ -47,7 +47,11 @@ pub fn handle_player_moved(
             let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
                 continue;
             };
-            let Ok((mut curr_pos, _)) = pos_params.curr_positions.get_mut(in_char.0) else {
+            let Some((mut curr_pos, _)) = pos_params
+                .curr_positions
+                .iter_mut()
+                .find(|(_, parent)| parent.0 == in_char.0)
+            else {
                 continue;
             };
             let new_pos: Point =

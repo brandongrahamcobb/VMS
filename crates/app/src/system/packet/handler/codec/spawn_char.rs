@@ -18,6 +18,7 @@ use crate::component::inventory::{
 };
 use crate::component::item::MapleItem;
 use crate::component::keybinding::MapleKeybinding;
+use crate::component::position::MapleCurrentPosition;
 use crate::component::skill::MapleSkill;
 use crate::component::slot::MapleEmptyItemSlot;
 use crate::system::packet::handler::codec::spawn_item;
@@ -41,6 +42,12 @@ pub fn spawn_char_with_equips(
 ) -> HashMap<i32, Vec<MapleItem>> {
     let mut equipped_filled_slots_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
     for (_, (char_entity, char)) in chars.iter() {
+        let curr_pos = MapleCurrentPosition {
+            x: 0,
+            y: 0,
+            fh: None,
+        };
+        commands.spawn((curr_pos, ChildOf(*char_entity)));
         let Some(keybinding_models) = keybinding_model_map.get(&char.id) else {
             continue;
         };
