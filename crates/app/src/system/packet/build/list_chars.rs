@@ -30,8 +30,8 @@ use net::packet::model::Packet;
 use op::send::SendOpcode;
 
 pub fn build_list_chars_packet(
-    chars: HashMap<i32, (Entity, MapleCharacter)>,
-    equips_map: HashMap<i32, Vec<MapleItem>>,
+    chars: &HashMap<i32, (Entity, MapleCharacter)>,
+    equips_map: &HashMap<i32, Vec<MapleItem>>,
     channel_id: u8,
     char_slots: i16,
     pic_status: i16,
@@ -42,7 +42,7 @@ pub fn build_list_chars_packet(
     packet.write_byte(channel_id as i16).map_err(WriteError)?;
     packet.write_byte(chars.len() as i16).map_err(WriteError)?;
     for (_char_id, (_, char)) in chars.iter() {
-        build_look_part_packet(&mut packet, char, equips_map.clone(), char.map_wz)?;
+        build_look_part_packet(&mut packet, char, equips_map, char.map_wz)?;
     }
     packet.write_byte(pic_status).map_err(WriteError)?;
     packet.write_int(char_slots as i32).map_err(WriteError)?;
@@ -52,11 +52,11 @@ pub fn build_list_chars_packet(
 fn build_look_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-    equips_map: HashMap<i32, Vec<MapleItem>>,
+    equips_map: &HashMap<i32, Vec<MapleItem>>,
     map_wz: i32,
 ) -> Result<(), PacketBuildError> {
-    codec::player::builder::build_list_char_meta_part_packet(packet, char, map_wz)?;
-    codec::player::builder::build_look_meta_part_packet(packet, char, equips_map)?;
+    codec::player::stats::build_char_stats_meta_part_packet(packet, char, map_wz)?;
+    codec::player::look::build_look_meta_part_packet(packet, char, equips_map)?;
     packet.write_byte(0).map_err(WriteError)?;
     // Disable rank.
     packet.write_byte(0).map_err(WriteError)?;

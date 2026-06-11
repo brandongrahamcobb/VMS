@@ -155,8 +155,8 @@ pub fn handle_list_chars(
         };
 
         let Ok(mut list_chars_packet) = list_chars::build_list_chars_packet(
-            chars_map,
-            equips_map,
+            &chars_map,
+            &equips_map,
             msg.channel_id,
             msg.slots,
             pic_status,

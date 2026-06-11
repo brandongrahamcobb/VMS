@@ -78,7 +78,7 @@ pub fn handle_map_change(
             continue;
         };
 
-        let Ok(mut despawn_packet) = codec::player::builder::build_despawn_player_packet(char.id)
+        let Ok(mut despawn_packet) = codec::player::spawn::build_despawn_player_packet(char.id)
         else {
             continue;
         };

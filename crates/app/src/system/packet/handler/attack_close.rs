@@ -205,8 +205,7 @@ pub fn handle_dead_mob(
             exp.amount = 0;
             char.level += 1;
             stats_updates.push(StatsUpdate::Level { level: char.level });
-            let Ok(mut set_level_packet) =
-                codec::player::builder::build_set_level_packet(char.level)
+            let Ok(mut set_level_packet) = codec::player::stats::build_set_level_packet(char.level)
             else {
                 continue;
             };
@@ -214,7 +213,7 @@ pub fn handle_dead_mob(
                 packet: set_level_packet.finish(),
                 scope: ActionScope::Local,
             });
-            let Ok(mut set_exp_packet) = codec::player::builder::build_set_exp_packet(0) else {
+            let Ok(mut set_exp_packet) = codec::player::stats::build_set_exp_packet(0) else {
                 continue;
             };
             actions.push(Action::HandlerAction {
@@ -222,7 +221,7 @@ pub fn handle_dead_mob(
                 scope: ActionScope::Local,
             });
             let Ok(mut level_up_packet) =
-                codec::player::builder::build_level_up_effect_packet(char.id)
+                codec::player::stats::build_level_up_effect_packet(char.id)
             else {
                 continue;
             };
@@ -231,7 +230,7 @@ pub fn handle_dead_mob(
                 scope: ActionScope::Map(MapScope::SameChannelSameWorld),
             });
         } else {
-            let Ok(mut set_exp_packet) = codec::player::builder::build_set_exp_packet(char.exp)
+            let Ok(mut set_exp_packet) = codec::player::stats::build_set_exp_packet(char.exp)
             else {
                 continue;
             };

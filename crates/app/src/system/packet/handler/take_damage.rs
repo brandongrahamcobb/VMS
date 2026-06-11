@@ -113,8 +113,7 @@ pub fn handle_take_damage(
                 continue;
             };
             commands.entity(client_entity).insert(InMap(map_entity));
-            let Ok(mut despawn_packet) =
-                codec::player::builder::build_despawn_player_packet(char.id)
+            let Ok(mut despawn_packet) = codec::player::spawn::build_despawn_player_packet(char.id)
             else {
                 continue;
             };

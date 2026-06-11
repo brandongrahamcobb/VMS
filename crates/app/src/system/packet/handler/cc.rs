@@ -71,7 +71,7 @@ pub fn handle_change_channel(
             .entity(client_entity)
             .insert(InChannel(channel_entity));
 
-        let Ok(mut despawn_packet) = codec::player::builder::build_despawn_player_packet(char.id)
+        let Ok(mut despawn_packet) = codec::player::spawn::build_despawn_player_packet(char.id)
         else {
             continue;
         };

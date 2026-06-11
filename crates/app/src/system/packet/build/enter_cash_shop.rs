@@ -31,7 +31,7 @@ use op::send::SendOpcode;
 pub fn build_enter_cash_shop_packet(
     username: String,
     char: &MapleCharacter,
-    equips_map: HashMap<i32, Vec<MapleItem>>,
+    equips_map: &HashMap<i32, Vec<MapleItem>>,
 ) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SetCashShop as i16;
@@ -40,7 +40,11 @@ pub fn build_enter_cash_shop_packet(
     packet.write_long(0).map_err(WriteError)?;
     // Flag
     packet.write_byte(0).map_err(WriteError)?;
-    codec::player::builder::build_player_logged_in_meta_part_packet(&mut packet, char, equips_map)?;
+    codec::player::set_field::build_player_logged_in_meta_part_packet(
+        &mut packet,
+        char,
+        equips_map,
+    )?;
     build_cash_shop_meta(&mut packet, username.clone())?;
     Ok(packet)
 }

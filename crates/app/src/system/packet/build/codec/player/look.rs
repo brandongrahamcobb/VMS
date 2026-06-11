@@ -1,5 +1,5 @@
-/* create_char/builder.rs
- * The purpose of this module is to build an outgoing character creation packet.
+/* spawn_player/builder.rs
+ * The purpose of this module is to build an outgoing spawn player packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -21,57 +21,64 @@ use std::collections::HashMap;
 
 use crate::component::character::MapleCharacter;
 use crate::component::item::MapleItem;
-use crate::system::packet::build::codec;
 use crate::system::packet::build::error::PacketBuildError;
 use net::packet::io::error::IOError::WriteError;
 use net::packet::io::prelude::*;
 use net::packet::model::Packet;
-use op::send::SendOpcode;
 
-pub fn build_create_char_packet(
-    char: &MapleCharacter,
-    equips_map: &HashMap<i32, Vec<MapleItem>>,
-    map_wz: i32,
-) -> Result<Packet, PacketBuildError> {
-    let mut packet: Packet = Packet::new_empty();
-    let op = SendOpcode::NewChar as i16;
-    packet.write_short(op).map_err(WriteError)?;
-    packet.write_byte(0).map_err(WriteError)?;
-    build_new_character_look_part_packet(&mut packet, char, equips_map, map_wz)?;
-    Ok(packet)
-}
-
-fn build_new_character_look_part_packet(
+pub fn build_cash_equipment_part_packet(
     packet: &mut Packet,
-    char: &MapleCharacter,
     equips_map: &HashMap<i32, Vec<MapleItem>>,
-    map_wz: i32,
 ) -> Result<(), PacketBuildError> {
-    codec::player::stats::build_char_stats_meta_part_packet(packet, char, map_wz)?;
-    build_new_character_look_meta_part_packet(packet, char, equips_map)?;
-    packet.write_byte(0).map_err(WriteError)?;
-    // Disable rank.
-    packet.write_byte(0).map_err(WriteError)?;
+    for (_char_id, equips) in equips_map.iter() {
+        for equip in equips {
+            if let Some(ipos) = equip.ipos {
+                if equip.base.cash {
+                    packet.write_byte(ipos).map_err(WriteError)?;
+                    packet.write_int(equip.base.wz).map_err(WriteError)?;
+                }
+            } else {
+                continue;
+            };
+        }
+    }
     Ok(())
 }
 
-fn build_new_character_look_meta_part_packet(
+pub fn build_look_regular_equipment_part_packet(
+    packet: &mut Packet,
+    equips_map: &HashMap<i32, Vec<MapleItem>>,
+) -> Result<(), PacketBuildError> {
+    for (_char_id, equips) in equips_map.iter() {
+        for equip in equips {
+            if let Some(ipos) = equip.ipos {
+                if !equip.base.cash {
+                    packet.write_byte(ipos).map_err(WriteError)?;
+                    packet.write_int(equip.base.wz).map_err(WriteError)?;
+                }
+            } else {
+                continue;
+            };
+        }
+    }
+    Ok(())
+}
+
+pub fn build_look_meta_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
     equips_map: &HashMap<i32, Vec<MapleItem>>,
 ) -> Result<(), PacketBuildError> {
-    let gender_wz = char.gender_wz;
-    packet.write_byte(gender_wz).map_err(WriteError)?;
-    let skin_wz = char.skin_wz as i16;
-    packet.write_byte(skin_wz).map_err(WriteError)?;
+    packet.write_byte(char.gender_wz).map_err(WriteError)?;
+    packet.write_byte(char.skin_wz as i16).map_err(WriteError)?;
     packet.write_int(char.face_wz).map_err(WriteError)?;
     packet
         .write_byte(0) // megaphone
         .map_err(WriteError)?;
     packet.write_int(char.hair_wz).map_err(WriteError)?;
-    codec::player::look::build_look_regular_equipment_part_packet(packet, equips_map)?;
+    build_look_regular_equipment_part_packet(packet, equips_map)?;
     packet.write_byte(0xFF).map_err(WriteError)?;
-    codec::player::look::build_cash_equipment_part_packet(packet, equips_map)?;
+    build_cash_equipment_part_packet(packet, equips_map)?;
     packet.write_byte(0xFF).map_err(WriteError)?;
     packet
         .write_int(0) //maskedequips -111

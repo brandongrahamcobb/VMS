@@ -108,14 +108,17 @@ pub fn handle_player_logged_in_response(
             .filter(|(_, _, parent)| parent.0 == equipped_tab_entity)
             .collect();
         let mut equips_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
+        let mut equips: Vec<MapleItem> = Vec::new();
         for (filled_item_slot_entity, _, _) in filled_item_slots {
-            let equips = items
+            let Some((equip, _)) = items
                 .iter()
-                .filter(|(_, parent)| parent.0 == filled_item_slot_entity)
-                .map(|(e, _)| e.clone())
-                .collect();
-            equips_map.insert(char.id, equips);
+                .find(|(_, parent)| parent.0 == filled_item_slot_entity)
+            else {
+                continue;
+            };
+            equips.push(equip.clone());
         }
+        equips_map.insert(char.id, equips);
         let mut binds: Vec<_> = session_params
             .keybindings
             .iter()
@@ -128,7 +131,7 @@ pub fn handle_player_logged_in_response(
             continue;
         };
         let Ok(mut set_field_packet) =
-            codec::player::builder::build_set_field_packet(&char, equips_map, channel.id)
+            codec::player::set_field::build_set_field_packet(&char, &equips_map, channel.id)
         else {
             continue;
         };

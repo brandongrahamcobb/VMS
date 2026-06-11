@@ -98,12 +98,12 @@ pub fn handle_enter_cash_shop(
         }
         commands.entity(client_entity).remove::<InMap>();
 
-        let Ok(mut despawn_packet) = codec::player::builder::build_despawn_player_packet(char.id)
+        let Ok(mut despawn_packet) = codec::player::spawn::build_despawn_player_packet(char.id)
         else {
             continue;
         };
         let Ok(mut enter_cash_shop_packet) =
-            enter_cash_shop::build_enter_cash_shop_packet(acc.username.clone(), char, equips_map)
+            enter_cash_shop::build_enter_cash_shop_packet(acc.username.clone(), &char, &equips_map)
         else {
             continue;
         };

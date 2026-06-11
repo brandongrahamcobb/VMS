@@ -155,13 +155,14 @@ pub fn handle_player_map_transfer_response(
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
+        let Ok((char_entity, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
+        dbg!(char_entity);
         for (char_entity, char, _) in session_params
             .chars
             .iter()
-            .filter(|(_, c, _)| c.map_wz == char.map_wz)
+            .filter(|(_, c, _)| c.map_wz == char.map_wz && c.id != char.id)
         {
             let Some((inv_entity, _, _)) = inv_params
                 .inventories
@@ -183,21 +184,22 @@ pub fn handle_player_map_transfer_response(
                 .filter(|(_, _, parent)| parent.0 == equipped_tab_entity)
                 .collect();
             let mut equips_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
+            let mut equips: Vec<MapleItem> = Vec::new();
             for (filled_item_slot_entity, _, _) in filled_item_slots {
-                let equips = items
+                let Some((equip, _)) = items
                     .iter()
-                    .filter(|(_, parent)| parent.0 == filled_item_slot_entity)
-                    .map(|(e, _)| e.clone())
-                    .collect();
-                equips_map.insert(char.id, equips);
+                    .find(|(_, parent)| parent.0 == filled_item_slot_entity)
+                else {
+                    continue;
+                };
+                equips.push(equip.clone());
             }
-
+            equips_map.insert(char.id, equips);
             let Ok(mut spawn_player_packet) =
-                codec::player::builder::build_spawn_player_packet(char, equips_map)
+                codec::player::spawn::build_spawn_player_packet(&char, &equips_map)
             else {
                 continue;
             };
-
             results.write(HandlerResult {
                 client_id: msg.client_id,
                 actions: vec![Action::HandlerAction {
