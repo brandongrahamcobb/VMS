@@ -17,30 +17,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use base::map::BaseMap;
 use base::mob::BaseMob;
-use bevy::ecs::component::Component;
+use base::portal::BasePortal;
 use bevy::ecs::entity::Entity;
-use std::collections::HashMap;
-use std::time::Instant;
+use bevy::ecs::system::Commands;
 
-#[derive(Clone, Component, Copy)]
-pub struct MapleMob {
-    pub id: u32,
-    pub new_state: u8,
-    pub died_at: Instant,
-    pub dead: bool,
-    pub base: BaseMob,
-}
+use crate::component::mob::{MapleMob, MobIndex};
+use crate::component::npc::MapleNpc;
+use crate::system::packet::handler::codec::{init_map, init_mobs, init_portals};
 
-#[derive(Clone, Component, Default)]
-pub struct MobIndex {
-    pub counter: u32,
-    pub map: HashMap<u32, Entity>,
-}
-
-impl MobIndex {
-    pub fn next_id(&mut self) -> u32 {
-        self.counter += 1;
-        self.counter
-    }
+pub fn lazy_load_map(
+    commands: &mut Commands,
+    channel_entity: Entity,
+    base_map: BaseMap,
+    base_portals: Vec<BasePortal>,
+    base_mobs: Vec<BaseMob>,
+) -> (Entity, Vec<MapleMob>, Vec<MapleNpc>) {
+    let mut mob_index = MobIndex::default();
+    let map_entity = init_map::init(commands, base_map, &mob_index, channel_entity);
+    init_portals::init(commands, base_portals, map_entity.clone());
+    let mobs = init_mobs::init(commands, base_mobs, &mut mob_index, map_entity);
+    let npcs = Vec::new(); // TODO: Spawn NPCS
+    (map_entity, mobs, npcs)
 }

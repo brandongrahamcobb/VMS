@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct BaseMob {
     pub wz: i32,
     pub mad: i16,

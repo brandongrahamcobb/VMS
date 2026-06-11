@@ -38,7 +38,7 @@ fn build_server_list_request() -> Result<Packet, HarnessError> {
 
 fn read_server_list_request_packet(packet: &Packet) -> Result<ServerListResult, HarnessError> {
     let mut cursor = Cursor::new(&packet.bytes[..]);
-    let opcode = cursor
+    let _op = cursor
         .read_short()
         .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
     let marker = cursor

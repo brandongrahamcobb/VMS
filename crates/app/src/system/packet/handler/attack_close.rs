@@ -65,11 +65,7 @@ pub fn handle_close_attack_request(
         let Ok(in_map) = in_params.in_maps.get(client_entity) else {
             continue;
         };
-        let Some((map_entity, _, _)) = loc_params
-            .maps
-            .iter()
-            .find(|(_, _, parent)| parent.0 == in_map.0)
-        else {
+        let Ok((map_entity, _, _)) = loc_params.maps.get(in_map.0) else {
             continue;
         };
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
@@ -201,7 +197,11 @@ pub fn handle_dead_mob(
                 scope: ActionScope::Local,
             }],
         });
-        let Ok((mut exp, _)) = stat_params.exps.get_mut(mob_entity) else {
+        let Some((mut exp, _)) = stat_params
+            .exps
+            .iter_mut()
+            .find(|(_, parent)| parent.0 == mob_entity)
+        else {
             continue;
         };
 

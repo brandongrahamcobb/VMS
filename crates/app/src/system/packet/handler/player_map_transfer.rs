@@ -18,13 +18,10 @@
  */
 
 use std::collections::HashMap;
-use std::time::Instant;
 
 use crate::component::item::MapleItem;
-use crate::component::map::{InMap, MapleMap};
-use crate::component::mob::{MapleMob, MobIndex};
-use crate::component::portal::MaplePortal;
-use crate::component::position::{MapleCurrentPosition, MapleLastPosition};
+use crate::component::map::InMap;
+use crate::component::mob::MapleMob;
 use crate::component::session::Transitioning;
 use crate::message::packet::player_map_transferred::{
     PlayerMapTransferResponseMessage, ReadPlayerMapTransferRequestMessage,
@@ -32,6 +29,7 @@ use crate::message::packet::player_map_transferred::{
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::codec;
+use crate::system::packet::handler::codec::{lazy_map, spawn_mob, spawn_mob_controller};
 use crate::system::system_params::{InParams, InventoryParams, LocationParams, SessionParams};
 use action::model::Action;
 use action::scope::{ActionScope, MapScope};
@@ -102,86 +100,32 @@ pub fn handle_player_map_transfer_response(
         let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let stance: i8 = 0; //placeholder
-        let effect: i8 = 0; //placeholder
-        let team: i8 = -1; //placeholder
-        let mode: u8 = 1; //placeholder
-        let mut mobs_vec: Vec<MapleMob> = Vec::new();
         let map_entity = if let Some((map_entity, _, _)) = loc_params
             .maps
             .iter()
             .find(|(_, m, parent)| parent.0 == in_channel.0 && m.base.wz == msg.base_map.wz)
         {
-            for (mob, _) in mobs.iter().filter(|(_, parent)| parent.0 == map_entity) {
-                mobs_vec.push(mob.clone());
-            }
+            commands.entity(client_entity).insert(InMap(map_entity));
+            let mobs: Vec<MapleMob> = mobs
+                .iter()
+                .filter(|(_, parent)| parent.0 == map_entity)
+                .map(|(mob, _)| *mob)
+                .collect();
+            spawn_mob::write_result(msg.client_id, mobs, &mut results);
             map_entity
         } else {
-            let map: MapleMap = MapleMap {
-                vacant: false,
-                base: msg.base_map.clone(),
-            };
-            let mut mob_index = MobIndex::default();
-            let map_entity = commands
-                .spawn((map.clone(), mob_index.clone(), ChildOf(in_channel.0)))
-                .id();
-            for base_portal in msg.base_portals.clone() {
-                let portal: MaplePortal = MaplePortal { base: base_portal };
-                commands.spawn((portal, ChildOf(map_entity)));
-            }
-            for base_mob in msg.base_mobs.clone() {
-                let mob: MapleMob = MapleMob {
-                    id: mob_index.next_id(),
-                    new_state: 0,
-                    died_at: Instant::now(),
-                    dead: false,
-                    base: base_mob,
-                };
-                mobs_vec.push(mob.clone());
-                let mob_entity = commands.spawn((mob, ChildOf(map_entity))).id();
-                let curr_pos = MapleCurrentPosition {
-                    x: 0,
-                    y: 0,
-                    fh: None,
-                };
-                commands.spawn((curr_pos, ChildOf(mob_entity)));
-                let last_pos = MapleLastPosition { x: 0, y: 0 };
-                commands.spawn((last_pos, ChildOf(mob_entity)));
-            }
-            for mob in mobs_vec.iter() {
-                let Ok(mut spawn_mob_controller_packet) =
-                    codec::mob::builder::build_spawn_mob_controller_packet(
-                        mob, mode, stance, effect, team,
-                    )
-                else {
-                    continue;
-                };
-                results.write(HandlerResult {
-                    client_id: msg.client_id,
-                    actions: vec![Action::HandlerAction {
-                        packet: spawn_mob_controller_packet.finish(),
-                        scope: ActionScope::Local,
-                    }],
-                });
-            }
+            let (map_entity, mobs, npcs) = lazy_map::lazy_load_map(
+                &mut commands,
+                in_channel.0,
+                msg.base_map.clone(),
+                msg.base_portals.clone(),
+                msg.base_mobs.clone(),
+            );
+            commands.entity(client_entity).insert(InMap(map_entity));
+            spawn_mob_controller::write_result(msg.client_id, mobs.clone(), &mut results);
+            spawn_mob::write_result(msg.client_id, mobs, &mut results);
             map_entity
         };
-        // TODO: NPC spawning
-        for mob in mobs_vec.iter() {
-            let Ok(mut spawn_mob_packet) =
-                codec::mob::builder::build_spawn_mob_packet(mob, stance, effect, team)
-            else {
-                continue;
-            };
-            results.write(HandlerResult {
-                client_id: msg.client_id,
-                actions: vec![Action::HandlerAction {
-                    packet: spawn_mob_packet.finish(),
-                    scope: ActionScope::Local,
-                }],
-            });
-        }
-        commands.entity(client_entity).insert(InMap(map_entity));
 
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;

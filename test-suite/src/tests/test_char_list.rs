@@ -30,12 +30,12 @@ pub struct CharListResult {
 
 pub async fn assert_char_list_request(
     mut conn: TestConnection,
-) -> Result<(i16, TestConnection), HarnessError> {
+) -> Result<TestConnection, HarnessError> {
     dbg!(PHASE);
     conn.send_packet(build_char_list_request(WORLD_ID, CHANNEL_ID as i16)?, PHASE)
         .await?;
     assert_char_list_result(&mut conn).await?;
-    Ok((WORLD_ID, conn))
+    Ok(conn)
 }
 
 pub fn build_char_list_request(world_id: i16, channel_id: i16) -> Result<Packet, HarnessError> {

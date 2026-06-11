@@ -33,16 +33,17 @@ pub fn write_result(
     let stance: i8 = 0; //placeholder
     let effect: i8 = 0; //placeholder
     let team: i8 = -1; //placeholder
+    let mode: u8 = 1; //placeholder
     for mob in mobs.iter() {
-        let Ok(mut spawn_mob_packet) =
-            codec::mob::builder::build_spawn_mob_packet(mob, stance, effect, team)
+        let Ok(mut spawn_mob_controller_packet) =
+            codec::mob::builder::build_spawn_mob_controller_packet(mob, mode, stance, effect, team)
         else {
             continue;
         };
         results.write(HandlerResult {
             client_id: client_id,
             actions: vec![Action::HandlerAction {
-                packet: spawn_mob_packet.finish(),
+                packet: spawn_mob_controller_packet.finish(),
                 scope: ActionScope::Local,
             }],
         });

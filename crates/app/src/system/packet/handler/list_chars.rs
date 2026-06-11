@@ -28,7 +28,7 @@ use crate::message::packet::list_chars::ReadListCharsRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::list_chars;
-use crate::system::packet::handler::codec::spawn_char;
+use crate::system::packet::handler::create_char;
 use crate::system::system_params::InParams;
 use crate::system::system_params::LocationParams;
 use crate::system::system_params::SessionParams;
@@ -124,7 +124,7 @@ pub fn handle_list_chars(
             let char_entity = commands.spawn((char.clone(), ChildOf(in_acc.0))).id();
             chars_map.insert(char.id, (char_entity, char.clone()));
         }
-        let equips_map: HashMap<i32, Vec<MapleItem>> = spawn_char::spawn_char_with_equips(
+        let equips_map: HashMap<i32, Vec<MapleItem>> = create_char::spawn_new_char(
             &mut commands,
             chars_map.clone(),
             &msg.keybinding_model_map,

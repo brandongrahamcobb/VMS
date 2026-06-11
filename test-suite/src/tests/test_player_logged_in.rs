@@ -2,11 +2,11 @@ use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
 use crate::tests::test_char_list;
 use crate::tests::test_char_list::{CHANNEL_ID, MAP_WZ};
+use net::packet::io::error::IOError::{ReadError, WriteError};
+use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use op::recv::RecvOpcode;
 use op::send::SendOpcode;
-use net::packet::io::error::IOError::{ReadError, WriteError};
-use net::packet::model::Packet;
-use net::packet::io::prelude::*;
 use std::io::Cursor;
 
 pub const PHASE: &str = "player logged in";

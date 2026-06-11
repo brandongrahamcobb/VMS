@@ -17,30 +17,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use base::mob::BaseMob;
-use bevy::ecs::component::Component;
+use base::map::BaseMap;
 use bevy::ecs::entity::Entity;
-use std::collections::HashMap;
-use std::time::Instant;
+use bevy::ecs::hierarchy::ChildOf;
+use bevy::ecs::system::Commands;
 
-#[derive(Clone, Component, Copy)]
-pub struct MapleMob {
-    pub id: u32,
-    pub new_state: u8,
-    pub died_at: Instant,
-    pub dead: bool,
-    pub base: BaseMob,
-}
+use crate::component::map::MapleMap;
+use crate::component::mob::MobIndex;
 
-#[derive(Clone, Component, Default)]
-pub struct MobIndex {
-    pub counter: u32,
-    pub map: HashMap<u32, Entity>,
-}
-
-impl MobIndex {
-    pub fn next_id(&mut self) -> u32 {
-        self.counter += 1;
-        self.counter
-    }
+pub fn init(
+    commands: &mut Commands,
+    base_map: BaseMap,
+    mob_index: &MobIndex,
+    channel_entity_parent: Entity,
+) -> Entity {
+    let map: MapleMap = MapleMap {
+        vacant: false,
+        base: base_map.clone(),
+    };
+    commands
+        .spawn((
+            map.clone(),
+            mob_index.clone(),
+            ChildOf(channel_entity_parent),
+        ))
+        .id()
 }

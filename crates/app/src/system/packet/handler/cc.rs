@@ -17,10 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::time::Instant;
+
 use crate::component::channel::InChannel;
+use crate::component::session::Transitioning;
 use crate::message::packet::cc::ReadChangeChannelRequestMessage;
 use crate::message::result::HandlerResult;
-use crate::resource::custom_resource::ClientMap;
+use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{cc, codec};
 use crate::system::system_params::{InParams, LocationParams, SessionParams};
 use action::model::Action;
@@ -30,9 +33,11 @@ use bevy::ecs::system::Commands;
 use bevy::ecs::system::Res;
 use config::settings;
 use inc::helpers;
+use ipc::command::AsyncCommand;
 
 pub fn handle_change_channel(
     mut commands: Commands,
+    command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
     loc_params: LocationParams,
     in_params: InParams,
@@ -55,8 +60,17 @@ pub fn handle_change_channel(
         let Some((channel_entity, channel, _)) = loc_params
             .channels
             .iter()
-            .find(|(_, c, parent)| c.id == msg.channel_id && parent.0 == in_world.0)
+            .find(|(_, c, parent)| parent.0 == in_world.0 && c.id == msg.channel_id)
         else {
+            continue;
+        };
+        let Ok(in_map) = in_params.in_maps.get(client_entity) else {
+            continue;
+        };
+        let Ok((_, map, _)) = loc_params.maps.get(in_map.0) else {
+            continue;
+        };
+        let Ok(in_session) = in_params.in_sessions.get(client_entity) else {
             continue;
         };
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
@@ -66,10 +80,22 @@ pub fn handle_change_channel(
             continue;
         };
 
+        commands.entity(in_session.0).insert(Transitioning {
+            map_wz: map.base.wz,
+            started_at: Instant::now(),
+        });
         commands.entity(client_entity).remove::<InChannel>();
         commands
             .entity(client_entity)
             .insert(InChannel(channel_entity));
+
+        command_tx
+            .0
+            .send(AsyncCommand::AcceptTransition {
+                client_id: msg.client_id,
+                port: channel.port,
+            })
+            .unwrap();
 
         let Ok(mut despawn_packet) = codec::player::spawn::build_despawn_player_packet(char.id)
         else {

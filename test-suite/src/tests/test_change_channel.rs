@@ -13,7 +13,7 @@ use std::io::Cursor;
 pub const SEND_PHASE: &str = "send change channel";
 pub const RECEIVE_PHASE: &str = "receive change channel";
 pub const CHANNEL_ID: u8 = 2;
-pub const PORT: i16 = 8587;
+pub const PORT: i16 = 8588;
 
 struct ChangeChannelResult {
     octets: Vec<u8>,
