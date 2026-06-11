@@ -53,7 +53,11 @@ pub fn handle_mob_moved(
         else {
             continue;
         };
-        let Ok((mut curr_pos, _)) = pos_params.curr_positions.get_mut(mob_entity) else {
+        let Some((mut curr_pos, _)) = pos_params
+            .curr_positions
+            .iter_mut()
+            .find(|(_, parent)| parent.0 == mob_entity)
+        else {
             continue;
         };
 
@@ -64,7 +68,11 @@ pub fn handle_mob_moved(
         curr_pos.x = pos.x;
         curr_pos.y = pos.y;
         curr_pos.fh = Some(msg.fh);
-        let Ok((mut last_pos, _)) = pos_params.last_positions.get_mut(mob_entity) else {
+        let Some((mut last_pos, _)) = pos_params
+            .last_positions
+            .iter_mut()
+            .find(|(_, parent)| parent.0 == mob_entity)
+        else {
             continue;
         };
         let pos = Point {

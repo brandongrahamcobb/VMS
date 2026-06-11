@@ -128,7 +128,6 @@ pub fn build_spawn_player_packet(
     packet.write_bytes(skip).map_err(WriteError)?;
     let team: i16 = 0; // 0 not sure
     packet.write_byte(team).map_err(WriteError)?;
-    dbg!(packet.bytes.len());
     Ok(packet)
 }
 

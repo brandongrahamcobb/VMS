@@ -129,7 +129,7 @@ pub fn build_mob_move_packet(
 
 pub fn build_spawn_mob_controller_packet(
     mob: &MapleMob,
-    mode: i8,
+    mode: u8,
     stance: i8,
     effect: i8,
     team: i8,

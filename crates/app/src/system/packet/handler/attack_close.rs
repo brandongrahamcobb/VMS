@@ -160,6 +160,9 @@ pub fn handle_dead_mob(
     for msg in messages.read() {
         let mut actions: Vec<Action> = Vec::new();
         let mut stats_updates: Vec<StatsUpdate> = Vec::new();
+        let stance: i8 = 0; //placeholder
+        let effect: i8 = 0; //placeholder
+        let team: i8 = -1; //placeholder
         let mode: u8 = 1; // animation 0 fade, 1 drop mob, 2 spawn in
         let owner: i32 = 0; // char id or 0
         let can_pickup: u8 = 0; // 0 everyone 1 owner, 2 party
@@ -186,6 +189,18 @@ pub fn handle_dead_mob(
         else {
             continue;
         };
+        let Ok(mut spawn_mob_controller_packet) =
+            codec::mob::builder::build_spawn_mob_controller_packet(mob, mode, stance, effect, team)
+        else {
+            continue;
+        };
+        results.write(HandlerResult {
+            client_id: msg.client_id,
+            actions: vec![Action::HandlerAction {
+                packet: spawn_mob_controller_packet.finish(),
+                scope: ActionScope::Local,
+            }],
+        });
         let Ok((mut exp, _)) = stat_params.exps.get_mut(mob_entity) else {
             continue;
         };

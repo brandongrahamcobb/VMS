@@ -88,7 +88,7 @@ pub fn build_player_logged_in_meta_part_packet(
     packet.write_short(char.fame).map_err(WriteError)?;
     // Gach xp?
     packet.write_int(0).map_err(WriteError)?;
-    packet.write_int(char.map_wz).map_err(WriteError)?;
+    packet.write_int(char.spawn_map_wz).map_err(WriteError)?;
     packet.write_byte(0).map_err(WriteError)?;
     packet.write_int(0).map_err(WriteError)?;
     let bl_capacity = 25;

@@ -48,7 +48,7 @@ pub struct MapleCharacter {
     pub gender_wz: i16,
     pub last_portal: i16,
     pub world_id: i16,
-    pub map_wz: i32,
+    pub spawn_map_wz: i32,
 }
 
 #[derive(Component)]
@@ -82,7 +82,7 @@ impl From<CharacterModel> for MapleCharacter {
             gender_wz: model.gender_wz,
             last_portal: model.last_portal,
             world_id: model.world_id,
-            map_wz: model.map_wz,
+            spawn_map_wz: model.map_wz,
         }
     }
 }

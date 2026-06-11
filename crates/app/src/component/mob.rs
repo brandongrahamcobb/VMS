@@ -23,7 +23,7 @@ use bevy::ecs::entity::Entity;
 use std::collections::HashMap;
 use std::time::Instant;
 
-#[derive(Component)]
+#[derive(Clone, Component)]
 pub struct MapleMob {
     pub id: u32,
     pub new_state: u8,

@@ -128,7 +128,7 @@ pub fn handle_create_char_response(
             &msg.cash_tab_inv_capacity_map,
         );
         let Ok(mut create_char_packet) =
-            create_char::build_create_char_packet(&char, &equips_map, char.map_wz)
+            create_char::build_create_char_packet(&char, &equips_map, char.spawn_map_wz)
         else {
             continue;
         };

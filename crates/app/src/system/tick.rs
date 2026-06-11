@@ -23,7 +23,7 @@ pub fn mob_respawn_system(
     mut healths: Query<&mut MapleHealth>,
     mut results: MessageWriter<TickResult>,
 ) -> () {
-    let mode: i8 = 1;
+    let mode: u8 = 1;
     let stance: i8 = 0;
     let effect: i8 = 0;
     let team: i8 = -1;

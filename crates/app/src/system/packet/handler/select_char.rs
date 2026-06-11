@@ -71,7 +71,7 @@ pub fn handle_select_char(
             continue;
         };
         commands.entity(in_session.0).insert(Transitioning {
-            map_wz: char.map_wz,
+            map_wz: char.spawn_map_wz,
             started_at: Instant::now(),
         });
 

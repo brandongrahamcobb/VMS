@@ -42,7 +42,7 @@ pub fn build_list_chars_packet(
     packet.write_byte(channel_id as i16).map_err(WriteError)?;
     packet.write_byte(chars.len() as i16).map_err(WriteError)?;
     for (_char_id, (_, char)) in chars.iter() {
-        build_look_part_packet(&mut packet, char, equips_map, char.map_wz)?;
+        build_look_part_packet(&mut packet, char, equips_map, char.spawn_map_wz)?;
     }
     packet.write_byte(pic_status).map_err(WriteError)?;
     packet.write_int(char_slots as i32).map_err(WriteError)?;

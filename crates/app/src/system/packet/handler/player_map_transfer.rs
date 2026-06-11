@@ -24,6 +24,7 @@ use crate::component::item::MapleItem;
 use crate::component::map::{InMap, MapleMap};
 use crate::component::mob::{MapleMob, MobIndex};
 use crate::component::portal::MaplePortal;
+use crate::component::position::{MapleCurrentPosition, MapleLastPosition};
 use crate::component::session::Transitioning;
 use crate::message::packet::player_map_transferred::{
     PlayerMapTransferResponseMessage, ReadPlayerMapTransferRequestMessage,
@@ -85,6 +86,7 @@ pub fn handle_player_map_transfer_response(
     in_params: InParams,
     session_params: SessionParams,
     inv_params: InventoryParams,
+    mobs: Query<(&mut MapleMob, &ChildOf)>,
     items: Query<(&MapleItem, &ChildOf)>,
     mut messages: MessageReader<PlayerMapTransferResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
@@ -100,12 +102,19 @@ pub fn handle_player_map_transfer_response(
         let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
             continue;
         };
-        let mobs: Vec<MapleMob> = Vec::new();
+        let stance: i8 = 0; //placeholder
+        let effect: i8 = 0; //placeholder
+        let team: i8 = -1; //placeholder
+        let mode: u8 = 1; //placeholder
+        let mut mobs_vec: Vec<MapleMob> = Vec::new();
         let map_entity = if let Some((map_entity, _, _)) = loc_params
             .maps
             .iter()
             .find(|(_, m, parent)| parent.0 == in_channel.0 && m.base.wz == msg.base_map.wz)
         {
+            for (mob, _) in mobs.iter().filter(|(_, parent)| parent.0 == map_entity) {
+                mobs_vec.push(mob.clone());
+            }
             map_entity
         } else {
             let map: MapleMap = MapleMap {
@@ -128,16 +137,37 @@ pub fn handle_player_map_transfer_response(
                     dead: false,
                     base: base_mob,
                 };
-                commands.spawn((mob, ChildOf(map_entity)));
+                mobs_vec.push(mob.clone());
+                let mob_entity = commands.spawn((mob, ChildOf(map_entity))).id();
+                let curr_pos = MapleCurrentPosition {
+                    x: 0,
+                    y: 0,
+                    fh: None,
+                };
+                commands.spawn((curr_pos, ChildOf(mob_entity)));
+                let last_pos = MapleLastPosition { x: 0, y: 0 };
+                commands.spawn((last_pos, ChildOf(mob_entity)));
+            }
+            for mob in mobs_vec.iter() {
+                let Ok(mut spawn_mob_controller_packet) =
+                    codec::mob::builder::build_spawn_mob_controller_packet(
+                        mob, mode, stance, effect, team,
+                    )
+                else {
+                    continue;
+                };
+                results.write(HandlerResult {
+                    client_id: msg.client_id,
+                    actions: vec![Action::HandlerAction {
+                        packet: spawn_mob_controller_packet.finish(),
+                        scope: ActionScope::Local,
+                    }],
+                });
             }
             map_entity
         };
-        commands.entity(client_entity).insert(InMap(map_entity));
-        let stance = 0; //placeholder
-        let effect = 0; //placeholder
-        let team = 0; //placeholder
         // TODO: NPC spawning
-        for mob in mobs.iter() {
+        for mob in mobs_vec.iter() {
             let Ok(mut spawn_mob_packet) =
                 codec::mob::builder::build_spawn_mob_packet(mob, stance, effect, team)
             else {
@@ -151,6 +181,7 @@ pub fn handle_player_map_transfer_response(
                 }],
             });
         }
+        commands.entity(client_entity).insert(InMap(map_entity));
 
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
@@ -202,15 +233,32 @@ pub fn handle_player_map_transfer_response(
                 scope: ActionScope::Map(MapScope::SameChannelSameWorld),
             }],
         });
-        for (char_entity, char, _) in session_params
-            .chars
+        let other_clients: Vec<_> = client_map
+            .0
             .iter()
-            .filter(|(_, c, _)| c.map_wz == char.map_wz && c.id != char.id)
-        {
+            .filter(|(_, entity)| {
+                in_params
+                    .in_maps
+                    .get(**entity)
+                    .map(|im| im.0 == map_entity)
+                    .unwrap_or(false)
+            })
+            .map(|(_, entity)| *entity)
+            .collect();
+        for other_client_entity in other_clients {
+            let Ok(in_char) = in_params.in_chars.get(other_client_entity) else {
+                continue;
+            };
+            let Ok((other_char_entity, other_char, _)) = session_params.chars.get(in_char.0) else {
+                continue;
+            };
+            if other_char.id == char.id {
+                continue;
+            }
             let Some((inv_entity, _, _)) = inv_params
                 .inventories
                 .iter()
-                .find(|(_, _, parent)| parent.0 == char_entity)
+                .find(|(_, _, parent)| parent.0 == other_char_entity)
             else {
                 continue;
             };
@@ -237,9 +285,9 @@ pub fn handle_player_map_transfer_response(
                 };
                 equips.push(equip.clone());
             }
-            equips_map.insert(char.id, equips);
+            equips_map.insert(other_char.id, equips);
             let Ok(mut spawn_player_packet) =
-                codec::player::spawn::build_spawn_player_packet(&char, &equips_map)
+                codec::player::spawn::build_spawn_player_packet(&other_char, &equips_map)
             else {
                 continue;
             };
