@@ -1,5 +1,5 @@
-/* player_logged_in/message.rs
- * The purpose of this module is to handle player login.
+/* app/src/message/packet/player_logged_in.rs
+ * The purpose of this module is to serve post-character selection packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 use bevy::prelude::Message;
 use db::{item::model::ItemModel, keybinding::model::KeybindingModel, skill::model::SkillModel};
 

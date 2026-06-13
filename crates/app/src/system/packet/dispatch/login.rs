@@ -1,5 +1,5 @@
-/* credentials/reader.rs
- * The purpose of this module is to read an incoming credentials validation packet.
+/* app/src/system/dispatch/login.rs
+ * The purpose of this module is to read an incoming login validation packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

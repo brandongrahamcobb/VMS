@@ -1,5 +1,5 @@
-/* entity/src/map/model.rs
- * The purpose of this module is to provide a map models.
+/* app/src/map.rs
+ * The purpose of this module is to provide base map values.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

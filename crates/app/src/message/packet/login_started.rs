@@ -1,5 +1,5 @@
-/* login_start/message.rs
- * The purpose of this module is to handle a login start.
+/* app/src/message/packet/login_started.rs
+ * The purpose of this module is to serve post-login packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

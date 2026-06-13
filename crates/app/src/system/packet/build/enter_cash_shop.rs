@@ -1,4 +1,4 @@
-/* enter_cash_shop/builder.rs
+/* app/src/system/packet/build/enter_cash_shop.rs
  * The purpose of this module is to build an outgoing cash shop entrance packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

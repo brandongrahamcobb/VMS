@@ -1,5 +1,5 @@
-/* player_logged_in/store.rs
- * The purpose of this module is to resolve relevant variables for player login.
+/* app/src/system/packet/handler/player_logged_in.rs
+ * The purpose of this module is to process player logged in system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -23,11 +23,9 @@ use crate::message::packet::player_logged_in::{
 };
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
-use crate::system::packet::build::{codec, player_logged_in};
 use crate::system::packet::handler::codec::load_char;
+use crate::system::packet::handler::result::player_logged_in_result;
 use crate::system::system_params::{InParams, InventoryParams, LocationParams, SessionParams};
-use action::model::Action;
-use action::scope::ActionScope;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Query, Res};
@@ -88,31 +86,12 @@ pub fn handle_player_logged_in_response(
             .collect();
         binds.sort_by_key(|(_, k, _)| k.key);
 
-        let Ok(mut keymap_packet) = player_logged_in::build_player_logged_in_keymap_packet(&binds)
-        else {
-            continue;
-        };
-        results.write(HandlerResult {
-            client_id: msg.client_id,
-            actions: vec![Action::HandlerAction {
-                packet: keymap_packet.finish(),
-                scope: ActionScope::Local,
-            }],
-        });
-
-        for (char, equips) in char_map.iter() {
-            let Ok(mut set_field_packet) =
-                codec::player::set_field::build_set_field_packet(char, equips, channel.id)
-            else {
-                continue;
-            };
-            results.write(HandlerResult {
-                client_id: msg.client_id,
-                actions: vec![Action::HandlerAction {
-                    packet: set_field_packet.finish(),
-                    scope: ActionScope::Local,
-                }],
-            });
-        }
+        player_logged_in_result::write_result(
+            msg.client_id,
+            &char_map,
+            &binds,
+            channel,
+            &mut results,
+        );
     }
 }

@@ -1,5 +1,5 @@
-/* mob_ai/store.rs
- * The purpose of this module is to resolve relevant variables for mob AI.
+/* app/src/system/packet/handler/mob_moved.rs
+ * The purpose of this module is to process mob moved system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -25,7 +25,6 @@ use crate::system::packet::build::codec;
 use crate::system::system_params::{InParams, PositionParams};
 use action::model::Action;
 use action::scope::{ActionScope, MapScope};
-use base::map::Point;
 use base::mob::MobMovement;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
@@ -60,14 +59,6 @@ pub fn handle_mob_moved(
         else {
             continue;
         };
-
-        let pos = Point {
-            x: msg.origin_x,
-            y: msg.origin_y,
-        };
-        curr_pos.x = pos.x;
-        curr_pos.y = pos.y;
-        curr_pos.fh = Some(msg.fh);
         let Some((mut last_pos, _)) = pos_params
             .last_positions
             .iter_mut()
@@ -75,12 +66,12 @@ pub fn handle_mob_moved(
         else {
             continue;
         };
-        let pos = Point {
-            x: msg.last_x,
-            y: msg.last_y,
-        };
-        last_pos.x = pos.x;
-        last_pos.y = pos.y;
+
+        curr_pos.x = msg.origin_x;
+        curr_pos.y = msg.origin_y;
+        curr_pos.fh = Some(msg.fh);
+        last_pos.x = msg.last_x;
+        last_pos.y = msg.last_y;
 
         let Ok(mut mob_moved_packet) = codec::mob::builder::build_mob_move_packet(
             msg.mob_id,

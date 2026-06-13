@@ -1,4 +1,4 @@
-/* account/query/setters.rs
+/* db/src/account/query/setters.rs
  * The purpose of this module is to provide database setters for accounts.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
@@ -17,13 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::account::model::AccountModel;
 use crate::error::DatabaseError;
 use crate::pool;
 use crate::pool::DbPool;
+use crate::schema::accounts;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, RunQueryDsl};
-use crate::account::model::AccountModel;
-use crate::schema::accounts;
 
 pub async fn set_pic_by_acc_id(
     pool: &DbPool,

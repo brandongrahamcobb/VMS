@@ -1,5 +1,5 @@
-/* entity/src/mob/model.rs
- * The purpose of this module is to provide mob models.
+/* base/src/mob.rs
+ * The purpose of this module is to provide base mob values.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

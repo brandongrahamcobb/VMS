@@ -1,5 +1,5 @@
-/* chat_text/message.rs
- * The purpose of this module is to handle general chats.
+/* app/src/message/packet/check_char_name.rs
+ * The purpose of this module is to serve new character name check packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 use bevy::prelude::Message;
 
 #[derive(Message)]

@@ -1,5 +1,5 @@
 /* metadata/src/map/map.rs
- * The purpose of this module is to provide metadata access to a map return map.
+ * The purpose of this module is to provide metadata access to a maps.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

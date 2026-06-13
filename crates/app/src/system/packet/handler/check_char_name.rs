@@ -1,5 +1,5 @@
-/* check_char_name/store.rs
- * The purpose of this module is to resolve relevant variables checking a character name.
+/* app/src/system/handler/check_char_name.rs
+ * The purpose of this module is to handle checking character name system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

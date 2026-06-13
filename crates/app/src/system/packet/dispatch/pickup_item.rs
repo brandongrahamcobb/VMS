@@ -1,4 +1,4 @@
-/* pickup_item/reader.rs
+/* app/src/system/dispatch/pickup_item.rs
  * The purpose of this module is to read an incoming item pickup packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

@@ -19,6 +19,7 @@ pub mod player_logged_in;
 pub mod player_map_transfer;
 pub mod player_moved;
 pub mod register_pic;
+pub mod result;
 pub mod select_char;
 pub mod select_char_with_pic;
 pub mod server_status;

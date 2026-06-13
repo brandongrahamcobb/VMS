@@ -1,5 +1,5 @@
-/* login/builder.rs
- * The purpose of this module is to build an outgoing credentials validation packet.
+/* app/src/system/packet/build/codec/login/builder.rs
+ * The purpose of this module is to build generic login packet bytes.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

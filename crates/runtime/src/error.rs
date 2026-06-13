@@ -1,4 +1,4 @@
-/* runtime/error.rs
+/* runtime/src/error.rs
  * The purpose of this module is to provide errors related to the runtime.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

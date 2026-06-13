@@ -1,5 +1,5 @@
-/* codec/item/error.rs
- * The purpose of this module is to provide errors related to item packets.
+/* app/src/system/packet/build/error.rs
+ * The purpose of this module is to provide errors related to packet building.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

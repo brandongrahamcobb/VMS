@@ -1,5 +1,5 @@
-/* app/src/component/item.rs
- * The purpose of this module is to provide an item component.
+/* app/src/component/keybinding.rs
+ * The purpose of this module is to provide a keybinding component.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

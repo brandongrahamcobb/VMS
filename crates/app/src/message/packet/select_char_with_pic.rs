@@ -1,5 +1,5 @@
-/* select_char_with_PIC/message.rs
- * The purpose of this module is to handle PIC, character selection.
+/* app/src/message/packet/select_char_with_pic.rs
+ * The purpose of this module is to serve pic-enabled character selection packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 use bevy::prelude::Message;
 
 #[derive(Message)]

@@ -1,4 +1,4 @@
-/* select_char_with_pic/builder.rs
+/* app/src/system/packet/build/select_char_with_pic.rs
  * The purpose of this module is to build an outgoing, PIC, character selection packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

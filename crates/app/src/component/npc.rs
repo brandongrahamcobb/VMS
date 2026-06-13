@@ -1,5 +1,5 @@
-/* app/src/component/mob.rs
- * The purpose of this module is to provide a mob component.
+/* app/src/component/npc.rs
+ * The purpose of this module is to provide an non-playable character component.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

@@ -1,4 +1,4 @@
-/* packet/src/io/write.rs
+/* net/src/packet/io/write.rs
  * The purpose of this module is to provide implementations for writing an outgoing packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

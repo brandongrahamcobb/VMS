@@ -1,4 +1,4 @@
-/* custom.rs
+/* net/src/crypto/custom.rs
  * The purpose of this module is to provide the custom encryption and decryption of packets.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

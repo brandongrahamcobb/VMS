@@ -1,5 +1,5 @@
-/* spawn_player/builder.rs
- * The purpose of this module is to build an outgoing spawn player packet.
+/* app/src/system/packet/build/codec/set_field/builder.rs
+ * The purpose of this module is to build generic character set field packet bytes.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

@@ -1,4 +1,4 @@
-/* cc/reader.rs
+/* app/src/system/dispatch/cc.rs
  * The purpose of this module is to read an incoming channel change packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 use net::packet::io::error::IOError::ReadError;
 use net::packet::io::prelude::*;
 use net::packet::model::Packet;

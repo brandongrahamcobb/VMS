@@ -1,5 +1,5 @@
 /* app/src/system/packet/handler/login.rs
- * The purpose of this module is to process a login request and response.
+ * The purpose of this module is to process login system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -18,19 +18,19 @@
  */
 use crate::component::account::InAccount;
 use crate::component::account::MapleAccount;
-use crate::message::packet::login::LoginFailedResponseMessage;
-use crate::message::packet::login::LoginSuccessResponseMessage;
+use crate::message::packet::login::InvalidLoginAccountResponseMessage;
 use crate::message::packet::login::ReadLoginRequestMessage;
+use crate::message::packet::login::ValidLoginAccountResponseMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::resource::custom_resource::CustomSender;
 use crate::system::packet::build::codec;
+use crate::system::packet::handler::result::login_valid_result;
 use crate::system::system_params::InParams;
 use crate::system::system_params::SessionParams;
 use action::model::Action;
 use action::scope::ActionScope;
-use base::account::FailedCode;
-use base::account::SuccessCode;
+use base::account::ValidAccountCode;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::MessageReader;
 use bevy::ecs::message::MessageWriter;
@@ -46,23 +46,22 @@ pub fn handle_login_request(
     mut results: MessageWriter<HandlerResult>,
 ) {
     for msg in messages.read() {
-        let already_logged_in = session_params
+        let acc = session_params
             .accounts
             .iter()
-            .find(|(_, a, _)| a.username == msg.username);
-        if already_logged_in.is_some() {
-            let Ok(mut login_failed_packet) =
-                codec::login::builder::build_failed_login_packet(FailedCode::Playing as i16)
-            else {
-                continue;
-            };
-            results.write(HandlerResult {
-                client_id: msg.client_id,
-                actions: vec![Action::HandlerAction {
-                    packet: login_failed_packet.finish(),
-                    scope: ActionScope::Local,
-                }],
-            });
+            .find(|(_, a, _)| a.username == msg.username)
+            .map(|(_, a, _)| a);
+        match acc {
+            Some(acc) => {
+                let code = ValidAccountCode::Playing;
+                login_valid_result::write_result(
+                    msg.client_id,
+                    &vec![acc.clone()],
+                    code,
+                    &mut results,
+                );
+            }
+            None => {}
         }
         command_tx
             .0
@@ -81,7 +80,7 @@ pub fn handle_login_success_response(
     mut commands: Commands,
     client_map: Res<ClientMap>,
     in_params: InParams,
-    mut messages: MessageReader<LoginSuccessResponseMessage>,
+    mut messages: MessageReader<ValidLoginAccountResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) {
     for msg in messages.read() {
@@ -93,39 +92,15 @@ pub fn handle_login_success_response(
         };
         let acc: MapleAccount = MapleAccount::from((msg.acc_model.clone(), msg.acc_id));
         let acc_entity = commands.spawn((acc.clone(), ChildOf(in_session.0))).id();
+
         commands.entity(client_entity).insert(InAccount(acc_entity));
-        if msg.code.clone() as i16 == SuccessCode::Success as i16 {
-            let Ok(mut credentials_packet) =
-                codec::login::builder::build_successful_login_packet(&acc)
-            else {
-                continue;
-            };
-            results.write(HandlerResult {
-                client_id: msg.client_id,
-                actions: vec![Action::HandlerAction {
-                    packet: credentials_packet.finish(),
-                    scope: ActionScope::Local,
-                }],
-            });
-        } else {
-            let Ok(mut login_failed_packet) =
-                codec::login::builder::build_failed_login_packet(msg.code.clone() as i16)
-            else {
-                continue;
-            };
-            results.write(HandlerResult {
-                client_id: msg.client_id,
-                actions: vec![Action::HandlerAction {
-                    packet: login_failed_packet.finish(),
-                    scope: ActionScope::Local,
-                }],
-            });
-        }
+
+        login_valid_result::write_result(msg.client_id, &vec![acc.clone()], msg.code, &mut results);
     }
 }
 
 pub fn handle_login_failed_response(
-    mut messages: MessageReader<LoginFailedResponseMessage>,
+    mut messages: MessageReader<InvalidLoginAccountResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) {
     for msg in messages.read() {

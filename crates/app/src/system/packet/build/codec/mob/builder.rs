@@ -1,5 +1,5 @@
-/* mob/builder.rs
- * The purpose of this module is to build mob packets.
+/* app/src/system/packet/build/codec/mob/builder.rs
+ * The purpose of this module is to build generic mob packet bytes.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

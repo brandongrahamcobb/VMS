@@ -1,5 +1,5 @@
-/* mob_ai/reader.rs
- * The purpose of this module is to read an incoming mob AI packets.
+/* app/src/system/dispatch/mob_moved.rs
+ * The purpose of this module is to read an incoming mob movement packets.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -24,7 +24,7 @@ use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use std::io::Cursor;
 
-pub fn read_mob_ai_packet(
+pub fn read_mob_movement_packet(
     packet: &Packet,
     client_id: i32,
 ) -> Result<ReadMobMovedRequestMessage, DispatchError> {

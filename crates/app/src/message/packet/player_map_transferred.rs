@@ -1,5 +1,5 @@
-/* player_map_transfer/message.rs
- * The purpose of this module is to handle player map transfers.
+/* app/src/message/packet/player_map_transfer.rs
+ * The purpose of this module is to serve post-transition packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

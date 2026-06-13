@@ -1,5 +1,5 @@
-/* create_char/message.rs
- * The purpose of this module is to handle character creation.
+/* app/src/message/packet/create_char.rs
+ * The purpose of this module is to serve new character creation packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

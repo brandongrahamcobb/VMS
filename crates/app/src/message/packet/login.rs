@@ -1,5 +1,5 @@
-/* credentials/message.rs
- * The purpose of this module is to handle credentials validation.
+/* app/src/message/packet/login.rs
+ * The purpose of this module is to serve login packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use base::account::{FailedCode, SuccessCode};
+use base::account::{InvalidAccountCode, ValidAccountCode};
 use bevy::prelude::Message;
 use db::account::model::AccountModel;
 
@@ -30,15 +30,15 @@ pub struct ReadLoginRequestMessage {
 }
 
 #[derive(Message)]
-pub struct LoginSuccessResponseMessage {
+pub struct ValidLoginAccountResponseMessage {
     pub client_id: i32,
     pub acc_id: i32,
     pub acc_model: AccountModel,
-    pub code: SuccessCode,
+    pub code: ValidAccountCode,
 }
 
 #[derive(Message)]
-pub struct LoginFailedResponseMessage {
+pub struct InvalidLoginAccountResponseMessage {
     pub client_id: i32,
-    pub code: FailedCode,
+    pub code: InvalidAccountCode,
 }

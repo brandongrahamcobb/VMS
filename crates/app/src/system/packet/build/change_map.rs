@@ -1,4 +1,4 @@
-/* change_map/builder.rs
+/* app/src/system/packet/build/change_map.rs
  * The purpose of this module is to build an outgoing map change packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

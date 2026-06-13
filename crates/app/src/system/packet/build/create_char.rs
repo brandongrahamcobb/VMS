@@ -1,4 +1,4 @@
-/* create_char/builder.rs
+/* app/src/system/packet/build/create_char.rs
  * The purpose of this module is to build an outgoing character creation packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

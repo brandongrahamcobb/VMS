@@ -1,5 +1,5 @@
-/* list_chars/message.rs
- * The purpose of this module is to handle character listing.
+/* app/src/message/packet/list_chars.rs
+ * The purpose of this module is to serve character list packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

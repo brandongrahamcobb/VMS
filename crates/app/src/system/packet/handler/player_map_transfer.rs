@@ -1,5 +1,5 @@
-/* player_map_transfer/store.rs
- * The purpose of this module is to resolve relevant variables for player map transfers.
+/* app/src/system/packet/handler/player_map_transfer.rs
+ * The purpose of this module is to process player map transfer in system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -26,10 +26,10 @@ use crate::message::packet::player_map_transferred::{
 };
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
-use crate::system::packet::build::codec;
-use crate::system::packet::handler::codec::{lazy_map, load_char, spawn_mob, spawn_mob_controller};
+use crate::system::packet::handler::codec::{lazy_map, load_char};
+use crate::system::packet::handler::result::spawn_char_result;
+use crate::system::packet::handler::result::{spawn_mob_controller_result, spawn_mob_result};
 use crate::system::system_params::{InParams, InventoryParams, LocationParams, SessionParams};
-use action::model::Action;
 use action::scope::{ActionScope, MapScope};
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
@@ -112,7 +112,7 @@ pub fn handle_player_map_transfer_response(
                 .filter(|(_, parent)| parent.0 == map_entity)
                 .map(|(mob, _)| *mob)
                 .collect();
-            spawn_mob::write_result(msg.client_id, mobs, &mut results);
+            spawn_mob_result::write_result(msg.client_id, &mobs, &mut results);
             map_entity
         } else {
             let (map_entity, mobs, npcs) = lazy_map::lazy_load_map(
@@ -123,8 +123,8 @@ pub fn handle_player_map_transfer_response(
                 msg.base_mobs.clone(),
             );
             commands.entity(client_entity).insert(InMap(map_entity));
-            spawn_mob_controller::write_result(msg.client_id, mobs.clone(), &mut results);
-            spawn_mob::write_result(msg.client_id, mobs, &mut results);
+            spawn_mob_result::write_result(msg.client_id, &mobs, &mut results);
+            spawn_mob_controller_result::write_result(msg.client_id, &mobs, &mut results);
             map_entity
         };
         let char_map = load_char::load_char_with_equips(
@@ -134,20 +134,12 @@ pub fn handle_player_map_transfer_response(
             &inv_params,
             items,
         );
-        for (char, equips_map) in char_map.iter() {
-            let Ok(mut spawn_player_packet) =
-                codec::player::spawn::build_spawn_player_packet(&char, &equips_map)
-            else {
-                continue;
-            };
-            results.write(HandlerResult {
-                client_id: msg.client_id,
-                actions: vec![Action::HandlerAction {
-                    packet: spawn_player_packet.finish(),
-                    scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-                }],
-            });
-        }
+        spawn_char_result::write_result(
+            msg.client_id,
+            &char_map,
+            ActionScope::Map(MapScope::SameChannelSameWorld),
+            &mut results,
+        );
         let other_clients: Vec<_> = client_map
             .0
             .iter()
@@ -167,19 +159,6 @@ pub fn handle_player_map_transfer_response(
             &inv_params,
             items,
         );
-        for (char, equips_map) in char_map.iter() {
-            let Ok(mut spawn_player_packet) =
-                codec::player::spawn::build_spawn_player_packet(&char, &equips_map)
-            else {
-                continue;
-            };
-            results.write(HandlerResult {
-                client_id: msg.client_id,
-                actions: vec![Action::HandlerAction {
-                    packet: spawn_player_packet.finish(),
-                    scope: ActionScope::Local,
-                }],
-            });
-        }
+        spawn_char_result::write_result(msg.client_id, &char_map, ActionScope::Local, &mut results);
     }
 }

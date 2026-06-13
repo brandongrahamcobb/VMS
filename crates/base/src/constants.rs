@@ -1,5 +1,5 @@
 /* base/src/constants.rs
- * The purpose of this module is to provide constants for base structs.
+ * The purpose of this module is to provide constants for bases.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

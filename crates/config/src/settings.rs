@@ -1,4 +1,4 @@
-/* settings.rs
+/* config/src/settings.rs
  * The purpose of this module is to access to values in .env.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

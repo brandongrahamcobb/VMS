@@ -1,5 +1,5 @@
-/* cc/message.rs
- * The purpose of this module is to handle channel changes.
+/* app/src/message/packet/change_keymap.rs
+ * The purpose of this module is to serve keymap change packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

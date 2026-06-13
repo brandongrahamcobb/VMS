@@ -1,6 +1,5 @@
-use base::map::BaseMap;
 /* app/src/component/map.rs
- * The purpose of this module is to provide a channel component.
+ * The purpose of this module is to provide a map component.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,6 +16,8 @@ use base::map::BaseMap;
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+use base::map::BaseMap;
 use bevy::ecs::{component::Component, entity::Entity};
 
 #[derive(Clone, Component)]

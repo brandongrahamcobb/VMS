@@ -1,5 +1,5 @@
-/* party_search/message.rs
- * The purpose of this module is to handle party searching.
+/* app/src/message/packet/party_search.rs
+ * The purpose of this module is to serve party search packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 use bevy::prelude::Message;
 
 #[derive(Message)]

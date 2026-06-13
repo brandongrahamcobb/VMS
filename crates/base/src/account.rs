@@ -1,5 +1,5 @@
 /* base/src/account.rs
- * The purpose of this module is to provide constants for a base account.
+ * The purpose of this module is to base account values.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -18,21 +18,15 @@
  */
 
 #[derive(Clone)]
-pub enum StatusCode {
-    Failed(FailedCode),
-    Success(SuccessCode),
-}
-
-#[derive(Clone)]
-pub enum SuccessCode {
-    Success = 0,
-    PendingTOS = 23,
-}
-
-#[derive(Clone)]
-pub enum FailedCode {
-    Banned = 2,
+pub enum InvalidAccountCode {
     InvalidCredentials = 4,
     UnknownCredentials = 5,
+}
+
+#[derive(Clone, Copy)]
+pub enum ValidAccountCode {
+    Success = 0,
+    Banned = 2,
     Playing = 7,
+    PendingTOS = 23,
 }

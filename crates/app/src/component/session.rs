@@ -1,5 +1,5 @@
-/* app/src/component/account.rs
- * The purpose of this module is to provide an account component.
+/* app/src/component/session.rs
+ * The purpose of this module is to provide a session component.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

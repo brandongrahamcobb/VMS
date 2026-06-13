@@ -1,4 +1,4 @@
-/* delet_char/builder.rs
+/* app/src/system/packet/build/delete_char.rs
  * The purpose of this module is to build an outgoing character deletion packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

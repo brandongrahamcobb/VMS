@@ -1,5 +1,5 @@
-/* close_attack/message.rs
- * The purpose of this module is to handle close attacks.
+/* app/src/message/packet/take_damage.rs
+ * The purpose of this module is to serve character damage taken packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

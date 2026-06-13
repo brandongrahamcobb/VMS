@@ -1,5 +1,5 @@
-/* app/src/system/packet_dispatch.rs
- * The purpose of this module is to provide a system for dispatching packets.
+/* app/src/system/result_handler.rs
+ * The purpose of this module is to provide a system for sending packets to scoped clients.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

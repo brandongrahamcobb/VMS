@@ -1,4 +1,4 @@
-/* packet/model.rs
+/* net/src/packet/model.rs
  * The purpose of this module is to provide a packet model.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

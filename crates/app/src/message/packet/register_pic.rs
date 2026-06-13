@@ -1,5 +1,5 @@
-/* register_pic/message.rs
- * The purpose of this module is to handle PIC registration.
+/* app/src/message/packet/register_pic.rs
+ * The purpose of this module is to serve pic registration packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

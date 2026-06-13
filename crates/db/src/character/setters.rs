@@ -1,4 +1,4 @@
-/* character/query/setters.rs
+/* db/src/character/setters.rs
  * The purpose of this module is to provide database setters for characters.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
@@ -17,12 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::character::model::CharacterModel;
 use crate::error::DatabaseError;
 use crate::pool::{self, DbPool};
+use crate::schema::characters;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, RunQueryDsl};
-use crate::character::model::CharacterModel;
-use crate::schema::characters;
 
 pub async fn update_characters(
     pool: &DbPool,

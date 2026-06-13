@@ -1,5 +1,5 @@
-/* app/src/plugin/custom_plugin.rs
- * The purpose of this module is to cross the thread boundary between Bevy and the TCP server.
+/* app/src/plugin/dispatch_plugin.rs
+ * The purpose of this module is to provide a plugin recruiting packet read systems.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

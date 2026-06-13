@@ -1,4 +1,4 @@
-/* chat_text/reader.rs
+/* app/src/system/dispatch/chat_text.rs
  * The purpose of this module is to read and incoming general chat packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

@@ -1,4 +1,4 @@
-/* close_attack/reader.rs
+/* app/src/system/dispatch/attack_close.rs
  * The purpose of this module is to read an incoming close attack packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

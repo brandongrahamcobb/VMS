@@ -1,5 +1,5 @@
-/* entity/src/map/service.rs
- * The purpose of this module is to provide assisting functions for maps.
+/* inc/src/map.rs
+ * The purpose of this module is to provide helper methods for maps.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 use base::map::Point;
 
 pub fn parse_position(movement_bytes: &[u8]) -> Option<Point> {

@@ -1,5 +1,5 @@
 /* base/src/inventory.rs
- * The purpose of this module is to provide an inventory base.
+ * The purpose of this module is to provide base inventory values.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

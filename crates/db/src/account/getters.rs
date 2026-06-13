@@ -1,4 +1,4 @@
-/* account/query/getters.rs
+/* db/src/account/getters.rs
  * The purpose of this module is to provide database getters for accounts.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
@@ -17,12 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::account::model::AccountModel;
 use crate::error::DatabaseError;
 use crate::pool::{self, DbPool};
+use crate::schema::accounts;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, RunQueryDsl};
-use crate::account::model::AccountModel;
-use crate::schema::accounts;
 
 pub async fn get_acc_model_by_username(
     pool: &DbPool,

@@ -1,5 +1,5 @@
-/* list_chars/store.rs
- * The purpose of this module is to resolve relevant variables for character listing.
+/* app/src/system/handler/list_chars.rs
+ * The purpose of this module is to handle character listing system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -27,13 +27,11 @@ use crate::message::packet::list_chars::ListCharsSuccessResponseMessage;
 use crate::message::packet::list_chars::ReadListCharsRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
-use crate::system::packet::build::list_chars;
 use crate::system::packet::handler::create_char;
+use crate::system::packet::handler::result::list_chars_result;
 use crate::system::system_params::InParams;
 use crate::system::system_params::LocationParams;
 use crate::system::system_params::SessionParams;
-use action::model::Action;
-use action::scope::ActionScope;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
@@ -61,12 +59,6 @@ pub fn handle_load_char_slots(
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
-        let Ok(in_acc) = in_params.in_accounts.get(client_entity) else {
-            continue;
-        };
-        let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
-            continue;
-        };
         let Some((world_entity, _)) = loc_params
             .worlds
             .iter()
@@ -74,7 +66,6 @@ pub fn handle_load_char_slots(
         else {
             continue;
         };
-        commands.entity(client_entity).insert(InWorld(world_entity));
         let Some((channel_entity, _, _)) = loc_params
             .channels
             .iter()
@@ -82,10 +73,18 @@ pub fn handle_load_char_slots(
         else {
             continue;
         };
+        let Ok(in_acc) = in_params.in_accounts.get(client_entity) else {
+            continue;
+        };
+        let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
+            continue;
+        };
 
+        commands.entity(client_entity).insert(InWorld(world_entity));
         commands
             .entity(client_entity)
             .insert(InChannel(channel_entity));
+
         command_tx
             .0
             .send(AsyncCommand::DatabaseOperation(
@@ -118,15 +117,15 @@ pub fn handle_list_chars(
         let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
             continue;
         };
-        let mut chars_map: HashMap<i32, (Entity, MapleCharacter)> = HashMap::new();
+        let mut char_map: HashMap<i32, (Entity, MapleCharacter)> = HashMap::new();
         for char_model in msg.char_models.clone() {
             let char: MapleCharacter = MapleCharacter::from(char_model);
             let char_entity = commands.spawn((char.clone(), ChildOf(in_acc.0))).id();
-            chars_map.insert(char.id, (char_entity, char.clone()));
+            char_map.insert(char.id, (char_entity, char.clone()));
         }
         let equips_map: HashMap<i32, Vec<MapleItem>> = create_char::spawn_new_char(
             &mut commands,
-            chars_map.clone(),
+            char_map.clone(),
             &msg.keybinding_model_map,
             &msg.skill_model_map,
             &msg.equipped_item_model_map,
@@ -154,21 +153,15 @@ pub fn handle_list_chars(
             pic_status = PicStatus::NeedsToRegister as i16;
         };
 
-        let Ok(mut list_chars_packet) = list_chars::build_list_chars_packet(
-            &chars_map,
+        list_chars_result::write_result(
+            msg.client_id,
+            &vec![acc.clone()],
+            &char_map,
             &equips_map,
             msg.channel_id,
             msg.slots,
             pic_status,
-        ) else {
-            continue;
-        };
-        results.write(HandlerResult {
-            client_id: msg.client_id,
-            actions: vec![Action::HandlerAction {
-                packet: list_chars_packet.finish(),
-                scope: ActionScope::Local,
-            }],
-        });
+            &mut results,
+        );
     }
 }

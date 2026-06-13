@@ -1,5 +1,5 @@
-/* scope.rs
- * The purpose of this module is to provide the scope a relay action can affect.
+/* app/src/scope.rs
+ * The purpose of this module is to provide the session scope an action can affect.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum ActionScope {
     Map(MapScope),
     Channel(ChannelScope),
@@ -26,14 +26,14 @@ pub enum ActionScope {
     Global,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum MapScope {
     SameChannelSameWorld,
     AllChannelsSameWorld,
     AllChannelsAllWorlds,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum ChannelScope {
     SameWorld,
     AllWorlds,

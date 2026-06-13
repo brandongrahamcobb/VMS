@@ -1,5 +1,5 @@
 /* base/src/skill.rs
- * The purpose of this module is to provide constants for a base skill.
+ * The purpose of this module is to provide base skill values.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

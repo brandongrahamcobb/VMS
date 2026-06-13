@@ -1,5 +1,5 @@
-/* pickup_item/store.rs
- * The purpose of this module is to resolve relevant variables for player login.
+/* app/src/system/packet/handler/pickup_item.rs
+ * The purpose of this module is to process item pickup system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -23,10 +23,8 @@ use crate::message::packet::pickup_item::{
 };
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
-use crate::system::packet::build::pickup_item;
+use crate::system::packet::handler::result::pickup_item_result;
 use crate::system::system_params::{InParams, SessionParams};
-use action::model::Action;
-use action::scope::ActionScope;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
@@ -55,6 +53,7 @@ pub fn handle_pickup_item_request(
         let Some((empty_slot_entity, empty_slot)) = empty_slots.iter().next() else {
             continue;
         };
+
         commands
             .entity(empty_slot_entity)
             .remove::<MapleEmptyItemSlot>()
@@ -95,17 +94,12 @@ pub fn handle_pickup_response(
             continue;
         };
 
-        let Ok(mut pickup_item_packet) =
-            pickup_item::build_pickup_item_packet(char.id, msg.item_id, msg.pet_pickup)
-        else {
-            continue;
-        };
-        results.write(HandlerResult {
-            client_id: msg.client_id,
-            actions: vec![Action::HandlerAction {
-                packet: pickup_item_packet.finish(),
-                scope: ActionScope::Local,
-            }],
-        });
+        pickup_item_result::write_result(
+            msg.client_id,
+            &vec![char.clone()],
+            msg.item_id,
+            msg.pet_pickup,
+            &mut results,
+        );
     }
 }

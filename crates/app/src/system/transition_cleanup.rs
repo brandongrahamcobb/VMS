@@ -1,5 +1,5 @@
-/* app/src/system/transition.rs
- * The purpose of this module is to provide a system for dispatching packets.
+/* app/src/system/transition_cleanup.rs
+ * The purpose of this module is to provide a system for cleaning up transitions.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

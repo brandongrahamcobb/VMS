@@ -1,4 +1,4 @@
-/* character/query/getters.rs
+/* db/src/character/getters.rs
  * The purpose of this module is to provide database getters for characters.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

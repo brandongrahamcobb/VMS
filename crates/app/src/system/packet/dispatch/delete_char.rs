@@ -1,4 +1,4 @@
-/* delete_char/reader.rs
+/* app/src/system/dispatch/delete_char.rs
  * The purpose of this module is to read an incoming character deletion packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

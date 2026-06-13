@@ -1,5 +1,5 @@
-/* move_player/store.rs
- * The purpose of this module is to resolve relevant variables for player movement.
+/* app/src/system/packet/handler/player_moved.rs
+ * The purpose of this module is to handle player movement system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -20,10 +20,8 @@
 use crate::message::packet::player_moved::ReadPlayerMovedRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
-use crate::system::packet::build::player_moved;
+use crate::system::packet::handler::result::player_moved_result;
 use crate::system::system_params::{InParams, PositionParams, SessionParams};
-use action::model::Action;
-use action::scope::{ActionScope, MapScope};
 use base::map::Point;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Res;
@@ -54,23 +52,18 @@ pub fn handle_player_moved(
             else {
                 continue;
             };
+
             let new_pos: Point =
                 inc::map::parse_position(&msg.movement_bytes).unwrap_or(Point { x: 0, y: 0 });
             curr_pos.x = new_pos.x;
             curr_pos.y = new_pos.y;
 
-            let Ok(mut player_moved_packet) =
-                player_moved::build_player_move_packet(char.id, msg.movement_bytes.clone())
-            else {
-                continue;
-            };
-            results.write(HandlerResult {
-                client_id: msg.client_id,
-                actions: vec![Action::HandlerAction {
-                    packet: player_moved_packet.finish(),
-                    scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-                }],
-            });
+            player_moved_result::write_result(
+                msg.client_id,
+                &vec![char.clone()],
+                msg.movement_bytes.clone(),
+                &mut results,
+            );
         }
     }
 }

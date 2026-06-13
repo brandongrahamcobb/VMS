@@ -1,4 +1,4 @@
-/* item/query/setters.rs
+/* db/src/item/setters.rs
  * The purpose of this module is to provide database setters for items.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

@@ -1,5 +1,5 @@
-/* chat_text/store.rs
- * The purpose of this module is to resolve relevant variables during general chat.
+/* app/src/system/handler/chat_text.rs
+ * The purpose of this module is to handle general chat system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,13 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use crate::message::packet::chat_text::ReadChatTextRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
-use crate::system::packet::build::chat_text;
+use crate::system::packet::handler::result::chat_text_result;
 use crate::system::system_params::{InParams, SessionParams};
-use action::model::Action;
-use action::scope::{ActionScope, MapScope};
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Res;
 
@@ -51,18 +51,8 @@ pub fn handle_chat_text(
             continue;
         };
 
-        let Ok(mut chat_packet) =
-            chat_text::build_chat_text_packet(acc.admin, char.id, msg.msg.clone(), msg.show)
-        else {
-            continue;
-        };
-
-        results.write(HandlerResult {
-            client_id: msg.client_id,
-            actions: vec![Action::HandlerAction {
-                packet: chat_packet.finish(),
-                scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-            }],
-        });
+        let mut messages: HashMap<String, i16> = HashMap::new();
+        messages.insert(msg.msg.clone(), msg.show);
+        chat_text_result::write_result(msg.client_id, &acc, &char, &messages, &mut results);
     }
 }

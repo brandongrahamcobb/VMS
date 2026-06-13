@@ -1,5 +1,5 @@
-/* list_worlds/handler.rs
- * The purpose of this module is to handle world listing.
+/* app/src/system/handler/list_worlds.rs
+ * The purpose of this module is to handle world listing system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

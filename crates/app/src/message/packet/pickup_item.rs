@@ -1,5 +1,5 @@
-/* pickup_item/message.rs
- * The purpose of this module is to handle item pickup.
+/* app/src/message/packet/pickup_item.rs
+ * The purpose of this module is to serve item pickup packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

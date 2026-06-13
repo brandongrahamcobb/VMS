@@ -1,5 +1,5 @@
-/* delete_char/store.rs
- * The purpose of this module is to resolve relevant variables for character deletion.
+/* app/src/system/handler/delete_char.rs
+ * The purpose of this module is to handle character deletion system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -20,10 +20,8 @@
 use crate::message::packet::delete_char::ReadDeleteCharRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
-use crate::system::packet::build::spw;
+use crate::system::packet::handler::result::spw_result;
 use crate::system::system_params::{InParams, SessionParams};
-use action::model::Action;
-use action::scope::ActionScope;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Res};
 use config::settings;
@@ -76,16 +74,7 @@ pub fn handle_delete_char_request(
                     },
                 ))
                 .unwrap();
-            let Ok(mut spw_packet) = spw::build_spw_packet(!pic_status) else {
-                continue;
-            };
-            results.write(HandlerResult {
-                client_id: msg.client_id,
-                actions: vec![Action::HandlerAction {
-                    packet: spw_packet.finish(),
-                    scope: ActionScope::Local,
-                }],
-            });
+            spw_result::write_result(msg.client_id, &vec![acc.clone()], pic_status, &mut results);
         }
     }
 }

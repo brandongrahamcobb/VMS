@@ -1,4 +1,4 @@
-/* packet/src/service.rs
+/* net/src/packet/service.rs
  * The purpose of this module is to provide assisting functions and implementations for packets.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

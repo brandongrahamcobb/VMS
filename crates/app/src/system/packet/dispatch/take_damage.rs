@@ -1,4 +1,4 @@
-/* take_damage/reader.rs
+/* app/src/system/dispatch/take_damage.rs
  * The purpose of this module is to read an incoming take damage packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

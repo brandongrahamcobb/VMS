@@ -1,4 +1,4 @@
-/* cc/builder.rs
+/* app/src/system/packet/build/cc.rs
  * The purpose of this module is to build an outgoing channel change packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
@@ -23,10 +23,7 @@ use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use op::send::SendOpcode;
 
-pub fn build_channel_change_packet(
-    octets: [u8; 4],
-    port: i16,
-) -> Result<Packet, PacketBuildError> {
+pub fn build_channel_change_packet(octets: [u8; 4], port: i16) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::ChangeChannel as i16;
     packet.write_short(op).map_err(WriteError)?;

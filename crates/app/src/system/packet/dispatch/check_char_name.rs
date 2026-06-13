@@ -1,4 +1,4 @@
-/* check_char_name/reader.rs
+/* app/src/system/dispatch/check_char_name.rs
  * The purpose of this module is to read an incoming character name check packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

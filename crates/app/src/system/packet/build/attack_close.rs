@@ -1,4 +1,4 @@
-/* close_attack/builder.rs
+/* app/src/system/packet/build/attack_close.rs
  * The purpose of this module is to build an outgoing close attack packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

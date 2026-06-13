@@ -1,5 +1,5 @@
-/* base/src/job/model.rs
- * The purpose of this module is to provide a job wrapper.
+/* base/src/job.rs
+ * The purpose of this module is to provide a base job values.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

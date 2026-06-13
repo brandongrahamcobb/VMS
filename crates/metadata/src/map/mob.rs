@@ -1,5 +1,5 @@
 /* metadata/src/map/mob.rs
- * The purpose of this module is to provide metadata access to map mobs.
+ * The purpose of this module is to provide metadata access to mobs.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

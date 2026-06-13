@@ -1,4 +1,4 @@
-/* pickup_item/builder.rs
+/* app/src/system/packet/build/pickup_item.rs
  * The purpose of this module is to build an outgoing item pickup packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

@@ -1,5 +1,5 @@
-/* close_attack/store.rs
- * The purpose of this module is to resolve relevant variables for close attacks.
+/* app/src/system/packet/handler/take_damage.rs
+ * The purpose of this module is to handle player damage taken system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

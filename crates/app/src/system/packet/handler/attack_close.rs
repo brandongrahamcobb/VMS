@@ -1,5 +1,5 @@
-/* close_attack/store.rs
- * The purpose of this module is to resolve relevant variables for close attacks.
+/* app/src/system/handler/attack_close.rs
+ * The purpose of this module is to handle close attack system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -24,8 +24,12 @@ use crate::message::packet::attack_close::{
 };
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
-use crate::system::packet::build::{attack_close, codec};
+use crate::system::packet::build::attack_close;
 use crate::system::packet::handler::constants::EXP_TABLE;
+use crate::system::packet::handler::result::{
+    drop_items_and_mesos_result, kill_mob_result, level_up_result, mob_damage_result,
+    set_exp_result, spawn_mob_controller_result,
+};
 use crate::system::system_params::{
     InParams, LocationParams, PositionParams, SessionParams, StatParams,
 };
@@ -37,8 +41,6 @@ use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
-use config::settings;
-use inc::helpers;
 use ipc::command::AsyncCommand;
 use ipc::db_command::DatabaseCommand;
 use rand::RngExt;
@@ -56,7 +58,6 @@ pub fn handle_close_attack_request(
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
-        let mut actions: Vec<Action> = Vec::new();
         let mut hp_updates: HashMap<u32, i16> = HashMap::new();
 
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
@@ -99,6 +100,7 @@ pub fn handle_close_attack_request(
             else {
                 continue;
             };
+            spawn_mob_controller_result::write_result(msg.client_id, &vec![*mob], &mut results);
             let Some((mut health, _)) = stat_params
                 .healths
                 .iter_mut()
@@ -122,21 +124,7 @@ pub fn handle_close_attack_request(
                     .unwrap();
             }
         }
-        for (mob_id, hp_percent) in hp_updates {
-            let Ok(mut mob_damage_hp_packet) =
-                codec::mob::builder::build_mob_damage_show_hp_packet(mob_id, hp_percent)
-            else {
-                continue;
-            };
-            actions.push(Action::HandlerAction {
-                packet: mob_damage_hp_packet.finish(),
-                scope: ActionScope::Local,
-            });
-        }
-        results.write(HandlerResult {
-            client_id: msg.client_id,
-            actions,
-        });
+        mob_damage_result::write_result(msg.client_id, &hp_updates, &mut results);
     }
 }
 
@@ -154,18 +142,7 @@ pub fn handle_dead_mob(
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
-        let mut actions: Vec<Action> = Vec::new();
         let mut stats_updates: Vec<StatsUpdate> = Vec::new();
-        let stance: i8 = 0; //placeholder
-        let effect: i8 = 0; //placeholder
-        let team: i8 = -1; //placeholder
-        let mode: u8 = 1; // animation 0 fade, 1 drop mob, 2 spawn in
-        let owner: i32 = 0; // char id or 0
-        let can_pickup: u8 = 0; // 0 everyone 1 owner, 2 party
-        let player_drop: bool = false;
-        let Ok(meso_rate) = settings::get_meso_drop_rate() else {
-            continue;
-        };
 
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
@@ -185,18 +162,7 @@ pub fn handle_dead_mob(
         else {
             continue;
         };
-        let Ok(mut spawn_mob_controller_packet) =
-            codec::mob::builder::build_spawn_mob_controller_packet(mob, mode, stance, effect, team)
-        else {
-            continue;
-        };
-        results.write(HandlerResult {
-            client_id: msg.client_id,
-            actions: vec![Action::HandlerAction {
-                packet: spawn_mob_controller_packet.finish(),
-                scope: ActionScope::Local,
-            }],
-        });
+        kill_mob_result::write_result(msg.client_id, &vec![*mob], &mut results);
         let Some((mut exp, _)) = stat_params
             .exps
             .iter_mut()
@@ -205,54 +171,14 @@ pub fn handle_dead_mob(
             continue;
         };
 
-        let mesos: i32 = helpers::calculate_rand_meso_amount(meso_rate, mob.base.level);
-
-        let Ok(kill_mob_packet) = codec::mob::builder::build_kill_mob_packet(msg.mob_id) else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: kill_mob_packet,
-            scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-        });
-
         char.exp += exp.amount;
         if char.exp >= EXP_TABLE[char.level as usize] as i32 {
             exp.amount = 0;
             char.level += 1;
             stats_updates.push(StatsUpdate::Level { level: char.level });
-            let Ok(mut set_level_packet) = codec::player::stats::build_set_level_packet(char.level)
-            else {
-                continue;
-            };
-            actions.push(Action::HandlerAction {
-                packet: set_level_packet.finish(),
-                scope: ActionScope::Local,
-            });
-            let Ok(mut set_exp_packet) = codec::player::stats::build_set_exp_packet(0) else {
-                continue;
-            };
-            actions.push(Action::HandlerAction {
-                packet: set_exp_packet.finish(),
-                scope: ActionScope::Local,
-            });
-            let Ok(mut level_up_packet) =
-                codec::player::stats::build_level_up_effect_packet(char.id)
-            else {
-                continue;
-            };
-            actions.push(Action::HandlerAction {
-                packet: level_up_packet.finish(),
-                scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-            });
+            level_up_result::write_result(msg.client_id, &vec![char.clone()], &mut results);
         } else {
-            let Ok(mut set_exp_packet) = codec::player::stats::build_set_exp_packet(char.exp)
-            else {
-                continue;
-            };
-            actions.push(Action::HandlerAction {
-                packet: set_exp_packet.finish(),
-                scope: ActionScope::Local,
-            });
+            set_exp_result::write_result(msg.client_id, &vec![char.clone()], &mut results);
         }
         command_tx
             .0
@@ -277,6 +203,7 @@ pub fn handle_dead_mob(
             x: drop_from_pos.x + offset_x,
             y: drop_from_pos.y,
         };
+        let mut item_vec: Vec<MapleItem> = Vec::new();
         for (base_item, item_model) in msg.items.clone() {
             let item_enitity = commands
                 .spawn((
@@ -287,45 +214,16 @@ pub fn handle_dead_mob(
             let Ok(item) = items.get(item_enitity) else {
                 continue;
             };
-            let Ok(mut drop_loot_packet) = codec::item::builder::build_drop_loot_packet(
-                mode,
-                item.id as u32,
-                false,
-                base_item.wz,
-                owner,
-                can_pickup,
-                drop_to_point.clone(),
-                drop_from_point.clone(),
-                player_drop,
-            ) else {
-                continue;
-            };
-            actions.push(Action::HandlerAction {
-                packet: drop_loot_packet.finish(),
-                scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-            });
+            item_vec.push(item.clone());
         }
-        let Ok(mut meso_packet) = codec::item::builder::build_drop_loot_packet(
-            mode,
-            0, // item ID
-            true,
-            mesos,
-            owner,
-            can_pickup,
-            drop_to_point.clone(),
-            drop_from_point.clone(),
-            player_drop,
-        ) else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: meso_packet.finish(),
-            scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-        });
-        results.write(HandlerResult {
-            client_id: msg.client_id,
-            actions,
-        });
+        drop_items_and_mesos_result::write_result(
+            msg.client_id,
+            &vec![*mob],
+            &item_vec,
+            drop_to_point,
+            drop_from_point,
+            &mut results,
+        );
     }
 }
 

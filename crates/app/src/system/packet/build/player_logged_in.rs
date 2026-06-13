@@ -1,4 +1,4 @@
-/* player_logged_in/builder.rs
+/* app/src/system/packet/build/player_logged_in.rs
  * The purpose of this module is to build an outgoing player login packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

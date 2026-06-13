@@ -1,5 +1,5 @@
-/* select_char/reader.rs
- * The purpose of this module is to read an incoming, no-PIC, character selection packet.
+/* app/src/system/dispatch/select_char.rs
+ * The purpose of this module is to read an incoming, pic-disabled, character selection packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

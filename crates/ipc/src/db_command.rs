@@ -1,5 +1,5 @@
-/* ipc/src/command.rs
- * The purpose of this module is to provide an enum for TCP commands.
+/* ipc/src/db_command.rs
+ * The purpose of this module is to provide an enum for TCP db commands.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

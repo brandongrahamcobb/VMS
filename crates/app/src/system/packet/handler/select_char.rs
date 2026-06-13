@@ -1,5 +1,5 @@
-/* select_char/store.rs
- * The purpose of this module is to resolve relevant variables for no-PIC, character selection.
+/* app/src/system/packet/handler/select_char.rs
+ * The purpose of this module is to handle pic-disabled character selection system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -24,15 +24,11 @@ use crate::component::session::Transitioning;
 use crate::message::packet::select_char::ReadSelectCharRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
-use crate::system::packet::build::codec;
+use crate::system::packet::handler::result::select_char_result;
 use crate::system::system_params::{InParams, LocationParams, SessionParams};
-use action::model::Action;
-use action::scope::ActionScope;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Res};
-use config::settings;
-use inc::helpers;
 use ipc::command::AsyncCommand;
 
 pub fn handle_select_char(
@@ -46,11 +42,6 @@ pub fn handle_select_char(
     mut messages: MessageReader<ReadSelectCharRequestMessage>,
 ) -> () {
     for msg in messages.read() {
-        let Ok(addr) = settings::get_routing_address() else {
-            continue;
-        };
-        let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
-
         let Some(&client_entity): Option<&Entity> = client_map.0.get(&msg.client_id) else {
             continue;
         };
@@ -85,17 +76,6 @@ pub fn handle_select_char(
             })
             .unwrap();
 
-        let Ok(mut select_char_packet) =
-            codec::login::builder::build_select_char_packet(msg.char_id, octets, channel.port)
-        else {
-            continue;
-        };
-        results.write(HandlerResult {
-            client_id: msg.client_id,
-            actions: vec![Action::HandlerAction {
-                packet: select_char_packet.finish(),
-                scope: ActionScope::Local,
-            }],
-        });
+        select_char_result::write_result(msg.client_id, &vec![char.id], channel, &mut results);
     }
 }

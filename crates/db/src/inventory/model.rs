@@ -1,5 +1,5 @@
-/* db/src/item/model.rs
- * The purpose of this module is to provide an item model and associated methods.
+/* db/src/inventory/model.rs
+ * The purpose of this module is to provide an inventory model and associated methods.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

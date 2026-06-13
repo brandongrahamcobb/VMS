@@ -1,5 +1,5 @@
 /* app/src/resource/custom_resource.rs
- * The purpose of this module is to define custom resources.
+ * The purpose of this module is to define renet server resources.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 use std::collections::HashMap;
 use std::sync::Mutex;
 use std::sync::mpsc::{Receiver, Sender};

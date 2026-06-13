@@ -1,5 +1,5 @@
-/* app/src/component/mob.rs
- * The purpose of this module is to provide a mob component.
+/* app/src/system/handler/result/player_moved_result.rs
+ * The purpose of this module is to write theacket result.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -18,33 +18,30 @@
  */
 
 use action::model::Action;
-use action::scope::ActionScope;
+use action::scope::{ActionScope, MapScope};
 use bevy::ecs::message::MessageWriter;
 
-use crate::component::mob::MapleMob;
+use crate::component::character::MapleCharacter;
 use crate::message::result::HandlerResult;
-use crate::system::packet::build::codec;
+use crate::system::packet::build::player_moved;
 
 pub fn write_result(
     client_id: i32,
-    mobs: Vec<MapleMob>,
+    chars: &Vec<MapleCharacter>,
+    movement_bytes: Vec<u8>,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
-    let stance: i8 = 0; //placeholder
-    let effect: i8 = 0; //placeholder
-    let team: i8 = -1; //placeholder
-    for mob in mobs.iter() {
-        let Ok(mut spawn_mob_packet) =
-            codec::mob::builder::build_spawn_mob_packet(mob, stance, effect, team)
+    let mut actions: Vec<Action> = Vec::new();
+    for char in chars.iter() {
+        let Ok(mut player_moved_packet) =
+            player_moved::build_player_move_packet(char.id, movement_bytes.clone())
         else {
             continue;
         };
-        results.write(HandlerResult {
-            client_id: client_id,
-            actions: vec![Action::HandlerAction {
-                packet: spawn_mob_packet.finish(),
-                scope: ActionScope::Local,
-            }],
+        actions.push(Action::HandlerAction {
+            packet: player_moved_packet.finish(),
+            scope: ActionScope::Map(MapScope::SameChannelSameWorld),
         });
     }
+    results.write(HandlerResult { client_id, actions });
 }

@@ -1,4 +1,4 @@
-/* prelude.rs
+/* net/src/packet/io/prelude.rs
  * The purpose of this modele is serve common traits across all packet implementations.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

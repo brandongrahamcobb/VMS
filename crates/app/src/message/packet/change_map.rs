@@ -1,5 +1,5 @@
-/* change_map/message.rs
- * The purpose of this module is to handle map changes.
+/* app/src/message/packet/change_map.rs
+ * The purpose of this module is to serve map change packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

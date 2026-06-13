@@ -1,5 +1,5 @@
-/* entity/src/item/model.rs
- * The purpose of this module is to provide an item model.
+/* base/src/item.rs
+ * The purpose of this module is to provide item base values.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

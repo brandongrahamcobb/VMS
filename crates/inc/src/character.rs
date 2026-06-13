@@ -1,5 +1,5 @@
-/* ipc/src/sync/char.rs
- * The purpose of this module is to provide constants for syncronous logic for characters.
+/* inc/src/character.rs
+ * The purpose of this module is to provide helper methods for characters.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

@@ -1,5 +1,5 @@
-/* app/src/component/mp.rs
- * The purpose of this module is to provide a mana point component.
+/* app/src/component/exp.rs
+ * The purpose of this module is to provide an experience point component.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

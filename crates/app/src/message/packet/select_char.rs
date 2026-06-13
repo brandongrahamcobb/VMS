@@ -1,5 +1,5 @@
-/* select_char/message.rs
- * The purpose of this module is to handle no-PIC, character selection.
+/* app/src/message/packet/select_char.rs
+ * The purpose of this module is to serve pic-disabled character selection packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

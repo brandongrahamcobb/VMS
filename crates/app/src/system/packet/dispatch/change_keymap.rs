@@ -1,4 +1,4 @@
-/* change_keymap/reader.rs
+/* app/src/system/dispatch/change_keymap.rs
  * The purpose of this module is to read an incoming keymap change packet
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

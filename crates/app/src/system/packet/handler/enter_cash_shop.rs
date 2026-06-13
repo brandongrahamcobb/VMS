@@ -1,5 +1,5 @@
-/* enter_cash_shop/store.rs
- * The purpose of this module is to resolve relevant variables for entering the cash shop.
+/* app/src/system/handler/enter_cash_shop.rs
+ * The purpose of this module is to handle cash shop entrance system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -25,12 +25,10 @@ use crate::component::session::Transitioning;
 use crate::message::packet::enter_cash_shop::ReadEnterCashShopRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
-use crate::system::packet::build::{codec, enter_cash_shop};
 use crate::system::packet::handler::codec::load_char;
 use crate::system::packet::handler::constants::CASH_SHOP_MAP_WZ;
+use crate::system::packet::handler::result::enter_cash_shop_result;
 use crate::system::system_params::{InParams, InventoryParams, SessionParams};
-use action::model::Action;
-use action::scope::ActionScope;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
@@ -58,6 +56,13 @@ pub fn handle_enter_cash_shop(
         let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
             continue;
         };
+
+        commands.entity(client_entity).remove::<InMap>();
+        commands.entity(in_session.0).insert(Transitioning {
+            map_wz: CASH_SHOP_MAP_WZ,
+            started_at: Instant::now(),
+        });
+
         let char_map = load_char::load_char_with_equips(
             vec![client_entity],
             &in_params,
@@ -66,35 +71,6 @@ pub fn handle_enter_cash_shop(
             items,
         );
 
-        commands.entity(client_entity).remove::<InMap>();
-        commands.entity(in_session.0).insert(Transitioning {
-            map_wz: CASH_SHOP_MAP_WZ,
-            started_at: Instant::now(),
-        });
-
-        for (char, equips) in char_map.iter() {
-            let Ok(mut despawn_packet) = codec::player::spawn::build_despawn_player_packet(char.id)
-            else {
-                continue;
-            };
-            let Ok(mut enter_cash_shop_packet) =
-                enter_cash_shop::build_enter_cash_shop_packet(acc.username.clone(), &char, &equips)
-            else {
-                continue;
-            };
-            results.write(HandlerResult {
-                client_id: msg.client_id,
-                actions: vec![
-                    Action::HandlerAction {
-                        packet: despawn_packet.finish(),
-                        scope: ActionScope::Local,
-                    },
-                    Action::HandlerAction {
-                        packet: enter_cash_shop_packet.finish(),
-                        scope: ActionScope::Local,
-                    },
-                ],
-            });
-        }
+        enter_cash_shop_result::write_result(msg.client_id, acc, &char_map, &mut results);
     }
 }

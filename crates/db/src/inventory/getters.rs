@@ -1,5 +1,5 @@
-/* item/query/getters.rs
- * The purpose of this module is to provide database getters for items.
+/* db/src/inventory/getters.rs
+ * The purpose of this module is to provide database getters for inventories.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

@@ -1,4 +1,4 @@
-/* io/error.rs
+/* net/src/packet/io/error.rs
  * The purpose of this module is to provide errors related to reading/writing packets.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

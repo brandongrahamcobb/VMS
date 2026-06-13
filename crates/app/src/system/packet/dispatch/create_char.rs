@@ -1,4 +1,4 @@
-/* create_char/reader.rs
+/* app/src/system/dispatch/create_char.rs
  * The purpose of this module is to read an incoming character creation packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

@@ -1,5 +1,5 @@
-/* delete_char/message.rs
- * The purpose of this module is to handle character deletion.
+/* app/src/message/packet/delete_char.rs
+ * The purpose of this module is to serve character deletion packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

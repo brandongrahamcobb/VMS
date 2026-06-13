@@ -1,5 +1,5 @@
-/* item/builder.rs
- * The purpose of this module is to build an outgoing item packet.
+/* app/src/system/packet/build/codec/item/builder.rs
+ * The purpose of this module is to build generic item packet bytes.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

@@ -1,4 +1,4 @@
-/* handshake/builder.rs
+/* runtime/src/handshake.rs
  * The purpose of this module is to build an outgoing handshake packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

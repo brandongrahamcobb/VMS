@@ -1,5 +1,5 @@
-/* create_char/store.rs
- * The purpose of this module is to resolve relevant variables for character creation.
+/* app/src/system/handler/create_char.rs
+ * The purpose of this module is to handle character creation system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -34,10 +34,8 @@ use crate::message::packet::create_char::{
 };
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
-use crate::system::packet::build::create_char;
+use crate::system::packet::handler::result::create_char_result;
 use crate::system::system_params::{InParams, LocationParams, SessionParams};
-use action::model::Action;
-use action::scope::ActionScope;
 use base::inventory::{
     ANDROID_EQUIP_SLOTS, CASH_EQUIP_SLOTS, PET_EQUIP_SLOTS, REGULAR_EQUIP_SLOTS,
 };
@@ -145,18 +143,7 @@ pub fn handle_create_char_response(
         let Some(equips) = equips_map.get(&msg.char_id) else {
             continue;
         };
-        let Ok(mut create_char_packet) =
-            create_char::build_create_char_packet(&char, &equips, char.spawn_map_wz)
-        else {
-            continue;
-        };
-        results.write(HandlerResult {
-            client_id: msg.client_id,
-            actions: vec![Action::HandlerAction {
-                packet: create_char_packet.finish(),
-                scope: ActionScope::Local,
-            }],
-        });
+        create_char_result::write_result(msg.client_id, &vec![char.clone()], &equips, &mut results);
     }
 }
 

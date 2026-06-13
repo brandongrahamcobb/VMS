@@ -1,5 +1,5 @@
 /* metadata/src/map/portal.rs
- * The purpose of this module is to provide metadata access to map portals.
+ * The purpose of this module is to provide metadata access to portals.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

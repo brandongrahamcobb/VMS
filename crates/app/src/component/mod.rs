@@ -5,7 +5,6 @@ pub mod exp;
 pub mod hp;
 pub mod inventory;
 pub mod item;
-pub mod job;
 pub mod keybinding;
 pub mod map;
 pub mod mob;

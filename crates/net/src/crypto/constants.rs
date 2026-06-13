@@ -1,5 +1,5 @@
-/* constants.rs
- * The purpose of this module is to provide constants.
+/* net/src/crypto/constants.rs
+ * The purpose of this module is to provide cryptographic constants.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

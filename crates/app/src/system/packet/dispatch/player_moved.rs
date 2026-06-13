@@ -1,4 +1,4 @@
-/* move_player/reader.rs
+/* app/src/system/dispatch/player_moved.rs
  * The purpose of this module is to read an incoming player movement packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

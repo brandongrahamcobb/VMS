@@ -1,4 +1,4 @@
-/* spw/builder.rs
+/* app/src/system/packet/build/spw.rs
  * The purpose of this module is to build an outgoing login SPW packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

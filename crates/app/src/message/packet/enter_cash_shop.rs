@@ -1,5 +1,5 @@
-/* enter_cash_shop/message.rs
- * The purpose of this module is to handle cash shop entrance.
+/* app/src/message/packet/enter_cash_shop.rs
+ * The purpose of this module is to serve cash shop entrance packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

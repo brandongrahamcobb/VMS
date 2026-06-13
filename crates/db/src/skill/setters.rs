@@ -1,4 +1,4 @@
-/* skill/query/setters.rs
+/* db/src/skill/setters.rs
  * The purpose of this module is to provide database setters for skills.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
@@ -19,10 +19,10 @@
 
 use crate::error::DatabaseError;
 use crate::pool::{self, DbPool};
-use diesel::expression_methods::*;
-use diesel::{QueryDsl, RunQueryDsl};
 use crate::schema::skills;
 use crate::skill::model::SkillModel;
+use diesel::expression_methods::*;
+use diesel::{QueryDsl, RunQueryDsl};
 
 pub async fn update_skills(
     pool: &DbPool,

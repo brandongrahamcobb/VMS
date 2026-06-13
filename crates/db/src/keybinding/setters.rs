@@ -1,4 +1,4 @@
-/* db/src/keybinding/query/setters.rs
+/* db/src/keybinding/setters.rs
  * The purpose of this module is to provide database setters for keybindings.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
@@ -18,11 +18,11 @@
  */
 
 use crate::error::DatabaseError;
+use crate::keybinding::model::KeybindingModel;
 use crate::pool::{self, DbPool};
+use crate::schema::keybindings;
 use diesel::expression_methods::*;
 use diesel::{QueryDsl, RunQueryDsl};
-use crate::keybinding::model::KeybindingModel;
-use crate::schema::keybindings;
 
 pub async fn update_keybindings(
     pool: &DbPool,

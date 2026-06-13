@@ -1,5 +1,5 @@
-/* metadata/src/map/return.rs
- * The purpose of this module is to provide metadata access to a map return map.
+/* metadata/src/map/death.rs
+ * The purpose of this module is to provide metadata access to a death map.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

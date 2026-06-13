@@ -1,5 +1,5 @@
-/* change_keymap/store.rs
- * The purpose of this module is to resolve relevant variables for changing keymaps.
+/* app/src/system/handler/change_keymap.rs
+ * The purpose of this module is to handle changing keymap system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

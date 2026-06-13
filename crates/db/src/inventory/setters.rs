@@ -1,5 +1,5 @@
-/* item/query/setters.rs
- * The purpose of this module is to provide database setters for items.
+/* db/src/inventory/setters.rs
+ * The purpose of this module is to provide database setters for inventories.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

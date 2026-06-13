@@ -1,5 +1,5 @@
-/* cc/store.rs
- * The purpose of this module is to resolve relevant variables for changing channels.
+/* app/src/system/handler/cc.rs
+ * The purpose of this module is to handle changing channel system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -24,15 +24,11 @@ use crate::component::session::Transitioning;
 use crate::message::packet::cc::ReadChangeChannelRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
-use crate::system::packet::build::{cc, codec};
+use crate::system::packet::handler::result::change_channel_result;
 use crate::system::system_params::{InParams, LocationParams, SessionParams};
-use action::model::Action;
-use action::scope::{ActionScope, MapScope};
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Commands;
 use bevy::ecs::system::Res;
-use config::settings;
-use inc::helpers;
 use ipc::command::AsyncCommand;
 
 pub fn handle_change_channel(
@@ -46,11 +42,6 @@ pub fn handle_change_channel(
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
-        let Ok(addr) = settings::get_routing_address() else {
-            continue;
-        };
-        let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
-
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
             continue;
         };
@@ -97,26 +88,11 @@ pub fn handle_change_channel(
             })
             .unwrap();
 
-        let Ok(mut despawn_packet) = codec::player::spawn::build_despawn_player_packet(char.id)
-        else {
-            continue;
-        };
-        let Ok(mut cc_packet) = cc::build_channel_change_packet(octets, channel.port) else {
-            continue;
-        };
-
-        results.write(HandlerResult {
-            client_id: msg.client_id,
-            actions: vec![
-                Action::HandlerAction {
-                    packet: despawn_packet.finish(),
-                    scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-                },
-                Action::HandlerAction {
-                    packet: cc_packet.finish(),
-                    scope: ActionScope::Local,
-                }, // break transition TODO
-            ],
-        });
+        change_channel_result::write_result(
+            msg.client_id,
+            &vec![char.clone()],
+            &channel,
+            &mut results,
+        );
     }
 }

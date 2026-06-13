@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::system::Commands;

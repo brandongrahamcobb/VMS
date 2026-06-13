@@ -1,5 +1,5 @@
-/* metadata/src/map/item.rs
- * The purpose of this module is to provide assisting functions for items.
+/* inc/src/item.rs
+ * The purpose of this module is to provide helper methods for items.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -18,7 +18,6 @@
  */
 
 use crate::error::IncError;
-use crate::helpers;
 use base::{inventory::InventoryTab, item::BaseItem};
 use config::settings;
 use db;
@@ -39,21 +38,21 @@ pub fn create_item_model_by_wz(wz: i32) -> Result<ItemModel, IncError> {
                     id: None,
                     char_id: None,
                     ipos: None,
-                    strength: helpers::calculate_rand_stat(item_wz_info.strength, 5),
-                    dexterity: helpers::calculate_rand_stat(item_wz_info.dexterity, 5),
-                    intelligence: helpers::calculate_rand_stat(item_wz_info.intelligence, 5),
-                    luck: helpers::calculate_rand_stat(item_wz_info.luck, 5),
-                    attack: helpers::calculate_rand_stat(item_wz_info.attack, 5),
-                    weapon_defense: helpers::calculate_rand_stat(item_wz_info.weapon_defense, 10),
-                    magic: helpers::calculate_rand_stat(item_wz_info.magic, 5),
-                    magic_defense: helpers::calculate_rand_stat(item_wz_info.magic_defense, 10),
-                    hp: helpers::calculate_rand_stat(item_wz_info.hp, 10),
-                    mp: helpers::calculate_rand_stat(item_wz_info.mp, 10),
-                    accuracy: helpers::calculate_rand_stat(item_wz_info.accuracy, 5),
-                    avoid: helpers::calculate_rand_stat(item_wz_info.avoid, 5),
-                    hands: helpers::calculate_rand_stat(item_wz_info.hands, 5),
-                    speed: helpers::calculate_rand_stat(item_wz_info.speed, 5),
-                    jump: helpers::calculate_rand_stat(item_wz_info.jump, 5),
+                    strength: calculate_rand_stat(item_wz_info.strength, 5),
+                    dexterity: calculate_rand_stat(item_wz_info.dexterity, 5),
+                    intelligence: calculate_rand_stat(item_wz_info.intelligence, 5),
+                    luck: calculate_rand_stat(item_wz_info.luck, 5),
+                    attack: calculate_rand_stat(item_wz_info.attack, 5),
+                    weapon_defense: calculate_rand_stat(item_wz_info.weapon_defense, 10),
+                    magic: calculate_rand_stat(item_wz_info.magic, 5),
+                    magic_defense: calculate_rand_stat(item_wz_info.magic_defense, 10),
+                    hp: calculate_rand_stat(item_wz_info.hp, 10),
+                    mp: calculate_rand_stat(item_wz_info.mp, 10),
+                    accuracy: calculate_rand_stat(item_wz_info.accuracy, 5),
+                    avoid: calculate_rand_stat(item_wz_info.avoid, 5),
+                    hands: calculate_rand_stat(item_wz_info.hands, 5),
+                    speed: calculate_rand_stat(item_wz_info.speed, 5),
+                    jump: calculate_rand_stat(item_wz_info.jump, 5),
                     wz,
                     slots: 0,      //placeholder
                     expire: 0,     //placeholder
@@ -337,3 +336,21 @@ pub fn build_base_item_by_char_id_and_item_wz(
 //     };
 //     Ok(inv_mod)
 // }
+
+pub fn calculate_rand_stat(default_value: i16, max_range: i32) -> i16 {
+    if default_value == 0 {
+        return 0;
+    }
+    let l_max_range = ((default_value as f64 * 0.1).ceil() as i32).min(max_range);
+    let rand = rand::rng().random::<f64>();
+    ((default_value as i32 - l_max_range) + (rand * (l_max_range * 2 + 1) as f64).floor() as i32)
+        as i16
+}
+
+pub fn calculate_rand_meso_amount(meso_rate: f64, level: i16) -> i32 {
+    let base = (level * 3 + 20) as f32;
+    let min = (base * 0.75) as i32;
+    let max = (base * 1.25) as i32;
+    let amount = rand::rng().random_range(min..=max);
+    (amount as f64 * meso_rate) as i32
+}

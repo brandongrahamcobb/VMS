@@ -1,4 +1,4 @@
-/* app/src/server/custom_server.rs
+/* app/src/bin/app.rs
  * The purpose of this module is to provide the Bevy renet server.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

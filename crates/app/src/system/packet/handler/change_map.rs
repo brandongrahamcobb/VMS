@@ -1,5 +1,5 @@
-/* change_map/store.rs
- * The purpose of this module is to resolve relevant variables when changing maps.
+/* app/src/system/handler/change_map.rs
+ * The purpose of this module is to handle changing map system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -25,10 +25,8 @@ use crate::component::session::Transitioning;
 use crate::message::packet::change_map::ReadChangeMapRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
-use crate::system::packet::build::{change_map, codec};
+use crate::system::packet::handler::result::change_map_result;
 use crate::system::system_params::{InParams, LocationParams, SessionParams};
-use action::model::Action;
-use action::scope::{ActionScope, MapScope};
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
@@ -53,18 +51,6 @@ pub fn handle_map_change(
         let Ok(in_map) = in_params.in_maps.get(client_entity) else {
             continue;
         };
-        let Some((portal, _)) = portals
-            .iter()
-            .find(|(p, parent)| p.base.name == msg.portal_name && parent.0 == in_map.0)
-        else {
-            continue;
-        };
-        commands.entity(in_session.0).insert(Transitioning {
-            map_wz: portal.base.target_map_wz,
-            started_at: Instant::now(),
-        });
-
-        commands.entity(client_entity).remove::<InMap>();
         let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
             continue;
         };
@@ -77,31 +63,25 @@ pub fn handle_map_change(
         let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
-
-        let Ok(mut despawn_packet) = codec::player::spawn::build_despawn_player_packet(char.id)
+        let Some((portal, _)) = portals
+            .iter()
+            .find(|(p, parent)| p.base.name == msg.portal_name && parent.0 == in_map.0)
         else {
             continue;
         };
-        let Ok(mut set_field_packet) = change_map::build_set_field_change_map_packet(
-            channel.id,
-            portal.base.target_map_wz,
-            portal.base.wz,
-        ) else {
-            continue;
-        };
 
-        results.write(HandlerResult {
-            client_id: msg.client_id,
-            actions: vec![
-                Action::HandlerAction {
-                    packet: despawn_packet.finish(),
-                    scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-                },
-                Action::HandlerAction {
-                    packet: set_field_packet.finish(),
-                    scope: ActionScope::Local,
-                },
-            ],
+        commands.entity(in_session.0).insert(Transitioning {
+            map_wz: portal.base.target_map_wz,
+            started_at: Instant::now(),
         });
+        commands.entity(client_entity).remove::<InMap>();
+
+        change_map_result::write_result(
+            msg.client_id,
+            &vec![char.clone()],
+            &channel,
+            &portal,
+            &mut results,
+        );
     }
 }

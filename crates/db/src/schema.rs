@@ -1,4 +1,4 @@
-/* schema.rs
+/* db/src/schema.rs
  * The purpose of this module is to frame the database schema for diesel.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

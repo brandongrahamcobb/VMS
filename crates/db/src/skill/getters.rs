@@ -1,4 +1,4 @@
-/* skill/query/getters.rs
+/* db/src/skill/getters.rs
  * The purpose of this module is to provide database getters for skills.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
@@ -19,10 +19,10 @@
 
 use crate::error::DatabaseError;
 use crate::pool::{self, DbPool};
-use diesel::expression_methods::*;
-use diesel::{QueryDsl, RunQueryDsl};
 use crate::schema::skills;
 use crate::skill::model::SkillModel;
+use diesel::expression_methods::*;
+use diesel::{QueryDsl, RunQueryDsl};
 
 pub async fn get_skill_model_by_character_id_and_skill_id(
     pool: &DbPool,

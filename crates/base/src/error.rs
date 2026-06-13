@@ -1,5 +1,5 @@
 /* base/src/error.rs
- * The purpose of this module is to provide errors related to constant structs.
+ * The purpose of this module is to provide errors related to bases.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

@@ -1,5 +1,5 @@
-/* app/src/component/mob.rs
- * The purpose of this module is to provide a mob component.
+/* app/src/system/handler/codec/init_map.rs
+ * The purpose of this module is to process map initialization.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

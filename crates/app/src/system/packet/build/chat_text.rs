@@ -1,4 +1,4 @@
-/* chat_text/builder.rs
+/* app/src/system/packet/build/chat_text.rs
  * The purpose of this module is to build an outgoing general chat packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

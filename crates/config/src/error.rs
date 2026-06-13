@@ -1,4 +1,4 @@
-/* config/error.rs
+/* config/src/error.rs
  * The purpose of this module is to provide errors related to configuration.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

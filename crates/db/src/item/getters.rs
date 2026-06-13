@@ -1,4 +1,4 @@
-/* item/query/getters.rs
+/* db/src/item/getters.rs
  * The purpose of this module is to provide database getters for items.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

@@ -1,4 +1,4 @@
-/* move_player/builder.rs
+/* app/src/system/packet/build/player_moved.rs
  * The purpose of this module is to build an outgoing player movement packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

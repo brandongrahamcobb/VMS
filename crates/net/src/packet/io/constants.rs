@@ -1,5 +1,5 @@
-/* constants.rs
- * The purpose of this module is to provide constants.
+/* net/src/packet/io/constants.rs
+ * The purpose of this module is to provide input/output constants.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

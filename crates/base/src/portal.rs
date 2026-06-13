@@ -1,5 +1,5 @@
 /* base/src/portal.rs
- * The purpose of this module is to provide a base portal.
+ * The purpose of this module is to provide base portal values.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

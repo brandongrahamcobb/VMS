@@ -1,4 +1,4 @@
-/* packet/src/io/read.rs
+/* net/src/packet/io/read.rs
  * The purpose of this module is to provide implementations for reading an incoming packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

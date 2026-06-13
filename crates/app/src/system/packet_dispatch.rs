@@ -323,7 +323,7 @@ pub fn move_dispatch_system(
                 player_moved_writer.write(msg);
             }
             x if x == RecvOpcode::MobMoved as i16 => {
-                let Ok(msg) = mob_moved::read_mob_ai_packet(&packet, client_id) else {
+                let Ok(msg) = mob_moved::read_mob_movement_packet(&packet, client_id) else {
                     continue;
                 };
                 mob_moved_writer.write(msg);

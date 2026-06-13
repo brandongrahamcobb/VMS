@@ -1,5 +1,5 @@
-/* app/src/plugin/custom_plugin.rs
- * The purpose of this module is to cross the thread boundary between Bevy and the TCP server.
+/* app/src/plugin/response_plugin.rs
+ * The purpose of this module is to provide a plugin recruiting inter-system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -23,7 +23,9 @@ use crate::message::packet::create_char::CreateCharResponseMessage;
 use crate::message::packet::list_chars::{
     ListCharsFailedResponseMessage, ListCharsSuccessResponseMessage,
 };
-use crate::message::packet::login::{LoginFailedResponseMessage, LoginSuccessResponseMessage};
+use crate::message::packet::login::{
+    InvalidLoginAccountResponseMessage, ValidLoginAccountResponseMessage,
+};
 use crate::message::packet::pickup_item::PickupItemResponseMessage;
 use crate::message::packet::player_logged_in::PlayerLoggedInResponseMessage;
 use crate::message::packet::player_map_transferred::PlayerMapTransferResponseMessage;
@@ -43,8 +45,8 @@ impl Plugin for ResponsePlugin {
             .add_message::<CreateCharResponseMessage>()
             .add_message::<ListCharsSuccessResponseMessage>()
             .add_message::<ListCharsFailedResponseMessage>()
-            .add_message::<LoginSuccessResponseMessage>()
-            .add_message::<LoginFailedResponseMessage>()
+            .add_message::<ValidLoginAccountResponseMessage>()
+            .add_message::<InvalidLoginAccountResponseMessage>()
             .add_message::<PickupItemResponseMessage>()
             .add_message::<PlayerLoggedInResponseMessage>()
             .add_message::<PlayerMapTransferResponseMessage>()

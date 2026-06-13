@@ -1,4 +1,4 @@
-/* change_map/reader.rs
+/* app/src/system/dispatch/change_map.rs
  * The purpose of this module is to read an incoming map change packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

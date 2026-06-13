@@ -1,5 +1,5 @@
-/* helpers.rs
- * The purpose of this module is to provide project-wide functions.
+/* inc/src/channel.rs
+ * The purpose of this module is to provide helper methods for channels.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

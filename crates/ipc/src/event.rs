@@ -19,7 +19,7 @@
 
 use std::collections::HashMap;
 
-use base::account::{FailedCode, SuccessCode};
+use base::account::{InvalidAccountCode, ValidAccountCode};
 use base::map::BaseMap;
 use base::mob::BaseMob;
 use base::portal::BasePortal;
@@ -50,15 +50,15 @@ pub enum AsyncEvent {
     },
 
     // Login
-    LoginSuccess {
+    LoginValid {
         client_id: i32,
         acc_id: i32,
         acc_model: AccountModel,
-        code: SuccessCode,
+        code: ValidAccountCode,
     },
-    LoginFailed {
+    LoginInvalid {
         client_id: i32,
-        code: FailedCode,
+        code: InvalidAccountCode,
     },
     CharCreationSuccess {
         client_id: i32,

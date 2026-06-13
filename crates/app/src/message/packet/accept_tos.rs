@@ -1,5 +1,5 @@
-/* tos/message.rs
- * The purpose of this module is to handle Terms of Service acceptance.
+/* app/src/message/packet/accept_tos.rs
+ * The purpose of this module is to serve Terms of Service packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

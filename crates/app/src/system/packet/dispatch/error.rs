@@ -1,5 +1,5 @@
-/* handler/error.rs
- * The purpose of this module is to provide errors related to handlers.
+/* app/src/system/dispatch/error.rs
+ * The purpose of this module is to provide errors related to reading packets.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

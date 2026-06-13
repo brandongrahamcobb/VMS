@@ -1,5 +1,5 @@
-/* action.rs
- * The purpose of this module is to provide actions to take after handling an incoming packet.
+/* app/src/model.rs
+ * The purpose of this module is to provide actions to take after processing a system message.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 use crate::scope::{ActionScope, TickScope};
 use net::packet::model::Packet;
 

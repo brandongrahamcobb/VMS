@@ -1,5 +1,5 @@
-/* app/src/component/mob.rs
- * The purpose of this module is to provide a mob component.
+/* app/src/system/handler/result/set_exp_result.rs
+ * The purpose of this module is to write the kill mob packet result.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -21,31 +21,24 @@ use action::model::Action;
 use action::scope::ActionScope;
 use bevy::ecs::message::MessageWriter;
 
-use crate::component::mob::MapleMob;
+use crate::component::character::MapleCharacter;
 use crate::message::result::HandlerResult;
 use crate::system::packet::build::codec;
 
 pub fn write_result(
     client_id: i32,
-    mobs: Vec<MapleMob>,
+    chars: &Vec<MapleCharacter>,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
-    let stance: i8 = 0; //placeholder
-    let effect: i8 = 0; //placeholder
-    let team: i8 = -1; //placeholder
-    let mode: u8 = 1; //placeholder
-    for mob in mobs.iter() {
-        let Ok(mut spawn_mob_controller_packet) =
-            codec::mob::builder::build_spawn_mob_controller_packet(mob, mode, stance, effect, team)
-        else {
+    let mut actions: Vec<Action> = Vec::new();
+    for char in chars {
+        let Ok(mut set_exp_packet) = codec::player::stats::build_set_exp_packet(char.exp) else {
             continue;
         };
-        results.write(HandlerResult {
-            client_id: client_id,
-            actions: vec![Action::HandlerAction {
-                packet: spawn_mob_controller_packet.finish(),
-                scope: ActionScope::Local,
-            }],
+        actions.push(Action::HandlerAction {
+            packet: set_exp_packet.finish(),
+            scope: ActionScope::Local,
         });
     }
+    results.write(HandlerResult { client_id, actions });
 }

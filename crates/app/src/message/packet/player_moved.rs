@@ -1,5 +1,5 @@
-/* move_player/message.rs
- * The purpose of this module is to handle player movement.
+/* app/src/message/packet/player_moved.rs
+ * The purpose of this module is to serve player movement packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 use bevy::prelude::Message;
 
 #[derive(Message)]

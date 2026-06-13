@@ -1,5 +1,5 @@
-/* tos/store.rs
- * The purpose of this module is to resolve relevant variables for Terms of Service.
+/* app/src/system/handler/accept_tos.rs
+ * The purpose of this module is to handle Terms of Service acceptance system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -20,10 +20,8 @@
 use crate::message::packet::accept_tos::ReadTosRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
-use crate::system::packet::build::codec;
+use crate::system::packet::handler::result::accept_tos_result;
 use crate::system::system_params::{InParams, SessionParams};
-use action::model::Action;
-use action::scope::ActionScope;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Res;
 use ipc::command::AsyncCommand;
@@ -60,18 +58,7 @@ pub fn handle_tos(
                     },
                 ))
                 .unwrap();
-            let Ok(mut credentials_packet) =
-                codec::login::builder::build_successful_login_packet(acc)
-            else {
-                continue;
-            };
-            results.write(HandlerResult {
-                client_id: msg.client_id,
-                actions: vec![Action::HandlerAction {
-                    packet: credentials_packet.finish(),
-                    scope: ActionScope::Local,
-                }],
-            });
+            accept_tos_result::write_result(msg.client_id, &vec![acc.clone()], &mut results);
         }
     }
 }

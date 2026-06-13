@@ -1,5 +1,5 @@
-/* register_pic/reader.rs
- * The purpose of this module is to read an incoming PIC registration packet.
+/* app/src/system/dispatch/register_pic.rs
+ * The purpose of this module is to read an incoming pic registration packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

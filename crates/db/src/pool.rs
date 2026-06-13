@@ -1,4 +1,4 @@
-/* pool.rs
+/* db/src/pool.rs
  * The purpose of this module is to serve the database pool.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 use crate::error::DatabaseError;
 use config::settings;
 use diesel::PgConnection;

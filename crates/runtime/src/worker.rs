@@ -1,5 +1,5 @@
-/* runtime/src/workers/login.rs
- * The purpose of this module is to handle asyncronous commands during login.
+/* runtime/src/worker.rs
+ * The purpose of this module is to handle asyncronous commands.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -18,12 +18,12 @@
  */
 
 use crate::error::RuntimeError;
-use base::account::StatusCode;
+use base::account::InvalidAccountCode;
+use base::character::StatsUpdate;
 use base::inventory::InventoryTab;
 use base::mob::BaseMob;
 use base::portal::BasePortal;
 use base::skill::BaseSkill;
-use base::{account::FailedCode, character::StatsUpdate};
 use config::settings;
 use db::inventory::model::InventoryCapacityModel;
 use db::item::model::ItemModel;
@@ -62,33 +62,27 @@ pub async fn db_worker(
                             let acc_id: i32 = acc_model.get_id()?;
                             match authenticated {
                                 Ok(true) => {
-                                    let status =
-                                        inc::account::get_status_code_by_account(&acc_model);
-                                    match status {
-                                        StatusCode::Failed(code) => {
-                                            AsyncEvent::LoginFailed { client_id, code }
-                                        }
-                                        StatusCode::Success(code) => AsyncEvent::LoginSuccess {
-                                            client_id,
-                                            acc_id,
-                                            acc_model,
-                                            code,
-                                        },
+                                    let code = inc::account::get_status_code_by_account(&acc_model);
+                                    AsyncEvent::LoginValid {
+                                        client_id,
+                                        acc_id,
+                                        acc_model,
+                                        code,
                                     }
                                 }
-                                Ok(false) => AsyncEvent::LoginFailed {
+                                Ok(false) => AsyncEvent::LoginInvalid {
                                     client_id,
-                                    code: FailedCode::InvalidCredentials,
+                                    code: InvalidAccountCode::InvalidCredentials,
                                 },
-                                Err(_) => AsyncEvent::LoginFailed {
+                                Err(_) => AsyncEvent::LoginInvalid {
                                     client_id,
-                                    code: FailedCode::InvalidCredentials,
+                                    code: InvalidAccountCode::InvalidCredentials,
                                 },
                             }
                         }
-                        Err(_) => AsyncEvent::LoginFailed {
+                        Err(_) => AsyncEvent::LoginInvalid {
                             client_id,
-                            code: FailedCode::UnknownCredentials,
+                            code: InvalidAccountCode::UnknownCredentials,
                         },
                     };
                 event_tx.send(event).unwrap();

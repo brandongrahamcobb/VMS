@@ -1,5 +1,5 @@
-/* server_status/message.rs
- * The purpose of this module is to handle server status updates.
+/* app/src/message/packet/spw.rs
+ * The purpose of this module is to serve pic validation packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

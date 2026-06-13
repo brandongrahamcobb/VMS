@@ -1,4 +1,4 @@
-/* player_logged_in/reader.rs
+/* app/src/system/dispatch/player_logged_in.rs
  * The purpose of this module is to read an incoming player login packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

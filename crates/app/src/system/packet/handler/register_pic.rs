@@ -1,5 +1,5 @@
-/* register_pic/store.rs
- * The purpose of this module is to resolve relevant variables for PIC registration.
+/* app/src/system/packet/handler/register_pic.rs
+ * The purpose of this module is to handle pic registration system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -20,10 +20,8 @@
 use crate::message::packet::register_pic::ReadRegisterPicRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
-use crate::system::packet::build::spw;
+use crate::system::packet::handler::result::spw_result;
 use crate::system::system_params::{InParams, SessionParams};
-use action::model::Action;
-use action::scope::ActionScope;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::Res;
 use ipc::command::AsyncCommand;
@@ -59,17 +57,7 @@ pub fn handle_register_pic(
             ))
             .unwrap();
 
-        let success_status: bool = true;
-        let Ok(mut spw_packet) = spw::build_spw_packet(success_status) else {
-            continue;
-        };
-
-        results.write(HandlerResult {
-            client_id: msg.client_id,
-            actions: vec![Action::HandlerAction {
-                packet: spw_packet.finish(),
-                scope: ActionScope::Local,
-            }],
-        });
+        let status: bool = true;
+        spw_result::write_result(msg.client_id, &vec![acc.clone()], status, &mut results);
     }
 }

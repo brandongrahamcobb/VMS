@@ -1,4 +1,4 @@
-/* tos/reader.rs
+/* app/src/system/dispatch/accept_tos.rs
  * The purpose of this module is to read an incoming Terms of Service accept packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

@@ -1,5 +1,5 @@
 /* base/src/character.rs
- * The purpose of this module is to provide constants for base structs.
+ * The purpose of this module is to base character values.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

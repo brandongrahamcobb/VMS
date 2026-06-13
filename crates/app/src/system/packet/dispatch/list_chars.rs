@@ -1,4 +1,4 @@
-/* list_chars/reader.rs
+/* app/src/system/dispatch/list_chars.rs
  * The purpose of this module is to read an incoming character listing packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

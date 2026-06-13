@@ -24,7 +24,9 @@ use crate::message::packet::create_char::CreateCharResponseMessage;
 use crate::message::packet::list_chars::{
     ListCharsFailedResponseMessage, ListCharsSuccessResponseMessage,
 };
-use crate::message::packet::login::{LoginFailedResponseMessage, LoginSuccessResponseMessage};
+use crate::message::packet::login::{
+    InvalidLoginAccountResponseMessage, ValidLoginAccountResponseMessage,
+};
 use crate::message::packet::pickup_item::PickupItemResponseMessage;
 use crate::message::packet::player_logged_in::PlayerLoggedInResponseMessage;
 use crate::message::packet::player_map_transferred::PlayerMapTransferResponseMessage;
@@ -52,8 +54,8 @@ pub fn handle_events_system(
     mut pickup_success_writer: MessageWriter<PickupItemResponseMessage>,
     mut close_attack_success_writer: MessageWriter<CloseAttackResponseMessage>,
     mut raw_packet_writer: MessageWriter<RawPacketMessage>,
-    mut login_success_writer: MessageWriter<LoginSuccessResponseMessage>,
-    mut login_fail_writer: MessageWriter<LoginFailedResponseMessage>,
+    mut login_valid_writer: MessageWriter<ValidLoginAccountResponseMessage>,
+    mut login_invalid_writer: MessageWriter<InvalidLoginAccountResponseMessage>,
     mut select_char_success_writer: MessageWriter<SelectCharWithPicResponseMessage>,
     mut player_map_transfer_success_writer: MessageWriter<PlayerMapTransferResponseMessage>,
 ) {
@@ -84,21 +86,21 @@ pub fn handle_events_system(
             AsyncEvent::PacketReceived { client_id, packet } => {
                 raw_packet_writer.write(RawPacketMessage { client_id, packet });
             }
-            AsyncEvent::LoginSuccess {
+            AsyncEvent::LoginValid {
                 client_id,
                 acc_id,
                 acc_model,
                 code,
             } => {
-                login_success_writer.write(LoginSuccessResponseMessage {
+                login_valid_writer.write(ValidLoginAccountResponseMessage {
                     client_id,
                     acc_id,
                     acc_model,
                     code,
                 });
             }
-            AsyncEvent::LoginFailed { client_id, code } => {
-                login_fail_writer.write(LoginFailedResponseMessage { client_id, code });
+            AsyncEvent::LoginInvalid { client_id, code } => {
+                login_invalid_writer.write(InvalidLoginAccountResponseMessage { client_id, code });
             }
             AsyncEvent::SelectCharWithPic {
                 client_id,

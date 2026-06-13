@@ -1,5 +1,5 @@
-/* mob_ai/message.rs
- * The purpose of this module is to handle mob AI.
+/* app/src/message/packet/mob_moved.rs
+ * The purpose of this module is to serve mob movement packet system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 use bevy::prelude::Message;
 
 #[derive(Message)]

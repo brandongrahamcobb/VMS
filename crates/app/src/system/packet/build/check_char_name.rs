@@ -1,4 +1,4 @@
-/* check_char_name/builder.rs
+/* app/src/system/packet/build/check_char_name.rs
  * The purpose of this module is to build an outgoing character name check packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
@@ -23,10 +23,7 @@ use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use op::send::SendOpcode;
 
-pub fn build_check_char_name_packet(
-    exists: bool,
-    ign: String,
-) -> Result<Packet, PacketBuildError> {
+pub fn build_check_char_name_packet(exists: bool, ign: String) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::CharNameResponse as i16;
     packet.write_short(op).map_err(WriteError)?;

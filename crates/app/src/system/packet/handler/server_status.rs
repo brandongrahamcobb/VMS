@@ -1,5 +1,5 @@
-/* server_status/handler.rs
- * The purpose of this module is to handle server status updates.
+/* app/src/system/packet/handler/server_status.rs
+ * The purpose of this module is to handle server status system messages.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

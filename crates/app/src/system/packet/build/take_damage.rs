@@ -1,5 +1,5 @@
-/* close_attack/builder.rs
- * The purpose of this module is to build an outgoing close attack packet.
+/* app/src/system/packet/build/take_damage.rs
+ * The purpose of this module is to build an outgoing take damage packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *

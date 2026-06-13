@@ -1,5 +1,5 @@
-/* raw.rs
- * The purpose of this module is to define the raw packet event.
+/* app/src/message/packet/raw.rs
+ * The purpose of this module is to serve a raw packet system message.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 use bevy::prelude::Message;
 use net::packet::model::Packet;
 

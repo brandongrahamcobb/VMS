@@ -1,4 +1,4 @@
-/* server_status/builder.rs
+/* app/src/system/packet/build/server_status.rs
  * The purpose of this module is to build an outgoing server status packet.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git

@@ -1,5 +1,5 @@
-/* db/error.rs
- * The purpose of this module is to provide errors related to the database.
+/* ipc/src//error.rs
+ * The purpose of this module is to provide errors related to inter-process communication.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
