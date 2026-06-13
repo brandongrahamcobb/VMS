@@ -17,8 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-
 use crate::component::item::MapleItem;
 use crate::component::map::InMap;
 use crate::component::mob::MapleMob;
@@ -29,7 +27,7 @@ use crate::message::packet::player_map_transferred::{
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::codec;
-use crate::system::packet::handler::codec::{lazy_map, spawn_mob, spawn_mob_controller};
+use crate::system::packet::handler::codec::{lazy_map, load_char, spawn_mob, spawn_mob_controller};
 use crate::system::system_params::{InParams, InventoryParams, LocationParams, SessionParams};
 use action::model::Action;
 use action::scope::{ActionScope, MapScope};
@@ -40,6 +38,7 @@ use ipc::command::AsyncCommand;
 use ipc::db_command::DatabaseCommand;
 
 pub fn handle_player_map_transfer_request(
+    mut commands: Commands,
     command_tx: Res<CustomSender>,
     client_map: Res<ClientMap>,
     in_params: InParams,
@@ -74,6 +73,8 @@ pub fn handle_player_map_transfer_request(
                 },
             ))
             .unwrap();
+
+        commands.entity(in_session.0).remove::<Transitioning>();
     }
 }
 
@@ -126,57 +127,27 @@ pub fn handle_player_map_transfer_response(
             spawn_mob::write_result(msg.client_id, mobs, &mut results);
             map_entity
         };
-
-        let Ok(in_char) = in_params.in_chars.get(client_entity) else {
-            continue;
-        };
-        let Ok((char_entity, char, _)) = session_params.chars.get(in_char.0) else {
-            continue;
-        };
-        let Some((inv_entity, _, _)) = inv_params
-            .inventories
-            .iter()
-            .find(|(_, _, parent)| parent.0 == char_entity)
-        else {
-            continue;
-        };
-        let Some((equipped_tab_entity, _, _)) = inv_params
-            .equipped_tabs
-            .iter()
-            .find(|(_, _, parent)| parent.0 == inv_entity)
-        else {
-            continue;
-        };
-        let filled_item_slots: Vec<_> = inv_params
-            .filled_slots
-            .iter()
-            .filter(|(_, _, parent)| parent.0 == equipped_tab_entity)
-            .collect();
-        let mut equips_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
-        let mut equips: Vec<MapleItem> = Vec::new();
-        for (filled_item_slot_entity, _, _) in filled_item_slots {
-            let Some((equip, _)) = items
-                .iter()
-                .find(|(_, parent)| parent.0 == filled_item_slot_entity)
+        let char_map = load_char::load_char_with_equips(
+            vec![client_entity],
+            &in_params,
+            &session_params,
+            &inv_params,
+            items,
+        );
+        for (char, equips_map) in char_map.iter() {
+            let Ok(mut spawn_player_packet) =
+                codec::player::spawn::build_spawn_player_packet(&char, &equips_map)
             else {
                 continue;
             };
-            equips.push(equip.clone());
+            results.write(HandlerResult {
+                client_id: msg.client_id,
+                actions: vec![Action::HandlerAction {
+                    packet: spawn_player_packet.finish(),
+                    scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+                }],
+            });
         }
-        equips_map.insert(char.id, equips);
-
-        let Ok(mut spawn_player_packet) =
-            codec::player::spawn::build_spawn_player_packet(&char, &equips_map)
-        else {
-            continue;
-        };
-        results.write(HandlerResult {
-            client_id: msg.client_id,
-            actions: vec![Action::HandlerAction {
-                packet: spawn_player_packet.finish(),
-                scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-            }],
-        });
         let other_clients: Vec<_> = client_map
             .0
             .iter()
@@ -189,49 +160,16 @@ pub fn handle_player_map_transfer_response(
             })
             .map(|(_, entity)| *entity)
             .collect();
-        for other_client_entity in other_clients {
-            let Ok(in_char) = in_params.in_chars.get(other_client_entity) else {
-                continue;
-            };
-            let Ok((other_char_entity, other_char, _)) = session_params.chars.get(in_char.0) else {
-                continue;
-            };
-            if other_char.id == char.id {
-                continue;
-            }
-            let Some((inv_entity, _, _)) = inv_params
-                .inventories
-                .iter()
-                .find(|(_, _, parent)| parent.0 == other_char_entity)
-            else {
-                continue;
-            };
-            let Some((equipped_tab_entity, _, _)) = inv_params
-                .equipped_tabs
-                .iter()
-                .find(|(_, _, parent)| parent.0 == inv_entity)
-            else {
-                continue;
-            };
-            let filled_item_slots: Vec<_> = inv_params
-                .filled_slots
-                .iter()
-                .filter(|(_, _, parent)| parent.0 == equipped_tab_entity)
-                .collect();
-            let mut equips_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
-            let mut equips: Vec<MapleItem> = Vec::new();
-            for (filled_item_slot_entity, _, _) in filled_item_slots {
-                let Some((equip, _)) = items
-                    .iter()
-                    .find(|(_, parent)| parent.0 == filled_item_slot_entity)
-                else {
-                    continue;
-                };
-                equips.push(equip.clone());
-            }
-            equips_map.insert(other_char.id, equips);
+        let char_map = load_char::load_char_with_equips(
+            other_clients,
+            &in_params,
+            &session_params,
+            &inv_params,
+            items,
+        );
+        for (char, equips_map) in char_map.iter() {
             let Ok(mut spawn_player_packet) =
-                codec::player::spawn::build_spawn_player_packet(&other_char, &equips_map)
+                codec::player::spawn::build_spawn_player_packet(&char, &equips_map)
             else {
                 continue;
             };

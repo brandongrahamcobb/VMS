@@ -61,9 +61,7 @@ pub fn handle_events_system(
     while let Ok(event) = rx.try_recv() {
         match event {
             AsyncEvent::ClientConnected { client_id } => {
-                if let Some(&session_entity) = client_map.0.get(&client_id) {
-                    commands.entity(session_entity).remove::<Transitioning>();
-                } else {
+                if let None = client_map.0.get(&client_id) {
                     let session_entity = commands.spawn(MapleSession).id();
                     client_map.0.insert(client_id, session_entity);
                     let Some(&client_entity) = client_map.0.get(&client_id) else {

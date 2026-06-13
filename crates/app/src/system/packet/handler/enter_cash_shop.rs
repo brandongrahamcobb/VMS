@@ -17,7 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
 use std::time::Instant;
 
 use crate::component::item::MapleItem;
@@ -27,6 +26,7 @@ use crate::message::packet::enter_cash_shop::ReadEnterCashShopRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::ClientMap;
 use crate::system::packet::build::{codec, enter_cash_shop};
+use crate::system::packet::handler::codec::load_char;
 use crate::system::packet::handler::constants::CASH_SHOP_MAP_WZ;
 use crate::system::system_params::{InParams, InventoryParams, SessionParams};
 use action::model::Action;
@@ -52,74 +52,49 @@ pub fn handle_enter_cash_shop(
         let Ok(in_session) = in_params.in_sessions.get(client_entity) else {
             continue;
         };
-        commands.entity(in_session.0).insert(Transitioning {
-            map_wz: CASH_SHOP_MAP_WZ,
-            started_at: Instant::now(),
-        });
         let Ok(in_acc) = in_params.in_accounts.get(client_entity) else {
             continue;
         };
         let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
             continue;
         };
-        let Ok(in_char) = in_params.in_chars.get(client_entity) else {
-            continue;
-        };
-        let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
-            continue;
-        };
-        let Some((inv_entity, _, _)) = inv_params
-            .inventories
-            .iter()
-            .find(|(_, _, parent)| parent.0 == in_char.0)
-        else {
-            continue;
-        };
-        let Some((equipped_tab_entity, _, _)) = inv_params
-            .equipped_tabs
-            .iter()
-            .find(|(_, _, parent)| parent.0 == inv_entity)
-        else {
-            continue;
-        };
-        let filled_item_slots: Vec<_> = inv_params
-            .filled_slots
-            .iter()
-            .filter(|(_, _, parent)| parent.0 == equipped_tab_entity)
-            .collect();
-        let mut equips_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
-        for (filled_item_slot_entity, _, _) in filled_item_slots {
-            let equips = items
-                .iter()
-                .filter(|(_, parent)| parent.0 == filled_item_slot_entity)
-                .map(|(e, _)| e.clone())
-                .collect();
-            equips_map.insert(char.id, equips);
-        }
+        let char_map = load_char::load_char_with_equips(
+            vec![client_entity],
+            &in_params,
+            &session_params,
+            &inv_params,
+            items,
+        );
+
         commands.entity(client_entity).remove::<InMap>();
-
-        let Ok(mut despawn_packet) = codec::player::spawn::build_despawn_player_packet(char.id)
-        else {
-            continue;
-        };
-        let Ok(mut enter_cash_shop_packet) =
-            enter_cash_shop::build_enter_cash_shop_packet(acc.username.clone(), &char, &equips_map)
-        else {
-            continue;
-        };
-
-        results.write(HandlerResult {
-            client_id: msg.client_id,
-            actions: vec![
-                Action::HandlerAction {
-                    packet: despawn_packet.finish(),
-                    scope: ActionScope::Local,
-                },
-                Action::HandlerAction {
-                    packet: enter_cash_shop_packet.finish(),
-                    scope: ActionScope::Local,
-                },
-            ],
+        commands.entity(in_session.0).insert(Transitioning {
+            map_wz: CASH_SHOP_MAP_WZ,
+            started_at: Instant::now(),
         });
+
+        for (char, equips) in char_map.iter() {
+            let Ok(mut despawn_packet) = codec::player::spawn::build_despawn_player_packet(char.id)
+            else {
+                continue;
+            };
+            let Ok(mut enter_cash_shop_packet) =
+                enter_cash_shop::build_enter_cash_shop_packet(acc.username.clone(), &char, &equips)
+            else {
+                continue;
+            };
+            results.write(HandlerResult {
+                client_id: msg.client_id,
+                actions: vec![
+                    Action::HandlerAction {
+                        packet: despawn_packet.finish(),
+                        scope: ActionScope::Local,
+                    },
+                    Action::HandlerAction {
+                        packet: enter_cash_shop_packet.finish(),
+                        scope: ActionScope::Local,
+                    },
+                ],
+            });
+        }
     }
 }

@@ -17,8 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-
 use crate::component::character::MapleCharacter;
 use crate::component::item::MapleItem;
 use crate::system::packet::build::codec;
@@ -30,25 +28,25 @@ use op::send::SendOpcode;
 
 pub fn build_create_char_packet(
     char: &MapleCharacter,
-    equips_map: &HashMap<i32, Vec<MapleItem>>,
+    equips: &Vec<MapleItem>,
     map_wz: i32,
 ) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::NewChar as i16;
     packet.write_short(op).map_err(WriteError)?;
     packet.write_byte(0).map_err(WriteError)?;
-    build_new_character_look_part_packet(&mut packet, char, equips_map, map_wz)?;
+    build_new_character_look_part_packet(&mut packet, char, equips, map_wz)?;
     Ok(packet)
 }
 
 fn build_new_character_look_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-    equips_map: &HashMap<i32, Vec<MapleItem>>,
+    equips: &Vec<MapleItem>,
     map_wz: i32,
 ) -> Result<(), PacketBuildError> {
     codec::player::stats::build_char_stats_meta_part_packet(packet, char, map_wz)?;
-    build_new_character_look_meta_part_packet(packet, char, equips_map)?;
+    build_new_character_look_meta_part_packet(packet, char, equips)?;
     packet.write_byte(0).map_err(WriteError)?;
     // Disable rank.
     packet.write_byte(0).map_err(WriteError)?;
@@ -58,7 +56,7 @@ fn build_new_character_look_part_packet(
 fn build_new_character_look_meta_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-    equips_map: &HashMap<i32, Vec<MapleItem>>,
+    equips: &Vec<MapleItem>,
 ) -> Result<(), PacketBuildError> {
     let gender_wz = char.gender_wz;
     packet.write_byte(gender_wz).map_err(WriteError)?;
@@ -69,9 +67,9 @@ fn build_new_character_look_meta_part_packet(
         .write_byte(0) // megaphone
         .map_err(WriteError)?;
     packet.write_int(char.hair_wz).map_err(WriteError)?;
-    codec::player::look::build_look_regular_equipment_part_packet(packet, equips_map)?;
+    codec::player::look::build_look_regular_equipment_part_packet(packet, equips)?;
     packet.write_byte(0xFF).map_err(WriteError)?;
-    codec::player::look::build_cash_equipment_part_packet(packet, equips_map)?;
+    codec::player::look::build_cash_equipment_part_packet(packet, equips)?;
     packet.write_byte(0xFF).map_err(WriteError)?;
     packet
         .write_int(0) //maskedequips -111

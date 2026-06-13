@@ -142,8 +142,11 @@ pub fn handle_create_char_response(
             &msg.setup_tab_inv_capacity_map,
             &msg.cash_tab_inv_capacity_map,
         );
+        let Some(equips) = equips_map.get(&msg.char_id) else {
+            continue;
+        };
         let Ok(mut create_char_packet) =
-            create_char::build_create_char_packet(&char, &equips_map, char.spawn_map_wz)
+            create_char::build_create_char_packet(&char, &equips, char.spawn_map_wz)
         else {
             continue;
         };

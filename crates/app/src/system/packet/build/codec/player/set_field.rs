@@ -17,8 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-
 use crate::component::character::MapleCharacter;
 use crate::component::item::MapleItem;
 use crate::system::packet::build::codec::player::look;
@@ -30,7 +28,7 @@ use op::send::SendOpcode;
 
 pub fn build_set_field_packet(
     char: &MapleCharacter,
-    equips_map: &HashMap<i32, Vec<MapleItem>>,
+    equips: &Vec<MapleItem>,
     channel_id: u8,
 ) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
@@ -61,14 +59,14 @@ pub fn build_set_field_packet(
     packet.write_long(0).map_err(WriteError)?;
     packet.write_long(0).map_err(WriteError)?;
     packet.write_long(0).map_err(WriteError)?;
-    build_player_logged_in_meta_part_packet(&mut packet, char, equips_map)?;
+    build_player_logged_in_meta_part_packet(&mut packet, char, equips)?;
     Ok(packet)
 }
 
 pub fn build_player_logged_in_meta_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-    equips_map: &HashMap<i32, Vec<MapleItem>>,
+    equips: &Vec<MapleItem>,
 ) -> Result<(), PacketBuildError> {
     let level = char.level;
     packet.write_byte(level).map_err(WriteError)?;
@@ -94,7 +92,7 @@ pub fn build_player_logged_in_meta_part_packet(
     let bl_capacity = 25;
     packet.write_byte(bl_capacity).map_err(WriteError)?;
     packet.write_byte(0).map_err(WriteError)?;
-    build_inventory_part_packet(packet, char, equips_map)?;
+    build_inventory_part_packet(packet, char, equips)?;
     build_skills_part_packet(packet)?;
     build_quests_part_packet(packet)?;
     build_minigames_part_packet(packet)?;
@@ -179,19 +177,17 @@ fn build_area_info_part_packet(packet: &mut Packet) -> Result<(), PacketBuildErr
 
 pub fn build_inventory_regular_equipment_part_packet(
     packet: &mut Packet,
-    equips_map: &HashMap<i32, Vec<MapleItem>>,
+    equips: &Vec<MapleItem>,
 ) -> Result<(), PacketBuildError> {
-    for (_char_id, equips) in equips_map.iter() {
-        for equip in equips {
-            if let Some(ipos) = equip.ipos {
-                if !equip.base.cash {
-                    packet.write_short(ipos).map_err(WriteError)?;
-                    build_inventory_regular_equip_meta_part_packet(packet, equip)?;
-                }
-            } else {
-                continue;
-            };
-        }
+    for equip in equips {
+        if let Some(ipos) = equip.ipos {
+            if !equip.base.cash {
+                packet.write_short(ipos).map_err(WriteError)?;
+                build_inventory_regular_equip_meta_part_packet(packet, equip)?;
+            }
+        } else {
+            continue;
+        };
     }
     Ok(())
 }
@@ -229,7 +225,7 @@ fn build_inventory_regular_equip_meta_part_packet(
 pub fn build_inventory_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-    equips_map: &HashMap<i32, Vec<MapleItem>>,
+    equips: &Vec<MapleItem>,
 ) -> Result<(), PacketBuildError> {
     packet.write_int(char.meso).map_err(WriteError)?;
     // Dummy values
@@ -237,8 +233,8 @@ pub fn build_inventory_part_packet(
     packet.write_bytes(vec![8u8; 5]).map_err(WriteError)?;
     // Time?
     packet.write_long(0).map_err(WriteError)?;
-    build_inventory_regular_equipment_part_packet(packet, equips_map)?;
-    look::build_cash_equipment_part_packet(packet, equips_map)?;
+    build_inventory_regular_equipment_part_packet(packet, equips)?;
+    look::build_cash_equipment_part_packet(packet, equips)?;
     // End of equipment equipped (all id's) MUST BE ENDED WITH A SHORT 0
     packet.write_short(0).map_err(WriteError)?;
     // Start of equipment inventory (negative id's) MUST BE ENDED WITH A SHORT 0

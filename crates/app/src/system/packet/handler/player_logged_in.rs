@@ -17,23 +17,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-use std::time::Instant;
-
 use crate::component::item::MapleItem;
-use crate::component::session::Transitioning;
 use crate::message::packet::player_logged_in::{
     PlayerLoggedInResponseMessage, ReadPlayerLoggedInRequestMessage,
 };
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{codec, player_logged_in};
+use crate::system::packet::handler::codec::load_char;
 use crate::system::system_params::{InParams, InventoryParams, LocationParams, SessionParams};
 use action::model::Action;
 use action::scope::ActionScope;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Commands, Query, Res};
+use bevy::ecs::system::{Query, Res};
 use ipc::command::AsyncCommand;
 use ipc::db_command::DatabaseCommand;
 
@@ -55,7 +52,6 @@ pub fn handle_player_logged_in_request(
 }
 
 pub fn handle_player_logged_in_response(
-    mut commands: Commands,
     client_map: Res<ClientMap>,
     loc_params: LocationParams,
     in_params: InParams,
@@ -75,50 +71,16 @@ pub fn handle_player_logged_in_response(
         let Ok((_, channel, _)) = loc_params.channels.get(in_channel.0) else {
             continue;
         };
-        let Ok(in_session) = in_params.in_sessions.get(client_entity) else {
-            continue;
-        };
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
-            continue;
-        };
-        commands.entity(in_session.0).insert(Transitioning {
-            map_wz: char.spawn_map_wz,
-            started_at: Instant::now(),
-        });
-        let Some((inv_entity, _, _)) = inv_params
-            .inventories
-            .iter()
-            .find(|(_, _, parent)| parent.0 == in_char.0)
-        else {
-            continue;
-        };
-        let Some((equipped_tab_entity, _, _)) = inv_params
-            .equipped_tabs
-            .iter()
-            .find(|(_, _, parent)| parent.0 == inv_entity)
-        else {
-            continue;
-        };
-        let filled_item_slots: Vec<_> = inv_params
-            .filled_slots
-            .iter()
-            .filter(|(_, _, parent)| parent.0 == equipped_tab_entity)
-            .collect();
-        let mut equips_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
-        let mut equips: Vec<MapleItem> = Vec::new();
-        for (filled_item_slot_entity, _, _) in filled_item_slots {
-            let Some((equip, _)) = items
-                .iter()
-                .find(|(_, parent)| parent.0 == filled_item_slot_entity)
-            else {
-                continue;
-            };
-            equips.push(equip.clone());
-        }
-        equips_map.insert(char.id, equips);
+        let char_map = load_char::load_char_with_equips(
+            vec![client_entity],
+            &in_params,
+            &session_params,
+            &inv_params,
+            items,
+        );
         let mut binds: Vec<_> = session_params
             .keybindings
             .iter()
@@ -130,25 +92,27 @@ pub fn handle_player_logged_in_response(
         else {
             continue;
         };
-        let Ok(mut set_field_packet) =
-            codec::player::set_field::build_set_field_packet(&char, &equips_map, channel.id)
-        else {
-            continue;
-        };
-
         results.write(HandlerResult {
             client_id: msg.client_id,
-            actions: vec![
-                Action::HandlerAction {
-                    packet: keymap_packet.finish(),
-                    scope: ActionScope::Local,
-                },
-                Action::HandlerAction {
+            actions: vec![Action::HandlerAction {
+                packet: keymap_packet.finish(),
+                scope: ActionScope::Local,
+            }],
+        });
+
+        for (char, equips) in char_map.iter() {
+            let Ok(mut set_field_packet) =
+                codec::player::set_field::build_set_field_packet(char, equips, channel.id)
+            else {
+                continue;
+            };
+            results.write(HandlerResult {
+                client_id: msg.client_id,
+                actions: vec![Action::HandlerAction {
                     packet: set_field_packet.finish(),
                     scope: ActionScope::Local,
-                },
-                // Action::HandlerAction(SessionAction::Retrieve), TODO
-            ],
-        });
+                }],
+            });
+        }
     }
 }

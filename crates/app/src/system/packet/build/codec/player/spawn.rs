@@ -17,8 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-
 use crate::component::character::MapleCharacter;
 use crate::component::item::MapleItem;
 use crate::system::packet::build::codec::player::look;
@@ -30,7 +28,7 @@ use op::send::SendOpcode;
 
 pub fn build_spawn_player_packet(
     char: &MapleCharacter,
-    equips_map: &HashMap<i32, Vec<MapleItem>>,
+    equips: &Vec<MapleItem>,
 ) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SpawnPlayer as i16;
@@ -69,7 +67,7 @@ pub fn build_spawn_player_packet(
     let skip: Vec<u8> = vec![0u8; 61];
     packet.write_bytes(skip).map_err(WriteError)?;
     packet.write_short(char.job_wz).map_err(WriteError)?;
-    look::build_look_meta_part_packet(&mut packet, char, equips_map)?;
+    look::build_look_meta_part_packet(&mut packet, char, equips)?;
     let count: i32 = 5110000;
     packet.write_int(count).map_err(WriteError)?;
     let item_effect: i32 = 0; // 0 not sure

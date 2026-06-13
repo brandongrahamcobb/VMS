@@ -17,8 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-
 use crate::component::character::MapleCharacter;
 use crate::component::item::MapleItem;
 use crate::system::packet::build::error::PacketBuildError;
@@ -28,38 +26,34 @@ use net::packet::model::Packet;
 
 pub fn build_cash_equipment_part_packet(
     packet: &mut Packet,
-    equips_map: &HashMap<i32, Vec<MapleItem>>,
+    equips: &Vec<MapleItem>,
 ) -> Result<(), PacketBuildError> {
-    for (_char_id, equips) in equips_map.iter() {
-        for equip in equips {
-            if let Some(ipos) = equip.ipos {
-                if equip.base.cash {
-                    packet.write_byte(ipos).map_err(WriteError)?;
-                    packet.write_int(equip.base.wz).map_err(WriteError)?;
-                }
-            } else {
-                continue;
-            };
-        }
+    for equip in equips {
+        if let Some(ipos) = equip.ipos {
+            if equip.base.cash {
+                packet.write_byte(ipos).map_err(WriteError)?;
+                packet.write_int(equip.base.wz).map_err(WriteError)?;
+            }
+        } else {
+            continue;
+        };
     }
     Ok(())
 }
 
 pub fn build_look_regular_equipment_part_packet(
     packet: &mut Packet,
-    equips_map: &HashMap<i32, Vec<MapleItem>>,
+    equips: &Vec<MapleItem>,
 ) -> Result<(), PacketBuildError> {
-    for (_char_id, equips) in equips_map.iter() {
-        for equip in equips {
-            if let Some(ipos) = equip.ipos {
-                if !equip.base.cash {
-                    packet.write_byte(ipos).map_err(WriteError)?;
-                    packet.write_int(equip.base.wz).map_err(WriteError)?;
-                }
-            } else {
-                continue;
-            };
-        }
+    for equip in equips {
+        if let Some(ipos) = equip.ipos {
+            if !equip.base.cash {
+                packet.write_byte(ipos).map_err(WriteError)?;
+                packet.write_int(equip.base.wz).map_err(WriteError)?;
+            }
+        } else {
+            continue;
+        };
     }
     Ok(())
 }
@@ -67,7 +61,7 @@ pub fn build_look_regular_equipment_part_packet(
 pub fn build_look_meta_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-    equips_map: &HashMap<i32, Vec<MapleItem>>,
+    equips: &Vec<MapleItem>,
 ) -> Result<(), PacketBuildError> {
     packet.write_byte(char.gender_wz).map_err(WriteError)?;
     packet.write_byte(char.skin_wz as i16).map_err(WriteError)?;
@@ -76,9 +70,9 @@ pub fn build_look_meta_part_packet(
         .write_byte(0) // megaphone
         .map_err(WriteError)?;
     packet.write_int(char.hair_wz).map_err(WriteError)?;
-    build_look_regular_equipment_part_packet(packet, equips_map)?;
+    build_look_regular_equipment_part_packet(packet, equips)?;
     packet.write_byte(0xFF).map_err(WriteError)?;
-    build_cash_equipment_part_packet(packet, equips_map)?;
+    build_cash_equipment_part_packet(packet, equips)?;
     packet.write_byte(0xFF).map_err(WriteError)?;
     packet
         .write_int(0) //maskedequips -111

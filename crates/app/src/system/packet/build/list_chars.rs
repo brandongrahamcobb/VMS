@@ -41,8 +41,11 @@ pub fn build_list_chars_packet(
     packet.write_short(op).map_err(WriteError)?;
     packet.write_byte(channel_id as i16).map_err(WriteError)?;
     packet.write_byte(chars.len() as i16).map_err(WriteError)?;
-    for (_char_id, (_, char)) in chars.iter() {
-        build_look_part_packet(&mut packet, char, equips_map, char.spawn_map_wz)?;
+    for (char_id, (_, char)) in chars.iter() {
+        let Some(equips) = equips_map.get(char_id) else {
+            continue;
+        };
+        build_look_part_packet(&mut packet, char, &equips, char.spawn_map_wz)?;
     }
     packet.write_byte(pic_status).map_err(WriteError)?;
     packet.write_int(char_slots as i32).map_err(WriteError)?;
@@ -52,11 +55,11 @@ pub fn build_list_chars_packet(
 fn build_look_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
-    equips_map: &HashMap<i32, Vec<MapleItem>>,
+    equips: &Vec<MapleItem>,
     map_wz: i32,
 ) -> Result<(), PacketBuildError> {
     codec::player::stats::build_char_stats_meta_part_packet(packet, char, map_wz)?;
-    codec::player::look::build_look_meta_part_packet(packet, char, equips_map)?;
+    codec::player::look::build_look_meta_part_packet(packet, char, equips)?;
     packet.write_byte(0).map_err(WriteError)?;
     // Disable rank.
     packet.write_byte(0).map_err(WriteError)?;
