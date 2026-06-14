@@ -1,10 +1,10 @@
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
+use net::packet::io::error::IOError::{ReadError, WriteError};
+use net::packet::io::prelude::*;
+use net::packet::model::Packet;
 use op::recv::RecvOpcode;
 use op::send::SendOpcode;
-use net::packet::io::error::IOError::{ReadError, WriteError};
-use net::packet::model::Packet;
-use net::packet::io::prelude::*;
 use std::collections::HashMap;
 use std::io::Cursor;
 
@@ -21,6 +21,7 @@ struct CloseAttackResult {
     speed: i16,
     mob_damages: HashMap<u32, Vec<i32>>,
 }
+pub const DUMMY_MOB_ID: u32 = 1;
 
 pub async fn assert_close_attack(
     mut conn: TestConnection,
@@ -101,7 +102,7 @@ fn read_close_attack_packet(packet: &Packet) -> Result<CloseAttackResult, Harnes
     })
 }
 
-async fn assert_close_attack_result(
+pub async fn assert_close_attack_result(
     conn: &mut TestConnection,
     char_id: i32,
 ) -> Result<(), HarnessError> {
@@ -122,11 +123,12 @@ async fn assert_close_attack_result(
 
 pub async fn send_close_attack(mut conn: TestConnection) -> Result<TestConnection, HarnessError> {
     dbg!(SEND_PHASE);
-    conn.send_packet(build_close_attack()?, SEND_PHASE).await?;
+    conn.send_packet(build_close_attack(DUMMY_MOB_ID)?, SEND_PHASE)
+        .await?;
     Ok(conn)
 }
 
-fn build_close_attack() -> Result<Packet, HarnessError> {
+pub fn build_close_attack(mob_id: u32) -> Result<Packet, HarnessError> {
     let mut packet = Packet::new_empty();
     packet
         .write_short(RecvOpcode::CloseAttack as i16)
@@ -174,9 +176,8 @@ fn build_close_attack() -> Result<Packet, HarnessError> {
         .write_bytes(skip)
         .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
     for _ in 0..mob_count {
-        let mob_id: i32 = 100100;
         packet
-            .write_int(mob_id)
+            .write_int(mob_id as i32)
             .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
         let skip: Vec<u8> = vec![0; 14];
         packet

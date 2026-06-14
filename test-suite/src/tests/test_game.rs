@@ -80,7 +80,7 @@ pub async fn receive_player_test(
 #[cfg(test)]
 mod tests {
 
-    use crate::tests::{test_change_map, test_game};
+    use crate::tests::{test_change_map, test_game, test_mob_attack};
     use crate::{error::HarnessError, tests::test_change_channel};
     use config::settings;
     use core::time::Duration;
@@ -157,8 +157,9 @@ mod tests {
         tokio::time::sleep(Duration::from_secs(2)).await;
         let conn = test_change_map::assert_second_change_map(conn).await?;
         tokio::time::sleep(Duration::from_secs(2)).await;
-        let conn = test_change_map::assert_third_change_map(conn).await?;
-
+        let (conn, mob_id) = test_change_map::assert_third_change_map(conn).await?;
+        tokio::time::sleep(Duration::from_secs(2)).await;
+        let _conn = test_mob_attack::assert_mob_attack(conn, char_id, mob_id).await?;
         Ok(())
     }
 }

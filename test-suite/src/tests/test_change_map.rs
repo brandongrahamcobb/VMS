@@ -15,8 +15,6 @@ pub const FIRST_PORTAL_WZ: u8 = 3;
 pub const SECOND_PORTAL_WZ: u8 = 2;
 pub const THIRD_PORTAL_WZ: u8 = 5;
 pub const PHASE: &str = "change map";
-pub const CHANNEL_ID: u8 = 2;
-pub const PORT: i16 = 8588;
 
 pub struct SetFieldResult {
     channel_id: i32,
@@ -24,6 +22,17 @@ pub struct SetFieldResult {
     mode_two: u8,
     map_wz: i32,
     portal_wz: u8,
+}
+
+pub struct SpawnMobResult {
+    mob_id: u32,
+    mob_wz: i32,
+    x: i16,
+    y: i16,
+    stance: u8,
+    fh: i16,
+    effect: u8,
+    team: u8,
 }
 
 pub async fn assert_first_change_map(
@@ -48,12 +57,88 @@ pub async fn assert_second_change_map(
 
 pub async fn assert_third_change_map(
     mut conn: TestConnection,
-) -> Result<TestConnection, HarnessError> {
+) -> Result<(TestConnection, u32), HarnessError> {
     dbg!(PHASE);
     conn.send_packet(build_change_map(THIRD_MAP_WZ)?, PHASE)
         .await?;
     assert_change_map_result(&mut conn, THIRD_MAP_WZ, THIRD_PORTAL_WZ).await?;
-    Ok(conn)
+    let mob_id = assert_spawn_mob_result(&mut conn).await?;
+    Ok((conn, mob_id))
+}
+
+async fn assert_spawn_mob_result(conn: &mut TestConnection) -> Result<u32, HarnessError> {
+    let mob_id = loop {
+        let packet = conn.read_packet(PHASE).await?;
+        let mut cursor = Cursor::new(&packet.bytes[..]);
+        let op = cursor
+            .read_short()
+            .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+        match op {
+            x if x == SendOpcode::SpawnMob as i16 => {
+                let result = read_spawn_mob_packet(&packet)?;
+                break result.mob_id;
+            }
+            _ => {}
+        }
+    };
+    Ok(mob_id)
+}
+
+fn read_spawn_mob_packet(packet: &Packet) -> Result<SpawnMobResult, HarnessError> {
+    let mut cursor = Cursor::new(&packet.bytes[..]);
+    let _op = cursor
+        .read_short()
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let mob_id = cursor
+        .read_int()
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let skip: usize = 1;
+    cursor
+        .read_bytes(skip)
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let mob_wz = cursor
+        .read_int()
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let skip: usize = 22;
+    cursor
+        .read_bytes(skip)
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let mob_base_x = cursor
+        .read_short()
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let mob_base_y = cursor
+        .read_short()
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let stance = cursor
+        .read_byte()
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let skip: usize = 2;
+    cursor
+        .read_bytes(skip)
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let fh = cursor
+        .read_short()
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let effect = cursor
+        .read_byte()
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let team = cursor
+        .read_byte()
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let skip: usize = 4;
+    cursor
+        .read_bytes(skip)
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    Ok(SpawnMobResult {
+        mob_id: mob_id as u32,
+        mob_wz,
+        x: mob_base_x,
+        y: mob_base_y,
+        stance,
+        fh,
+        effect,
+        team,
+    })
 }
 
 async fn assert_change_map_result(
