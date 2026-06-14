@@ -10,8 +10,10 @@ use std::io::Cursor;
 
 pub const FIRST_MAP_WZ: i32 = 20000;
 pub const SECOND_MAP_WZ: i32 = 30000;
+pub const THIRD_MAP_WZ: i32 = 40000;
 pub const FIRST_PORTAL_WZ: u8 = 3;
 pub const SECOND_PORTAL_WZ: u8 = 2;
+pub const THIRD_PORTAL_WZ: u8 = 5;
 pub const PHASE: &str = "change map";
 pub const CHANNEL_ID: u8 = 2;
 pub const PORT: i16 = 8588;
@@ -41,6 +43,16 @@ pub async fn assert_second_change_map(
     conn.send_packet(build_change_map(SECOND_MAP_WZ)?, PHASE)
         .await?;
     assert_change_map_result(&mut conn, SECOND_MAP_WZ, SECOND_PORTAL_WZ).await?;
+    Ok(conn)
+}
+
+pub async fn assert_third_change_map(
+    mut conn: TestConnection,
+) -> Result<TestConnection, HarnessError> {
+    dbg!(PHASE);
+    conn.send_packet(build_change_map(THIRD_MAP_WZ)?, PHASE)
+        .await?;
+    assert_change_map_result(&mut conn, THIRD_MAP_WZ, THIRD_PORTAL_WZ).await?;
     Ok(conn)
 }
 

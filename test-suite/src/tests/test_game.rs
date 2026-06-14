@@ -156,6 +156,9 @@ mod tests {
         let conn = test_change_map::assert_first_change_map(conn).await?;
         tokio::time::sleep(Duration::from_secs(2)).await;
         let conn = test_change_map::assert_second_change_map(conn).await?;
+        tokio::time::sleep(Duration::from_secs(2)).await;
+        let conn = test_change_map::assert_third_change_map(conn).await?;
+
         Ok(())
     }
 }
