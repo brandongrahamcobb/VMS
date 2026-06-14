@@ -1,5 +1,6 @@
 use crate::error::HarnessError;
 use crate::net::connection::TestConnection;
+use crate::tests::test_player_logged_in;
 use net::packet::io::error::IOError::{ReadError, WriteError};
 use net::packet::io::prelude::*;
 use net::packet::model::Packet;
@@ -7,10 +8,11 @@ use op::recv::RecvOpcode;
 use op::send::SendOpcode;
 use std::io::Cursor;
 
-pub const MAP_WZ: i32 = 20000;
-pub const PORTAL_WZ: u8 = 3;
-pub const SEND_PHASE: &str = "send change map";
-pub const RECEIVE_PHASE: &str = "receive change map";
+pub const FIRST_MAP_WZ: i32 = 20000;
+pub const SECOND_MAP_WZ: i32 = 30000;
+pub const FIRST_PORTAL_WZ: u8 = 3;
+pub const SECOND_PORTAL_WZ: u8 = 2;
+pub const PHASE: &str = "change map";
 pub const CHANNEL_ID: u8 = 2;
 pub const PORT: i16 = 8588;
 
@@ -22,15 +24,33 @@ pub struct SetFieldResult {
     portal_wz: u8,
 }
 
-pub async fn assert_change_map(mut conn: TestConnection) -> Result<TestConnection, HarnessError> {
-    dbg!(RECEIVE_PHASE);
-    assert_change_map_result(&mut conn).await?;
+pub async fn assert_first_change_map(
+    mut conn: TestConnection,
+) -> Result<TestConnection, HarnessError> {
+    dbg!(PHASE);
+    conn.send_packet(build_change_map(FIRST_MAP_WZ)?, PHASE)
+        .await?;
+    assert_change_map_result(&mut conn, FIRST_MAP_WZ, FIRST_PORTAL_WZ).await?;
     Ok(conn)
 }
 
-async fn assert_change_map_result(conn: &mut TestConnection) -> Result<(), HarnessError> {
+pub async fn assert_second_change_map(
+    mut conn: TestConnection,
+) -> Result<TestConnection, HarnessError> {
+    dbg!(PHASE);
+    conn.send_packet(build_change_map(SECOND_MAP_WZ)?, PHASE)
+        .await?;
+    assert_change_map_result(&mut conn, SECOND_MAP_WZ, SECOND_PORTAL_WZ).await?;
+    Ok(conn)
+}
+
+async fn assert_change_map_result(
+    conn: &mut TestConnection,
+    map_wz: i32,
+    portal_wz: u8,
+) -> Result<(), HarnessError> {
     loop {
-        let packet = conn.read_packet(RECEIVE_PHASE).await?;
+        let packet = conn.read_packet(PHASE).await?;
         let mut cursor = Cursor::new(&packet.bytes[..]);
         let op = cursor
             .read_short()
@@ -38,21 +58,16 @@ async fn assert_change_map_result(conn: &mut TestConnection) -> Result<(), Harne
         match op {
             x if x == SendOpcode::SetField as i16 => {
                 let result = read_set_field_packet(&packet)?;
-                assert_eq!(result.map_wz, MAP_WZ);
-                assert_eq!(result.portal_wz, PORTAL_WZ);
+                assert_eq!(result.map_wz, map_wz);
+                assert_eq!(result.portal_wz, portal_wz);
+                conn.send_packet(test_player_logged_in::build_player_map_transfer()?, PHASE)
+                    .await?;
                 break;
             }
             _ => {}
         }
     }
     Ok(())
-}
-
-pub async fn send_change_map(mut conn: TestConnection) -> Result<TestConnection, HarnessError> {
-    dbg!(SEND_PHASE);
-    conn.send_packet(build_change_map(MAP_WZ)?, SEND_PHASE)
-        .await?;
-    Ok(conn)
 }
 
 fn build_change_map(map_wz: i32) -> Result<Packet, HarnessError> {

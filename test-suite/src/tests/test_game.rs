@@ -151,10 +151,11 @@ mod tests {
         let (char_id, conn) =
             { test_game::login_until_redirect(&pool, acc_username, char_ign).await? };
         tokio::time::sleep(Duration::from_secs(2)).await;
-        let conn = test_change_channel::send_change_channel(conn).await?;
         let conn = test_change_channel::assert_change_channel(conn, char_ign, char_id).await?;
-        let conn = test_change_map::send_change_map(conn).await?;
-        let conn = test_change_map::assert_change_map(conn).await?;
+        tokio::time::sleep(Duration::from_secs(2)).await;
+        let conn = test_change_map::assert_first_change_map(conn).await?;
+        tokio::time::sleep(Duration::from_secs(2)).await;
+        let conn = test_change_map::assert_second_change_map(conn).await?;
         Ok(())
     }
 }

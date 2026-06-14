@@ -11,8 +11,7 @@ use op::send::SendOpcode;
 use std::io::Cursor;
 
 pub const MAP_WZ: i32 = 10000;
-pub const SEND_PHASE: &str = "send change channel";
-pub const RECEIVE_PHASE: &str = "receive change channel";
+pub const PHASE: &str = "change channel";
 pub const CHANNEL_ID: u8 = 2;
 pub const PORT: i16 = 8588;
 
@@ -26,7 +25,9 @@ pub async fn assert_change_channel(
     char_ign: &str,
     char_id: i32,
 ) -> Result<TestConnection, HarnessError> {
-    dbg!(RECEIVE_PHASE);
+    dbg!(PHASE);
+    conn.send_packet(build_change_channel(CHANNEL_ID)?, PHASE)
+        .await?;
     let conn = assert_change_channel_result(&mut conn, char_ign, char_id, PORT).await?;
     Ok(conn)
 }
@@ -67,7 +68,7 @@ async fn assert_change_channel_result(
     port: i16,
 ) -> Result<TestConnection, HarnessError> {
     let mut conn = loop {
-        let packet = conn.read_packet(RECEIVE_PHASE).await?;
+        let packet = conn.read_packet(PHASE).await?;
         let mut cursor = Cursor::new(&packet.bytes[..]);
         let op = cursor
             .read_short()
@@ -93,14 +94,11 @@ async fn assert_change_channel_result(
                 let mut conn = TestConnection::connect(bind, "changed channel").await?;
                 conn.send_packet(
                     test_player_logged_in::build_player_logged_in(char_id, CHANNEL_ID)?,
-                    RECEIVE_PHASE,
+                    PHASE,
                 )
                 .await?;
-                conn.send_packet(
-                    test_player_logged_in::build_player_map_transfer()?,
-                    RECEIVE_PHASE,
-                )
-                .await?;
+                conn.send_packet(test_player_logged_in::build_player_map_transfer()?, PHASE)
+                    .await?;
                 break conn;
             }
             _ => {}
@@ -109,7 +107,7 @@ async fn assert_change_channel_result(
     let mut world_entry = None;
     let mut saw_keymap = false;
     loop {
-        let packet = conn.read_packet(RECEIVE_PHASE).await?;
+        let packet = conn.read_packet(PHASE).await?;
         let mut cursor = Cursor::new(&packet.bytes[..]);
         let op = cursor
             .read_short()
@@ -133,13 +131,6 @@ async fn assert_change_channel_result(
     }
     assert!(world_entry.is_some());
     assert!(saw_keymap);
-    Ok(conn)
-}
-
-pub async fn send_change_channel(mut conn: TestConnection) -> Result<TestConnection, HarnessError> {
-    dbg!(SEND_PHASE);
-    conn.send_packet(build_change_channel(CHANNEL_ID)?, SEND_PHASE)
-        .await?;
     Ok(conn)
 }
 
