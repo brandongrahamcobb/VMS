@@ -80,7 +80,7 @@ pub async fn receive_player_test(
 #[cfg(test)]
 mod tests {
 
-    use crate::tests::test_game;
+    use crate::tests::{test_change_map, test_game};
     use crate::{error::HarnessError, tests::test_change_channel};
     use config::settings;
     use core::time::Duration;
@@ -146,14 +146,15 @@ mod tests {
     }
 
     async fn side_tests(pool: &DbPool) -> Result<(), HarnessError> {
-        let (char_id, conn) = {
-            let acc_username: &str = "admin3";
-            let char_ign: &str = "Test3";
-            test_game::login_until_redirect(&pool, acc_username, char_ign).await?
-        };
+        let acc_username: &str = "admin3";
+        let char_ign: &str = "Test3";
+        let (char_id, conn) =
+            { test_game::login_until_redirect(&pool, acc_username, char_ign).await? };
         tokio::time::sleep(Duration::from_secs(2)).await;
         let conn = test_change_channel::send_change_channel(conn).await?;
-        let _conn = test_change_channel::assert_change_channel(conn, char_id).await?;
+        let conn = test_change_channel::assert_change_channel(conn, char_ign, char_id).await?;
+        let conn = test_change_map::send_change_map(conn).await?;
+        let conn = test_change_map::assert_change_map(conn).await?;
         Ok(())
     }
 }

@@ -1,0 +1,115 @@
+use crate::error::HarnessError;
+use crate::net::connection::TestConnection;
+use net::packet::io::error::IOError::{ReadError, WriteError};
+use net::packet::io::prelude::*;
+use net::packet::model::Packet;
+use op::recv::RecvOpcode;
+use op::send::SendOpcode;
+use std::io::Cursor;
+
+pub const MAP_WZ: i32 = 20000;
+pub const PORTAL_WZ: u8 = 3;
+pub const SEND_PHASE: &str = "send change map";
+pub const RECEIVE_PHASE: &str = "receive change map";
+pub const CHANNEL_ID: u8 = 2;
+pub const PORT: i16 = 8588;
+
+pub struct SetFieldResult {
+    channel_id: i32,
+    mode_one: u8,
+    mode_two: u8,
+    map_wz: i32,
+    portal_wz: u8,
+}
+
+pub async fn assert_change_map(mut conn: TestConnection) -> Result<TestConnection, HarnessError> {
+    dbg!(RECEIVE_PHASE);
+    assert_change_map_result(&mut conn).await?;
+    Ok(conn)
+}
+
+async fn assert_change_map_result(conn: &mut TestConnection) -> Result<(), HarnessError> {
+    loop {
+        let packet = conn.read_packet(RECEIVE_PHASE).await?;
+        let mut cursor = Cursor::new(&packet.bytes[..]);
+        let op = cursor
+            .read_short()
+            .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+        match op {
+            x if x == SendOpcode::SetField as i16 => {
+                let result = read_set_field_packet(&packet)?;
+                assert_eq!(result.map_wz, MAP_WZ);
+                assert_eq!(result.portal_wz, PORTAL_WZ);
+                break;
+            }
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+pub async fn send_change_map(mut conn: TestConnection) -> Result<TestConnection, HarnessError> {
+    dbg!(SEND_PHASE);
+    conn.send_packet(build_change_map(MAP_WZ)?, SEND_PHASE)
+        .await?;
+    Ok(conn)
+}
+
+fn build_change_map(map_wz: i32) -> Result<Packet, HarnessError> {
+    let mut packet = Packet::new_empty();
+    packet
+        .write_short(RecvOpcode::ChangeMap as i16)
+        .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
+    let died: bool = false;
+    packet
+        .write_byte(died as i16)
+        .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
+    packet
+        .write_int(map_wz)
+        .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
+    packet
+        .write_str_with_length(String::from("out00"))
+        .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
+    let skip: Vec<u8> = vec![0; 1];
+    packet
+        .write_bytes(skip)
+        .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
+    let use_wheel: bool = false;
+    packet
+        .write_short(use_wheel as i16)
+        .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
+    Ok(packet)
+}
+
+pub fn read_set_field_packet(packet: &Packet) -> Result<SetFieldResult, HarnessError> {
+    let mut cursor = Cursor::new(&packet.bytes[..]);
+    cursor
+        .read_short()
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let channel_id = cursor
+        .read_int()
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let mode_one = cursor
+        .read_byte()
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let mode_two = cursor
+        .read_byte()
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let skip: usize = 3;
+    cursor
+        .read_bytes(skip)
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let map_wz = cursor
+        .read_int()
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let portal_wz = cursor
+        .read_byte()
+        .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    Ok(SetFieldResult {
+        channel_id,
+        mode_one,
+        mode_two,
+        map_wz,
+        portal_wz,
+    })
+}
