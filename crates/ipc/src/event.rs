@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use core::net::SocketAddr;
 use std::collections::HashMap;
 
 use base::account::{InvalidAccountCode, ValidAccountCode};
@@ -44,6 +45,7 @@ pub enum AsyncEvent {
     },
     ClientConnected {
         client_id: i32,
+        client_addr: SocketAddr,
     },
     ClientDisconnected {
         client_id: i32,

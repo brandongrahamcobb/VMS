@@ -104,8 +104,7 @@ fn ensure_docker_available() -> Result<(), HarnessError> {
 
 fn docker_compose_up() -> Result<(), HarnessError> {
     let _ = docker_compose_down();
-    compose_cmd(["build", "-q"])?;
-    compose_cmd(["up", "-d", "--no-build", "--remove-orphans"])?;
+    compose_cmd(["up", "-d", "--build", "--remove-orphans", "vms-test", "db"])?;
     let bind_addr: String = settings::get_bind_address()?;
     let server_port: i16 = settings::get_login_port()?;
     let server_addr = format!("{bind_addr}:{server_port}");

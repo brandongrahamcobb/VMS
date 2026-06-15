@@ -13,7 +13,7 @@ services:
       timeout: 3s
       retries: 3
 
-  vms:
+  vms: &app-release
     build:
       context: .
     restart: always
@@ -29,10 +29,6 @@ services:
       - vms-backups:/app/backups
       - ./data:/app/data
       - cargo-registry:/usr/local/cargo/registry
-    healthcheck:
-      test: "healthcheck.sh || kill 1"
-      interval: 10s
-      retries: 3
     ports:
       - "8484:8484"
       - "8585:8585"
@@ -183,6 +179,16 @@ services:
       - "9210:9210"
       - "9211:9211"
 
+  vms-test: &app-test
+    <<: *app-release
+    profiles:
+      - test
+    environment:
+      DDOS_MODE: false
+      POSTGRES_HOST: db
+      HOST: vms-test
+      WZ_DIRECTORY: /app/data
+
   test-suite:
     build:
       context: .
@@ -191,11 +197,11 @@ services:
     env_file: .env
     environment:
       POSTGRES_HOST: db
+      HOST: vms-test
     profiles:
       - test
     depends_on:
-      vms:
-        condition: service_healthy
+      - vms-test
     volumes:
       - cargo-registry:/usr/local/cargo/registry
 

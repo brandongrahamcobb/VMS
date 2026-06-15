@@ -69,4 +69,7 @@ pub enum RuntimeError {
 
     #[error("Inc error in runtime layer")]
     IncError(#[from] IncError),
+
+    #[error("Handshake timeout error in runtime layer")]
+    HandshakeTimeoutError,
 }

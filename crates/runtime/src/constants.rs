@@ -1,7 +1,5 @@
-use core::net::SocketAddr;
-
-/* app/src/component/session.rs
- * The purpose of this module is to provide a session component.
+/* runtime/src/constants.rs
+ * The purpose of this module is to provide runtime constants.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -18,18 +16,7 @@ use core::net::SocketAddr;
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use bevy::ecs::{component::Component, entity::Entity};
 
-#[derive(Component)]
-pub struct MapleSession {
-    pub client_addr: SocketAddr,
-}
+use core::time::Duration;
 
-#[derive(Component)]
-pub struct InSession(pub Entity);
-
-#[derive(Component)]
-pub struct Transitioning {
-    pub started_at: std::time::Instant,
-    pub map_wz: i32,
-}
+pub const HANDSHAKE_TIMEOUT: Duration = Duration::from_secs(10);

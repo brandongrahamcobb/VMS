@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::constants::HANDSHAKE_TIMEOUT;
 use crate::error::RuntimeError;
 use crate::handshake;
 use ipc::event::AsyncEvent;
@@ -63,6 +64,22 @@ impl Runtime {
     ) -> Result<(), RuntimeError> {
         let mut reader = self.pkt_reader;
         let mut writer = self.pkt_writer;
+
+        match tokio::time::timeout(HANDSHAKE_TIMEOUT, reader.read_packet()).await {
+            Ok(Ok(raw)) => {
+                let _ = event_tx.send(AsyncEvent::PacketReceived {
+                    client_id: cid,
+                    packet: raw,
+                });
+            }
+            Ok(Err(_)) => {
+                return Ok(());
+            }
+            Err(_) => {
+                return Err(RuntimeError::HandshakeTimeoutError);
+            }
+        }
+
         let read_task = tokio::spawn(async move {
             loop {
                 match reader.read_packet().await {

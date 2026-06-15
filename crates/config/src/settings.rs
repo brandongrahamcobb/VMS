@@ -254,3 +254,12 @@ pub fn get_char_max() -> Result<i16, ConfigError> {
         .map_err(|_| ConfigError::InvalidInt(key.to_string()))?;
     Ok(char_max as i16)
 }
+
+pub fn get_ddos_mode() -> Result<bool, ConfigError> {
+    let settings = get_settings()?;
+    let key: &str = "ddos_mode";
+    let mode = settings
+        .get_bool(key)
+        .map_err(|_| ConfigError::InvalidString(key.to_string()))?;
+    Ok(mode)
+}
