@@ -50,7 +50,7 @@ fn read_change_channel_packet(packet: &Packet) -> Result<ChangeChannelResult, Ha
     Ok(ChangeChannelResult { octets, port })
 }
 
-fn read_despawn_player_packet(packet: &Packet) -> Result<i32, HarnessError> {
+pub fn read_despawn_player_packet(packet: &Packet) -> Result<i32, HarnessError> {
     let mut cursor = Cursor::new(&packet.bytes[..]);
     let _op = cursor
         .read_short()

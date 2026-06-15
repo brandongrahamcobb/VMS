@@ -17,11 +17,11 @@ pub const THIRD_PORTAL_WZ: u8 = 5;
 pub const PHASE: &str = "change map";
 
 pub struct SetFieldResult {
-    channel_id: i32,
-    mode_one: u8,
-    mode_two: u8,
-    map_wz: i32,
-    portal_wz: u8,
+    pub channel_id: i32,
+    pub mode_one: u8,
+    pub mode_two: u8,
+    pub map_wz: i32,
+    pub portal_wz: u8,
 }
 
 pub struct SpawnMobResult {

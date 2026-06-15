@@ -14,4 +14,5 @@ pub mod test_player_logged_in;
 pub mod test_recommended_world;
 pub mod test_server_list;
 pub mod test_server_redirect;
+pub mod test_take_damage;
 pub mod test_tos;
