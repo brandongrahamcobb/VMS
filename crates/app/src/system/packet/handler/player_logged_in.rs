@@ -17,15 +17,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use crate::component::item::MapleItem;
 use crate::message::packet::player_logged_in::{
     PlayerLoggedInResponseMessage, ReadPlayerLoggedInRequestMessage,
 };
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
-use crate::system::packet::handler::codec::load_char;
+use crate::system::packet::handler::codec::load_equips;
 use crate::system::packet::handler::result::player_logged_in_result;
-use crate::system::system_params::{InParams, InventoryParams, LocationParams, SessionParams};
+use crate::system::system_params::{
+    InParams, InventoryParams, LocationParams, SessionParams, StatParams,
+};
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Query, Res};
@@ -55,6 +59,7 @@ pub fn handle_player_logged_in_response(
     in_params: InParams,
     session_params: SessionParams,
     inv_params: InventoryParams,
+    stat_params: StatParams,
     items: Query<(&MapleItem, &ChildOf)>,
     mut messages: MessageReader<PlayerLoggedInResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
@@ -72,25 +77,48 @@ pub fn handle_player_logged_in_response(
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let char_map = load_char::load_char_with_equips(
-            vec![client_entity],
-            &in_params,
-            &session_params,
-            &inv_params,
-            items,
-        );
+        let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
+            continue;
+        };
         let mut binds: Vec<_> = session_params
             .keybindings
             .iter()
             .filter(|(_, _, parent)| parent.0 == in_char.0)
             .collect();
         binds.sort_by_key(|(_, k, _)| k.key);
+        let equips_map: HashMap<i32, Vec<MapleItem>> = load_equips::load_equips(
+            vec![client_entity],
+            &in_params,
+            &session_params,
+            &inv_params,
+            items,
+        );
+        let Some(equips) = equips_map.get(&char.id) else {
+            continue;
+        };
+        let Some((hp, _)) = stat_params
+            .healths
+            .iter()
+            .find(|(_, parent)| parent.0 == in_char.0)
+        else {
+            continue;
+        };
+        let Some((mp, _)) = stat_params
+            .manas
+            .iter()
+            .find(|(_, parent)| parent.0 == in_char.0)
+        else {
+            continue;
+        };
 
         player_logged_in_result::write_result(
             msg.client_id,
-            &char_map,
-            &binds,
             channel,
+            &binds,
+            &char,
+            equips,
+            &hp,
+            &mp,
             &mut results,
         );
     }

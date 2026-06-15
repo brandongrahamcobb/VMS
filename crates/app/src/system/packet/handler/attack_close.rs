@@ -93,6 +93,20 @@ pub fn handle_close_attack_request(
             ))
             .unwrap();
 
+        let Some(mobs_vec): Option<Vec<MapleMob>> = msg
+            .mob_damages
+            .iter()
+            .map(|(mid, _)| {
+                mobs.iter()
+                    .find(|(_, m, parent)| parent.0 == map_entity && m.id == *mid)
+                    .map(|(_, m, _)| *m)
+            })
+            .collect()
+        else {
+            continue;
+        };
+        spawn_mob_controller_result::write_result(msg.client_id, &mobs_vec, &mut results);
+
         for (mob_id, damage) in msg.mob_damages.iter() {
             let Some((mob_entity, mob, _)) = mobs
                 .iter()
@@ -100,7 +114,6 @@ pub fn handle_close_attack_request(
             else {
                 continue;
             };
-            spawn_mob_controller_result::write_result(msg.client_id, &vec![*mob], &mut results);
             let Some((mut health, _)) = stat_params
                 .healths
                 .iter_mut()
@@ -110,7 +123,7 @@ pub fn handle_close_attack_request(
             };
             let total_damage: i32 = damage.iter().sum();
             health.amount -= total_damage;
-            let hp_percent = (health.amount * 100 / mob.base.max_hp) as i16;
+            let hp_percent = (health.amount * 100 / mob.base.max_hp as i32) as i16;
             hp_updates.insert(mob.id, hp_percent);
             if hp_percent == 0 {
                 command_tx
@@ -134,7 +147,6 @@ pub fn handle_dead_mob(
     client_map: Res<ClientMap>,
     in_params: InParams,
     mut session_params: SessionParams,
-    mut stat_params: StatParams,
     pos_params: PositionParams,
     mobs: Query<(Entity, &MapleMob, &ChildOf)>,
     items: Query<&MapleItem>,
@@ -162,23 +174,16 @@ pub fn handle_dead_mob(
         else {
             continue;
         };
-        kill_mob_result::write_result(msg.client_id, &vec![*mob], &mut results);
-        let Some((mut exp, _)) = stat_params
-            .exps
-            .iter_mut()
-            .find(|(_, parent)| parent.0 == mob_entity)
-        else {
-            continue;
-        };
+        kill_mob_result::write_result(msg.client_id, mob, &mut results);
 
-        char.exp += exp.amount;
+        char.exp += mob.base.exp;
         if char.exp >= EXP_TABLE[char.level as usize] as i32 {
-            exp.amount = 0;
+            char.exp = 0;
             char.level += 1;
             stats_updates.push(StatsUpdate::Level { level: char.level });
-            level_up_result::write_result(msg.client_id, &vec![char.clone()], &mut results);
+            level_up_result::write_result(msg.client_id, &char.clone(), &mut results);
         } else {
-            set_exp_result::write_result(msg.client_id, &vec![char.clone()], &mut results);
+            set_exp_result::write_result(msg.client_id, &char.clone(), &mut results);
         }
         command_tx
             .0
@@ -218,7 +223,7 @@ pub fn handle_dead_mob(
         }
         drop_items_and_mesos_result::write_result(
             msg.client_id,
-            &vec![*mob],
+            mob,
             &item_vec,
             drop_to_point,
             drop_from_point,

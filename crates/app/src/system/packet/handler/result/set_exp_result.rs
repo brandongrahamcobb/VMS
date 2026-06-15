@@ -27,18 +27,16 @@ use crate::system::packet::build::codec;
 
 pub fn write_result(
     client_id: i32,
-    chars: &Vec<MapleCharacter>,
+    char: &MapleCharacter,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
     let mut actions: Vec<Action> = Vec::new();
-    for char in chars {
-        let Ok(mut set_exp_packet) = codec::player::stats::build_set_exp_packet(char.exp) else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: set_exp_packet.finish(),
-            scope: ActionScope::Local,
-        });
-    }
+    let Ok(mut set_exp_packet) = codec::player::stats::build_set_exp_packet(char.exp) else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: set_exp_packet.finish(),
+        scope: ActionScope::Local,
+    });
     results.write(HandlerResult { client_id, actions });
 }

@@ -27,33 +27,31 @@ use bevy::ecs::message::MessageWriter;
 
 pub fn write_result(
     client_id: i32,
-    accounts: &Vec<MapleAccount>,
+    acc: &MapleAccount,
     code: ValidAccountCode,
     results: &mut MessageWriter<HandlerResult>,
 ) {
     let mut actions: Vec<Action> = Vec::new();
-    for acc in accounts.iter() {
-        if code as i16 == ValidAccountCode::Success as i16 {
-            let Ok(mut login_success_packet) =
-                codec::login::builder::build_successful_login_packet(&acc)
-            else {
-                continue;
-            };
-            actions.push(Action::HandlerAction {
-                packet: login_success_packet.finish(),
-                scope: ActionScope::Local,
-            });
-        } else {
-            let Ok(mut login_failed_packet) =
-                codec::login::builder::build_failed_login_packet(code as i16)
-            else {
-                continue;
-            };
-            actions.push(Action::HandlerAction {
-                packet: login_failed_packet.finish(),
-                scope: ActionScope::Local,
-            });
-        }
+    if code as i16 == ValidAccountCode::Success as i16 {
+        let Ok(mut login_success_packet) =
+            codec::login::builder::build_successful_login_packet(&acc)
+        else {
+            return;
+        };
+        actions.push(Action::HandlerAction {
+            packet: login_success_packet.finish(),
+            scope: ActionScope::Local,
+        });
+    } else {
+        let Ok(mut login_failed_packet) =
+            codec::login::builder::build_failed_login_packet(code as i16)
+        else {
+            return;
+        };
+        actions.push(Action::HandlerAction {
+            packet: login_failed_packet.finish(),
+            scope: ActionScope::Local,
+        });
     }
     results.write(HandlerResult { client_id, actions });
 }

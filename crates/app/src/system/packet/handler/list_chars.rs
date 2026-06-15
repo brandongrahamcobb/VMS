@@ -21,7 +21,8 @@ use std::collections::HashMap;
 
 use crate::component::channel::InChannel;
 use crate::component::character::MapleCharacter;
-use crate::component::item::MapleItem;
+use crate::component::hp::MapleHealth;
+use crate::component::mp::MapleMana;
 use crate::component::world::InWorld;
 use crate::message::packet::list_chars::ListCharsSuccessResponseMessage;
 use crate::message::packet::list_chars::ReadListCharsRequestMessage;
@@ -118,14 +119,24 @@ pub fn handle_list_chars(
             continue;
         };
         let mut char_map: HashMap<i32, (Entity, MapleCharacter)> = HashMap::new();
+        let mut hp_map: HashMap<i32, MapleHealth> = HashMap::new();
+        let mut mp_map: HashMap<i32, MapleMana> = HashMap::new();
         for char_model in msg.char_models.clone() {
-            let char: MapleCharacter = MapleCharacter::from(char_model);
+            let char: MapleCharacter = MapleCharacter::from(char_model.clone());
             let char_entity = commands.spawn((char.clone(), ChildOf(in_acc.0))).id();
             char_map.insert(char.id, (char_entity, char.clone()));
+            let hp = MapleHealth::from(char_model.clone());
+            commands.spawn((hp.clone(), ChildOf(char_entity)));
+            hp_map.insert(char.id, hp.clone());
+            let mp = MapleMana::from(char_model);
+            commands.spawn((mp.clone(), ChildOf(char_entity)));
+            mp_map.insert(char.id, mp.clone());
         }
-        let equips_map: HashMap<i32, Vec<MapleItem>> = create_char::spawn_new_char(
+        let equips_map = create_char::spawn_new_char(
             &mut commands,
-            char_map.clone(),
+            &char_map.clone(),
+            &hp_map.clone(),
+            &mp_map.clone(),
             &msg.keybinding_model_map,
             &msg.skill_model_map,
             &msg.equipped_item_model_map,
@@ -155,9 +166,10 @@ pub fn handle_list_chars(
 
         list_chars_result::write_result(
             msg.client_id,
-            &vec![acc.clone()],
             &char_map,
             &equips_map,
+            &hp_map,
+            &mp_map,
             msg.channel_id,
             msg.slots,
             pic_status,

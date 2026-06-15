@@ -17,8 +17,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use bevy::ecs::component::Component;
+use db::character::model::CharacterModel;
 
-#[derive(Component)]
+#[derive(Clone, Component)]
 pub struct MapleMana {
     pub amount: i16,
+    pub max: i16,
+}
+
+impl From<CharacterModel> for MapleMana {
+    fn from(model: CharacterModel) -> Self {
+        Self {
+            amount: model.mp,
+            max: model.max_mp,
+        }
+    }
 }

@@ -20,7 +20,9 @@
 use std::collections::HashMap;
 
 use crate::component::character::MapleCharacter;
+use crate::component::hp::MapleHealth;
 use crate::component::item::MapleItem;
+use crate::component::mp::MapleMana;
 use crate::system::packet::build::codec;
 use crate::system::packet::build::error::PacketBuildError;
 use bevy::ecs::entity::Entity;
@@ -32,6 +34,8 @@ use op::send::SendOpcode;
 pub fn build_list_chars_packet(
     chars: &HashMap<i32, (Entity, MapleCharacter)>,
     equips_map: &HashMap<i32, Vec<MapleItem>>,
+    hp_map: &HashMap<i32, MapleHealth>,
+    mp_map: &HashMap<i32, MapleMana>,
     channel_id: u8,
     char_slots: i16,
     pic_status: i16,
@@ -45,7 +49,13 @@ pub fn build_list_chars_packet(
         let Some(equips) = equips_map.get(char_id) else {
             continue;
         };
-        build_look_part_packet(&mut packet, char, &equips, char.spawn_map_wz)?;
+        let Some(hp) = hp_map.get(char_id) else {
+            continue;
+        };
+        let Some(mp) = mp_map.get(char_id) else {
+            continue;
+        };
+        build_look_part_packet(&mut packet, char, &equips, hp, mp, char.spawn_map_wz)?;
     }
     packet.write_byte(pic_status).map_err(WriteError)?;
     packet.write_int(char_slots as i32).map_err(WriteError)?;
@@ -56,9 +66,11 @@ fn build_look_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
     equips: &Vec<MapleItem>,
+    hp: &MapleHealth,
+    mp: &MapleMana,
     map_wz: i32,
 ) -> Result<(), PacketBuildError> {
-    codec::player::stats::build_char_stats_meta_part_packet(packet, char, map_wz)?;
+    codec::player::stats::build_char_stats_meta_part_packet(packet, char, hp, mp, map_wz)?;
     codec::player::look::build_look_meta_part_packet(packet, char, equips)?;
     packet.write_byte(0).map_err(WriteError)?;
     // Disable rank.

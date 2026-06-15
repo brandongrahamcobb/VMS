@@ -54,12 +54,7 @@ pub fn handle_login_request(
         match acc {
             Some(acc) => {
                 let code = ValidAccountCode::Playing;
-                login_valid_result::write_result(
-                    msg.client_id,
-                    &vec![acc.clone()],
-                    code,
-                    &mut results,
-                );
+                login_valid_result::write_result(msg.client_id, &acc.clone(), code, &mut results);
             }
             None => {}
         }
@@ -95,7 +90,7 @@ pub fn handle_login_success_response(
 
         commands.entity(client_entity).insert(InAccount(acc_entity));
 
-        login_valid_result::write_result(msg.client_id, &vec![acc.clone()], msg.code, &mut results);
+        login_valid_result::write_result(msg.client_id, &acc.clone(), msg.code, &mut results);
     }
 }
 

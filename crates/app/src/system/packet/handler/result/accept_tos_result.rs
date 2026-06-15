@@ -27,20 +27,17 @@ use crate::system::packet::build::codec;
 
 pub fn write_result(
     client_id: i32,
-    accounts: &Vec<MapleAccount>,
+    acc: &MapleAccount,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
     let mut actions: Vec<Action> = Vec::new();
-    for acc in accounts.iter() {
-        let Ok(mut successful_login_packet) =
-            codec::login::builder::build_successful_login_packet(acc)
-        else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: successful_login_packet.finish(),
-            scope: ActionScope::Local,
-        });
-    }
+    let Ok(mut successful_login_packet) = codec::login::builder::build_successful_login_packet(acc)
+    else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: successful_login_packet.finish(),
+        scope: ActionScope::Local,
+    });
     results.write(HandlerResult { client_id, actions });
 }

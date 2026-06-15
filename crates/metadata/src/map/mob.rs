@@ -78,7 +78,7 @@ pub fn get_base_mobs_by_map_wz(map_wz: i32) -> Result<Vec<BaseMob>, MapMetadataE
         let eva: i16 = info["eva"].as_i64().unwrap_or(0) as i16;
         let fs: f32 = info["fs"].as_i64().unwrap_or(0) as f32;
         let level: i16 = info["level"].as_i64().unwrap_or(0) as i16;
-        let max_hp: i32 = info["maxHP"].as_i64().unwrap_or(0) as i32;
+        let max_hp: i16 = info["maxHP"].as_i64().unwrap_or(0) as i16;
         let max_mp: i16 = info["maxMP"].as_i64().unwrap_or(0) as i16;
         let mob_type: i16 = info["mobType"].as_i64().unwrap_or(0) as i16;
         let pushed: i8 = info["pushed"].as_i64().unwrap_or(0) as i8;

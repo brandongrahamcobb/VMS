@@ -76,12 +76,6 @@ pub fn handle_map_change(
         });
         commands.entity(client_entity).remove::<InMap>();
 
-        change_map_result::write_result(
-            msg.client_id,
-            &vec![char.clone()],
-            &channel,
-            &portal,
-            &mut results,
-        );
+        change_map_result::write_result(msg.client_id, char, &channel, &portal, &mut results);
     }
 }

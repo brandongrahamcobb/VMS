@@ -20,11 +20,11 @@
 use crate::component::account::{InAccount, MapleAccount};
 use crate::component::channel::{InChannel, MapleChannel};
 use crate::component::character::{InChar, MapleCharacter};
-use crate::component::exp::MapleExp;
 use crate::component::hp::MapleHealth;
 use crate::component::inventory::{InInventory, MapleEquippedTab, MapleInventory};
 use crate::component::keybinding::MapleKeybinding;
 use crate::component::map::{InMap, MapleMap};
+use crate::component::mp::MapleMana;
 use crate::component::position::{MapleCurrentPosition, MapleLastPosition};
 use crate::component::session::{InSession, MapleSession};
 use crate::component::skill::MapleSkill;
@@ -71,8 +71,8 @@ pub struct SessionParams<'w, 's> {
 
 #[derive(SystemParam)]
 pub struct StatParams<'w, 's> {
-    pub exps: Query<'w, 's, (&'static mut MapleExp, &'static ChildOf)>,
     pub healths: Query<'w, 's, (&'static mut MapleHealth, &'static ChildOf)>,
+    pub manas: Query<'w, 's, (&'static mut MapleMana, &'static ChildOf)>,
 }
 
 #[derive(SystemParam)]

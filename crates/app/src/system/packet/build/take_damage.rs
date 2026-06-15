@@ -23,12 +23,12 @@ use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use op::send::SendOpcode;
 
-pub fn build_take_damage_packet(hp: i16) -> Result<Packet, PacketBuildError> {
+pub fn build_take_damage_packet(hp: i32) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::ChangeStats as i16;
     packet.write_short(op).map_err(WriteError)?;
     packet.write_byte(0i16).map_err(WriteError)?; // itemreaction
     packet.write_int(0x400i32).map_err(WriteError)?; // updatemask: HP
-    packet.write_short(hp).map_err(WriteError)?;
+    packet.write_short(hp as i16).map_err(WriteError)?;
     Ok(packet)
 }

@@ -27,22 +27,20 @@ use crate::system::packet::build::pickup_item;
 
 pub fn write_result(
     client_id: i32,
-    chars: &Vec<MapleCharacter>,
+    char: &MapleCharacter,
     item_id: i32,
     pet_pickup: bool,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
     let mut actions: Vec<Action> = Vec::new();
-    for char in chars {
-        let Ok(mut pickup_item_packet) =
-            pickup_item::build_pickup_item_packet(char.id, item_id, pet_pickup)
-        else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: pickup_item_packet.finish(),
-            scope: ActionScope::Local,
-        });
-    }
+    let Ok(mut pickup_item_packet) =
+        pickup_item::build_pickup_item_packet(char.id, item_id, pet_pickup)
+    else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: pickup_item_packet.finish(),
+        scope: ActionScope::Local,
+    });
     results.write(HandlerResult { client_id, actions });
 }

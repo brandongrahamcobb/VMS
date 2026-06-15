@@ -17,8 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-
 use action::model::Action;
 use action::scope::{ActionScope, MapScope};
 use bevy::ecs::message::MessageWriter;
@@ -32,20 +30,19 @@ pub fn write_result(
     client_id: i32,
     acc: &MapleAccount,
     char: &MapleCharacter,
-    messages: &HashMap<String, i16>,
+    msg: &String,
+    show: i16,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
     let mut actions: Vec<Action> = Vec::new();
-    for (msg, show) in messages.iter() {
-        let Ok(mut chat_packet) =
-            chat_text::build_chat_text_packet(acc.admin, char.id, msg.clone(), *show)
-        else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: chat_packet.finish(),
-            scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-        });
-    }
+    let Ok(mut chat_packet) =
+        chat_text::build_chat_text_packet(acc.admin, char.id, msg.clone(), show)
+    else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: chat_packet.finish(),
+        scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+    });
     results.write(HandlerResult { client_id, actions });
 }

@@ -29,26 +29,24 @@ use crate::system::packet::build::codec;
 
 pub fn write_result(
     client_id: i32,
-    char_ids: &Vec<i32>,
     channel: &MapleChannel,
+    char_id: i32,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
     let mut actions: Vec<Action> = Vec::new();
-    for char_id in char_ids.iter() {
-        let Ok(addr) = settings::get_routing_address() else {
-            continue;
-        };
-        let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
+    let Ok(addr) = settings::get_routing_address() else {
+        return;
+    };
+    let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
 
-        let Ok(mut select_char_packet) =
-            codec::login::builder::build_select_char_packet(*char_id, octets, channel.port)
-        else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: select_char_packet.finish(),
-            scope: ActionScope::Local,
-        });
-    }
+    let Ok(mut select_char_packet) =
+        codec::login::builder::build_select_char_packet(char_id, octets, channel.port)
+    else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: select_char_packet.finish(),
+        scope: ActionScope::Local,
+    });
     results.write(HandlerResult { client_id, actions });
 }

@@ -22,7 +22,7 @@ use crate::message::packet::take_damage::ReadTakeDamageRequestMessage;
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::{change_map, codec, take_damage};
-use crate::system::system_params::{InParams, LocationParams, SessionParams};
+use crate::system::system_params::{InParams, LocationParams, SessionParams, StatParams};
 use action::model::Action;
 use action::scope::{ActionScope, MapScope};
 use base::character::StatsUpdate;
@@ -39,21 +39,12 @@ pub fn handle_take_damage(
     loc_params: LocationParams,
     in_params: InParams,
     mut session_params: SessionParams,
+    mut stats_params: StatParams,
     mut results: MessageWriter<HandlerResult>,
     mut messages: MessageReader<ReadTakeDamageRequestMessage>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
-            continue;
-        };
-        let Ok(in_char) = in_params.in_chars.get(client_entity) else {
-            continue;
-        };
-        let Some((_, mut char, _)) = session_params
-            .chars
-            .iter_mut()
-            .find(|(_, _, parent)| parent.0 == in_char.0)
-        else {
             continue;
         };
         let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
@@ -68,20 +59,33 @@ pub fn handle_take_damage(
         let Ok((_, map, _)) = loc_params.maps.get(in_map.0) else {
             continue;
         };
+        let Ok(in_char) = in_params.in_chars.get(client_entity) else {
+            continue;
+        };
+        let Ok((mut hp, _)) = stats_params.healths.get_mut(in_char.0) else {
+            continue;
+        };
+        let Some((_, char, _)) = session_params
+            .chars
+            .iter_mut()
+            .find(|(_, _, parent)| parent.0 == in_char.0)
+        else {
+            continue;
+        };
 
         let Ok(return_map_wz) = metadata::map::death::get_death_map_by_wz(map.base.wz) else {
             continue;
         };
 
-        let max_hp = char.max_hp;
-        let calc: i16 = char.hp - msg.damage as i16;
-        let hp = match calc.cmp(&0) {
+        let calc: i32 = hp.amount - msg.damage;
+        let recalculated_hp = match calc.cmp(&0) {
             Ordering::Greater | Ordering::Equal => calc,
             _ => 0,
         };
-        if hp != 0 {
-            char.hp = hp;
-            let Ok(mut take_damage_packet) = take_damage::build_take_damage_packet(hp) else {
+        if recalculated_hp != 0 {
+            hp.amount = recalculated_hp;
+            let Ok(mut take_damage_packet) = take_damage::build_take_damage_packet(recalculated_hp)
+            else {
                 continue;
             };
             results.write(HandlerResult {
@@ -92,8 +96,8 @@ pub fn handle_take_damage(
                 }],
             });
         } else {
-            char.hp = max_hp;
-            let update = StatsUpdate::Health { hp: max_hp };
+            hp.amount = hp.max;
+            let update = StatsUpdate::Health { hp: hp.max };
             command_tx
                 .0
                 .send(AsyncCommand::DatabaseOperation(

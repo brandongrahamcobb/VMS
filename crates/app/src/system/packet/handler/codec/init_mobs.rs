@@ -24,7 +24,9 @@ use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::system::Commands;
 
+use crate::component::hp::MapleHealth;
 use crate::component::mob::{MapleMob, MobIndex};
+use crate::component::mp::MapleMana;
 use crate::component::position::{MapleCurrentPosition, MapleLastPosition};
 
 pub fn init(
@@ -52,6 +54,16 @@ pub fn init(
         commands.spawn((curr_pos, ChildOf(mob_entity)));
         let last_pos = MapleLastPosition { x: 0, y: 0 };
         commands.spawn((last_pos, ChildOf(mob_entity)));
+        let hp = MapleHealth {
+            amount: base_mob.max_hp as i32,
+            max: base_mob.max_hp as i32,
+        };
+        commands.spawn((hp, ChildOf(mob_entity)));
+        let mp = MapleMana {
+            amount: base_mob.max_mp,
+            max: base_mob.max_mp,
+        };
+        commands.spawn((mp, ChildOf(mob_entity)));
     }
     mobs
 }

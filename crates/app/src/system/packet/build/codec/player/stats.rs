@@ -18,6 +18,8 @@
  */
 
 use crate::component::character::MapleCharacter;
+use crate::component::hp::MapleHealth;
+use crate::component::mp::MapleMana;
 use crate::system::packet::build::error::PacketBuildError;
 use net::packet::io::error::IOError::WriteError;
 use net::packet::io::prelude::*;
@@ -27,6 +29,8 @@ use op::send::SendOpcode;
 pub fn build_char_stats_meta_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
+    hp: &MapleHealth,
+    mp: &MapleMana,
     map_wz: i32,
 ) -> Result<(), PacketBuildError> {
     packet.write_int(char.id).map_err(WriteError)?;
@@ -48,10 +52,10 @@ pub fn build_char_stats_meta_part_packet(
     packet.write_short(char.dexterity).map_err(WriteError)?;
     packet.write_short(char.intelligence).map_err(WriteError)?;
     packet.write_short(char.luck).map_err(WriteError)?;
-    packet.write_short(char.hp).map_err(WriteError)?;
-    packet.write_short(char.max_hp).map_err(WriteError)?;
-    packet.write_short(char.mp).map_err(WriteError)?;
-    packet.write_short(char.max_mp).map_err(WriteError)?;
+    packet.write_short(hp.amount as i16).map_err(WriteError)?;
+    packet.write_short(hp.max as i16).map_err(WriteError)?;
+    packet.write_short(mp.amount).map_err(WriteError)?;
+    packet.write_short(mp.max).map_err(WriteError)?;
     packet.write_short(char.ap).map_err(WriteError)?;
     // SP
     packet.write_short(0).map_err(WriteError)?;

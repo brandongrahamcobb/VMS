@@ -27,35 +27,32 @@ use crate::system::packet::build::codec;
 
 pub fn write_result(
     client_id: i32,
-    chars: &Vec<MapleCharacter>,
+    char: &MapleCharacter,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
     let mut actions: Vec<Action> = Vec::new();
-    for char in chars.iter() {
-        let Ok(mut set_level_packet) = codec::player::stats::build_set_level_packet(char.level)
-        else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: set_level_packet.finish(),
-            scope: ActionScope::Local,
-        });
-        let Ok(mut set_exp_packet) = codec::player::stats::build_set_exp_packet(0) else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: set_exp_packet.finish(),
-            scope: ActionScope::Local,
-        });
-        let Ok(mut level_up_packet) = codec::player::stats::build_level_up_effect_packet(char.id)
-        else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: level_up_packet.finish(),
-            scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-        });
-    }
+    let Ok(mut set_level_packet) = codec::player::stats::build_set_level_packet(char.level) else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: set_level_packet.finish(),
+        scope: ActionScope::Local,
+    });
+    let Ok(mut set_exp_packet) = codec::player::stats::build_set_exp_packet(0) else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: set_exp_packet.finish(),
+        scope: ActionScope::Local,
+    });
+    let Ok(mut level_up_packet) = codec::player::stats::build_level_up_effect_packet(char.id)
+    else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: level_up_packet.finish(),
+        scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+    });
     results.write(HandlerResult {
         client_id: client_id,
         actions,

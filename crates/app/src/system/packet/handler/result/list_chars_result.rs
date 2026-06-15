@@ -20,42 +20,37 @@
 use std::collections::HashMap;
 
 use action::model::Action;
-use action::scope::{ActionScope, MapScope};
+use action::scope::ActionScope;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::message::MessageWriter;
 
-use crate::component::account::MapleAccount;
 use crate::component::character::MapleCharacter;
+use crate::component::hp::MapleHealth;
 use crate::component::item::MapleItem;
+use crate::component::mp::MapleMana;
 use crate::message::result::HandlerResult;
 use crate::system::packet::build::list_chars;
 
 pub fn write_result(
     client_id: i32,
-    accounts: &Vec<MapleAccount>,
     char_map: &HashMap<i32, (Entity, MapleCharacter)>,
     equips_map: &HashMap<i32, Vec<MapleItem>>,
+    hp_map: &HashMap<i32, MapleHealth>,
+    mp_map: &HashMap<i32, MapleMana>,
     channel_id: u8,
     slots: i16,
     pic_status: i16,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
     let mut actions: Vec<Action> = Vec::new();
-    for _ in accounts.iter() {
-        let Ok(mut list_chars_packet) = list_chars::build_list_chars_packet(
-            &char_map,
-            &equips_map,
-            channel_id,
-            slots,
-            pic_status,
-        ) else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: list_chars_packet.finish(),
-            scope: ActionScope::Local,
-        });
-    }
-
+    let Ok(mut list_chars_packet) = list_chars::build_list_chars_packet(
+        char_map, equips_map, hp_map, mp_map, channel_id, slots, pic_status,
+    ) else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: list_chars_packet.finish(),
+        scope: ActionScope::Local,
+    });
     results.write(HandlerResult { client_id, actions });
 }

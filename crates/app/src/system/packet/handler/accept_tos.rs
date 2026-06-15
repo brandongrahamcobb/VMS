@@ -58,7 +58,7 @@ pub fn handle_tos(
                     },
                 ))
                 .unwrap();
-            accept_tos_result::write_result(msg.client_id, &vec![acc.clone()], &mut results);
+            accept_tos_result::write_result(msg.client_id, &acc.clone(), &mut results);
         }
     }
 }

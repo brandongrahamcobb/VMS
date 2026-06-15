@@ -21,26 +21,22 @@ use action::model::Action;
 use action::scope::{ActionScope, MapScope};
 use bevy::ecs::message::MessageWriter;
 
-use crate::component::account::MapleAccount;
 use crate::message::result::HandlerResult;
 use crate::system::packet::build::spw;
 
 pub fn write_result(
     client_id: i32,
-    accounts: &Vec<MapleAccount>,
     pic_status: bool,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
     let mut actions: Vec<Action> = Vec::new();
-    for _ in accounts.iter() {
-        let Ok(mut spw_packet) = spw::build_spw_packet(!pic_status) else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: spw_packet.finish(),
-            scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-        });
-    }
+    let Ok(mut spw_packet) = spw::build_spw_packet(!pic_status) else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: spw_packet.finish(),
+        scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+    });
     results.write(HandlerResult {
         client_id: client_id,
         actions,

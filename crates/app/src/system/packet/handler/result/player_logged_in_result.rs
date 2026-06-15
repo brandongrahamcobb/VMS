@@ -17,8 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-
 use action::model::Action;
 use action::scope::ActionScope;
 use bevy::ecs::entity::Entity;
@@ -27,37 +25,40 @@ use bevy::ecs::message::MessageWriter;
 
 use crate::component::channel::MapleChannel;
 use crate::component::character::MapleCharacter;
+use crate::component::hp::MapleHealth;
 use crate::component::item::MapleItem;
 use crate::component::keybinding::MapleKeybinding;
+use crate::component::mp::MapleMana;
 use crate::message::result::HandlerResult;
 use crate::system::packet::build::{codec, player_logged_in};
 
 pub fn write_result(
     client_id: i32,
-    char_map: &HashMap<MapleCharacter, Vec<MapleItem>>,
-    binds: &Vec<(Entity, &MapleKeybinding, &ChildOf)>,
     channel: &MapleChannel,
+    binds: &Vec<(Entity, &MapleKeybinding, &ChildOf)>,
+    char: &MapleCharacter,
+    equips: &Vec<MapleItem>,
+    hp: &MapleHealth,
+    mp: &MapleMana,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
     let mut actions: Vec<Action> = Vec::new();
-    for (char, equips) in char_map.iter() {
-        let Ok(mut keymap_packet) = player_logged_in::build_player_logged_in_keymap_packet(&binds)
-        else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: keymap_packet.finish(),
-            scope: ActionScope::Local,
-        });
-        let Ok(mut set_field_packet) =
-            codec::player::set_field::build_set_field_packet(char, equips, channel.id)
-        else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: set_field_packet.finish(),
-            scope: ActionScope::Local,
-        });
-    }
+    let Ok(mut keymap_packet) = player_logged_in::build_player_logged_in_keymap_packet(&binds)
+    else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: keymap_packet.finish(),
+        scope: ActionScope::Local,
+    });
+    let Ok(mut set_field_packet) =
+        codec::player::set_field::build_set_field_packet(channel.id, char, equips, hp, mp)
+    else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: set_field_packet.finish(),
+        scope: ActionScope::Local,
+    });
     results.write(HandlerResult { client_id, actions });
 }

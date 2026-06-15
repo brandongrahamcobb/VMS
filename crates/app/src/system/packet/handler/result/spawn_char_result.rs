@@ -17,8 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
-
 use action::model::Action;
 use action::scope::ActionScope;
 use bevy::ecs::message::MessageWriter;
@@ -30,21 +28,20 @@ use crate::system::packet::build::codec;
 
 pub fn write_result(
     client_id: i32,
-    char_map: &HashMap<MapleCharacter, Vec<MapleItem>>,
+    char: &MapleCharacter,
+    equips: &Vec<MapleItem>,
     scope: ActionScope,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
     let mut actions: Vec<Action> = Vec::new();
-    for (char, equips) in char_map.iter() {
-        let Ok(mut spawn_player_packet) =
-            codec::player::spawn::build_spawn_player_packet(&char, &equips)
-        else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: spawn_player_packet.finish(),
-            scope,
-        });
-    }
+    let Ok(mut spawn_player_packet) =
+        codec::player::spawn::build_spawn_player_packet(&char, &equips)
+    else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: spawn_player_packet.finish(),
+        scope,
+    });
     results.write(HandlerResult { client_id, actions });
 }

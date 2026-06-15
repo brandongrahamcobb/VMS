@@ -54,7 +54,7 @@ pub fn mob_respawn_system(
             let Ok(mut hp) = healths.get_mut(mob_entity) else {
                 continue;
             };
-            hp.amount = mob.base.max_hp;
+            hp.amount = mob.base.max_hp as i32;
         } else {
             continue;
         }

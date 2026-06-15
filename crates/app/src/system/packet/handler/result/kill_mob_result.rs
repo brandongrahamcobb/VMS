@@ -27,18 +27,16 @@ use crate::system::packet::build::codec;
 
 pub fn write_result(
     client_id: i32,
-    mobs: &Vec<MapleMob>,
+    mob: &MapleMob,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
     let mut actions: Vec<Action> = Vec::new();
-    for mob in mobs.iter() {
-        let Ok(mut kill_mob_packet) = codec::mob::builder::build_kill_mob_packet(mob.id) else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: kill_mob_packet.finish(),
-            scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-        });
-    }
+    let Ok(mut kill_mob_packet) = codec::mob::builder::build_kill_mob_packet(mob.id) else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: kill_mob_packet.finish(),
+        scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+    });
     results.write(HandlerResult { client_id, actions });
 }

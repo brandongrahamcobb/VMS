@@ -17,8 +17,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use bevy::ecs::component::Component;
+use db::character::model::CharacterModel;
 
-#[derive(Component)]
+#[derive(Clone, Component)]
 pub struct MapleHealth {
     pub amount: i32,
+    pub max: i32,
+}
+
+impl From<CharacterModel> for MapleHealth {
+    fn from(model: CharacterModel) -> Self {
+        Self {
+            amount: model.hp as i32,
+            max: model.max_hp as i32,
+        }
+    }
 }

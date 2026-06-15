@@ -30,31 +30,28 @@ use crate::system::packet::build::{cc, codec};
 
 pub fn write_result(
     client_id: i32,
-    chars: &Vec<MapleCharacter>,
     channel: &MapleChannel,
+    char: &MapleCharacter,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
     let mut actions: Vec<Action> = Vec::new();
-    for char in chars {
-        let Ok(addr) = settings::get_routing_address() else {
-            continue;
-        };
-        let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
-        let Ok(mut despawn_packet) = codec::player::spawn::build_despawn_player_packet(char.id)
-        else {
-            continue;
-        };
-        let Ok(mut cc_packet) = cc::build_channel_change_packet(octets, channel.port) else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: despawn_packet.finish(),
-            scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-        });
-        actions.push(Action::HandlerAction {
-            packet: cc_packet.finish(),
-            scope: ActionScope::Local,
-        });
-    }
+    let Ok(addr) = settings::get_routing_address() else {
+        return;
+    };
+    let octets: [u8; 4] = helpers::convert_to_ip_array(addr);
+    let Ok(mut despawn_packet) = codec::player::spawn::build_despawn_player_packet(char.id) else {
+        return;
+    };
+    let Ok(mut cc_packet) = cc::build_channel_change_packet(octets, channel.port) else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: despawn_packet.finish(),
+        scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+    });
+    actions.push(Action::HandlerAction {
+        packet: cc_packet.finish(),
+        scope: ActionScope::Local,
+    });
     results.write(HandlerResult { client_id, actions });
 }

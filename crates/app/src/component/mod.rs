@@ -1,7 +1,6 @@
 pub mod account;
 pub mod channel;
 pub mod character;
-pub mod exp;
 pub mod hp;
 pub mod inventory;
 pub mod item;

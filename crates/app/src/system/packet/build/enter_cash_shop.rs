@@ -18,7 +18,9 @@
  */
 
 use crate::component::character::MapleCharacter;
+use crate::component::hp::MapleHealth;
 use crate::component::item::MapleItem;
+use crate::component::mp::MapleMana;
 use crate::system::packet::build::codec;
 use crate::system::packet::build::error::PacketBuildError;
 use net::packet::io::error::IOError::WriteError;
@@ -30,6 +32,8 @@ pub fn build_enter_cash_shop_packet(
     username: String,
     char: &MapleCharacter,
     equips: &Vec<MapleItem>,
+    hp: &MapleHealth,
+    mp: &MapleMana,
 ) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SetCashShop as i16;
@@ -38,7 +42,13 @@ pub fn build_enter_cash_shop_packet(
     packet.write_long(0).map_err(WriteError)?;
     // Flag
     packet.write_byte(0).map_err(WriteError)?;
-    codec::player::set_field::build_player_logged_in_meta_part_packet(&mut packet, char, equips)?;
+    codec::player::set_field::build_player_logged_in_meta_part_packet(
+        &mut packet,
+        char,
+        equips,
+        hp,
+        mp,
+    )?;
     build_cash_shop_meta(&mut packet, username.clone())?;
     Ok(packet)
 }

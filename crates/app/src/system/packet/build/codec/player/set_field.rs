@@ -18,7 +18,9 @@
  */
 
 use crate::component::character::MapleCharacter;
+use crate::component::hp::MapleHealth;
 use crate::component::item::MapleItem;
+use crate::component::mp::MapleMana;
 use crate::system::packet::build::codec::player::look;
 use crate::system::packet::build::error::PacketBuildError;
 use net::packet::io::error::IOError::WriteError;
@@ -27,9 +29,11 @@ use net::packet::model::Packet;
 use op::send::SendOpcode;
 
 pub fn build_set_field_packet(
+    channel_id: u8,
     char: &MapleCharacter,
     equips: &Vec<MapleItem>,
-    channel_id: u8,
+    hp: &MapleHealth,
+    mp: &MapleMana,
 ) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::SetField as i16;
@@ -59,7 +63,7 @@ pub fn build_set_field_packet(
     packet.write_long(0).map_err(WriteError)?;
     packet.write_long(0).map_err(WriteError)?;
     packet.write_long(0).map_err(WriteError)?;
-    build_player_logged_in_meta_part_packet(&mut packet, char, equips)?;
+    build_player_logged_in_meta_part_packet(&mut packet, char, equips, hp, mp)?;
     Ok(packet)
 }
 
@@ -67,6 +71,8 @@ pub fn build_player_logged_in_meta_part_packet(
     packet: &mut Packet,
     char: &MapleCharacter,
     equips: &Vec<MapleItem>,
+    hp: &MapleHealth,
+    mp: &MapleMana,
 ) -> Result<(), PacketBuildError> {
     let level = char.level;
     packet.write_byte(level).map_err(WriteError)?;
@@ -75,10 +81,10 @@ pub fn build_player_logged_in_meta_part_packet(
     packet.write_short(char.dexterity).map_err(WriteError)?;
     packet.write_short(char.intelligence).map_err(WriteError)?;
     packet.write_short(char.luck).map_err(WriteError)?;
-    packet.write_short(char.hp).map_err(WriteError)?;
-    packet.write_short(char.max_hp).map_err(WriteError)?;
-    packet.write_short(char.mp).map_err(WriteError)?;
-    packet.write_short(char.max_mp).map_err(WriteError)?;
+    packet.write_short(hp.amount as i16).map_err(WriteError)?;
+    packet.write_short(hp.max as i16).map_err(WriteError)?;
+    packet.write_short(mp.amount).map_err(WriteError)?;
+    packet.write_short(mp.max).map_err(WriteError)?;
     packet.write_short(char.ap).map_err(WriteError)?;
     // SP
     packet.write_short(0).map_err(WriteError)?;

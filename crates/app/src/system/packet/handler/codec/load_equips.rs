@@ -23,18 +23,17 @@ use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::system::Query;
 
-use crate::component::character::MapleCharacter;
 use crate::component::item::MapleItem;
 use crate::system::system_params::{InParams, InventoryParams, SessionParams};
 
-pub fn load_char_with_equips(
+pub fn load_equips(
     client_entities: Vec<Entity>,
     in_params: &InParams,
     session_params: &SessionParams,
     inv_params: &InventoryParams,
     items: Query<(&MapleItem, &ChildOf)>,
-) -> HashMap<MapleCharacter, Vec<MapleItem>> {
-    let mut char_map: HashMap<MapleCharacter, Vec<MapleItem>> = HashMap::new();
+) -> HashMap<i32, Vec<MapleItem>> {
+    let mut equips_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
     for client_entity in client_entities {
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
@@ -71,7 +70,7 @@ pub fn load_char_with_equips(
             };
             equips.push(equip.clone());
         }
-        char_map.insert(char.clone(), equips);
+        equips_map.insert(char.id, equips);
     }
-    char_map
+    equips_map
 }

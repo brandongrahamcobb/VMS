@@ -27,21 +27,19 @@ use crate::system::packet::build::player_moved;
 
 pub fn write_result(
     client_id: i32,
-    chars: &Vec<MapleCharacter>,
+    char: &MapleCharacter,
     movement_bytes: Vec<u8>,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
     let mut actions: Vec<Action> = Vec::new();
-    for char in chars.iter() {
-        let Ok(mut player_moved_packet) =
-            player_moved::build_player_move_packet(char.id, movement_bytes.clone())
-        else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: player_moved_packet.finish(),
-            scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-        });
-    }
+    let Ok(mut player_moved_packet) =
+        player_moved::build_player_move_packet(char.id, movement_bytes.clone())
+    else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: player_moved_packet.finish(),
+        scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+    });
     results.write(HandlerResult { client_id, actions });
 }

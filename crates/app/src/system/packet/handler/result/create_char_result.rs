@@ -18,32 +18,34 @@
  */
 
 use action::model::Action;
-use action::scope::{ActionScope, MapScope};
+use action::scope::ActionScope;
 use bevy::ecs::message::MessageWriter;
 
 use crate::component::character::MapleCharacter;
+use crate::component::hp::MapleHealth;
 use crate::component::item::MapleItem;
+use crate::component::mp::MapleMana;
 use crate::message::result::HandlerResult;
 use crate::system::packet::build::create_char;
 
 pub fn write_result(
     client_id: i32,
-    chars: &Vec<MapleCharacter>,
+    char: &MapleCharacter,
     equips: &Vec<MapleItem>,
+    hp: &MapleHealth,
+    mp: &MapleMana,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
     let mut actions: Vec<Action> = Vec::new();
-    for char in chars.iter() {
-        let Ok(mut create_char_packet) =
-            create_char::build_create_char_packet(&char, &equips, char.spawn_map_wz)
-        else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: create_char_packet.finish(),
-            scope: ActionScope::Local,
-        });
-    }
+    let Ok(mut create_char_packet) =
+        create_char::build_create_char_packet(char, equips, hp, mp, char.spawn_map_wz)
+    else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: create_char_packet.finish(),
+        scope: ActionScope::Local,
+    });
     results.write(HandlerResult {
         client_id: client_id,
         actions,

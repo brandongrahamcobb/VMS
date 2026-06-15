@@ -76,6 +76,6 @@ pub fn handle_select_char(
             })
             .unwrap();
 
-        select_char_result::write_result(msg.client_id, &vec![char.id], channel, &mut results);
+        select_char_result::write_result(msg.client_id, channel, char.id, &mut results);
     }
 }

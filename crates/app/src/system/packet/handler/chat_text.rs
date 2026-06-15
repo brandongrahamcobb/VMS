@@ -53,6 +53,13 @@ pub fn handle_chat_text(
 
         let mut messages: HashMap<String, i16> = HashMap::new();
         messages.insert(msg.msg.clone(), msg.show);
-        chat_text_result::write_result(msg.client_id, &acc, &char, &messages, &mut results);
+        chat_text_result::write_result(
+            msg.client_id,
+            &acc,
+            &char,
+            &msg.msg,
+            msg.show,
+            &mut results,
+        );
     }
 }

@@ -74,7 +74,7 @@ pub fn handle_delete_char_request(
                     },
                 ))
                 .unwrap();
-            spw_result::write_result(msg.client_id, &vec![acc.clone()], pic_status, &mut results);
+            spw_result::write_result(msg.client_id, pic_status, &mut results);
         }
     }
 }

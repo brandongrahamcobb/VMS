@@ -96,7 +96,7 @@ pub fn handle_pickup_response(
 
         pickup_item_result::write_result(
             msg.client_id,
-            &vec![char.clone()],
+            &char.clone(),
             msg.item_id,
             msg.pet_pickup,
             &mut results,

@@ -29,32 +29,29 @@ use crate::system::packet::build::{change_map, codec};
 
 pub fn write_result(
     client_id: i32,
-    chars: &Vec<MapleCharacter>,
+    char: &MapleCharacter,
     channel: &MapleChannel,
     portal: &MaplePortal,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
     let mut actions: Vec<Action> = Vec::new();
-    for char in chars {
-        let Ok(mut despawn_packet) = codec::player::spawn::build_despawn_player_packet(char.id)
-        else {
-            continue;
-        };
-        let Ok(mut set_field_packet) = change_map::build_set_field_change_map_packet(
-            channel.id,
-            portal.base.target_map_wz,
-            portal.base.wz,
-        ) else {
-            continue;
-        };
-        actions.push(Action::HandlerAction {
-            packet: despawn_packet.finish(),
-            scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-        });
-        actions.push(Action::HandlerAction {
-            packet: set_field_packet.finish(),
-            scope: ActionScope::Local,
-        });
-    }
+    let Ok(mut despawn_packet) = codec::player::spawn::build_despawn_player_packet(char.id) else {
+        return;
+    };
+    let Ok(mut set_field_packet) = change_map::build_set_field_change_map_packet(
+        channel.id,
+        portal.base.target_map_wz,
+        portal.base.wz,
+    ) else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: despawn_packet.finish(),
+        scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+    });
+    actions.push(Action::HandlerAction {
+        packet: set_field_packet.finish(),
+        scope: ActionScope::Local,
+    });
     results.write(HandlerResult { client_id, actions });
 }

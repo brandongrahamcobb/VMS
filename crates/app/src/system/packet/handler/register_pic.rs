@@ -58,6 +58,6 @@ pub fn handle_register_pic(
             .unwrap();
 
         let status: bool = true;
-        spw_result::write_result(msg.client_id, &vec![acc.clone()], status, &mut results);
+        spw_result::write_result(msg.client_id, status, &mut results);
     }
 }

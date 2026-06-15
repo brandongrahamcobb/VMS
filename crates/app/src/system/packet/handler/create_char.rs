@@ -20,12 +20,14 @@
 use std::collections::HashMap;
 
 use crate::component::character::MapleCharacter;
+use crate::component::hp::MapleHealth;
 use crate::component::inventory::{
     MapleCashTab, MapleEquipTab, MapleEquippedTab, MapleEtcTab, MapleInventory, MapleSetupTab,
     MapleUseTab,
 };
 use crate::component::item::MapleItem;
 use crate::component::keybinding::MapleKeybinding;
+use crate::component::mp::MapleMana;
 use crate::component::position::MapleCurrentPosition;
 use crate::component::skill::MapleSkill;
 use crate::component::slot::{MapleEmptyItemSlot, MapleFilledItemSlot};
@@ -121,11 +123,21 @@ pub fn handle_create_char_response(
         };
         let char: MapleCharacter = MapleCharacter::from(msg.char_model.clone());
         let char_entity = commands.spawn((char.clone(), ChildOf(in_acc.0))).id();
+        let mut hp_map: HashMap<i32, MapleHealth> = HashMap::new();
+        let hp: MapleHealth = MapleHealth::from(msg.char_model.clone());
+        commands.spawn((hp.clone(), ChildOf(char_entity)));
+        hp_map.insert(char.id, hp.clone());
+        let mut mp_map: HashMap<i32, MapleMana> = HashMap::new();
+        let mp: MapleMana = MapleMana::from(msg.char_model.clone());
+        commands.spawn((mp.clone(), ChildOf(char_entity)));
+        mp_map.insert(char.id, mp.clone());
         let mut chars: HashMap<i32, (Entity, MapleCharacter)> = HashMap::new();
         chars.insert(msg.char_id, (char_entity, char.clone()));
         let equips_map: HashMap<i32, Vec<MapleItem>> = spawn_new_char(
             &mut commands,
-            chars,
+            &chars,
+            &hp_map,
+            &mp_map,
             &msg.keybinding_model_map,
             &msg.skill_model_map,
             &msg.equipped_item_model_map,
@@ -143,7 +155,7 @@ pub fn handle_create_char_response(
         let Some(equips) = equips_map.get(&msg.char_id) else {
             continue;
         };
-        create_char_result::write_result(msg.client_id, &vec![char.clone()], &equips, &mut results);
+        create_char_result::write_result(msg.client_id, &char, &equips, &hp, &mp, &mut results);
     }
 }
 
@@ -177,7 +189,9 @@ pub fn spawn_new_char_equips(
 
 pub fn spawn_new_char(
     commands: &mut Commands,
-    chars: HashMap<i32, (Entity, MapleCharacter)>,
+    char_map: &HashMap<i32, (Entity, MapleCharacter)>,
+    hp_map: &HashMap<i32, MapleHealth>,
+    mp_map: &HashMap<i32, MapleMana>,
     keybinding_model_map: &HashMap<i32, Vec<KeybindingModel>>,
     skill_model_map: &HashMap<i32, Vec<SkillModel>>,
     equipped_item_model_map: &HashMap<i32, Vec<ItemModel>>,
@@ -193,7 +207,15 @@ pub fn spawn_new_char(
     cash_tab_inv_capacity_map: &HashMap<i32, i16>,
 ) -> HashMap<i32, Vec<MapleItem>> {
     let mut equipped_filled_slots_map: HashMap<i32, Vec<MapleItem>> = HashMap::new();
-    for (_, (char_entity, char)) in chars.iter() {
+    for (_, (char_entity, char)) in char_map.iter() {
+        let Some(hp) = hp_map.get(&char.id) else {
+            continue;
+        };
+        commands.spawn((hp.clone(), ChildOf(*char_entity)));
+        let Some(mp) = mp_map.get(&char.id) else {
+            continue;
+        };
+        commands.spawn((mp.clone(), ChildOf(*char_entity)));
         let curr_pos = MapleCurrentPosition {
             x: 0,
             y: 0,

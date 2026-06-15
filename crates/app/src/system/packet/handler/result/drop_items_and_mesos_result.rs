@@ -30,7 +30,7 @@ use crate::system::packet::build::codec;
 
 pub fn write_result(
     client_id: i32,
-    mobs: &Vec<MapleMob>,
+    mob: &MapleMob,
     items: &Vec<MapleItem>,
     drop_to_point: Point,
     drop_from_point: Point,
@@ -41,47 +41,45 @@ pub fn write_result(
     let owner: i32 = 0; // char id or 0
     let can_pickup: u8 = 0; // 0 everyone 1 owner, 2 party
     let player_drop: bool = false;
-    for mob in mobs.iter() {
-        let Ok(meso_rate) = settings::get_meso_drop_rate() else {
-            continue;
-        };
-        let mesos: i32 = inc::item::calculate_rand_meso_amount(meso_rate, mob.base.level);
-        let Ok(mut meso_packet) = codec::item::builder::build_drop_loot_packet(
+    let Ok(meso_rate) = settings::get_meso_drop_rate() else {
+        return;
+    };
+    let mesos: i32 = inc::item::calculate_rand_meso_amount(meso_rate, mob.base.level);
+    let Ok(mut meso_packet) = codec::item::builder::build_drop_loot_packet(
+        mode,
+        0, // item ID
+        true,
+        mesos,
+        owner,
+        can_pickup,
+        drop_to_point.clone(),
+        drop_from_point.clone(),
+        player_drop,
+    ) else {
+        return;
+    };
+    actions.push(Action::HandlerAction {
+        packet: meso_packet.finish(),
+        scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+    });
+    for item in items {
+        let Ok(mut drop_loot_packet) = codec::item::builder::build_drop_loot_packet(
             mode,
-            0, // item ID
-            true,
-            mesos,
+            item.id as u32,
+            false,
+            item.base.wz,
             owner,
             can_pickup,
             drop_to_point.clone(),
             drop_from_point.clone(),
             player_drop,
         ) else {
-            continue;
+            return;
         };
         actions.push(Action::HandlerAction {
-            packet: meso_packet.finish(),
+            packet: drop_loot_packet.finish(),
             scope: ActionScope::Map(MapScope::SameChannelSameWorld),
         });
-        for item in items {
-            let Ok(mut drop_loot_packet) = codec::item::builder::build_drop_loot_packet(
-                mode,
-                item.id as u32,
-                false,
-                item.base.wz,
-                owner,
-                can_pickup,
-                drop_to_point.clone(),
-                drop_from_point.clone(),
-                player_drop,
-            ) else {
-                continue;
-            };
-            actions.push(Action::HandlerAction {
-                packet: drop_loot_packet.finish(),
-                scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-            });
-        }
     }
     results.write(HandlerResult { client_id, actions });
 }

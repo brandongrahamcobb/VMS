@@ -112,19 +112,10 @@ pub fn handle_select_char_with_pic_response(
                 })
                 .unwrap();
 
-            select_char_result::write_result(msg.client_id, &vec![char.id], channel, &mut results);
+            select_char_result::write_result(msg.client_id, channel, char.id, &mut results);
         } else {
             let status: bool = false;
-            let Some(&client_entity): Option<&Entity> = client_map.0.get(&msg.client_id) else {
-                continue;
-            };
-            let Ok(in_acc) = in_params.in_accounts.get(client_entity) else {
-                continue;
-            };
-            let Ok((_, acc, _)) = session_params.accounts.get(in_acc.0) else {
-                continue;
-            };
-            spw_result::write_result(msg.client_id, &vec![acc.clone()], status, &mut results);
+            spw_result::write_result(msg.client_id, status, &mut results);
         }
     }
 }

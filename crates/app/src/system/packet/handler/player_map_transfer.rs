@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
+
 use crate::component::item::MapleItem;
 use crate::component::map::InMap;
 use crate::component::mob::MapleMob;
@@ -26,7 +28,7 @@ use crate::message::packet::player_map_transferred::{
 };
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
-use crate::system::packet::handler::codec::{lazy_map, load_char};
+use crate::system::packet::handler::codec::{lazy_map, load_equips};
 use crate::system::packet::handler::result::spawn_char_result;
 use crate::system::packet::handler::result::{spawn_mob_controller_result, spawn_mob_result};
 use crate::system::system_params::{InParams, InventoryParams, LocationParams, SessionParams};
@@ -98,6 +100,12 @@ pub fn handle_player_map_transfer_response(
             continue;
         };
         commands.entity(in_session.0).remove::<Transitioning>();
+        let Ok(in_char) = in_params.in_chars.get(client_entity) else {
+            continue;
+        };
+        let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
+            continue;
+        };
         let Ok(in_channel) = in_params.in_channels.get(client_entity) else {
             continue;
         };
@@ -127,16 +135,20 @@ pub fn handle_player_map_transfer_response(
             spawn_mob_controller_result::write_result(msg.client_id, &mobs, &mut results);
             map_entity
         };
-        let char_map = load_char::load_char_with_equips(
+        let equips_map: HashMap<i32, Vec<MapleItem>> = load_equips::load_equips(
             vec![client_entity],
             &in_params,
             &session_params,
             &inv_params,
             items,
         );
+        let Some(equips) = equips_map.get(&char.id) else {
+            continue;
+        };
         spawn_char_result::write_result(
             msg.client_id,
-            &char_map,
+            &char,
+            equips,
             ActionScope::Map(MapScope::SameChannelSameWorld),
             &mut results,
         );
@@ -152,13 +164,22 @@ pub fn handle_player_map_transfer_response(
             })
             .map(|(_, entity)| *entity)
             .collect();
-        let char_map = load_char::load_char_with_equips(
+        let equips_map: HashMap<i32, Vec<MapleItem>> = load_equips::load_equips(
             other_clients,
             &in_params,
             &session_params,
             &inv_params,
             items,
         );
-        spawn_char_result::write_result(msg.client_id, &char_map, ActionScope::Local, &mut results);
+        let Some(equips) = equips_map.get(&char.id) else {
+            continue;
+        };
+        spawn_char_result::write_result(
+            msg.client_id,
+            &char,
+            &equips,
+            ActionScope::Local,
+            &mut results,
+        );
     }
 }

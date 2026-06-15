@@ -60,7 +60,7 @@ pub fn handle_player_moved(
 
             player_moved_result::write_result(
                 msg.client_id,
-                &vec![char.clone()],
+                &char.clone(),
                 msg.movement_bytes.clone(),
                 &mut results,
             );

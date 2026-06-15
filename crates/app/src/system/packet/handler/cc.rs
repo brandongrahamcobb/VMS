@@ -88,11 +88,6 @@ pub fn handle_change_channel(
             })
             .unwrap();
 
-        change_channel_result::write_result(
-            msg.client_id,
-            &vec![char.clone()],
-            &channel,
-            &mut results,
-        );
+        change_channel_result::write_result(msg.client_id, &channel, &char.clone(), &mut results);
     }
 }
