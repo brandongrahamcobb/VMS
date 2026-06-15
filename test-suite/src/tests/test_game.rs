@@ -1,4 +1,5 @@
 use config::settings;
+use core::time::Duration;
 use db::pool::DbPool;
 use std::sync::Arc;
 use tokio::sync::Semaphore;
@@ -33,6 +34,7 @@ pub async fn login_until_redirect(
     let conn = test_recommended_world::assert_recommended_world(conn).await?;
     let conn = test_char_list::assert_char_list_request(conn).await?;
     let (char_id, conn) = test_create_char::assert_create_char(conn, char_ign).await?;
+    tokio::time::sleep(Duration::from_secs(5)).await;
     let port = test_server_redirect::assert_server_redirect(conn, char_id).await?;
     let addr_str: String = format!("{}:{}", host, port);
     let bind = tokio::net::lookup_host(addr_str)

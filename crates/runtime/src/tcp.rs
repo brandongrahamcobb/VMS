@@ -220,29 +220,23 @@ impl PlayerServer {
                     loop {
                         match listener.accept().await {
                             Ok((stream, client_addr)) => {
-                                dbg!("test");
                                 let permit = match connection_semaphore.clone().try_acquire_owned()
                                 {
                                     Ok(p) => p,
                                     Err(_) => continue,
                                 };
-                                dbg!("test");
                                 let ip = client_addr.ip().to_canonical();
-                                dbg!("test");
                                 if !ddos_protection::check_rate_limit(&limiter, ip) {
                                     continue;
                                 }
-                                dbg!("test");
                                 let inserted = {
                                     let mut ips = connected_ips.lock().unwrap();
                                     ips.insert(ip)
                                 };
-                                dbg!("test");
                                 if ddos_mode_enabled && !inserted {
                                     info!("Rejecting duplicate connection from {}", ip);
                                     continue;
                                 }
-                                dbg!("test");
                                 let client_id = expected.lock().unwrap().remove(&port);
                                 if let Some(client_id) = client_id {
                                     let (tx, rx) = mpsc::channel::<Packet>(32);
