@@ -10,18 +10,19 @@ use std::io::Cursor;
 
 pub const SEND_PHASE: &str = "send close attack";
 pub const RECEIVE_PHASE: &str = "receive close attack";
-struct CloseAttackResult {
-    char_id: i32,
-    count: i16,
-    skill_id: i32,
-    skill_level: i16,
-    display: i16,
-    toleft: i16,
-    stance: i16,
-    speed: i16,
-    mob_damages: HashMap<u32, Vec<i32>>,
+pub struct CloseAttackResult {
+    pub char_id: i32,
+    pub count: i16,
+    pub skill_id: i32,
+    pub skill_level: i16,
+    pub display: i16,
+    pub toleft: i16,
+    pub stance: i16,
+    pub speed: i16,
+    pub mob_damages: HashMap<u32, Vec<i32>>,
 }
 pub const DUMMY_MOB_ID: u32 = 1;
+pub const DUMMY_COUNTS: i16 = 0;
 
 pub async fn assert_close_attack(
     mut conn: TestConnection,
@@ -32,7 +33,7 @@ pub async fn assert_close_attack(
     Ok(conn)
 }
 
-fn read_close_attack_packet(packet: &Packet) -> Result<CloseAttackResult, HarnessError> {
+pub fn read_close_attack_packet(packet: &Packet) -> Result<CloseAttackResult, HarnessError> {
     let mut cursor = Cursor::new(&packet.bytes[..]);
     let _op = cursor
         .read_short()
@@ -43,6 +44,7 @@ fn read_close_attack_packet(packet: &Packet) -> Result<CloseAttackResult, Harnes
     let count = cursor
         .read_byte()
         .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
+    let hit_count = (count & 0x0F) as usize;
     let skip: usize = 1;
     cursor
         .read_bytes(skip)
@@ -70,7 +72,7 @@ fn read_close_attack_packet(packet: &Packet) -> Result<CloseAttackResult, Harnes
         .read_bytes(skip)
         .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
     let mut mob_damages: HashMap<u32, Vec<i32>> = HashMap::new();
-    for _ in 0..count {
+    for _ in 0..hit_count {
         let mob_id = cursor
             .read_int()
             .map_err(|e| HarnessError::PacketIOError(ReadError(e)))?;
@@ -123,12 +125,12 @@ pub async fn assert_close_attack_result(
 
 pub async fn send_close_attack(mut conn: TestConnection) -> Result<TestConnection, HarnessError> {
     dbg!(SEND_PHASE);
-    conn.send_packet(build_close_attack(DUMMY_MOB_ID)?, SEND_PHASE)
+    conn.send_packet(build_close_attack(DUMMY_COUNTS, DUMMY_MOB_ID)?, SEND_PHASE)
         .await?;
     Ok(conn)
 }
 
-pub fn build_close_attack(mob_id: u32) -> Result<Packet, HarnessError> {
+pub fn build_close_attack(counts: i16, mob_id: u32) -> Result<Packet, HarnessError> {
     let mut packet = Packet::new_empty();
     packet
         .write_short(RecvOpcode::CloseAttack as i16)
@@ -137,7 +139,6 @@ pub fn build_close_attack(mob_id: u32) -> Result<Packet, HarnessError> {
     packet
         .write_bytes(skip)
         .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
-    let counts: i16 = 0;
     let hit_count = counts & 0x0F;
     let mob_count = (counts >> 4) & 0x0F;
     packet
@@ -184,7 +185,7 @@ pub fn build_close_attack(mob_id: u32) -> Result<Packet, HarnessError> {
             .write_bytes(skip)
             .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
         for _ in 0..hit_count {
-            let damage: i32 = 100;
+            let damage: i32 = 1;
             packet
                 .write_int(damage)
                 .map_err(|e| HarnessError::PacketIOError(WriteError(e)))?;
