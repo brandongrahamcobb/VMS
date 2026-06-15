@@ -23,7 +23,10 @@ use std::sync::Mutex;
 use std::sync::mpsc::channel;
 
 use crate::resource::custom_resource::{ClientMap, CustomReceiver, CustomSender};
-use crate::system::{event_handler, result_handler, startup, transition_cleanup};
+use crate::system::{
+    event_handler, game_event_handler, login_event_handler, mob_event_handler, result_handler,
+    startup, transition_cleanup,
+};
 use bevy::app::{App, Plugin, Startup, Update};
 use bevy::prelude::*;
 use bevy::time::common_conditions::on_timer;
@@ -60,6 +63,9 @@ impl Plugin for CustomServerPlugin {
                                     .run_if(on_timer(Duration::from_secs(5))),
                             )
                             .add_systems(Update, event_handler::handle_events_system)
+                            .add_systems(Update, game_event_handler::handle_game_events_system)
+                            .add_systems(Update, login_event_handler::handle_login_events_system)
+                            .add_systems(Update, mob_event_handler::handle_mob_events_system)
                             .add_systems(Update, result_handler::result_handler_system);
                     }
                     Err(e) => tracing::error!("App startup error: {e}"),

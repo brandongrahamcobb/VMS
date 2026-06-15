@@ -31,6 +31,7 @@ use crate::message::packet::player_logged_in::PlayerLoggedInResponseMessage;
 use crate::message::packet::player_map_transferred::PlayerMapTransferResponseMessage;
 use crate::message::packet::select_char_with_pic::SelectCharWithPicResponseMessage;
 use crate::message::result::HandlerResult;
+use crate::system::event::RawEvent;
 
 use bevy::app::{App, Plugin};
 
@@ -39,6 +40,7 @@ pub struct ResponsePlugin;
 impl Plugin for ResponsePlugin {
     fn build(&self, app: &mut App) {
         app.add_message::<HandlerResult>()
+            .add_message::<RawEvent>()
             .add_message::<CloseAttackResponseMessage>()
             .add_message::<DeadMobResponseMessage>()
             .add_message::<CheckCharNameResponseMessage>()

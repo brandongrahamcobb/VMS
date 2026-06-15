@@ -51,5 +51,5 @@ pub struct CloseAttackResponseMessage {
 pub struct DeadMobResponseMessage {
     pub client_id: i32,
     pub mob_id: u32,
-    pub items: HashMap<BaseItem, ItemModel>,
+    pub items_map: HashMap<BaseItem, ItemModel>,
 }

@@ -62,7 +62,12 @@ pub fn handle_take_damage(
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
             continue;
         };
-        let Ok((mut hp, _)) = stats_params.healths.get_mut(in_char.0) else {
+        dbg!("test");
+        let Some((mut hp, _)) = stats_params
+            .healths
+            .iter_mut()
+            .find(|(_, parent)| parent.0 == in_char.0)
+        else {
             continue;
         };
         let Some((_, char, _)) = session_params
@@ -73,6 +78,7 @@ pub fn handle_take_damage(
             continue;
         };
 
+        dbg!("test");
         let Ok(return_map_wz) = metadata::map::death::get_death_map_by_wz(map.base.wz) else {
             continue;
         };
@@ -82,12 +88,15 @@ pub fn handle_take_damage(
             Ordering::Greater | Ordering::Equal => calc,
             _ => 0,
         };
+        dbg!("test");
         if recalculated_hp != 0 {
             hp.amount = recalculated_hp;
+            dbg!("test");
             let Ok(mut take_damage_packet) = take_damage::build_take_damage_packet(recalculated_hp)
             else {
                 continue;
             };
+            dbg!("test");
             results.write(HandlerResult {
                 client_id: msg.client_id,
                 actions: vec![Action::HandlerAction {
@@ -96,6 +105,7 @@ pub fn handle_take_damage(
                 }],
             });
         } else {
+            dbg!("test");
             hp.amount = hp.max;
             let update = StatsUpdate::Health { hp: hp.max };
             command_tx

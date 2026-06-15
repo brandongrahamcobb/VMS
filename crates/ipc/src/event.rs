@@ -21,6 +21,7 @@ use core::net::SocketAddr;
 use std::collections::HashMap;
 
 use base::account::{InvalidAccountCode, ValidAccountCode};
+use base::item::BaseItem;
 use base::map::BaseMap;
 use base::mob::BaseMob;
 use base::portal::BasePortal;
@@ -151,5 +152,10 @@ pub enum AsyncEvent {
         base_map: BaseMap,
         base_portals: Vec<BasePortal>,
         base_mobs: Vec<BaseMob>,
+    },
+    DeadMobSuccess {
+        client_id: i32,
+        mob_id: u32,
+        items_map: HashMap<BaseItem, ItemModel>,
     },
 }

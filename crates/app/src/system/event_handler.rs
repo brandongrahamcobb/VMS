@@ -18,21 +18,9 @@
  */
 
 use crate::component::session::{InSession, MapleSession, Transitioning};
-use crate::message::packet::attack_close::CloseAttackResponseMessage;
-use crate::message::packet::check_char_name::CheckCharNameResponseMessage;
-use crate::message::packet::create_char::CreateCharResponseMessage;
-use crate::message::packet::list_chars::{
-    ListCharsFailedResponseMessage, ListCharsSuccessResponseMessage,
-};
-use crate::message::packet::login::{
-    InvalidLoginAccountResponseMessage, ValidLoginAccountResponseMessage,
-};
-use crate::message::packet::pickup_item::PickupItemResponseMessage;
-use crate::message::packet::player_logged_in::PlayerLoggedInResponseMessage;
-use crate::message::packet::player_map_transferred::PlayerMapTransferResponseMessage;
 use crate::message::packet::raw::RawPacketMessage;
-use crate::message::packet::select_char_with_pic::SelectCharWithPicResponseMessage;
 use crate::resource::custom_resource::{ClientMap, CustomReceiver};
+use crate::system::event::RawEvent;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::message::MessageWriter;
 use bevy::ecs::query::With;
@@ -46,18 +34,8 @@ pub fn handle_events_system(
     receiver: Res<CustomReceiver>,
     mut client_map: ResMut<ClientMap>,
     transitioning: Query<Entity, With<Transitioning>>,
-    mut check_char_name_response_writer: MessageWriter<CheckCharNameResponseMessage>,
-    mut create_char_response_writer: MessageWriter<CreateCharResponseMessage>,
-    mut list_chars_success_writer: MessageWriter<ListCharsSuccessResponseMessage>,
-    mut list_chars_fail_writer: MessageWriter<ListCharsFailedResponseMessage>,
-    mut player_join_success_writer: MessageWriter<PlayerLoggedInResponseMessage>,
-    mut pickup_success_writer: MessageWriter<PickupItemResponseMessage>,
-    mut close_attack_success_writer: MessageWriter<CloseAttackResponseMessage>,
+    mut raw_event_writer: MessageWriter<RawEvent>,
     mut raw_packet_writer: MessageWriter<RawPacketMessage>,
-    mut login_valid_writer: MessageWriter<ValidLoginAccountResponseMessage>,
-    mut login_invalid_writer: MessageWriter<InvalidLoginAccountResponseMessage>,
-    mut select_char_success_writer: MessageWriter<SelectCharWithPicResponseMessage>,
-    mut player_map_transfer_success_writer: MessageWriter<PlayerMapTransferResponseMessage>,
 ) {
     let rx: MutexGuard<Receiver<AsyncEvent>> = receiver.0.lock().unwrap();
     while let Ok(event) = rx.try_recv() {
@@ -89,211 +67,41 @@ pub fn handle_events_system(
             AsyncEvent::PacketReceived { client_id, packet } => {
                 raw_packet_writer.write(RawPacketMessage { client_id, packet });
             }
-            AsyncEvent::LoginValid {
-                client_id,
-                acc_id,
-                acc_model,
-                code,
-            } => {
-                login_valid_writer.write(ValidLoginAccountResponseMessage {
-                    client_id,
-                    acc_id,
-                    acc_model,
-                    code,
-                });
+            AsyncEvent::LoginValid { .. } => {
+                raw_event_writer.write(RawEvent::LoginValid(event));
             }
-            AsyncEvent::LoginInvalid { client_id, code } => {
-                login_invalid_writer.write(InvalidLoginAccountResponseMessage { client_id, code });
+            AsyncEvent::LoginInvalid { .. } => {
+                raw_event_writer.write(RawEvent::LoginInvalid(event));
             }
-            AsyncEvent::SelectCharWithPic {
-                client_id,
-                char_id,
-                status,
-            } => {
-                select_char_success_writer.write(SelectCharWithPicResponseMessage {
-                    client_id,
-                    char_id,
-                    status,
-                });
+            AsyncEvent::SelectCharWithPic { .. } => {
+                raw_event_writer.write(RawEvent::SelectCharWithPic(event));
             }
-
-            AsyncEvent::ListCharsSuccess {
-                client_id,
-                channel_id,
-                char_models,
-                keybinding_model_map,
-                skill_model_map,
-                equipped_item_model_map,
-                equip_item_model_map,
-                use_item_model_map,
-                etc_item_model_map,
-                setup_item_model_map,
-                cash_item_model_map,
-                equip_tab_inv_capacity_map,
-                use_tab_inv_capacity_map,
-                etc_tab_inv_capacity_map,
-                setup_tab_inv_capacity_map,
-                cash_tab_inv_capacity_map,
-                slots,
-                world_id,
-            } => {
-                list_chars_success_writer.write(ListCharsSuccessResponseMessage {
-                    client_id,
-                    channel_id,
-                    char_models,
-                    keybinding_model_map,
-                    skill_model_map,
-                    equipped_item_model_map,
-                    equip_item_model_map,
-                    use_item_model_map,
-                    etc_item_model_map,
-                    setup_item_model_map,
-                    cash_item_model_map,
-                    equip_tab_inv_capacity_map,
-                    use_tab_inv_capacity_map,
-                    etc_tab_inv_capacity_map,
-                    setup_tab_inv_capacity_map,
-                    cash_tab_inv_capacity_map,
-                    slots,
-                    world_id,
-                });
+            AsyncEvent::ListCharsSuccess { .. } => {
+                raw_event_writer.write(RawEvent::ListCharsSuccess(event));
             }
-            AsyncEvent::ListCharsFailed { client_id } => {
-                list_chars_fail_writer.write(ListCharsFailedResponseMessage { client_id });
+            AsyncEvent::ListCharsFailed { .. } => {
+                raw_event_writer.write(RawEvent::ListCharsFailed(event));
             }
-            AsyncEvent::CharCreationSuccess {
-                client_id,
-                char_model,
-                equipped_item_model_map,
-                equip_item_model_map,
-                use_item_model_map,
-                etc_item_model_map,
-                setup_item_model_map,
-                cash_item_model_map,
-                keybinding_model_map,
-                skill_model_map,
-                equip_tab_inv_capacity_map,
-                use_tab_inv_capacity_map,
-                etc_tab_inv_capacity_map,
-                setup_tab_inv_capacity_map,
-                cash_tab_inv_capacity_map,
-            } => {
-                let Some(char_id) = char_model.id else {
-                    continue;
-                };
-                create_char_response_writer.write(CreateCharResponseMessage {
-                    client_id,
-                    char_id,
-                    char_model,
-                    keybinding_model_map,
-                    skill_model_map,
-                    equipped_item_model_map,
-                    equip_item_model_map,
-                    use_item_model_map,
-                    etc_item_model_map,
-                    setup_item_model_map,
-                    cash_item_model_map,
-                    equip_tab_inv_capacity_map,
-                    use_tab_inv_capacity_map,
-                    etc_tab_inv_capacity_map,
-                    setup_tab_inv_capacity_map,
-                    cash_tab_inv_capacity_map,
-                });
+            AsyncEvent::CharCreationSuccess { .. } => {
+                raw_event_writer.write(RawEvent::CharCreationSuccess(event));
             }
-            AsyncEvent::CheckCharName {
-                client_id,
-                exists,
-                ign,
-            } => {
-                check_char_name_response_writer.write(CheckCharNameResponseMessage {
-                    client_id,
-                    exists,
-                    ign,
-                });
+            AsyncEvent::CheckCharName { .. } => {
+                raw_event_writer.write(RawEvent::CheckCharName(event));
             }
-            AsyncEvent::JoinSuccess {
-                client_id,
-                char_id,
-                keybinding_models,
-                skill_models,
-                equipped_item_models,
-                equip_tab_item_models,
-                use_tab_item_models,
-                etc_tab_item_models,
-                setup_tab_item_models,
-                cash_tab_item_models,
-                equip_tab_capacity,
-                use_tab_capacity,
-                etc_tab_capacity,
-                setup_tab_capacity,
-                cash_tab_capacity,
-            } => {
-                player_join_success_writer.write(PlayerLoggedInResponseMessage {
-                    client_id,
-                    char_id,
-                    keybinding_models,
-                    skill_models,
-                    equipped_item_models,
-                    equip_tab_item_models,
-                    use_tab_item_models,
-                    etc_tab_item_models,
-                    setup_tab_item_models,
-                    cash_tab_item_models,
-                    equip_tab_capacity,
-                    use_tab_capacity,
-                    etc_tab_capacity,
-                    setup_tab_capacity,
-                    cash_tab_capacity,
-                });
+            AsyncEvent::JoinSuccess { .. } => {
+                raw_event_writer.write(RawEvent::JoinSuccess(event));
             }
-            AsyncEvent::CloseAttackSuccess {
-                client_id,
-                count,
-                skill_model,
-                base_skill,
-                display,
-                toleft,
-                stance,
-                speed,
-                mob_damages,
-            } => {
-                close_attack_success_writer.write(CloseAttackResponseMessage {
-                    client_id,
-                    count,
-                    skill_model,
-                    base_skill,
-                    display,
-                    toleft,
-                    stance,
-                    speed,
-                    mob_damages,
-                });
+            AsyncEvent::CloseAttackSuccess { .. } => {
+                raw_event_writer.write(RawEvent::CloseAttackSuccess(event));
             }
-            AsyncEvent::PickupSuccess {
-                client_id,
-                item_id,
-                ipos,
-                pet_pickup,
-            } => {
-                pickup_success_writer.write(PickupItemResponseMessage {
-                    client_id,
-                    item_id,
-                    ipos,
-                    pet_pickup,
-                });
+            AsyncEvent::PickupSuccess { .. } => {
+                raw_event_writer.write(RawEvent::PickupSuccess(event));
             }
-            AsyncEvent::ChangeMapSuccess {
-                client_id,
-                base_map,
-                base_portals,
-                base_mobs,
-            } => {
-                player_map_transfer_success_writer.write(PlayerMapTransferResponseMessage {
-                    client_id,
-                    base_map,
-                    base_portals,
-                    base_mobs,
-                });
+            AsyncEvent::ChangeMapSuccess { .. } => {
+                raw_event_writer.write(RawEvent::ChangeMapSuccess(event));
+            }
+            AsyncEvent::DeadMobSuccess { .. } => {
+                raw_event_writer.write(RawEvent::DeadMobSuccess(event));
             }
             _ => {}
         }

@@ -109,6 +109,7 @@ pub enum DatabaseCommand {
     DeadMobRequest {
         client_id: i32,
         mob_id: u32,
+        mob_wz: i32,
     },
     CloseAttackRequest {
         client_id: i32,

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct BaseMap {
     pub death_map_wz: i32,
     pub wz: i32,

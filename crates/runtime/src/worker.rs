@@ -21,6 +21,7 @@ use crate::error::RuntimeError;
 use base::account::InvalidAccountCode;
 use base::character::StatsUpdate;
 use base::inventory::InventoryTab;
+use base::item::BaseItem;
 use base::mob::BaseMob;
 use base::portal::BasePortal;
 use base::skill::BaseSkill;
@@ -477,6 +478,21 @@ pub async fn db_worker(
                         base_map,
                         base_portals,
                         base_mobs,
+                    })
+                    .unwrap();
+            }
+            Ok(DatabaseCommand::DeadMobRequest {
+                client_id,
+                mob_id,
+                mob_wz,
+            }) => {
+                let items_map: HashMap<BaseItem, ItemModel> =
+                    inc::item::get_random_drops(&pool, mob_wz).await?;
+                event_tx
+                    .send(AsyncEvent::DeadMobSuccess {
+                        client_id,
+                        mob_id,
+                        items_map,
                     })
                     .unwrap();
             }

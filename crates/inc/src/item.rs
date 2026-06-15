@@ -25,6 +25,7 @@ use db::item::model::DropData;
 use db::item::model::ItemModel;
 use db::pool::DbPool;
 use rand::RngExt;
+use std::collections::HashMap;
 use std::time::SystemTime;
 
 pub fn create_item_model_by_wz(wz: i32) -> Result<ItemModel, IncError> {
@@ -102,10 +103,14 @@ pub fn create_item_model_by_wz(wz: i32) -> Result<ItemModel, IncError> {
     Ok(item_model)
 }
 
-pub async fn get_random_drops(pool: &DbPool, mob_wz: i32) -> Result<Vec<ItemModel>, IncError> {
+pub async fn get_random_drops(
+    pool: &DbPool,
+    mob_wz: i32,
+) -> Result<HashMap<BaseItem, ItemModel>, IncError> {
     let drop_rate: f64 = settings::get_item_drop_rate()?;
     let drop_data: Vec<DropData> = db::item::getters::get_item_drop_data(pool, mob_wz).await?;
     let mut items: Vec<ItemModel> = Vec::new();
+    let mut item_map: HashMap<BaseItem, ItemModel> = HashMap::new();
     for drop_entry in drop_data {
         let chance: f64 = (drop_entry.chance as f64 / 1_000_000.0) * drop_rate;
         let to_drop = if chance > 1.0 {
@@ -132,7 +137,17 @@ pub async fn get_random_drops(pool: &DbPool, mob_wz: i32) -> Result<Vec<ItemMode
             }
         }
     }
-    Ok(items)
+    for item_model in items {
+        let itab = metadata::item::inventory::get_inventory_tab_by_wz(item_model.wz)?;
+        let base_item: BaseItem = match itab {
+            InventoryTab::Equip => {
+                metadata::item::equip::build_equip_item_wz_info_by_wz(item_model.wz)?
+            }
+            _ => metadata::item::nonequip::build_nonequip_item_wz_info_by_wz(item_model.wz)?,
+        };
+        item_map.insert(base_item, item_model);
+    }
+    Ok(item_map)
 }
 
 pub fn build_base_item_by_char_id_and_item_wz(

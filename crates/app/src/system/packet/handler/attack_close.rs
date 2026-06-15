@@ -114,7 +114,7 @@ pub fn handle_close_attack_request(
             else {
                 continue;
             };
-            let Some((mut health, _)) = stat_params
+            let Some((mut hp, _)) = stat_params
                 .healths
                 .iter_mut()
                 .find(|(_, parent)| parent.0 == mob_entity)
@@ -122,8 +122,8 @@ pub fn handle_close_attack_request(
                 continue;
             };
             let total_damage: i32 = damage.iter().sum();
-            health.amount -= total_damage;
-            let hp_percent = (health.amount * 100 / mob.base.max_hp as i32) as i16;
+            hp.amount -= total_damage;
+            let hp_percent = (hp.amount * 100 / mob.base.max_hp as i32) as i16;
             hp_updates.insert(mob.id, hp_percent);
             if hp_percent == 0 {
                 command_tx
@@ -132,6 +132,7 @@ pub fn handle_close_attack_request(
                         DatabaseCommand::DeadMobRequest {
                             client_id: msg.client_id,
                             mob_id: *mob_id,
+                            mob_wz: mob.base.wz,
                         },
                     ))
                     .unwrap();
@@ -209,7 +210,7 @@ pub fn handle_dead_mob(
             y: drop_from_pos.y,
         };
         let mut item_vec: Vec<MapleItem> = Vec::new();
-        for (base_item, item_model) in msg.items.clone() {
+        for (base_item, item_model) in msg.items_map.clone() {
             let item_enitity = commands
                 .spawn((
                     MapleItem::from((base_item.clone(), item_model)),

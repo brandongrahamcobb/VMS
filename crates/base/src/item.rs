@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#[derive(Clone)]
+#[derive(Clone, Eq, Hash, PartialEq)]
 pub struct BaseItem {
     pub wz: i32,
     pub strength: i16,
