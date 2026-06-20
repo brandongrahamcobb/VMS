@@ -109,6 +109,7 @@ pub async fn get_random_drops(
 ) -> Result<HashMap<BaseItem, ItemModel>, IncError> {
     let drop_rate: f64 = settings::get_item_drop_rate()?;
     let drop_data: Vec<DropData> = db::item::getters::get_item_drop_data(pool, mob_wz).await?;
+    dbg!(drop_data.len());
     let mut items: Vec<ItemModel> = Vec::new();
     let mut item_map: HashMap<BaseItem, ItemModel> = HashMap::new();
     for drop_entry in drop_data {

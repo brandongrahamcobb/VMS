@@ -488,6 +488,7 @@ pub async fn db_worker(
             }) => {
                 let items_map: HashMap<BaseItem, ItemModel> =
                     inc::item::get_random_drops(&pool, mob_wz).await?;
+                dbg!(items_map.len());
                 event_tx
                     .send(AsyncEvent::DeadMobSuccess {
                         client_id,

@@ -18,9 +18,10 @@
  */
 
 use core::convert::From;
+use std::collections::HashMap;
 
 use base::item::BaseItem;
-use bevy::ecs::component::Component;
+use bevy::ecs::{component::Component, entity::Entity};
 use db::item::model::ItemModel;
 
 #[derive(Clone, Component)]
@@ -82,5 +83,18 @@ impl From<(BaseItem, ItemModel)> for MapleItem {
             vicious: model.vicious,
             base,
         }
+    }
+}
+
+#[derive(Clone, Component, Default)]
+pub struct MesoIndex {
+    pub counter: u32,
+    pub map: HashMap<u32, Entity>,
+}
+
+impl MesoIndex {
+    pub fn next_id(&mut self) -> u32 {
+        self.counter += 1;
+        self.counter
     }
 }

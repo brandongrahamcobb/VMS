@@ -21,16 +21,13 @@ use action::model::Action;
 use action::scope::{ActionScope, MapScope};
 use base::map::Point;
 use bevy::ecs::message::MessageWriter;
-use config::settings;
 
 use crate::component::item::MapleItem;
-use crate::component::mob::MapleMob;
 use crate::message::result::HandlerResult;
 use crate::system::packet::build::codec;
 
 pub fn write_result(
     client_id: i32,
-    mob: &MapleMob,
     items: &Vec<MapleItem>,
     drop_to_point: Point,
     drop_from_point: Point,
@@ -41,27 +38,6 @@ pub fn write_result(
     let owner: i32 = 0; // char id or 0
     let can_pickup: u8 = 0; // 0 everyone 1 owner, 2 party
     let player_drop: bool = false;
-    let Ok(meso_rate) = settings::get_meso_drop_rate() else {
-        return;
-    };
-    let mesos: i32 = inc::item::calculate_rand_meso_amount(meso_rate, mob.base.level);
-    let Ok(mut meso_packet) = codec::item::builder::build_drop_loot_packet(
-        mode,
-        0, // item ID
-        true,
-        mesos,
-        owner,
-        can_pickup,
-        drop_to_point.clone(),
-        drop_from_point.clone(),
-        player_drop,
-    ) else {
-        return;
-    };
-    actions.push(Action::HandlerAction {
-        packet: meso_packet.finish(),
-        scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-    });
     for item in items {
         let Ok(mut drop_loot_packet) = codec::item::builder::build_drop_loot_packet(
             mode,

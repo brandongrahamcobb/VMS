@@ -22,12 +22,14 @@ use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::system::Commands;
 
+use crate::component::item::MesoIndex;
 use crate::component::map::MapleMap;
 use crate::component::mob::MobIndex;
 
 pub fn init(
     commands: &mut Commands,
     base_map: BaseMap,
+    meso_index: &MesoIndex,
     mob_index: &MobIndex,
     channel_entity_parent: Entity,
 ) -> Entity {
@@ -38,6 +40,7 @@ pub fn init(
     commands
         .spawn((
             map.clone(),
+            meso_index.clone(),
             mob_index.clone(),
             ChildOf(channel_entity_parent),
         ))

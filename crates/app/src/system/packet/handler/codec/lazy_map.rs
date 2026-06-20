@@ -23,6 +23,7 @@ use base::portal::BasePortal;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::system::Commands;
 
+use crate::component::item::MesoIndex;
 use crate::component::mob::{MapleMob, MobIndex};
 use crate::component::npc::MapleNpc;
 use crate::system::packet::handler::codec::{init_map, init_mobs, init_portals};
@@ -35,7 +36,8 @@ pub fn lazy_load_map(
     base_mobs: Vec<BaseMob>,
 ) -> (Entity, Vec<MapleMob>, Vec<MapleNpc>) {
     let mut mob_index = MobIndex::default();
-    let map_entity = init_map::init(commands, base_map, &mob_index, channel_entity);
+    let meso_index = MesoIndex::default();
+    let map_entity = init_map::init(commands, base_map, &meso_index, &mob_index, channel_entity);
     init_portals::init(commands, base_portals, map_entity.clone());
     let mobs = init_mobs::init(commands, base_mobs, &mut mob_index, map_entity);
     let npcs = Vec::new(); // TODO: Spawn NPCS

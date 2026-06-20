@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::item::MapleItem;
+use crate::component::item::{MapleItem, MesoIndex};
 use crate::component::mob::MapleMob;
 use crate::message::packet::attack_close::{
     CloseAttackResponseMessage, DeadMobResponseMessage, ReadCloseAttackRequestMessage,
@@ -27,7 +27,7 @@ use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::attack_close;
 use crate::system::packet::handler::constants::EXP_TABLE;
 use crate::system::packet::handler::result::{
-    drop_items_and_mesos_result, kill_mob_result, level_up_result, mob_damage_result,
+    drop_items_result, drop_mesos_result, kill_mob_result, level_up_result, mob_damage_result,
     set_exp_result, spawn_mob_controller_result,
 };
 use crate::system::system_params::{
@@ -149,8 +149,8 @@ pub fn handle_dead_mob(
     in_params: InParams,
     mut session_params: SessionParams,
     pos_params: PositionParams,
+    mut meso_indexes: Query<&MesoIndex>,
     mobs: Query<(Entity, &MapleMob, &ChildOf)>,
-    items: Query<&MapleItem>,
     mut messages: MessageReader<DeadMobResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -175,6 +175,9 @@ pub fn handle_dead_mob(
         else {
             continue;
         };
+        let Ok(meso_index) = meso_indexes.get_mut(in_map.0) else {
+            continue;
+        };
         kill_mob_result::write_result(msg.client_id, mob, &mut results);
 
         char.exp += mob.base.exp;
@@ -197,7 +200,11 @@ pub fn handle_dead_mob(
             ))
             .unwrap();
 
-        let Ok((drop_from_pos, _)) = pos_params.curr_positions.get(mob_entity) else {
+        let Some((drop_from_pos, _)) = pos_params
+            .curr_positions
+            .iter()
+            .find(|(_, parent)| parent.0 == mob_entity)
+        else {
             continue;
         };
         let drop_from_point: Point = Point {
@@ -211,21 +218,21 @@ pub fn handle_dead_mob(
         };
         let mut item_vec: Vec<MapleItem> = Vec::new();
         for (base_item, item_model) in msg.items_map.clone() {
-            let item_enitity = commands
-                .spawn((
-                    MapleItem::from((base_item.clone(), item_model)),
-                    ChildOf(in_map.0),
-                ))
-                .id();
-            let Ok(item) = items.get(item_enitity) else {
-                continue;
-            };
-            item_vec.push(item.clone());
+            let item = MapleItem::from((base_item.clone(), item_model));
+            commands.spawn((item.clone(), ChildOf(in_map.0)));
+            item_vec.push(item);
         }
-        drop_items_and_mesos_result::write_result(
+        drop_items_result::write_result(
             msg.client_id,
-            mob,
             &item_vec,
+            drop_to_point.clone(),
+            drop_from_point.clone(),
+            &mut results,
+        );
+        drop_mesos_result::write_result(
+            msg.client_id,
+            meso_index.clone(),
+            mob,
             drop_to_point,
             drop_from_point,
             &mut results,
