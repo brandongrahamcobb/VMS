@@ -1,6 +1,7 @@
 pub mod event;
 pub mod event_handler;
 pub mod game_event_handler;
+pub mod item_cleanup;
 pub mod login_event_handler;
 pub mod mob_event_handler;
 pub mod packet;

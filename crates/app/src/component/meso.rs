@@ -1,5 +1,5 @@
-/* app/src/message/packet/pickup_item.rs
- * The purpose of this module is to serve item pickup packet system messages.
+/* app/src/component/meso.rs
+ * The purpose of this module is to provide a meso component.
  *
  * Copyright (C) 2026  https://github.com/brandongrahamcobb/VMS.git
  *
@@ -17,23 +17,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use base::map::Point;
-use bevy::prelude::Message;
+use std::collections::HashMap;
 
-#[derive(Message)]
-pub struct ReadPickupItemRequestMessage {
-    pub client_id: i32,
-    pub item_id: i32,
-    pub pet_pickup: bool,
-    pub pos: Point,
+use bevy::ecs::{component::Component, entity::Entity};
+
+#[derive(Clone, Component)]
+pub struct MapleMeso {
+    pub id: i32,
+    pub amount: i32,
 }
 
-#[derive(Message)]
-pub struct PickupItemResponseMessage {
-    pub client_id: i32,
-    pub count: i32,
-    pub item_id: i32,
-    pub ipos: i16,
-    pub pet_pickup: bool,
-    pub ipos: i16,
+#[derive(Clone, Component, Default)]
+pub struct MesoIndex {
+    pub counter: u32,
+    pub map: HashMap<u32, Entity>,
+}
+
+impl MesoIndex {
+    pub fn next_id(&mut self) -> u32 {
+        self.counter += 1;
+        self.counter
+    }
 }

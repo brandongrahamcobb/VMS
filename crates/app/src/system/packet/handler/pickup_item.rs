@@ -17,15 +17,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::component::item::{Lootable, MapleItem};
 use crate::component::slot::{MapleEmptyItemSlot, MapleFilledItemSlot};
 use crate::message::packet::pickup_item::{
     PickupItemResponseMessage, ReadPickupItemRequestMessage,
 };
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
-use crate::system::packet::handler::result::pickup_item_result;
-use crate::system::system_params::{InParams, SessionParams};
+use crate::system::packet::handler::result::pickup_loot_result;
+use crate::system::system_params::{InParams, InventoryParams, SessionParams};
 use bevy::ecs::entity::Entity;
+use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
 use bevy::ecs::system::{Commands, Query, Res};
 use ipc::command::AsyncCommand;
@@ -37,7 +39,7 @@ pub fn handle_pickup_item_request(
     client_map: Res<ClientMap>,
     in_params: InParams,
     session_params: SessionParams,
-    empty_slots: Query<(Entity, &MapleEmptyItemSlot)>,
+    items: Query<(Entity, &MapleItem)>,
     mut messages: MessageReader<ReadPickupItemRequestMessage>,
 ) -> () {
     for msg in messages.read() {
@@ -50,16 +52,24 @@ pub fn handle_pickup_item_request(
         let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
-        let Some((empty_slot_entity, empty_slot)) = empty_slots.iter().next() else {
+        let Some((item_entity, _)) = items.iter().find(|(_, i)| i.id == msg.item_id) else {
             continue;
         };
-
-        commands
-            .entity(empty_slot_entity)
-            .remove::<MapleEmptyItemSlot>()
-            .insert(MapleFilledItemSlot {
-                ipos: empty_slot.ipos,
-            });
+        commands.entity(item_entity).remove::<Lootable>();
+        // commands
+        //     .entity(empty_slot_entity)
+        //     .remove::<MapleEmptyItemSlot>();
+        // commands.spawn(
+        //     MapleFilledItemSlot {
+        //         ipos: empty_slot.ipos,
+        //     })
+        //
+        // commands
+        //     .entity(item_entity)
+        //     .remove::<Lootable>();
+        //     .insert(ChildOf(MapleFilledItemSlot {
+        //         ipos: empty_slot.ipos,
+        //     }));
 
         command_tx
             .0
@@ -68,7 +78,6 @@ pub fn handle_pickup_item_request(
                     client_id: msg.client_id,
                     char_id: char.id,
                     item_id: msg.item_id,
-                    ipos: empty_slot.ipos,
                     pet_pickup: msg.pet_pickup,
                 },
             ))
@@ -80,6 +89,7 @@ pub fn handle_pickup_response(
     client_map: Res<ClientMap>,
     session_params: SessionParams,
     in_params: InParams,
+    inv_params: InventoryParams,
     mut messages: MessageReader<PickupItemResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
@@ -93,8 +103,23 @@ pub fn handle_pickup_response(
         let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
+        let Some((inv_entity, inv, _)) = inv_params
+            .inventories
+            .iter()
+            .find(|(_, _, parent)| parent.0 == in_char.0)
+        else {
+            continue;
+        };
+        let Some((empty_slot_entity, empty_slot, _)) = inv_params
+            .empty_slots
+            .iter()
+            .filter(|(_, empty_slot, parent)| parent.0 == inv_entity && empty_slot)
+            .next()
+        else {
+            continue;
+        };
 
-        pickup_item_result::write_result(
+        pickup_loot_result::write_result(
             msg.client_id,
             &char.clone(),
             msg.item_id,

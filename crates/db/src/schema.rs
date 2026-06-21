@@ -120,6 +120,7 @@ diesel::table! {
         id -> Nullable<Int4>,
         char_id -> Nullable<Int4>,
         ipos -> Nullable<Int2>,
+        itab -> Nullable<Int2>,
         strength -> Int2,
         dexterity -> Int2,
         intelligence -> Int2,

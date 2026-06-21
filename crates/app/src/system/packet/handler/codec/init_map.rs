@@ -22,8 +22,8 @@ use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::system::Commands;
 
-use crate::component::item::MesoIndex;
 use crate::component::map::MapleMap;
+use crate::component::meso::MesoIndex;
 use crate::component::mob::MobIndex;
 
 pub fn init(

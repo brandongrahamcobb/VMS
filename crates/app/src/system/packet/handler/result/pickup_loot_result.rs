@@ -23,7 +23,7 @@ use bevy::ecs::message::MessageWriter;
 
 use crate::component::character::MapleCharacter;
 use crate::message::result::HandlerResult;
-use crate::system::packet::build::pickup_item;
+use crate::system::packet::build::pickup_loot;
 
 pub fn write_result(
     client_id: i32,
@@ -32,14 +32,15 @@ pub fn write_result(
     pet_pickup: bool,
     results: &mut MessageWriter<HandlerResult>,
 ) -> () {
+    let mode: u8 = 2;
     let mut actions: Vec<Action> = Vec::new();
-    let Ok(mut pickup_item_packet) =
-        pickup_item::build_pickup_item_packet(char.id, item_id, pet_pickup)
+    let Ok(mut pickup_loot_packet) =
+        pickup_loot::build_pickup_loot_packet(char.id, item_id, pet_pickup, mode)
     else {
         return;
     };
     actions.push(Action::HandlerAction {
-        packet: pickup_item_packet.finish(),
+        packet: pickup_loot_packet.finish(),
         scope: ActionScope::Local,
     });
     results.write(HandlerResult { client_id, actions });

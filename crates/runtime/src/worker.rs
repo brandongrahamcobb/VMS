@@ -26,6 +26,7 @@ use base::mob::BaseMob;
 use base::portal::BasePortal;
 use base::skill::BaseSkill;
 use config::settings;
+use core::cmp::Ordering;
 use db::inventory::model::InventoryCapacityModel;
 use db::item::model::ItemModel;
 use db::keybinding::model::KeybindingModel;
@@ -36,6 +37,7 @@ use ipc::event::AsyncEvent;
 use std::collections::HashMap;
 use std::sync::mpsc::Sender;
 use std::time::SystemTime;
+use tokio::fs::metadata;
 use tokio::sync::mpsc::Receiver;
 
 pub async fn db_worker(
@@ -437,28 +439,252 @@ pub async fn db_worker(
                 }
                 db::character::setters::update_characters(&pool, vec![char_model]).await?;
             }
-            Ok(DatabaseCommand::PickupItem {
+            Ok(DatabaseCommand::PickupItemRequest {
                 client_id,
                 char_id,
                 item_id,
-                ipos,
                 pet_pickup,
             }) => {
                 std::hint::black_box(client_id);
                 let mut item_model =
                     db::item::getters::get_item_model_by_item_id(&pool, item_id).await?;
+                let counts: HashMap<i16, i32> =
+                    db::item::getters::get_item_counts_by_char_id_and_item_wz(
+                        &pool,
+                        char_id,
+                        item_model.wz,
+                    )
+                    .await?;
+                let itab = metadata::item::inventory::get_inventory_tab_by_wz(item_model.wz)?;
+                let mut ipos_result = -1;
+                let mut count_result = 0;
+                let (count, ipos) = match itab {
+                    InventoryTab::Equip => {
+                        let base_item =
+                            metadata::item::equip::build_equip_item_wz_info_by_wz(item_model.wz)?;
+                        for (slot, count) in counts {
+                            if count < 1 {
+                                continue;
+                            }
+                            let (count, ipos) = match count.cmp(&base_item.slots) {
+                                Ordering::Less => {
+                                    let Some(ipos) = item_model.ipos else {
+                                        continue;
+                                    };
+                                    (count, ipos)
+                                }
+                                _ => {
+                                    let equip_slot_capacity =
+                                        db::inventory::getters::get_equip_slot_capacity_by_char_id(
+                                            &pool, char_id,
+                                        )
+                                        .await?;
+                                    let item_models =
+                                        db::item::getters::get_item_models_by_char_id_and_itab(
+                                            &pool,
+                                            char_id,
+                                            itab as i16,
+                                        )
+                                        .await?;
+                                    let Some(ipos) = (0..equip_slot_capacity).find(|slot| {
+                                        !item_models.iter().any(|model| model.ipos == *slot)
+                                    }) else {
+                                        continue;
+                                    };
+                                    (count, ipos)
+                                }
+                            };
+                            count_result = count;
+                            ipos_result = ipos;
+                        }
+                        (count_result, ipos_result)
+                    }
+                    InventoryTab::Use => {
+                        let base_item =
+                            metadata::item::nonequip::build_nonequip_item_wz_info_by_wz(
+                                item_model.wz,
+                            )?;
+                        let base_item =
+                            metadata::item::equip::build_equip_item_wz_info_by_wz(item_model.wz)?;
+                        for (slot, count) in counts {
+                            if count < 1 {
+                                continue;
+                            }
+                            let (count, ipos) = match count.cmp(&base_item.slots) {
+                                Ordering::Less => {
+                                    let Some(ipos) = item_model.ipos else {
+                                        continue;
+                                    };
+                                    (count, ipos)
+                                }
+                                _ => {
+                                    let use_slot_capacity =
+                                        db::inventory::getters::get_use_slot_capacity_by_char_id(
+                                            &pool, char_id,
+                                        )
+                                        .await?;
+                                    let item_models =
+                                        db::item::getters::get_item_models_by_char_id_and_itab(
+                                            &pool,
+                                            char_id,
+                                            itab as i16,
+                                        )
+                                        .await?;
+                                    let Some(ipos) = (0..use_slot_capacity).find(|slot| {
+                                        !item_models.iter().any(|model| model.ipos == *slot)
+                                    }) else {
+                                        continue;
+                                    };
+                                    (count, ipos)
+                                }
+                            };
+                            count_result = count;
+                            ipos_result = ipos;
+                        }
+                        (count_result, ipos_result)
+                    }
+                    InventoryTab::Setup => {
+                        let base_item =
+                            metadata::item::nonequip::build_nonequip_item_wz_info_by_wz(
+                                item_model.wz,
+                            )?;
+                        for (slot, count) in counts {
+                            if count < 1 {
+                                continue;
+                            }
+                            let (count, ipos) = match count.cmp(&base_item.slots) {
+                                Ordering::Less => {
+                                    let Some(ipos) = item_model.ipos else {
+                                        continue;
+                                    };
+                                    (count, ipos)
+                                }
+                                _ => {
+                                    let setup_slot_capacity =
+                                        db::inventory::getters::get_setup_slot_capacity_by_char_id(
+                                            &pool, char_id,
+                                        )
+                                        .await?;
+                                    let item_models =
+                                        db::item::getters::get_item_models_by_char_id_and_itab(
+                                            &pool,
+                                            char_id,
+                                            itab as i16,
+                                        )
+                                        .await?;
+                                    let Some(ipos) = (0..setup_slot_capacity).find(|slot| {
+                                        !item_models.iter().any(|model| model.ipos == *slot)
+                                    }) else {
+                                        continue;
+                                    };
+                                    (count, ipos)
+                                }
+                            };
+                            count_result = count;
+                            ipos_result = ipos;
+                        }
+                        (count_result, ipos_result)
+                    }
+                    InventoryTab::Etc => {
+                        let base_item =
+                            metadata::item::nonequip::build_nonequip_item_wz_info_by_wz(
+                                item_model.wz,
+                            )?;
+                        for (slot, count) in counts {
+                            if count < 1 {
+                                continue;
+                            }
+                            let (count, ipos) = match count.cmp(&base_item.slots) {
+                                Ordering::Less => {
+                                    let Some(ipos) = item_model.ipos else {
+                                        continue;
+                                    };
+                                    (count, ipos)
+                                }
+                                _ => {
+                                    let etc_slot_capacity =
+                                        db::inventory::getters::get_etc_slot_capacity_by_char_id(
+                                            &pool, char_id,
+                                        )
+                                        .await?;
+                                    let item_models =
+                                        db::item::getters::get_item_models_by_char_id_and_itab(
+                                            &pool,
+                                            char_id,
+                                            itab as i16,
+                                        )
+                                        .await?;
+                                    let Some(ipos) = (0..etc_slot_capacity).find(|slot| {
+                                        !item_models.iter().any(|model| model.ipos == *slot)
+                                    }) else {
+                                        continue;
+                                    };
+                                    (count, ipos)
+                                }
+                            };
+                            count_result = count;
+                            ipos_result = ipos;
+                        }
+                        (count_result, ipos_result)
+                    }
+                    InventoryTab::Cash => {
+                        let base_item =
+                            metadata::item::nonequip::build_nonequip_item_wz_info_by_wz(
+                                item_model.wz,
+                            )?;
+                        for (slot, count) in counts {
+                            if count < 1 {
+                                continue;
+                            }
+                            let (count, ipos) = match count.cmp(&base_item.slots) {
+                                Ordering::Less => {
+                                    let Some(ipos) = item_model.ipos else {
+                                        continue;
+                                    };
+                                    (count, ipos)
+                                }
+                                _ => {
+                                    let cash_slot_capacity =
+                                        db::inventory::getters::get_cash_slot_capacity_by_char_id(
+                                            &pool, char_id,
+                                        )
+                                        .await?;
+                                    let item_models =
+                                        db::item::getters::get_item_models_by_char_id_and_itab(
+                                            &pool,
+                                            char_id,
+                                            itab as i16,
+                                        )
+                                        .await?;
+                                    let Some(ipos) = (0..cash_slot_capacity).find(|slot| {
+                                        !item_models.iter().any(|model| model.ipos == *slot)
+                                    }) else {
+                                        continue;
+                                    };
+                                    (count, ipos)
+                                }
+                            };
+                            count_result = count;
+                            ipos_result = ipos;
+                        }
+                        (count_result, ipos_result)
+                    }
+                };
                 item_model.char_id = Some(char_id);
                 item_model.ipos = Some(ipos);
+                item_model.itab = Some(itab as i16);
                 db::item::setters::update_items(&pool, vec![item_model]).await?;
                 event_tx
                     .send(AsyncEvent::PickupSuccess {
                         client_id,
                         item_id,
+                        count,
                         ipos,
                         pet_pickup,
                     })
                     .unwrap();
             }
+
             Ok(DatabaseCommand::UpdateMapRequest {
                 client_id,
                 char_id,

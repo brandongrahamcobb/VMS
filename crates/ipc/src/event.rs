@@ -133,6 +133,7 @@ pub enum AsyncEvent {
     PickupSuccess {
         client_id: i32,
         item_id: i32,
+        count: i32,
         ipos: i16,
         pet_pickup: bool,
     },

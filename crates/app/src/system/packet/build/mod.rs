@@ -10,7 +10,7 @@ pub mod enter_cash_shop;
 pub mod error;
 pub mod list_chars;
 pub mod list_worlds;
-pub mod pickup_item;
+pub mod pickup_loot;
 pub mod ping;
 pub mod player_logged_in;
 pub mod player_moved;

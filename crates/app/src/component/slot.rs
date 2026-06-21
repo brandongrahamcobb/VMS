@@ -19,11 +19,12 @@
 use bevy::ecs::component::Component;
 
 #[derive(Component)]
-pub struct MapleEmptyItemSlot {
-    pub ipos: i16,
-}
+pub struct MapleEmptyItemSlot;
 
 #[derive(Component, Hash, PartialEq, Eq, Clone, Copy)]
-pub struct MapleFilledItemSlot {
+pub struct MapleFilledItemSlot;
+
+#[derive(Component)]
+pub struct MapleSlot {
     pub ipos: i16,
 }

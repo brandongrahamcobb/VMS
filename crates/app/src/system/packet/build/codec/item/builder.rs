@@ -62,6 +62,16 @@ pub fn build_drop_loot_packet(
     Ok(packet)
 }
 
+pub fn build_remove_loot_packet(item_id: i32) -> Result<Packet, PacketBuildError> {
+    let mut packet: Packet = Packet::new_empty();
+    let op = SendOpcode::RemoveLoot as i16;
+    packet.write_short(op).map_err(WriteError)?;
+    let mode: u8 = 0;
+    packet.write_byte(mode as i16).map_err(WriteError)?;
+    packet.write_int(item_id).map_err(WriteError)?;
+    Ok(packet)
+}
+
 // pub fn build_add_to_inventory_packet(
 //     packet: &mut Packet,
 //     mods: Vec<InventoryMod>,

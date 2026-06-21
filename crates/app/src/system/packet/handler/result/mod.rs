@@ -11,7 +11,7 @@ pub mod level_up_result;
 pub mod list_chars_result;
 pub mod login_valid_result;
 pub mod mob_damage_result;
-pub mod pickup_item_result;
+pub mod pickup_loot_result;
 pub mod player_logged_in_result;
 pub mod player_moved_result;
 pub mod select_char_result;

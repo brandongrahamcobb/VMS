@@ -8,6 +8,7 @@ pub mod check_char_name;
 pub mod codec;
 pub mod constants;
 pub mod create_char;
+pub mod dead_mob;
 pub mod delete_char;
 pub mod enter_cash_shop;
 pub mod list_chars;

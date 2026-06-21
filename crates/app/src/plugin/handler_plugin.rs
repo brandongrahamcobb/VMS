@@ -62,7 +62,7 @@ impl Plugin for GamePacketHandlerPlugin {
             (
                 handler::attack_close::handle_close_attack_request,
                 handler::attack_close::handle_close_attack_response,
-                handler::attack_close::handle_dead_mob,
+                handler::dead_mob::handle_dead_mob,
                 handler::cc::handle_change_channel,
                 handler::change_keymap::handle_change_keymap,
                 handler::change_map::handle_map_change,

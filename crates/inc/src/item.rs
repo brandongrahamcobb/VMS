@@ -39,6 +39,7 @@ pub fn create_item_model_by_wz(wz: i32) -> Result<ItemModel, IncError> {
                     id: None,
                     char_id: None,
                     ipos: None,
+                    itab: None,
                     strength: calculate_rand_stat(item_wz_info.strength, 5),
                     dexterity: calculate_rand_stat(item_wz_info.dexterity, 5),
                     intelligence: calculate_rand_stat(item_wz_info.intelligence, 5),
@@ -71,6 +72,7 @@ pub fn create_item_model_by_wz(wz: i32) -> Result<ItemModel, IncError> {
                 id: None,
                 char_id: None,
                 ipos: None,
+                itab: None,
                 strength: 0,
                 dexterity: 0,
                 intelligence: 0,
@@ -163,6 +165,7 @@ pub fn build_base_item_by_char_id_and_item_wz(
                 ItemModel {
                     id: None,
                     char_id: Some(char_id),
+                    itab: None,
                     ipos: None,
                     strength: base.strength,
                     dexterity: base.dexterity,
@@ -195,6 +198,7 @@ pub fn build_base_item_by_char_id_and_item_wz(
             _ => ItemModel {
                 id: None,
                 char_id: Some(char_id),
+                itab: None,
                 ipos: None,
                 strength: 0,
                 dexterity: 0,

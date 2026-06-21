@@ -23,7 +23,7 @@ use base::map::Point;
 use bevy::ecs::message::MessageWriter;
 use config::settings;
 
-use crate::component::item::MesoIndex;
+use crate::component::meso::MesoIndex;
 use crate::component::mob::MapleMob;
 use crate::message::result::HandlerResult;
 use crate::system::packet::build::codec;

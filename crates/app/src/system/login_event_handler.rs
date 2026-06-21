@@ -50,10 +50,10 @@ pub fn handle_login_events_system(
                     code,
                 } => {
                     login_valid_writer.write(ValidLoginAccountResponseMessage {
-                        client_id: *client_id,
-                        acc_id: *acc_id,
+                        client_id,
+                        acc_id,
                         acc_model: acc_model.clone(),
-                        code: *code,
+                        code,
                     });
                 }
                 _ => {}
@@ -61,7 +61,7 @@ pub fn handle_login_events_system(
             RawEvent::LoginInvalid(event) => match event {
                 AsyncEvent::LoginInvalid { client_id, code } => {
                     login_invalid_writer.write(InvalidLoginAccountResponseMessage {
-                        client_id: *client_id,
+                        client_id,
                         code: code.clone(),
                     });
                 }
@@ -74,9 +74,9 @@ pub fn handle_login_events_system(
                     status,
                 } => {
                     select_char_success_writer.write(SelectCharWithPicResponseMessage {
-                        client_id: *client_id,
-                        char_id: *char_id,
-                        status: *status,
+                        client_id,
+                        char_id,
+                        status,
                     });
                 }
                 _ => {}

@@ -23,7 +23,7 @@ use base::portal::BasePortal;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::system::Commands;
 
-use crate::component::item::MesoIndex;
+use crate::component::meso::MesoIndex;
 use crate::component::mob::{MapleMob, MobIndex};
 use crate::component::npc::MapleNpc;
 use crate::system::packet::handler::codec::{init_map, init_mobs, init_portals};

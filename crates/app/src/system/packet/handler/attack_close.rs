@@ -17,33 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::component::item::{MapleItem, MesoIndex};
 use crate::component::mob::MapleMob;
 use crate::message::packet::attack_close::{
-    CloseAttackResponseMessage, DeadMobResponseMessage, ReadCloseAttackRequestMessage,
+    CloseAttackResponseMessage, ReadCloseAttackRequestMessage,
 };
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
 use crate::system::packet::build::attack_close;
-use crate::system::packet::handler::constants::EXP_TABLE;
-use crate::system::packet::handler::result::{
-    drop_items_result, drop_mesos_result, kill_mob_result, level_up_result, mob_damage_result,
-    set_exp_result, spawn_mob_controller_result,
-};
-use crate::system::system_params::{
-    InParams, LocationParams, PositionParams, SessionParams, StatParams,
-};
+use crate::system::packet::handler::result::{mob_damage_result, spawn_mob_controller_result};
+use crate::system::system_params::{InParams, LocationParams, SessionParams, StatParams};
 use action::model::Action;
 use action::scope::{ActionScope, MapScope};
-use base::character::StatsUpdate;
-use base::map::Point;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
-use bevy::ecs::system::{Commands, Query, Res};
+use bevy::ecs::system::{Query, Res};
 use ipc::command::AsyncCommand;
 use ipc::db_command::DatabaseCommand;
-use rand::RngExt;
 use std::collections::HashMap;
 
 pub fn handle_close_attack_request(
@@ -139,104 +129,6 @@ pub fn handle_close_attack_request(
             }
         }
         mob_damage_result::write_result(msg.client_id, &hp_updates, &mut results);
-    }
-}
-
-pub fn handle_dead_mob(
-    mut commands: Commands,
-    command_tx: Res<CustomSender>,
-    client_map: Res<ClientMap>,
-    in_params: InParams,
-    mut session_params: SessionParams,
-    pos_params: PositionParams,
-    mut meso_indexes: Query<&MesoIndex>,
-    mobs: Query<(Entity, &MapleMob, &ChildOf)>,
-    mut messages: MessageReader<DeadMobResponseMessage>,
-    mut results: MessageWriter<HandlerResult>,
-) -> () {
-    for msg in messages.read() {
-        let mut stats_updates: Vec<StatsUpdate> = Vec::new();
-
-        let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
-            continue;
-        };
-        let Ok(in_char) = in_params.in_chars.get(client_entity) else {
-            continue;
-        };
-        let Ok((_, mut char, _)) = session_params.chars.get_mut(in_char.0) else {
-            continue;
-        };
-        let Ok(in_map) = in_params.in_maps.get(client_entity) else {
-            continue;
-        };
-        let Some((mob_entity, mob, _)) = mobs
-            .iter()
-            .find(|(_, m, parent)| parent.0 == in_map.0 && m.id == msg.mob_id)
-        else {
-            continue;
-        };
-        let Ok(meso_index) = meso_indexes.get_mut(in_map.0) else {
-            continue;
-        };
-        kill_mob_result::write_result(msg.client_id, mob, &mut results);
-
-        char.exp += mob.base.exp;
-        if char.exp >= EXP_TABLE[char.level as usize] as i32 {
-            char.exp = 0;
-            char.level += 1;
-            stats_updates.push(StatsUpdate::Level { level: char.level });
-            level_up_result::write_result(msg.client_id, &char.clone(), &mut results);
-        } else {
-            set_exp_result::write_result(msg.client_id, &char.clone(), &mut results);
-        }
-        command_tx
-            .0
-            .send(AsyncCommand::DatabaseOperation(
-                DatabaseCommand::UpdateStats {
-                    client_id: msg.client_id,
-                    char_id: char.id,
-                    updates: vec![StatsUpdate::Exp { exp: char.exp }],
-                },
-            ))
-            .unwrap();
-
-        let Some((drop_from_pos, _)) = pos_params
-            .curr_positions
-            .iter()
-            .find(|(_, parent)| parent.0 == mob_entity)
-        else {
-            continue;
-        };
-        let drop_from_point: Point = Point {
-            x: drop_from_pos.x,
-            y: drop_from_pos.y,
-        };
-        let offset_x = rand::rng().random_range(-50..=50);
-        let drop_to_point: Point = Point {
-            x: drop_from_pos.x + offset_x,
-            y: drop_from_pos.y,
-        };
-        let mut item_vec: Vec<MapleItem> = Vec::new();
-        for (base_item, item_model) in msg.items_map.clone() {
-            let item = MapleItem::from((base_item.clone(), item_model));
-            commands.spawn((item.clone(), ChildOf(in_map.0)));
-            item_vec.push(item);
-        }
-        drop_items_result::write_result(
-            msg.client_id,
-            &item_vec,
-            drop_to_point.clone(),
-            drop_from_point.clone(),
-            &mut results,
-        );
-        drop_mesos_result::write_result(
-            msg.client_id,
-            meso_index.clone(),
-            mob,
-            drop_to_point,
-            drop_from_point,
-            &mut results,
-        );
     }
 }
 

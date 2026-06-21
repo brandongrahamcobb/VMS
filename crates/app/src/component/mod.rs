@@ -6,6 +6,7 @@ pub mod inventory;
 pub mod item;
 pub mod keybinding;
 pub mod map;
+pub mod meso;
 pub mod mob;
 pub mod mp;
 pub mod npc;

@@ -23,15 +23,15 @@ use net::packet::io::prelude::*;
 use net::packet::model::Packet;
 use op::send::SendOpcode;
 
-pub fn build_pickup_item_packet(
+pub fn build_pickup_loot_packet(
     char_id: i32,
     item_id: i32,
     pet_pickup: bool,
+    mode: u8,
 ) -> Result<Packet, PacketBuildError> {
     let mut packet: Packet = Packet::new_empty();
     let op = SendOpcode::RemoveLoot as i16;
     packet.write_short(op).map_err(WriteError)?;
-    let mode: u8 = 0;
     packet.write_byte(mode as i16).map_err(WriteError)?;
     packet.write_int(item_id).map_err(WriteError)?;
     if mode > 1 {

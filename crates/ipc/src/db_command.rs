@@ -89,11 +89,10 @@ pub enum DatabaseCommand {
     },
 
     // In-Game
-    PickupItem {
+    PickupItemRequest {
         client_id: i32,
         char_id: i32,
         item_id: i32,
-        ipos: i16,
         pet_pickup: bool,
     },
     UpdateKeybindings {

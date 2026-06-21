@@ -18,10 +18,10 @@
  */
 
 use core::convert::From;
-use std::collections::HashMap;
+use std::time::Instant;
 
 use base::item::BaseItem;
-use bevy::ecs::{component::Component, entity::Entity};
+use bevy::ecs::component::Component;
 use db::item::model::ItemModel;
 
 #[derive(Clone, Component)]
@@ -51,6 +51,11 @@ pub struct MapleItem {
     pub item_exp: i16,
     pub vicious: i32,
     pub base: BaseItem,
+}
+
+#[derive(Component)]
+pub struct Lootable {
+    pub dropped_at: Instant,
 }
 
 impl From<(BaseItem, ItemModel)> for MapleItem {
@@ -83,18 +88,5 @@ impl From<(BaseItem, ItemModel)> for MapleItem {
             vicious: model.vicious,
             base,
         }
-    }
-}
-
-#[derive(Clone, Component, Default)]
-pub struct MesoIndex {
-    pub counter: u32,
-    pub map: HashMap<u32, Entity>,
-}
-
-impl MesoIndex {
-    pub fn next_id(&mut self) -> u32 {
-        self.counter += 1;
-        self.counter
     }
 }
