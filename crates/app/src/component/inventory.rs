@@ -1,3 +1,4 @@
+use base::inventory::InventoryTab;
 /* app/src/component/inventory.rs
  * The purpose of this module is to provide a inventory component.
  *
@@ -25,29 +26,35 @@ pub struct MapleInventory;
 pub struct MapleEquippedTab;
 
 #[derive(Component)]
-pub struct MapleEquipTab {
+pub struct MapleInventoryTab {
+    pub kind: InventoryTab,
     pub capacity: i16,
 }
 
-#[derive(Component)]
-pub struct MapleUseTab {
-    pub capacity: i16,
-}
-
-#[derive(Component)]
-pub struct MapleEtcTab {
-    pub capacity: i16,
-}
-
-#[derive(Component)]
-pub struct MapleSetupTab {
-    pub capacity: i16,
-}
-
-#[derive(Component)]
-pub struct MapleCashTab {
-    pub capacity: i16,
-}
+// #[derive(Component)]
+// pub struct MapleEquipTab {
+//     pub capacity: i16,
+// }
+//
+// #[derive(Component)]
+// pub struct MapleUseTab {
+//     pub capacity: i16,
+// }
+//
+// #[derive(Component)]
+// pub struct MapleEtcTab {
+//     pub capacity: i16,
+// }
+//
+// #[derive(Component)]
+// pub struct MapleSetupTab {
+//     pub capacity: i16,
+// }
+//
+// #[derive(Component)]
+// pub struct MapleCashTab {
+//     pub capacity: i16,
+// }
 
 #[derive(Component)]
 pub struct InInventory(pub Entity);

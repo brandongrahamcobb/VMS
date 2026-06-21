@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use base::map::Point;
+use base::{inventory::InventoryTab, map::Point};
 use bevy::prelude::Message;
 
 #[derive(Message)]
@@ -34,6 +34,6 @@ pub struct PickupItemResponseMessage {
     pub count: i32,
     pub item_id: i32,
     pub ipos: i16,
+    pub itab: InventoryTab,
     pub pet_pickup: bool,
-    pub ipos: i16,
 }

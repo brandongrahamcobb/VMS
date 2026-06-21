@@ -21,6 +21,7 @@ use core::net::SocketAddr;
 use std::collections::HashMap;
 
 use base::account::{InvalidAccountCode, ValidAccountCode};
+use base::inventory::InventoryTab;
 use base::item::BaseItem;
 use base::map::BaseMap;
 use base::mob::BaseMob;
@@ -135,6 +136,7 @@ pub enum AsyncEvent {
         item_id: i32,
         count: i32,
         ipos: i16,
+        itab: InventoryTab,
         pet_pickup: bool,
     },
     CloseAttackSuccess {

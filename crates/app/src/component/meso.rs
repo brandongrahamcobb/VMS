@@ -23,7 +23,7 @@ use bevy::ecs::{component::Component, entity::Entity};
 
 #[derive(Clone, Component)]
 pub struct MapleMeso {
-    pub id: i32,
+    pub id: u32,
     pub amount: i32,
 }
 

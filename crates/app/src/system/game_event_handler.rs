@@ -73,14 +73,18 @@ pub fn handle_game_events_system(
             RawEvent::PickupSuccess(event) => match event {
                 AsyncEvent::PickupSuccess {
                     client_id,
+                    count,
                     item_id,
                     ipos,
+                    itab,
                     pet_pickup,
                 } => {
                     pickup_success_writer.write(PickupItemResponseMessage {
                         client_id: *client_id,
+                        count: *count,
                         item_id: *item_id,
                         ipos: *ipos,
+                        itab: itab.clone(),
                         pet_pickup: *pet_pickup,
                     });
                 }

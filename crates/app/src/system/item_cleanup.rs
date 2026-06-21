@@ -19,15 +19,19 @@
 
 use crate::component::item::{Lootable, MapleItem};
 use crate::message::result::TickResult;
+use crate::resource::custom_resource::CustomSender;
 use crate::system::packet::tick::result::remove_loot_result;
 use crate::system::system_params::LocationParams;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::MessageWriter;
-use bevy::ecs::system::{Commands, Query};
+use bevy::ecs::system::{Commands, Query, Res};
+use ipc::command::AsyncCommand;
+use ipc::db_command::DatabaseCommand;
 
 pub fn cleanup_stale_items(
     mut commands: Commands,
+    command_tx: Res<CustomSender>,
     loc_params: LocationParams,
     items: Query<(Entity, &MapleItem, &ChildOf)>,
     lootable: Query<(&Lootable, &ChildOf)>,
@@ -50,6 +54,14 @@ pub fn cleanup_stale_items(
         let Ok((_, world)) = loc_params.worlds.get(parent.0) else {
             continue;
         };
+
+        command_tx
+            .0
+            .send(AsyncCommand::DatabaseOperation(
+                DatabaseCommand::DespawnLoot { item_id: item.id },
+            ))
+            .unwrap();
+
         remove_loot_result::write_result(
             item.id,
             world.base.id,
@@ -58,4 +70,4 @@ pub fn cleanup_stale_items(
             &mut results,
         );
     }
-} //delete from db
+}

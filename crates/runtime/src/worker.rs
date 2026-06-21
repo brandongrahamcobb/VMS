@@ -37,7 +37,6 @@ use ipc::event::AsyncEvent;
 use std::collections::HashMap;
 use std::sync::mpsc::Sender;
 use std::time::SystemTime;
-use tokio::fs::metadata;
 use tokio::sync::mpsc::Receiver;
 
 pub async fn db_worker(
@@ -467,12 +466,7 @@ pub async fn db_worker(
                                 continue;
                             }
                             let (count, ipos) = match count.cmp(&base_item.slots) {
-                                Ordering::Less => {
-                                    let Some(ipos) = item_model.ipos else {
-                                        continue;
-                                    };
-                                    (count, ipos)
-                                }
+                                Ordering::Less => (count, slot),
                                 _ => {
                                     let equip_slot_capacity =
                                         db::inventory::getters::get_equip_slot_capacity_by_char_id(
@@ -483,11 +477,11 @@ pub async fn db_worker(
                                         db::item::getters::get_item_models_by_char_id_and_itab(
                                             &pool,
                                             char_id,
-                                            itab as i16,
+                                            itab.clone() as i16,
                                         )
                                         .await?;
                                     let Some(ipos) = (0..equip_slot_capacity).find(|slot| {
-                                        !item_models.iter().any(|model| model.ipos == *slot)
+                                        !item_models.iter().any(|model| model.ipos == Some(*slot))
                                     }) else {
                                         continue;
                                     };
@@ -504,19 +498,12 @@ pub async fn db_worker(
                             metadata::item::nonequip::build_nonequip_item_wz_info_by_wz(
                                 item_model.wz,
                             )?;
-                        let base_item =
-                            metadata::item::equip::build_equip_item_wz_info_by_wz(item_model.wz)?;
                         for (slot, count) in counts {
                             if count < 1 {
                                 continue;
                             }
                             let (count, ipos) = match count.cmp(&base_item.slots) {
-                                Ordering::Less => {
-                                    let Some(ipos) = item_model.ipos else {
-                                        continue;
-                                    };
-                                    (count, ipos)
-                                }
+                                Ordering::Less => (count, slot),
                                 _ => {
                                     let use_slot_capacity =
                                         db::inventory::getters::get_use_slot_capacity_by_char_id(
@@ -527,11 +514,11 @@ pub async fn db_worker(
                                         db::item::getters::get_item_models_by_char_id_and_itab(
                                             &pool,
                                             char_id,
-                                            itab as i16,
+                                            itab.clone() as i16,
                                         )
                                         .await?;
                                     let Some(ipos) = (0..use_slot_capacity).find(|slot| {
-                                        !item_models.iter().any(|model| model.ipos == *slot)
+                                        !item_models.iter().any(|model| model.ipos == Some(*slot))
                                     }) else {
                                         continue;
                                     };
@@ -553,12 +540,7 @@ pub async fn db_worker(
                                 continue;
                             }
                             let (count, ipos) = match count.cmp(&base_item.slots) {
-                                Ordering::Less => {
-                                    let Some(ipos) = item_model.ipos else {
-                                        continue;
-                                    };
-                                    (count, ipos)
-                                }
+                                Ordering::Less => (count, slot),
                                 _ => {
                                     let setup_slot_capacity =
                                         db::inventory::getters::get_setup_slot_capacity_by_char_id(
@@ -569,11 +551,11 @@ pub async fn db_worker(
                                         db::item::getters::get_item_models_by_char_id_and_itab(
                                             &pool,
                                             char_id,
-                                            itab as i16,
+                                            itab.clone() as i16,
                                         )
                                         .await?;
                                     let Some(ipos) = (0..setup_slot_capacity).find(|slot| {
-                                        !item_models.iter().any(|model| model.ipos == *slot)
+                                        !item_models.iter().any(|model| model.ipos == Some(*slot))
                                     }) else {
                                         continue;
                                     };
@@ -595,12 +577,7 @@ pub async fn db_worker(
                                 continue;
                             }
                             let (count, ipos) = match count.cmp(&base_item.slots) {
-                                Ordering::Less => {
-                                    let Some(ipos) = item_model.ipos else {
-                                        continue;
-                                    };
-                                    (count, ipos)
-                                }
+                                Ordering::Less => (count, slot),
                                 _ => {
                                     let etc_slot_capacity =
                                         db::inventory::getters::get_etc_slot_capacity_by_char_id(
@@ -611,11 +588,11 @@ pub async fn db_worker(
                                         db::item::getters::get_item_models_by_char_id_and_itab(
                                             &pool,
                                             char_id,
-                                            itab as i16,
+                                            itab.clone() as i16,
                                         )
                                         .await?;
                                     let Some(ipos) = (0..etc_slot_capacity).find(|slot| {
-                                        !item_models.iter().any(|model| model.ipos == *slot)
+                                        !item_models.iter().any(|model| model.ipos == Some(*slot))
                                     }) else {
                                         continue;
                                     };
@@ -637,12 +614,7 @@ pub async fn db_worker(
                                 continue;
                             }
                             let (count, ipos) = match count.cmp(&base_item.slots) {
-                                Ordering::Less => {
-                                    let Some(ipos) = item_model.ipos else {
-                                        continue;
-                                    };
-                                    (count, ipos)
-                                }
+                                Ordering::Less => (count, slot),
                                 _ => {
                                     let cash_slot_capacity =
                                         db::inventory::getters::get_cash_slot_capacity_by_char_id(
@@ -653,11 +625,11 @@ pub async fn db_worker(
                                         db::item::getters::get_item_models_by_char_id_and_itab(
                                             &pool,
                                             char_id,
-                                            itab as i16,
+                                            itab.clone() as i16,
                                         )
                                         .await?;
                                     let Some(ipos) = (0..cash_slot_capacity).find(|slot| {
-                                        !item_models.iter().any(|model| model.ipos == *slot)
+                                        !item_models.iter().any(|model| model.ipos == Some(*slot))
                                     }) else {
                                         continue;
                                     };
@@ -672,7 +644,7 @@ pub async fn db_worker(
                 };
                 item_model.char_id = Some(char_id);
                 item_model.ipos = Some(ipos);
-                item_model.itab = Some(itab as i16);
+                item_model.itab = Some(itab.clone() as i16);
                 db::item::setters::update_items(&pool, vec![item_model]).await?;
                 event_tx
                     .send(AsyncEvent::PickupSuccess {
@@ -680,6 +652,7 @@ pub async fn db_worker(
                         item_id,
                         count,
                         ipos,
+                        itab,
                         pet_pickup,
                     })
                     .unwrap();
@@ -714,7 +687,6 @@ pub async fn db_worker(
             }) => {
                 let items_map: HashMap<BaseItem, ItemModel> =
                     inc::item::get_random_drops(&pool, mob_wz).await?;
-                dbg!(items_map.len());
                 event_tx
                     .send(AsyncEvent::DeadMobSuccess {
                         client_id,
@@ -723,7 +695,9 @@ pub async fn db_worker(
                     })
                     .unwrap();
             }
-
+            Ok(DatabaseCommand::DespawnLoot { item_id }) => {
+                db::item::setters::delete_item_by_id(&pool, item_id).await?;
+            }
             Ok(_) => {
                 tokio::task::yield_now().await;
                 continue;

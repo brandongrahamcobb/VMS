@@ -18,7 +18,7 @@
  */
 
 use crate::component::item::{Lootable, MapleItem};
-use crate::component::meso::MesoIndex;
+use crate::component::meso::{MapleMeso, MesoIndex};
 use crate::component::mob::MapleMob;
 use crate::message::packet::attack_close::DeadMobResponseMessage;
 use crate::message::result::HandlerResult;
@@ -87,13 +87,17 @@ pub fn handle_dead_mob(
         } else {
             set_exp_result::write_result(msg.client_id, &char.clone(), &mut results);
         }
+
         command_tx
             .0
             .send(AsyncCommand::DatabaseOperation(
                 DatabaseCommand::UpdateStats {
                     client_id: msg.client_id,
                     char_id: char.id,
-                    updates: vec![StatsUpdate::Exp { exp: char.exp }],
+                    updates: vec![
+                        StatsUpdate::Exp { exp: char.exp },
+                        StatsUpdate::Level { level: char.level },
+                    ],
                 },
             ))
             .unwrap();
@@ -117,11 +121,11 @@ pub fn handle_dead_mob(
         let mut item_vec: Vec<MapleItem> = Vec::new();
         for (base_item, item_model) in msg.items_map.clone() {
             let item = MapleItem::from((base_item.clone(), item_model));
-            let item_enitity = commands.spawn((item.clone(), ChildOf(in_map.0))).id();
+            let item_entity = commands.spawn((item.clone(), ChildOf(in_map.0))).id();
             let lootable: Lootable = Lootable {
                 dropped_at: Instant::now(),
             };
-            commands.spawn((lootable, ChildOf(item_enitity)));
+            commands.spawn((lootable, ChildOf(item_entity)));
             item_vec.push(item);
         }
         drop_items_result::write_result(
@@ -136,10 +140,17 @@ pub fn handle_dead_mob(
         };
         let mesos: i32 = inc::item::calculate_rand_meso_amount(meso_rate, mob.base.level);
         if mesos > 0 {
+            let id = meso_index.clone().next_id();
+            let meso = MapleMeso { id, amount: mesos };
+            let meso_entity = commands.spawn((meso, ChildOf(in_map.0))).id();
+            let lootable: Lootable = Lootable {
+                dropped_at: Instant::now(),
+            };
+            commands.spawn((lootable, ChildOf(meso_entity)));
             drop_mesos_result::write_result(
                 msg.client_id,
-                meso_index.clone(),
-                mob,
+                id,
+                mesos,
                 drop_to_point,
                 drop_from_point,
                 &mut results,

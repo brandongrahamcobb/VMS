@@ -18,6 +18,7 @@
  */
 
 use crate::component::item::{Lootable, MapleItem};
+use crate::component::meso::MapleMeso;
 use crate::component::slot::{MapleEmptyItemSlot, MapleFilledItemSlot};
 use crate::message::packet::pickup_item::{
     PickupItemResponseMessage, ReadPickupItemRequestMessage,
@@ -56,25 +57,11 @@ pub fn handle_pickup_item_request(
             continue;
         };
         commands.entity(item_entity).remove::<Lootable>();
-        // commands
-        //     .entity(empty_slot_entity)
-        //     .remove::<MapleEmptyItemSlot>();
-        // commands.spawn(
-        //     MapleFilledItemSlot {
-        //         ipos: empty_slot.ipos,
-        //     })
-        //
-        // commands
-        //     .entity(item_entity)
-        //     .remove::<Lootable>();
-        //     .insert(ChildOf(MapleFilledItemSlot {
-        //         ipos: empty_slot.ipos,
-        //     }));
 
         command_tx
             .0
             .send(AsyncCommand::DatabaseOperation(
-                DatabaseCommand::PickupItem {
+                DatabaseCommand::PickupItemRequest {
                     client_id: msg.client_id,
                     char_id: char.id,
                     item_id: msg.item_id,
@@ -86,15 +73,21 @@ pub fn handle_pickup_item_request(
 }
 
 pub fn handle_pickup_response(
+    mut commands: Commands,
     client_map: Res<ClientMap>,
     session_params: SessionParams,
     in_params: InParams,
     inv_params: InventoryParams,
+    items: Query<(Entity, &MapleItem, &ChildOf)>,
+    mesos: Query<(Entity, &MapleMeso, &ChildOf)>,
     mut messages: MessageReader<PickupItemResponseMessage>,
     mut results: MessageWriter<HandlerResult>,
 ) -> () {
     for msg in messages.read() {
         let Some(&client_entity) = client_map.0.get(&msg.client_id) else {
+            continue;
+        };
+        let Ok(in_map) = in_params.in_maps.get(client_entity) else {
             continue;
         };
         let Ok(in_char) = in_params.in_chars.get(client_entity) else {
@@ -103,28 +96,78 @@ pub fn handle_pickup_response(
         let Ok((_, char, _)) = session_params.chars.get(in_char.0) else {
             continue;
         };
-        let Some((inv_entity, inv, _)) = inv_params
-            .inventories
+        if let Some((_, _, _)) = mesos
             .iter()
-            .find(|(_, _, parent)| parent.0 == in_char.0)
-        else {
+            .find(|(_, m, parent)| parent.0 == in_map.0 && m.id == msg.item_id as u32)
+        {
+            pickup_loot_result::write_result(
+                msg.client_id,
+                &char.clone(),
+                msg.item_id,
+                msg.pet_pickup,
+                &mut results,
+            );
             continue;
-        };
-        let Some((empty_slot_entity, empty_slot, _)) = inv_params
-            .empty_slots
-            .iter()
-            .filter(|(_, empty_slot, parent)| parent.0 == inv_entity && empty_slot)
-            .next()
-        else {
-            continue;
-        };
+        } else {
+            let Some((item_entity, _, _)) = items
+                .iter()
+                .find(|(_, i, parent)| parent.0 == in_map.0 && i.id == msg.item_id)
+            else {
+                continue;
+            };
+            let Some((inv_entity, _, _)) = inv_params
+                .inventories
+                .iter()
+                .find(|(_, _, parent)| parent.0 == in_char.0)
+            else {
+                continue;
+            };
+            let Some((tab_entity, _, _)) =
+                inv_params.inventory_tabs.iter().find(|(_, itab, parent)| {
+                    parent.0 == inv_entity && itab.kind.clone() as i16 == msg.itab.clone() as i16
+                })
+            else {
+                continue;
+            };
+            let Some((slot_entity, _, _)) = inv_params
+                .slots
+                .iter()
+                .find(|(_, slot, parent)| parent.0 == tab_entity && slot.ipos == msg.ipos)
+            else {
+                continue;
+            };
+            if let Some((_, _, _)) = inv_params
+                .empty_slots
+                .iter()
+                .find(|(_, _, parent)| parent.0 == slot_entity)
+            {
+                commands.entity(slot_entity).remove::<MapleEmptyItemSlot>();
+                let filled_slot_entity = commands
+                    .spawn((MapleFilledItemSlot, ChildOf(slot_entity)))
+                    .id();
+                commands
+                    .entity(item_entity)
+                    .insert(ChildOf(filled_slot_entity));
+            } else {
+                let Some((filled_slot_entity, _, _)) = inv_params
+                    .filled_slots
+                    .iter()
+                    .find(|(_, _, parent)| parent.0 == slot_entity)
+                else {
+                    continue;
+                };
+                commands
+                    .entity(item_entity)
+                    .insert(ChildOf(filled_slot_entity));
+            }
 
-        pickup_loot_result::write_result(
-            msg.client_id,
-            &char.clone(),
-            msg.item_id,
-            msg.pet_pickup,
-            &mut results,
-        );
+            pickup_loot_result::write_result(
+                msg.client_id,
+                &char.clone(),
+                msg.item_id,
+                msg.pet_pickup,
+                &mut results,
+            );
+        }
     }
 }

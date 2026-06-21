@@ -21,14 +21,16 @@ use crate::component::account::{InAccount, MapleAccount};
 use crate::component::channel::{InChannel, MapleChannel};
 use crate::component::character::{InChar, MapleCharacter};
 use crate::component::hp::MapleHealth;
-use crate::component::inventory::{InInventory, MapleEquippedTab, MapleInventory};
+use crate::component::inventory::{
+    InInventory, MapleEquippedTab, MapleInventory, MapleInventoryTab,
+};
 use crate::component::keybinding::MapleKeybinding;
 use crate::component::map::{InMap, MapleMap};
 use crate::component::mp::MapleMana;
 use crate::component::position::{MapleCurrentPosition, MapleLastPosition};
 use crate::component::session::{InSession, MapleSession};
 use crate::component::skill::MapleSkill;
-use crate::component::slot::{MapleEmptyItemSlot, MapleFilledItemSlot};
+use crate::component::slot::{MapleEmptyItemSlot, MapleFilledItemSlot, MapleItemSlot};
 use crate::component::world::{InWorld, MapleWorld};
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
@@ -37,7 +39,9 @@ use bevy::ecs::system::{Query, SystemParam};
 #[derive(SystemParam)]
 pub struct InventoryParams<'w, 's> {
     pub inventories: Query<'w, 's, (Entity, &'static MapleInventory, &'static ChildOf)>,
+    pub inventory_tabs: Query<'w, 's, (Entity, &'static MapleInventoryTab, &'static ChildOf)>,
     pub equipped_tabs: Query<'w, 's, (Entity, &'static MapleEquippedTab, &'static ChildOf)>,
+    pub slots: Query<'w, 's, (Entity, &'static MapleItemSlot, &'static ChildOf)>,
     pub filled_slots: Query<'w, 's, (Entity, &'static MapleFilledItemSlot, &'static ChildOf)>,
     pub empty_slots: Query<'w, 's, (Entity, &'static MapleEmptyItemSlot, &'static ChildOf)>,
 }

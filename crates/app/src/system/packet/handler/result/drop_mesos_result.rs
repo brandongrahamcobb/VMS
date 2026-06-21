@@ -21,17 +21,14 @@ use action::model::Action;
 use action::scope::{ActionScope, MapScope};
 use base::map::Point;
 use bevy::ecs::message::MessageWriter;
-use config::settings;
 
-use crate::component::meso::MesoIndex;
-use crate::component::mob::MapleMob;
 use crate::message::result::HandlerResult;
 use crate::system::packet::build::codec;
 
 pub fn write_result(
     client_id: i32,
-    mut meso_index: MesoIndex,
-    mob: &MapleMob,
+    id: u32,
+    mesos: i32,
     drop_to_point: Point,
     drop_from_point: Point,
     results: &mut MessageWriter<HandlerResult>,
@@ -41,29 +38,22 @@ pub fn write_result(
     let owner: i32 = 0; // char id or 0
     let can_pickup: u8 = 0; // 0 everyone 1 owner, 2 party
     let player_drop: bool = false;
-    let Ok(meso_rate) = settings::get_meso_drop_rate() else {
+    let Ok(mut meso_packet) = codec::item::builder::build_drop_loot_packet(
+        mode,
+        id,
+        true,
+        mesos,
+        owner,
+        can_pickup,
+        drop_to_point.clone(),
+        drop_from_point.clone(),
+        player_drop,
+    ) else {
         return;
     };
-    let mesos: i32 = inc::item::calculate_rand_meso_amount(meso_rate, mob.base.level);
-    if mesos > 0 {
-        let id = meso_index.next_id();
-        let Ok(mut meso_packet) = codec::item::builder::build_drop_loot_packet(
-            mode,
-            id,
-            true,
-            mesos,
-            owner,
-            can_pickup,
-            drop_to_point.clone(),
-            drop_from_point.clone(),
-            player_drop,
-        ) else {
-            return;
-        };
-        actions.push(Action::HandlerAction {
-            packet: meso_packet.finish(),
-            scope: ActionScope::Map(MapScope::SameChannelSameWorld),
-        });
-        results.write(HandlerResult { client_id, actions });
-    }
+    actions.push(Action::HandlerAction {
+        packet: meso_packet.finish(),
+        scope: ActionScope::Map(MapScope::SameChannelSameWorld),
+    });
+    results.write(HandlerResult { client_id, actions });
 }

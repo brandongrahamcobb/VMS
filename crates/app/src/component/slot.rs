@@ -25,6 +25,6 @@ pub struct MapleEmptyItemSlot;
 pub struct MapleFilledItemSlot;
 
 #[derive(Component)]
-pub struct MapleSlot {
+pub struct MapleItemSlot {
     pub ipos: i16,
 }

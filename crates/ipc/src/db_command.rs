@@ -121,4 +121,7 @@ pub enum DatabaseCommand {
         speed: i16,
         mob_damages: HashMap<u32, Vec<i32>>,
     },
+    DespawnLoot {
+        item_id: i32,
+    },
 }

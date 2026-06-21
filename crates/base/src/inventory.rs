@@ -37,7 +37,7 @@
 //     pub base_itme: Option<BaseItem>,
 // }
 
-#[derive(num_derive::FromPrimitive)]
+#[derive(num_derive::FromPrimitive, Clone)]
 pub enum InventoryTab {
     Equip = 1,
     Use = 2,
