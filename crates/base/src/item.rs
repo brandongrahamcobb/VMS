@@ -37,6 +37,7 @@ pub struct BaseItem {
     pub islot: Option<String>,
     pub cash: bool,
     pub itab: i8,
-    pub slots: i32,
+    pub enhancement_slots: i8,
+    pub stack_size: i16,
     pub flag: i16,
 }

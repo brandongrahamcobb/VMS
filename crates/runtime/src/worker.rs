@@ -447,7 +447,7 @@ pub async fn db_worker(
                 std::hint::black_box(client_id);
                 let mut item_model =
                     db::item::getters::get_item_model_by_item_id(&pool, item_id).await?;
-                let counts: HashMap<i16, i32> =
+                let counts: HashMap<i16, i16> =
                     db::item::getters::get_item_counts_by_char_id_and_item_wz(
                         &pool,
                         char_id,
@@ -455,41 +455,38 @@ pub async fn db_worker(
                     )
                     .await?;
                 let itab = metadata::item::inventory::get_inventory_tab_by_wz(item_model.wz)?;
+                let item_models =
+                    db::item::getters::get_item_models_by_char_id(&pool, char_id).await?;
                 let mut ipos_result = -1;
                 let mut count_result = 0;
                 let (count, ipos) = match itab {
                     InventoryTab::Equip => {
                         let base_item =
                             metadata::item::equip::build_equip_item_wz_info_by_wz(item_model.wz)?;
-                        for (slot, count) in counts {
-                            if count < 1 {
-                                continue;
+                        let equip_slot_capacity =
+                            db::inventory::getters::get_equip_slot_capacity_by_char_id(
+                                &pool, char_id,
+                            )
+                            .await?;
+                        let Some(empty_slot) = (0..equip_slot_capacity).find(|slot| {
+                            !item_models.iter().any(|model| {
+                                model.ipos == Some(*slot) && base_item.itab == itab.clone() as i8
+                            })
+                        }) else {
+                            continue;
+                        };
+                        if counts.is_empty() {
+                            ipos_result = empty_slot;
+                        } else {
+                            for (filled_slot, count) in counts {
+                                let (count, ipos) = match count.cmp(&base_item.stack_size) {
+                                    Ordering::Less => (count, filled_slot),
+                                    _ => (count, empty_slot),
+                                };
+                                count_result = count;
+                                ipos_result = ipos;
+                                break;
                             }
-                            let (count, ipos) = match count.cmp(&base_item.slots) {
-                                Ordering::Less => (count, slot),
-                                _ => {
-                                    let equip_slot_capacity =
-                                        db::inventory::getters::get_equip_slot_capacity_by_char_id(
-                                            &pool, char_id,
-                                        )
-                                        .await?;
-                                    let item_models =
-                                        db::item::getters::get_item_models_by_char_id_and_itab(
-                                            &pool,
-                                            char_id,
-                                            itab.clone() as i16,
-                                        )
-                                        .await?;
-                                    let Some(ipos) = (0..equip_slot_capacity).find(|slot| {
-                                        !item_models.iter().any(|model| model.ipos == Some(*slot))
-                                    }) else {
-                                        continue;
-                                    };
-                                    (count, ipos)
-                                }
-                            };
-                            count_result = count;
-                            ipos_result = ipos;
                         }
                         (count_result, ipos_result)
                     }
@@ -498,35 +495,30 @@ pub async fn db_worker(
                             metadata::item::nonequip::build_nonequip_item_wz_info_by_wz(
                                 item_model.wz,
                             )?;
-                        for (slot, count) in counts {
-                            if count < 1 {
-                                continue;
+                        let use_slot_capacity =
+                            db::inventory::getters::get_use_slot_capacity_by_char_id(
+                                &pool, char_id,
+                            )
+                            .await?;
+                        let Some(empty_slot) = (0..use_slot_capacity).find(|slot| {
+                            !item_models.iter().any(|model| {
+                                model.ipos == Some(*slot) && base_item.itab == itab.clone() as i8
+                            })
+                        }) else {
+                            continue;
+                        };
+                        if counts.is_empty() {
+                            ipos_result = empty_slot;
+                        } else {
+                            for (filled_slot, count) in counts {
+                                let (count, ipos) = match count.cmp(&base_item.stack_size) {
+                                    Ordering::Less => (count, filled_slot),
+                                    _ => (count, empty_slot),
+                                };
+                                count_result = count;
+                                ipos_result = ipos;
+                                break;
                             }
-                            let (count, ipos) = match count.cmp(&base_item.slots) {
-                                Ordering::Less => (count, slot),
-                                _ => {
-                                    let use_slot_capacity =
-                                        db::inventory::getters::get_use_slot_capacity_by_char_id(
-                                            &pool, char_id,
-                                        )
-                                        .await?;
-                                    let item_models =
-                                        db::item::getters::get_item_models_by_char_id_and_itab(
-                                            &pool,
-                                            char_id,
-                                            itab.clone() as i16,
-                                        )
-                                        .await?;
-                                    let Some(ipos) = (0..use_slot_capacity).find(|slot| {
-                                        !item_models.iter().any(|model| model.ipos == Some(*slot))
-                                    }) else {
-                                        continue;
-                                    };
-                                    (count, ipos)
-                                }
-                            };
-                            count_result = count;
-                            ipos_result = ipos;
                         }
                         (count_result, ipos_result)
                     }
@@ -535,35 +527,31 @@ pub async fn db_worker(
                             metadata::item::nonequip::build_nonequip_item_wz_info_by_wz(
                                 item_model.wz,
                             )?;
-                        for (slot, count) in counts {
-                            if count < 1 {
-                                continue;
+                        let setup_slot_capacity =
+                            db::inventory::getters::get_setup_slot_capacity_by_char_id(
+                                &pool, char_id,
+                            )
+                            .await?;
+
+                        let Some(empty_slot) = (0..setup_slot_capacity).find(|slot| {
+                            !item_models.iter().any(|model| {
+                                model.ipos == Some(*slot) && base_item.itab == itab.clone() as i8
+                            })
+                        }) else {
+                            continue;
+                        };
+                        if counts.is_empty() {
+                            ipos_result = empty_slot;
+                        } else {
+                            for (filled_slot, count) in counts {
+                                let (count, ipos) = match count.cmp(&base_item.stack_size) {
+                                    Ordering::Less => (count, filled_slot),
+                                    _ => (count, empty_slot),
+                                };
+                                count_result = count;
+                                ipos_result = ipos;
+                                break;
                             }
-                            let (count, ipos) = match count.cmp(&base_item.slots) {
-                                Ordering::Less => (count, slot),
-                                _ => {
-                                    let setup_slot_capacity =
-                                        db::inventory::getters::get_setup_slot_capacity_by_char_id(
-                                            &pool, char_id,
-                                        )
-                                        .await?;
-                                    let item_models =
-                                        db::item::getters::get_item_models_by_char_id_and_itab(
-                                            &pool,
-                                            char_id,
-                                            itab.clone() as i16,
-                                        )
-                                        .await?;
-                                    let Some(ipos) = (0..setup_slot_capacity).find(|slot| {
-                                        !item_models.iter().any(|model| model.ipos == Some(*slot))
-                                    }) else {
-                                        continue;
-                                    };
-                                    (count, ipos)
-                                }
-                            };
-                            count_result = count;
-                            ipos_result = ipos;
                         }
                         (count_result, ipos_result)
                     }
@@ -572,35 +560,31 @@ pub async fn db_worker(
                             metadata::item::nonequip::build_nonequip_item_wz_info_by_wz(
                                 item_model.wz,
                             )?;
-                        for (slot, count) in counts {
-                            if count < 1 {
-                                continue;
+                        let etc_slot_capacity =
+                            db::inventory::getters::get_etc_slot_capacity_by_char_id(
+                                &pool, char_id,
+                            )
+                            .await?;
+
+                        let Some(empty_slot) = (0..etc_slot_capacity).find(|slot| {
+                            !item_models.iter().any(|model| {
+                                model.ipos == Some(*slot) && base_item.itab == itab.clone() as i8
+                            })
+                        }) else {
+                            continue;
+                        };
+                        if counts.is_empty() {
+                            ipos_result = empty_slot;
+                        } else {
+                            for (filled_slot, count) in counts {
+                                let (count, ipos) = match count.cmp(&base_item.stack_size) {
+                                    Ordering::Less => (count, filled_slot),
+                                    _ => (count, empty_slot),
+                                };
+                                count_result = count;
+                                ipos_result = ipos;
+                                break;
                             }
-                            let (count, ipos) = match count.cmp(&base_item.slots) {
-                                Ordering::Less => (count, slot),
-                                _ => {
-                                    let etc_slot_capacity =
-                                        db::inventory::getters::get_etc_slot_capacity_by_char_id(
-                                            &pool, char_id,
-                                        )
-                                        .await?;
-                                    let item_models =
-                                        db::item::getters::get_item_models_by_char_id_and_itab(
-                                            &pool,
-                                            char_id,
-                                            itab.clone() as i16,
-                                        )
-                                        .await?;
-                                    let Some(ipos) = (0..etc_slot_capacity).find(|slot| {
-                                        !item_models.iter().any(|model| model.ipos == Some(*slot))
-                                    }) else {
-                                        continue;
-                                    };
-                                    (count, ipos)
-                                }
-                            };
-                            count_result = count;
-                            ipos_result = ipos;
                         }
                         (count_result, ipos_result)
                     }
@@ -609,35 +593,31 @@ pub async fn db_worker(
                             metadata::item::nonequip::build_nonequip_item_wz_info_by_wz(
                                 item_model.wz,
                             )?;
-                        for (slot, count) in counts {
-                            if count < 1 {
-                                continue;
+                        let cash_slot_capacity =
+                            db::inventory::getters::get_cash_slot_capacity_by_char_id(
+                                &pool, char_id,
+                            )
+                            .await?;
+
+                        let Some(empty_slot) = (0..cash_slot_capacity).find(|slot| {
+                            !item_models.iter().any(|model| {
+                                model.ipos == Some(*slot) && base_item.itab == itab.clone() as i8
+                            })
+                        }) else {
+                            continue;
+                        };
+                        if counts.is_empty() {
+                            ipos_result = empty_slot;
+                        } else {
+                            for (filled_slot, count) in counts {
+                                let (count, ipos) = match count.cmp(&base_item.stack_size) {
+                                    Ordering::Less => (count, filled_slot),
+                                    _ => (count, empty_slot),
+                                };
+                                count_result = count;
+                                ipos_result = ipos;
+                                break;
                             }
-                            let (count, ipos) = match count.cmp(&base_item.slots) {
-                                Ordering::Less => (count, slot),
-                                _ => {
-                                    let cash_slot_capacity =
-                                        db::inventory::getters::get_cash_slot_capacity_by_char_id(
-                                            &pool, char_id,
-                                        )
-                                        .await?;
-                                    let item_models =
-                                        db::item::getters::get_item_models_by_char_id_and_itab(
-                                            &pool,
-                                            char_id,
-                                            itab.clone() as i16,
-                                        )
-                                        .await?;
-                                    let Some(ipos) = (0..cash_slot_capacity).find(|slot| {
-                                        !item_models.iter().any(|model| model.ipos == Some(*slot))
-                                    }) else {
-                                        continue;
-                                    };
-                                    (count, ipos)
-                                }
-                            };
-                            count_result = count;
-                            ipos_result = ipos;
                         }
                         (count_result, ipos_result)
                     }

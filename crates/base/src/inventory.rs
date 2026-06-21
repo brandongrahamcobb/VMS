@@ -17,25 +17,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// use crate::item::BaseItem;
-//
-// #[derive(Clone)]
-// pub enum InventoryModMode {
-//     Add = 0,
-//     ChangeCount = 1,
-//     Swap = 2,
-//     Remove = 3,
-// }
-//
-// // pub struct InventoryMod {
-//     pub mode: InventoryModMode,
-//     pub inv_type: i8,
-//     pub pos: i16,
-//     pub count: i16,
-//     pub char_name: String,
-//     pub item_id: i32,
-//     pub base_itme: Option<BaseItem>,
-// }
+#[derive(Clone)]
+pub enum InventoryModMode {
+    Add = 0,
+    ChangeCount = 1,
+    Swap = 2,
+    Remove = 3,
+}
+
+pub struct InventoryMod {
+    pub mode: InventoryModMode,
+    pub ipos: i16,
+    pub count: i16,
+    pub char_name: String,
+}
 
 #[derive(num_derive::FromPrimitive, Clone)]
 pub enum InventoryTab {

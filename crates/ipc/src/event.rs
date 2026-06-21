@@ -134,7 +134,7 @@ pub enum AsyncEvent {
     PickupSuccess {
         client_id: i32,
         item_id: i32,
-        count: i32,
+        count: i16,
         ipos: i16,
         itab: InventoryTab,
         pet_pickup: bool,

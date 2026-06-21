@@ -58,8 +58,9 @@ pub fn build_equip_item_wz_info_by_wz(wz: i32) -> Result<BaseItem, ItemMetadataE
         hands: get_equip_stats_by_wz(&json, "incHANDS")?.unwrap_or(0),
         speed: get_equip_stats_by_wz(&json, "incSPEED")?.unwrap_or(0),
         jump: get_equip_stats_by_wz(&json, "incJUMP")?.unwrap_or(0),
-        slots: 0, // placeholder
-        flag: 0,  //placeholder
+        enhancement_slots: 7, // TODO: Change with Wz data
+        stack_size: 1,
+        flag: 0, // TODO: Change with Wz data
     };
     Ok(wz_info)
 }

@@ -31,7 +31,7 @@ pub struct ReadPickupItemRequestMessage {
 #[derive(Message)]
 pub struct PickupItemResponseMessage {
     pub client_id: i32,
-    pub count: i32,
+    pub count: i16,
     pub item_id: i32,
     pub ipos: i16,
     pub itab: InventoryTab,

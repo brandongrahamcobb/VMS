@@ -25,8 +25,9 @@ use crate::message::packet::pickup_item::{
 };
 use crate::message::result::HandlerResult;
 use crate::resource::custom_resource::{ClientMap, CustomSender};
-use crate::system::packet::handler::result::pickup_loot_result;
+use crate::system::packet::handler::result::{add_to_inventory_result, pickup_loot_result};
 use crate::system::system_params::{InParams, InventoryParams, SessionParams};
+use base::inventory::{InventoryMod, InventoryModMode};
 use bevy::ecs::entity::Entity;
 use bevy::ecs::hierarchy::ChildOf;
 use bevy::ecs::message::{MessageReader, MessageWriter};
@@ -109,7 +110,7 @@ pub fn handle_pickup_response(
             );
             continue;
         } else {
-            let Some((item_entity, _, _)) = items
+            let Some((item_entity, item, _)) = items
                 .iter()
                 .find(|(_, i, parent)| parent.0 == in_map.0 && i.id == msg.item_id)
             else {
@@ -134,13 +135,16 @@ pub fn handle_pickup_response(
                 .iter()
                 .find(|(_, slot, parent)| parent.0 == tab_entity && slot.ipos == msg.ipos)
             else {
+                dbg!(msg.ipos);
                 continue;
             };
+            dbg!("test");
             if let Some((_, _, _)) = inv_params
                 .empty_slots
                 .iter()
                 .find(|(_, _, parent)| parent.0 == slot_entity)
             {
+                dbg!("test");
                 commands.entity(slot_entity).remove::<MapleEmptyItemSlot>();
                 let filled_slot_entity = commands
                     .spawn((MapleFilledItemSlot, ChildOf(slot_entity)))
@@ -154,12 +158,14 @@ pub fn handle_pickup_response(
                     .iter()
                     .find(|(_, _, parent)| parent.0 == slot_entity)
                 else {
+                    dbg!("test");
                     continue;
                 };
                 commands
                     .entity(item_entity)
                     .insert(ChildOf(filled_slot_entity));
             }
+            dbg!("test");
 
             pickup_loot_result::write_result(
                 msg.client_id,
@@ -168,6 +174,24 @@ pub fn handle_pickup_response(
                 msg.pet_pickup,
                 &mut results,
             );
+
+            let inv_mod = if msg.count == 0 {
+                InventoryMod {
+                    mode: InventoryModMode::ChangeCount,
+                    ipos: msg.ipos,
+                    count: msg.count + 1,
+                    char_name: char.ign.clone(),
+                }
+            } else {
+                InventoryMod {
+                    mode: InventoryModMode::Add,
+                    ipos: msg.ipos,
+                    count: 1,
+                    char_name: char.ign.clone(),
+                }
+            };
+
+            add_to_inventory_result::write_result(msg.client_id, inv_mod, item, &mut results);
         }
     }
 }

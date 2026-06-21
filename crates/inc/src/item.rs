@@ -182,7 +182,7 @@ pub fn build_base_item_by_char_id_and_item_wz(
                     speed: base.speed,
                     jump: base.jump,
                     wz,
-                    slots: base.slots,
+                    slots: 7, // TODO: change slots by wz
                     expire: 0,
                     level: 0,
                     item_level: 0,

@@ -50,6 +50,7 @@ pub struct MapleItem {
     pub flag: i16,
     pub item_exp: i16,
     pub vicious: i32,
+    pub slots: i16,
     pub base: BaseItem,
 }
 
@@ -86,6 +87,7 @@ impl From<(BaseItem, ItemModel)> for MapleItem {
             flag: model.flag,
             item_exp: model.item_exp,
             vicious: model.vicious,
+            slots: model.slots,
             base,
         }
     }

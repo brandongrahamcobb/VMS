@@ -93,7 +93,7 @@ pub async fn get_item_counts_by_char_id_and_item_wz(
     pool: &DbPool,
     char_id: i32,
     item_wz: i32,
-) -> Result<HashMap<i16, i32>, DatabaseError> {
+) -> Result<HashMap<i16, i16>, DatabaseError> {
     pool::spawn_db(pool, move |conn| {
         let rows: Vec<(Option<i16>, i64)> = items::table
             .filter(items::char_id.eq(char_id))
@@ -105,22 +105,8 @@ pub async fn get_item_counts_by_char_id_and_item_wz(
 
         Ok(rows
             .into_iter()
-            .filter_map(|(ipos, count)| ipos.map(|ipos| (ipos, count as i32)))
+            .filter_map(|(ipos, count)| ipos.map(|ipos| (ipos, count as i16)))
             .collect())
-    })
-    .await
-}
-
-pub async fn get_item_models_by_char_id_and_itab(
-    pool: &DbPool,
-    char_id: i32,
-    itab: i16,
-) -> Result<Vec<ItemModel>, DatabaseError> {
-    pool::spawn_db(pool, move |conn| {
-        items::table
-            .filter(items::char_id.eq(char_id))
-            .filter(items::itab.eq(itab))
-            .get_results::<ItemModel>(conn)
     })
     .await
 }

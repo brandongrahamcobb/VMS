@@ -56,7 +56,7 @@ pub struct ItemModel {
     pub speed: i16,
     pub jump: i16,
     pub wz: i32,
-    pub slots: i32,
+    pub slots: i16,
     pub expire: i64,
     pub level: i16,
     pub item_level: i16,

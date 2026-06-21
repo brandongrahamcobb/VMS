@@ -1,4 +1,5 @@
 pub mod accept_tos_result;
+pub mod add_to_inventory_result;
 pub mod change_channel_result;
 pub mod change_map_result;
 pub mod chat_text_result;

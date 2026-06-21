@@ -59,8 +59,9 @@ pub fn build_nonequip_item_wz_info_by_wz(wz: i32) -> Result<BaseItem, ItemMetada
         hands: 0,
         speed: 0,
         jump: 0,
-        slots: 0,
-        flag: 0, //placeholder
+        enhancement_slots: 0,
+        stack_size: 300, // TODO: Change with wz data
+        flag: 0,         // TODO: Change with wz data
     };
     Ok(wz_info)
 }

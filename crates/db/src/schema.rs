@@ -137,7 +137,7 @@ diesel::table! {
         speed -> Int2,
         jump -> Int2,
         wz -> Int4,
-        slots -> Int4,
+        slots -> Int2,
         expire -> Int8,
         level -> Int2,
         item_level -> Int2,
